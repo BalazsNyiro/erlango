@@ -6,21 +6,21 @@ contact: Balazs Nyiro (balazs.nyiro.ca@gmail.com)
 ## Roadmap:
 
  ### in progress: 
- - Erlang source parse (raw token detection)          ETA: 2023 Marc 31
+ - [] Erlang source parse (raw token detection)          ETA: 2023 Marc 31
 
  ### todo
- - Erlang code objects creation from tokens                 (2023 April)
- - basic code execution                                     (2023 May)
- - Erlang standard lib 1. implementation with version hooks (2023 Jun)
-   only the most important internal functions)
+ - [] Erlang code objects creation from tokens                 (2023 April)
+ - [] basic code execution                                     (2023 May)
+ - [] Erlang standard lib 1. implementation with version hooks (2023 Jun)
+   - only the most important internal functions)
 
- - Debugger tool building                                   (2023 Aug)
- - speed optimization                                       (2023 Sep)
- - documentations, tutorials
+ - [] Debugger tool building                                   (2023 Aug)
+ - [] speed optimization                                       (2023 Sep)
+ - [] documentations, tutorials
 
- - Erlang standard lib 2. implementation with version hooks (2023 Jul - 2024 Dec) - this is a huge task, I hope 
+ - [] Erlang standard lib 2. implementation with version hooks (2023 Jul - 2024 Dec) - this is a huge task, I hope 
 
- - signal sending/receiving with native Erlang instances (2025)
+ - [] signal sending/receiving with native Erlang instances (2025)
    (the first signal handling implementation will work with the Go version first)
    https://www.erlang.org/doc/reference_manual/processes.html#signals
 
@@ -32,11 +32,10 @@ contact: Balazs Nyiro (balazs.nyiro.ca@gmail.com)
    - Robert Virding (special education in OTP Bank, Budapest)
 
   For my friends in ERFI - we worked and enjoyed Erlang together:
-   - Ferenc Böröczki   (who was able to arrive with his bike in the coldest rain)
-                       (who completely updated the team's daily codes during the nights :-)
+   - Ferenc Böröczki   (who was able to arrive with his bike in the coldest rain - and completely updated the team's daily codes during the nights :-)
    - György Báló       (whose knowledge about the bank-system was incredible)
    - Márkó Kitjonics   (who asked the best programming questions)
-   - Valentin Bujdosó  (who was the hardest 
+   - Valentin Bujdosó  (who is a brilliant and kind man)
    - Attila Faragó     (who was a kind man behind the hard surface)
    - Zoltán Uramecz    (who was a Commodore 64 fan, like me)
 
