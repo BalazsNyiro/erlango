@@ -1,4 +1,6 @@
 
+// TODO: test
+func ErlSrcRead(filePath string) ([]ErlSrcChar, error) {
 
 https://stackoverflow.com/questions/34205406/how-do-i-export-all-functions-for-common-test-only
 -compile(export_all).
