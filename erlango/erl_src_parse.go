@@ -50,6 +50,7 @@ func ErlSrcRead(filePath string) ([]ErlSrcChar, error) {
 	defer f.Close()
 
 	r := bufio.NewReader(f)
+	posInFile := -1
 	for {
 		if runeInFile, _, err := r.ReadRune(); err != nil {
 			if err == io.EOF {
@@ -58,8 +59,17 @@ func ErlSrcRead(filePath string) ([]ErlSrcChar, error) {
 				LogError(err, "Erl Src read, Rune problem: "+filePath)
 			}
 		} else {
+			posInFile += 1
 			// fmt.Printf("%q [%d]\n", string(runeInFile), runeSize)
-			erlChars = append(erlChars, ErlSrcChar{Value: runeInFile})
+			erlChars = append(erlChars, ErlSrcChar{
+				Value:     runeInFile,
+				PosInFile: posInFile,
+			})
+			lastId := len(erlChars) - 1
+			if lastId > 0 {
+				erlChars[lastId].PrevChar = &erlChars[lastId-1]
+				erlChars[lastId-1].NextChar = &erlChars[lastId]
+			}
 		}
 	}
 	return erlChars, nil
