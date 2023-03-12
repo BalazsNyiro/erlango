@@ -18,9 +18,45 @@ func Test_ParseErlangSourceFile(t *testing.T) {
 	wanted := 0
 	compare_int_pair(received, wanted, t)
 }
+
+func Test_ErlSrcRead(t *testing.T) {
+	chars, _ := ErlSrcRead("test/parse/hello.erl")
+	compare_rune_pair(chars[1].Value, 'm', t)
+	compare_rune_pair(chars[2].Value, 'o', t)
+	compare_rune_pair(chars[3].Value, 'd', t)
+
+	compare_rune_pair(chars[1].NextChar.Value, 'o', t)
+	compare_rune_pair(chars[3].PrevChar.Value, 'o', t)
+
+	compare_int_pair(chars[3].PosInFile, 3, t)
+	/*
+		if chars[0].PrevChar != nil {
+			t.Fatalf("\nreceived: %v\n  wanted: %v, error", received, wanted)
+		}
+
+	*/
+	compare_char_pointer_pair(chars[0].PrevChar, nil, t)
+
+	compare_int_pair(chars[0].NextChar.PosInFile, chars[2].PrevChar.PosInFile, t)
+	// compare_char_pointer_pair(chars[0].NextChar, chars[2].PrevChar, t)
+}
+
+// //////// test tools /////////////
+func compare_char_pointer_pair(received, wanted *ErlSrcChar, t *testing.T) {
+	if received != wanted {
+		t.Fatalf("\nreceived: %v\n  wanted: %v, error", received, wanted)
+	}
+}
+
 func compare_int_pair(received, wanted int, t *testing.T) {
 	if received != wanted {
 		t.Fatalf("\nreceived: %v\n  wanted: %v, error", received, wanted)
+	}
+}
+
+func compare_rune_pair(received, wanted rune, t *testing.T) {
+	if received != wanted {
+		t.Fatalf(`received rune = %v, wanted %v, error`, received, wanted)
 	}
 }
 

@@ -11,7 +11,7 @@ contact: Balazs Nyiro (balazs.nyiro.ca@gmail.com)
 ### todo
  - [] Erlang code objects creation from tokens                 (2023 April)
  - [] basic code execution                                     (2023 May)
- - [] Erlang standard lib 1. implementation with version hooks (2023 Jun)
+ - [] Erlang standard lib 1. implementation with version hooks (2023 Jun-July)
    - only the most important internal functions)
 
  - [] Debugger tool building                                   (2023 Aug)
@@ -42,6 +42,12 @@ contact: Balazs Nyiro (balazs.nyiro.ca@gmail.com)
    - Péter Krekács     (who had the biggest wisdom and peace)
    - Bence Szabó       (who always helped everybody - and took my bulb lamp at the end :-)
    - Alex Boros        (who silently solved a tons of tasks)
+   - László Tóth       (we had a lot of discussions about functional programming)
+   - Balázs Boldóczki  (who supported our code in production)
+   - András Boroska    (who was my interviewer with Boldó, and gave me a chance to learn Erlang)
+   - Konyári Sándor    (who helped a lot to understand financial processes)
+   - László Popovics   (who himself believed in our toolset, and tested Erlang in special hardwares)
+
 
    Thank you for our common time.
 
