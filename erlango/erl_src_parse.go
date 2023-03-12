@@ -65,11 +65,18 @@ func ErlSrcRead(filePath string) ([]ErlSrcChar, error) {
 				Value:     runeInFile,
 				PosInFile: posInFile,
 			})
-			lastId := len(erlChars) - 1
-			if lastId > 0 {
-				erlChars[lastId].PrevChar = &erlChars[lastId-1]
-				erlChars[lastId-1].NextChar = &erlChars[lastId]
-			}
+			// Place: previous linking position
+		}
+	}
+	// the slice pointers won't be change after this point,
+	// there is no capacity change later.
+	// if we do this from the 'previous linking position'
+	// then because of the capacity limit reach, the pointers
+	// will be incorrect in the early elements
+	for id, _ := range erlChars {
+		if id > 0 {
+			erlChars[id].PrevChar = &erlChars[id-1]
+			erlChars[id-1].NextChar = &erlChars[id]
 		}
 	}
 	return erlChars, nil

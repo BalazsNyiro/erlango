@@ -16,47 +16,64 @@ import (
 func Test_ParseErlangSourceFile(t *testing.T) {
 	received := ParseErlangSourceFile()
 	wanted := 0
-	compare_int_pair(received, wanted, t)
+	compare_int_pair("fake parse test", received, wanted, t)
 }
 
 func Test_ErlSrcRead(t *testing.T) {
 	chars, _ := ErlSrcRead("test/parse/hello.erl")
-	compare_rune_pair(chars[1].Value, 'm', t)
-	compare_rune_pair(chars[2].Value, 'o', t)
-	compare_rune_pair(chars[3].Value, 'd', t)
+	compare_rune_pair("val m", chars[1].Value, 'm', t)
+	compare_rune_pair("val o", chars[2].Value, 'o', t)
+	compare_rune_pair("val d", chars[3].Value, 'd', t)
 
-	compare_rune_pair(chars[1].NextChar.Value, 'o', t)
-	compare_rune_pair(chars[3].PrevChar.Value, 'o', t)
+	compare_rune_pair("val next 1", chars[1].NextChar.Value, 'o', t)
+	compare_rune_pair("val prev 3", chars[3].PrevChar.Value, 'o', t)
 
-	compare_int_pair(chars[3].PosInFile, 3, t)
+	compare_int_pair("pos 3", chars[3].PosInFile, 3, t)
 	/*
 		if chars[0].PrevChar != nil {
 			t.Fatalf("\nreceived: %v\n  wanted: %v, error", received, wanted)
 		}
 
 	*/
-	compare_char_pointer_pair(chars[0].PrevChar, nil, t)
+	compare_char_pointer_pair("compare char_0 and nil_prev_char", chars[0].PrevChar, nil, t)
 
-	compare_int_pair(chars[0].NextChar.PosInFile, chars[2].PrevChar.PosInFile, t)
-	// compare_char_pointer_pair(chars[0].NextChar, chars[2].PrevChar, t)
+	compare_int_pair("pos_0.next, pos2.prev", chars[0].NextChar.PosInFile, chars[2].PrevChar.PosInFile, t)
+	debug_print_ErlSrcChars(chars)
+	// compare_char_pointer_pair("compare char_0.next and char_2.prev", chars[0].NextChar, chars[2].PrevChar, t)
 }
 
 // //////// test tools /////////////
-func compare_char_pointer_pair(received, wanted *ErlSrcChar, t *testing.T) {
-	if received != wanted {
-		t.Fatalf("\nreceived: %v\n  wanted: %v, error", received, wanted)
+func debug_print_ErlSrcChars(chars []ErlSrcChar) {
+	fmt.Println("")
+	for i, _ := range chars {
+		fmt.Printf("%3d posInFile:%3d val:%4v ", i, chars[i].PosInFile, chars[i].Value)
+
+		prevPos := 0
+		if chars[i].PrevChar != nil {
+			prevPos = chars[i].PrevChar.PosInFile
+		}
+		fmt.Printf(" PrevPosInFile:%3d ", prevPos)
+
+		fmt.Printf(" %p <- %p -> %p", chars[i].PrevChar, &chars[i], chars[i].NextChar)
+		fmt.Println("")
 	}
 }
 
-func compare_int_pair(received, wanted int, t *testing.T) {
+func compare_char_pointer_pair(callerInfo string, received, wanted *ErlSrcChar, t *testing.T) {
 	if received != wanted {
-		t.Fatalf("\nreceived: %v\n  wanted: %v, error", received, wanted)
+		t.Fatalf("\nErr: %s received: %v\n  wanted: %v, error", callerInfo, received, wanted)
 	}
 }
 
-func compare_rune_pair(received, wanted rune, t *testing.T) {
+func compare_int_pair(callerInfo string, received, wanted int, t *testing.T) {
 	if received != wanted {
-		t.Fatalf(`received rune = %v, wanted %v, error`, received, wanted)
+		t.Fatalf("\nErr: %s received: %v\n  wanted: %v, error", callerInfo, received, wanted)
+	}
+}
+
+func compare_rune_pair(callerInfo string, received, wanted rune, t *testing.T) {
+	if received != wanted {
+		t.Fatalf("\nErr: %s received rune = %v, wanted %v, error", callerInfo, received, wanted)
 	}
 }
 
