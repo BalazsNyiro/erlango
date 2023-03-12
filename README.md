@@ -5,10 +5,10 @@ contact: Balazs Nyiro (balazs.nyiro.ca@gmail.com)
 
 ## Roadmap:
 
- ### in progress: 
+### in progress: 
  - [] Erlang source parse (raw token detection)          ETA: 2023 Marc 31
 
- ### todo
+### todo
  - [] Erlang code objects creation from tokens                 (2023 April)
  - [] basic code execution                                     (2023 May)
  - [] Erlang standard lib 1. implementation with version hooks (2023 Jun)
@@ -26,17 +26,17 @@ contact: Balazs Nyiro (balazs.nyiro.ca@gmail.com)
 
 
 ## HALL OF FAME
-  For the Erlang education: 
-   - Melinda Toth (ELTE)
+###  For the Erlang education: 
+   - Melinda Tóth (ELTE)
    - Zsolt Laky 
    - Robert Virding (special education in OTP Bank, Budapest)
 
-  For my friends in ERFI - we worked and enjoyed Erlang together:
+###  For my friends in ERFI - we worked and enjoyed Erlang together:
    - Ferenc Böröczki   (who was able to arrive with his bike in the coldest rain - and completely updated the team's daily codes during the nights :-)
    - György Báló       (whose knowledge about the bank-system was incredible)
    - Márkó Kitjonics   (who asked the best programming questions)
    - Valentin Bujdosó  (who is a brilliant and kind man)
-   - Attila Faragó     (who was a kind man behind the hard surface)
+   - Attila Faragó     (who was a good friend behind the hard surface)
    - Zoltán Uramecz    (who was a Commodore 64 fan, like me)
 
    - Péter Krekács     (who had the biggest wisdom and peace)
