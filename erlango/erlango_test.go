@@ -42,6 +42,11 @@ func Test_ErlSrcRead(t *testing.T) {
 	// compare_char_pointer_pair("compare char_0.next and char_2.prev", chars[0].NextChar, chars[2].PrevChar, t)
 }
 
+func Test_ErlSrcTokens_Quoted(t *testing.T) {
+	chars, _ := ErlSrcRead("test/parse/hello.erl")
+	ErlSrcTokens_Quoted('"', chars)
+}
+
 // //////// test tools /////////////
 func debug_print_ErlSrcChars(chars []ErlSrcChar) {
 	fmt.Println("")
@@ -77,7 +82,33 @@ func compare_rune_pair(callerInfo string, received, wanted rune, t *testing.T) {
 	}
 }
 
-///////// go experimental tests
+// /////// go experimental tests - guys, I am learning Go too,
+// so sometime I do a few language tests :-)
+
+// /// pointer address checks
+func Test_what_happens_with_struct_pointers(_ *testing.T) {
+	/*  in ErlSrcRead, chars variable's pointer is similar with
+	    the current one here, so at this point there is no copyyin:
+		ErlSrcRead, chars pointer before return: 0xc000158a80
+		ErlSrcRead->Test chars pointer: 0xc000158a80
+	*/
+	chars, _ := ErlSrcRead("test/parse/hello.erl")
+	fmt.Printf("ErlSrcRead->Test chars pointer: %p\n", chars)
+	_what_happens_with_the_address_simple_obj_pass(chars)
+	_what_happens_with_the_address_pointer_pass(&chars)
+	/*
+			when I pass a simple list, the called fun receives the same object,
+		    so the data is not copied if we use a list
+	*/
+}
+func _what_happens_with_the_address_simple_obj_pass(obj []ErlSrcChar) {
+	fmt.Printf("ErlSrcRead, Test chars ojb passed, pointer: %p\n", obj)
+}
+func _what_happens_with_the_address_pointer_pass(obj *[]ErlSrcChar) {
+	fmt.Printf("ErlSrcRead, Test chars PTR passed, pointer: %p\n", *obj)
+}
+
+///// pointer address checks
 
 func Test_struct_modifications(_ *testing.T) {
 

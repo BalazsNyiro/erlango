@@ -11,6 +11,7 @@ package erlango
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 )
@@ -24,7 +25,7 @@ import (
 type ErlSrcToken struct {
 	PrevToken *ErlSrcToken
 	NextToken *ErlSrcToken
-	Chars     []ErlSrcChar
+	Chars     []*ErlSrcChar
 }
 
 // represents one char in the Erlang source codes
@@ -79,5 +80,49 @@ func ErlSrcRead(filePath string) ([]ErlSrcChar, error) {
 			erlChars[id-1].NextChar = &erlChars[id]
 		}
 	}
+
+	// Test_what_happens_with_struct_pointers
+	// fmt.Printf("ErlSrcRead, chars pointer before return: %p\n", erlChars)
+
 	return erlChars, nil
+}
+
+func ErlSrcTokens_Quoted(wanted rune, chars []ErlSrcChar) {
+	tokenActual := ErlSrcToken{}
+	inQuote := false
+	escapeOn := false
+	for id, char := range chars {
+		nowOpened := false
+		nowEscaped := false
+		if !inQuote && (char.Value == wanted) {
+			inQuote = true
+			nowOpened = true
+		}
+
+		if !escapeOn && inQuote && (char.Value == '\\') {
+			escapeOn = true
+			nowEscaped = true
+		}
+
+		info := ""
+		if inQuote {
+			tokenActual.Chars = append(tokenActual.Chars, &chars[id])
+			chars[id].Token = &tokenActual
+			info = "inQuote"
+		}
+		fmt.Println("ErlSrcTokens_Quoted", id, string(char.Value), info)
+
+		if nowOpened || nowEscaped {
+			continue
+		}
+
+		if !escapeOn && inQuote && (char.Value == wanted) {
+			inQuote = false
+			tokenActual = ErlSrcToken{}
+		}
+
+		if !nowEscaped {
+			escapeOn = false
+		}
+	}
 }

@@ -1,6 +1,17 @@
 
-// TODO: test
-func ErlSrcRead(filePath string) ([]ErlSrcChar, error) {
+// TODO:
+// pattern find in src: func Test_ErlSrcTokens_Quoted(t *testing.T)
+// and re-checking the algorithm
 
+################################################
+
+Erlang compile flags
 https://stackoverflow.com/questions/34205406/how-do-i-export-all-functions-for-common-test-only
 -compile(export_all).
+
+// special syntax problem with bits:
+https://www.erlang.org/doc/programming_examples/bit_syntax.html
+Notice that "B=<<1>>" will be interpreted as "B =< <1>>",
+
+// read this:
+https://en.wikipedia.org/wiki/Erlang_(programming_language)
