@@ -91,9 +91,10 @@ func ErlSrcTokens_Quoted(wanted rune, chars []ErlSrcChar) {
 	tokenActual := ErlSrcToken{}
 	inQuote := false
 	escapeOn := false
+
 	for id, char := range chars {
-		nowOpened := false
-		nowEscaped := false
+		nowOpened, nowEscaped := false, false
+
 		if !inQuote && (char.Value == wanted) {
 			inQuote = true
 			nowOpened = true
@@ -112,17 +113,16 @@ func ErlSrcTokens_Quoted(wanted rune, chars []ErlSrcChar) {
 		}
 		fmt.Println("ErlSrcTokens_Quoted", id, string(char.Value), info)
 
-		if nowOpened || nowEscaped {
-			continue
-		}
+		if nowOpened || nowEscaped { continue }
+		// ##### stop here ^^^^ the char processing in these 2 cases ###########
+		// if nowOpened == true, the sign is '\' and I don't want to turn it off if it was turned on just now
+		// if it's nowEscaped, I don't want to turn it off too because it has effect on the next char
 
-		if !escapeOn && inQuote && (char.Value == wanted) {
+		if !escapeOn && inQuote && (char.Value == wanted) { // active escape blocks the next char detection: \", \'
 			inQuote = false
 			tokenActual = ErlSrcToken{}
 		}
 
-		if !nowEscaped {
-			escapeOn = false
-		}
+		escapeOn = false // if not now escaped, the escape disappearing at the next char.
 	}
 }
