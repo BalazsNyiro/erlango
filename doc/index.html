@@ -1,0 +1,31 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>erlanGo.org - Erlang interpreter, based on Go</title>
+</head>
+<body>
+
+<h1>The interpreter</h1>
+
+<h2>Number representation</h2>
+
+<blockquote cite=""https://www.erlang.org/doc/reference_manual/data_types.html>
+The real numbers 0.1 and 0.2 cannot be represented exactly as floats. (Erlang uses 64-bit floats.)
+</blockquote>
+
+The integers are unlimited in Erlang. This interpreter has similar num representation.
+All type of numbers are represented with special integer tuples, which means that a float in erlango hasn't got representation rounding problems. (0.1 is represented with {1, -1} logically.
+
+
+
+<h1>External references</h1>
+<ul>
+  <li><a href="https://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic">Bignum arithmetic</a></li>
+  <li><a href="https://www.erlang.org/doc/reference_manual/data_types.html">Erlang reference manual, data types</a></li>
+  <li><a href="https://www.erlang.org/doc/efficiency_guide/advanced.html#:~:text=The%20maximum%20number%20of%20elements,24%2Dbit%20unsigned%20integer).&text=In%20the%2032%2Dbit%20implementation,maximum%20size%20is%202%2C305%2C843%2C009%2C213%2C693%2C951%20bytes.">Erlang Efficiency guide</a></li>
+</ul>
+</body>
+
+</html>
