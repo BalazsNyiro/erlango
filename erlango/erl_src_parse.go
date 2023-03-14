@@ -87,31 +87,26 @@ func ErlSrcRead(filePath string) ([]ErlSrcChar, error) {
 	return erlChars, nil
 }
 
-func ErlSrcTokens_Quoted(wanted rune, chars []ErlSrcChar) {
+func ErlSrcTokens_Quoted(wanted rune, chars []ErlSrcChar, verbose bool) {
 	tokenActual := ErlSrcToken{}
-	inQuote := false
-	escapeOn := false
+	inQuote, escapeOn := false, false
 
 	for id, char := range chars {
 		nowOpened, nowEscaped := false, false
 
 		if !inQuote && (char.Value == wanted) {
-			inQuote = true
-			nowOpened = true
+			inQuote, nowOpened = true, true
 		}
 
 		if !escapeOn && inQuote && (char.Value == '\\') {
-			escapeOn = true
-			nowEscaped = true
+			escapeOn, nowEscaped = true, true
 		}
 
-		info := ""
 		if inQuote {
 			tokenActual.Chars = append(tokenActual.Chars, &chars[id])
 			chars[id].Token = &tokenActual
-			info = "inQuote"
 		}
-		fmt.Println("ErlSrcTokens_Quoted", id, string(char.Value), info)
+		if verbose { fmt.Println("ErlSrcTokens_Quoted", id, string(char.Value), bool_to_str(inQuote, "in Quote", "")) }
 
 		if nowOpened || nowEscaped { continue }
 		// ##### stop here ^^^^ the char processing in these 2 cases ###########

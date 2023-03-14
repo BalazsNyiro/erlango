@@ -44,7 +44,7 @@ func Test_ErlSrcRead(t *testing.T) {
 
 func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	chars, _ := ErlSrcRead("test/parse/hello.erl")
-	ErlSrcTokens_Quoted('"', chars)
+	ErlSrcTokens_Quoted('"', chars, true)
 }
 
 // //////// test tools /////////////

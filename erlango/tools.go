@@ -25,3 +25,7 @@ func LogError(err error, msg string) {
 func log(logLevel, msg string) {
 	fmt.Println(logLevel, "->", msg)
 }
+
+func bool_to_str(val bool, trueTxt, falseTxt string) string {
+	if val { return trueTxt } else { return falseTxt}
+}
