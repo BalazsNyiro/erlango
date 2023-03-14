@@ -18,11 +18,15 @@ import (
      an embedded token structure
 */
 
+const Token_type_txt_quoted_double string = "txt_quoted_double" // "abc"
+const Token_type_txt_quoted_single string = "txt_quoted_single" // 'abc'
+
 // Token: indepentend language unit, formed by one or more char
 type ErlSrcToken struct {
 	PrevToken *ErlSrcToken
 	NextToken *ErlSrcToken
 	Chars     []*ErlSrcChar
+	Type      string
 }
 
 // represents one char in the Erlang source codes
@@ -47,6 +51,11 @@ func ErlSrcRead(filePath string) ([]ErlSrcChar, error) {
 	return erlChars, nil
 }
 
+func ErlSrcChars_from_str(txt string) []ErlSrcChar {
+	runes := runes_from_str(txt)
+	return ErlSrcChars_from_runes(runes)
+}
+
 func ErlSrcChars_from_runes(runes []rune) []ErlSrcChar {
 	var erlChars []ErlSrcChar
 	for posInFile, runeInFile := range runes {
@@ -69,8 +78,12 @@ func ErlSrcChars_from_runes(runes []rune) []ErlSrcChar {
 	return erlChars
 }
 
-func ErlSrcTokens_Quoted(wanted rune, chars []ErlSrcChar, verbose bool) {
-	tokenActual := ErlSrcToken{}
+func ErlSrcTokens_Quoted__connect_to_chars(wanted rune, chars []ErlSrcChar, verbose bool) {
+	typeToken := Token_type_txt_quoted_single
+	if wanted == '"' { typeToken = Token_type_txt_quoted_double }
+	empty_token := func() ErlSrcToken { return ErlSrcToken{Type: typeToken} }
+
+	tokenActual := empty_token()
 	inQuote, escapeOn := false, false
 
 	for id, char := range chars {
@@ -88,7 +101,7 @@ func ErlSrcTokens_Quoted(wanted rune, chars []ErlSrcChar, verbose bool) {
 			tokenActual.Chars = append(tokenActual.Chars, &chars[id])
 			chars[id].Token = &tokenActual
 		}
-		if verbose { fmt.Println("ErlSrcTokens_Quoted", id, string(char.Value), bool_to_str(inQuote, "in Quote", "")) }
+		if verbose { fmt.Println("ErlSrcTokens_Quoted__connect_to_chars", id, string(char.Value), bool_to_str(inQuote, "in Quote", "")) }
 
 		if nowOpened || nowEscaped { continue }
 		// ##### stop here ^^^^ the char processing in these 2 cases ###########
@@ -97,7 +110,7 @@ func ErlSrcTokens_Quoted(wanted rune, chars []ErlSrcChar, verbose bool) {
 
 		if !escapeOn && inQuote && (char.Value == wanted) { // active escape blocks the next char detection: \", \'
 			inQuote = false
-			tokenActual = ErlSrcToken{}
+			tokenActual = empty_token()
 		}
 
 		escapeOn = false // if not now escaped, the escape disappearing at the next char.

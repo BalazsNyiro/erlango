@@ -58,3 +58,11 @@ func file_read_runes(filePath, caller string) ([]rune, error) {
 	}
 	return runes, nil
 }
+
+func runes_from_str(txt string) []rune {
+	var runes []rune
+	for _, runeNow := range txt {
+		runes = append(runes, runeNow)
+	}
+	return runes
+}

@@ -43,8 +43,9 @@ func Test_ErlSrcRead(t *testing.T) {
 }
 
 func Test_ErlSrcTokens_Quoted(t *testing.T) {
-	chars, _ := ErlSrcRead("test/parse/hello.erl")
-	ErlSrcTokens_Quoted('"', chars, true)
+	chars := ErlSrcChars_from_str("abc'def'ghi")
+	ErlSrcTokens_Quoted__connect_to_chars('\'', chars, true)
+	debug_print_ErlSrcChars(chars)
 }
 
 // //////// test tools /////////////
@@ -59,7 +60,11 @@ func debug_print_ErlSrcChars(chars []ErlSrcChar) {
 		}
 		fmt.Printf(" PrevPosInFile:%3d ", prevPos)
 
-		fmt.Printf(" %p <- %p -> %p", chars[i].PrevChar, &chars[i], chars[i].NextChar)
+		tokenType := ""
+		if chars[i].Token != nil {
+			tokenType = chars[i].Token.Type
+		}
+		fmt.Printf(" %p <- %p -> %p token: %p %s", chars[i].PrevChar, &chars[i], chars[i].NextChar, chars[i].Token, tokenType)
 		fmt.Println("")
 	}
 }
