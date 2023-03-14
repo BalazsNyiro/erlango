@@ -13,6 +13,7 @@ import (
 	"testing"
 )
 
+// TODO: at the end do a normal test for a complete parse
 func Test_ParseErlangSourceFile(t *testing.T) {
 	received := ParseErlangSourceFile()
 	wanted := 0
@@ -29,12 +30,6 @@ func Test_ErlSrcRead(t *testing.T) {
 	compare_rune_pair("val prev 3", chars[3].PrevChar.Value, 'o', t)
 
 	compare_int_pair("pos 3", chars[3].PosInFile, 3, t)
-	/*
-		if chars[0].PrevChar != nil {
-			t.Fatalf("\nreceived: %v\n  wanted: %v, error", received, wanted)
-		}
-
-	*/
 	compare_char_pointer_pair("compare char_0 and nil_prev_char", chars[0].PrevChar, nil, t)
 
 	compare_int_pair("pos_0.next, pos2.prev", chars[0].NextChar.PosInFile, chars[2].PrevChar.PosInFile, t)
@@ -45,6 +40,8 @@ func Test_ErlSrcRead(t *testing.T) {
 func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	chars := ErlSrcChars_from_str("abc'def'ghi")
 	ErlSrcTokens_Quoted__connect_to_chars('\'', chars, true)
+	compare_str_pair("tokens_quoted 2", chars[2].Type(), "", t)
+	compare_str_pair("tokens_quoted 3", chars[3].Type(), Token_type_txt_quoted_single, t)
 	debug_print_ErlSrcChars(chars)
 }
 
@@ -54,7 +51,7 @@ func debug_print_ErlSrcChars(chars []ErlSrcChar) {
 	for i, _ := range chars {
 		fmt.Printf("%3d posInFile:%3d val:%4v ", i, chars[i].PosInFile, chars[i].Value)
 
-		prevPos := 0
+		prevPos := -1
 		if chars[i].PrevChar != nil {
 			prevPos = chars[i].PrevChar.PosInFile
 		}
@@ -77,13 +74,19 @@ func compare_char_pointer_pair(callerInfo string, received, wanted *ErlSrcChar, 
 
 func compare_int_pair(callerInfo string, received, wanted int, t *testing.T) {
 	if received != wanted {
-		t.Fatalf("\nErr: %s received: %v\n  wanted: %v, error", callerInfo, received, wanted)
+		t.Fatalf("\nErr: %s received int: %v\n  wanted: %v, error", callerInfo, received, wanted)
 	}
 }
 
 func compare_rune_pair(callerInfo string, received, wanted rune, t *testing.T) {
 	if received != wanted {
 		t.Fatalf("\nErr: %s received rune = %v, wanted %v, error", callerInfo, received, wanted)
+	}
+}
+
+func compare_str_pair(callerInfo, received, wanted string, t *testing.T) {
+	if received != wanted {
+		t.Fatalf("\nErr: %s received string = %s, wanted %s, error", callerInfo, received, wanted)
 	}
 }
 

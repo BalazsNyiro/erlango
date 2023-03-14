@@ -38,6 +38,14 @@ type ErlSrcChar struct {
 	Token     *ErlSrcToken
 }
 
+func (char ErlSrcChar) Type () string {
+	if char.Token == nil {
+		return ""
+	}
+	return char.Token.Type
+}
+
+
 func ParseErlangSourceFile() int {
 	return 0
 }
