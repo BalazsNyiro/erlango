@@ -9,7 +9,12 @@ LICENSE file in the root directory of this source tree.
 
 package erlango
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+)
 
 // logLevel: Info, Warning, Error
 func LogInfo(msg string) {
@@ -28,4 +33,28 @@ func log(logLevel, msg string) {
 
 func bool_to_str(val bool, trueTxt, falseTxt string) string {
 	if val { return trueTxt } else { return falseTxt}
+}
+
+func file_read_runes(filePath, caller string) ([]rune, error) {
+	f, err := os.Open(filePath)
+	if err != nil {
+		LogError(err, caller + " "+filePath)
+		return []rune{}, err
+	}
+	defer f.Close()
+
+	r := bufio.NewReader(f)
+	runes := []rune{}
+	for {
+		if runeInFile, _, err := r.ReadRune(); err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				LogError(err, caller + " read, Rune problem: "+filePath)
+			}
+		} else {
+			runes = append(runes, runeInFile)
+		}
+	}
+	return runes, nil
 }

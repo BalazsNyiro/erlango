@@ -10,10 +10,7 @@ LICENSE file in the root directory of this source tree.
 package erlango
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"os"
 )
 
 /* iterative parsing:
@@ -42,32 +39,15 @@ func ParseErlangSourceFile() int {
 }
 
 func ErlSrcRead(filePath string) ([]ErlSrcChar, error) {
-	var erlChars []ErlSrcChar
-	f, err := os.Open(filePath)
-	if err != nil {
-		LogError(err, "Erl Src read: "+filePath)
-		return erlChars, err
-	}
-	defer f.Close()
+	runes, err := file_read_runes(filePath, "ErlSrcRead")
+	if err != nil { return []ErlSrcChar{}, err}
 
-	r := bufio.NewReader(f)
-	posInFile := -1
-	for {
-		if runeInFile, _, err := r.ReadRune(); err != nil {
-			if err == io.EOF {
-				break
-			} else {
-				LogError(err, "Erl Src read, Rune problem: "+filePath)
-			}
-		} else {
-			posInFile += 1
-			// fmt.Printf("%q [%d]\n", string(runeInFile), runeSize)
-			erlChars = append(erlChars, ErlSrcChar{
-				Value:     runeInFile,
-				PosInFile: posInFile,
-			})
-			// Place: previous linking position
-		}
+	var erlChars []ErlSrcChar
+	for posInFile, runeInFile := range runes {
+		erlChars = append(erlChars, ErlSrcChar{
+			Value:     runeInFile,
+			PosInFile: posInFile,
+		})
 	}
 	// the slice pointers won't be change after this point,
 	// there is no capacity change later.
