@@ -41,7 +41,13 @@ func ParseErlangSourceFile() int {
 func ErlSrcRead(filePath string) ([]ErlSrcChar, error) {
 	runes, err := file_read_runes(filePath, "ErlSrcRead")
 	if err != nil { return []ErlSrcChar{}, err}
+	erlChars := ErlSrcChars_from_runes(runes)
+	// Test_what_happens_with_struct_pointers
+	// fmt.Printf("ErlSrcRead, chars pointer before return: %p\n", erlChars)
+	return erlChars, nil
+}
 
+func ErlSrcChars_from_runes(runes []rune) []ErlSrcChar {
 	var erlChars []ErlSrcChar
 	for posInFile, runeInFile := range runes {
 		erlChars = append(erlChars, ErlSrcChar{
@@ -60,11 +66,7 @@ func ErlSrcRead(filePath string) ([]ErlSrcChar, error) {
 			erlChars[id-1].NextChar = &erlChars[id]
 		}
 	}
-
-	// Test_what_happens_with_struct_pointers
-	// fmt.Printf("ErlSrcRead, chars pointer before return: %p\n", erlChars)
-
-	return erlChars, nil
+	return erlChars
 }
 
 func ErlSrcTokens_Quoted(wanted rune, chars []ErlSrcChar, verbose bool) {
