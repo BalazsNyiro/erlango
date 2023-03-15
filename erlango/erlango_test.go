@@ -79,16 +79,43 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        '       Token_type_txt_quoted_double
                        \       Token_type_txt_quoted_double
                        "       Token_type_txt_quoted_double
+                       1       Token_type_txt_quoted_double
                        "       Token_type_txt_quoted_double
                        f       no_type
                        '       no_type
-                       i       no_type `
+                       i       no_type
+	                   h       no_type
+	                   '       no_type`
 
 	txt2:= str_joined_from_wanted_table_char_column(wantedTable2)
 	chars2 := ErlSrcChars_from_str(txt2)
 	ErlSrcTokens_Quoted__connect_to_chars('"', chars2, true)
 	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars2, wantedTable2,  t)
 	debug_print_ErlSrcChars(chars2)
+
+
+	// mixed test
+	wantedTable3 := `  a       no_type 
+                       "       Token_type_txt_quoted_double 
+                     space     Token_type_txt_quoted_double
+                       '       Token_type_txt_quoted_double
+                       \       Token_type_txt_quoted_double
+                       "       Token_type_txt_quoted_double
+                       1       Token_type_txt_quoted_double
+                       "       Token_type_txt_quoted_double
+                       f       no_type
+                       '       Token_type_txt_quoted_single
+                       "       Token_type_txt_quoted_single
+	                   h       Token_type_txt_quoted_single
+                       "       Token_type_txt_quoted_single
+	                   '       Token_type_txt_quoted_single `
+
+	txt3:= str_joined_from_wanted_table_char_column(wantedTable3)
+	chars3 := ErlSrcChars_from_str(txt3)
+	ErlSrcTokens_Quoted__connect_to_chars('"', chars3, true)
+	ErlSrcTokens_Quoted__connect_to_chars('\'', chars3, true)
+	// compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars3, wantedTable3,  t)
+	debug_print_ErlSrcChars(chars3)
 }
 
 // //////// test tools /////////////
