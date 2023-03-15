@@ -24,6 +24,28 @@ contact: Balazs Nyiro (balazs.nyiro.ca@gmail.com)
    (the first signal handling implementation will work with the Go version first)
    https://www.erlang.org/doc/reference_manual/processes.html#signals
 
+## Why I write this interpreter?
+I hope if:
+ - Go functions can be used natively from Erlang and vica-versa,
+ - the interpreter is quicker than the native Erlang version
+ - the debugger is far more useful
+
+then this language can have a feature.
+
+These two comments were the last drops in my glass.
+
+### Is Erlang dead?
+https://intellipaat.com/community/73770/is-erlang-dead
+ErLang is one of the dying Programming Language 
+and the reason why its dying is because of difficulty in setting up 
+and very few developers who could support the Programming Language.
+
+### Top 10 Programming Languages that will be Extinct in the year 2021
+https://www.edureka.co/blog/top-10-dying-programming-languages
+What is noteworthy is the fact that Erlang being a purely functional language 
+is not the sole factor behind Erlang’s decline. While there are still more jobs 
+for Erlang developers than there are developers available, 
+when it is compared to other languages, the demand for Erlang is a lot less.
 
 ## HALL OF FAME
 ###  For the Erlang education: 

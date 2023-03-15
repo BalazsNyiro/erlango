@@ -57,7 +57,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        c       no_type
                        '       Token_type_txt_quoted_single
                        d       Token_type_txt_quoted_single
-                       e       Token_type_txt_quoted_single
+                       "       Token_type_txt_quoted_single
                        \       Token_type_txt_quoted_single
                        '       Token_type_txt_quoted_single
                        f       Token_type_txt_quoted_single
@@ -71,6 +71,26 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	ErlSrcTokens_Quoted__connect_to_chars('\'', chars, true)
 	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars, wantedTable,  t)
 	debug_print_ErlSrcChars(chars)
+
+	// here we search the "..." sections only, so the '...' is not detected
+	wantedTable2 := `  a       no_type 
+                       "       Token_type_txt_quoted_double 
+                       c       Token_type_txt_quoted_double
+                       '       Token_type_txt_quoted_double
+                       \       Token_type_txt_quoted_double
+                       "       Token_type_txt_quoted_double
+                       "       Token_type_txt_quoted_double
+                       f       no_type
+                       '       no_type
+                       g       no_type
+                       h       no_type
+                       i       no_type `
+
+	txt2:= str_joined_from_wanted_table_char_column(wantedTable2)
+	chars2 := ErlSrcChars_from_str(txt2)
+	ErlSrcTokens_Quoted__connect_to_chars('"', chars2, true)
+	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars2, wantedTable2,  t)
+	debug_print_ErlSrcChars(chars2)
 }
 
 // //////// test tools /////////////
@@ -83,20 +103,19 @@ func str_joined_from_wanted_table_char_column(wantedTable string) string {
 	for _, line := range strings.Split(wantedTable, "\n") {
 		// at this point there is a CHAR-TYPE pair with one space only:
 		line = wanted_table_line_cleaning(line)
-		charOrKey:= strings.Split(line, " ")[0]
-		if val, ok := TestGlobals[charOrKey]; ok {
+		charsOrKey := strings.Split(line, " ")[0]
+		if val, ok := TestGlobals[charsOrKey]; ok {
 			chars = append(chars, val)
 		}
-		chars = append(chars, charOrKey)
+		chars = append(chars, charsOrKey)
 	}
 	return strings.Join(chars, "")
 }
 
-
 func debug_print_ErlSrcChars(chars []ErlSrcChar) {
 	fmt.Println("")
 	for i, _ := range chars {
-		fmt.Printf("%3d posInFile:%3d val:%4v ", i, chars[i].PosInFile, chars[i].Value)
+		fmt.Printf("%3d posInFile:%3d val:%4s ", i, chars[i].PosInFile, string(chars[i].Value))
 
 		prevPos := -1
 		if chars[i].PrevChar != nil {
@@ -149,6 +168,30 @@ func compare_str_pair(callerInfo, received, wanted string, t *testing.T) {
 	}
 }
 
+func Test_struct_modifications(_ *testing.T) {
+
+	// this is a trial: what happens with structs after modifications?
+	var chars []ErlSrcChar
+	A := ErlSrcChar{Value: 'a'}
+
+	chars = append(chars, A)
+
+	// question 1: is chars[0] object same with A?
+	fmt.Printf("Address of struct       A = %+v: %p\n", A, &A)
+	fmt.Printf("Address of struct chars[0]= %+v: %p\n", chars[0], &chars[0])
+	/*  at this point the address of the two objects are different:
+	    Address of struct       A = {NextChar:<nil> PrevChar:<nil> PosInFile:0 Value:97 Token:<nil>}: 0xc000014510
+	    Address of struct chars[0]= {NextChar:<nil> PrevChar:<nil> PosInFile:0 Value:97 Token:<nil>}: 0xc000014540
+	*/
+
+	A.PosInFile = 1
+	fmt.Printf("after position in file change in A:\n")
+	fmt.Printf("Address of struct       A = %+v: %p\n", A, &A)
+	fmt.Printf("Address of struct chars[0]= %+v: %p\n", chars[0], &chars[0])
+
+	// result: when I append an elem into a slice, a copy is inserted.
+}
+
 // /////// go experimental tests - guys, I am learning Go too,
 // so sometime I do a few language tests :-)
 
@@ -174,29 +217,7 @@ func _what_happens_with_the_address_simple_obj_pass(obj []ErlSrcChar) {
 func _what_happens_with_the_address_pointer_pass(obj *[]ErlSrcChar) {
 	fmt.Printf("ErlSrcChars_from_file, Test chars PTR passed, pointer: %p\n", *obj)
 }
-
 ///// pointer address checks
+// /////// go experimental tests //////////////////////////////////////////////////////////////
 
-func Test_struct_modifications(_ *testing.T) {
 
-	// this is a trial: what happens with structs after modifications?
-	var chars []ErlSrcChar
-	A := ErlSrcChar{Value: 'a'}
-
-	chars = append(chars, A)
-
-	// question 1: is chars[0] object same with A?
-	fmt.Printf("Address of struct       A = %+v: %p\n", A, &A)
-	fmt.Printf("Address of struct chars[0]= %+v: %p\n", chars[0], &chars[0])
-	/*  at this point the address of the two objects are different:
-	    Address of struct       A = {NextChar:<nil> PrevChar:<nil> PosInFile:0 Value:97 Token:<nil>}: 0xc000014510
-	    Address of struct chars[0]= {NextChar:<nil> PrevChar:<nil> PosInFile:0 Value:97 Token:<nil>}: 0xc000014540
-	*/
-
-	A.PosInFile = 1
-	fmt.Printf("after position in file change in A:\n")
-	fmt.Printf("Address of struct       A = %+v: %p\n", A, &A)
-	fmt.Printf("Address of struct chars[0]= %+v: %p\n", chars[0], &chars[0])
-
-	// result: when I append an elem into a slice, a copy is inserted.
-}
