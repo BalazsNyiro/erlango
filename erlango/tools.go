@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 // logLevel: Info, Warning, Error
@@ -65,4 +66,11 @@ func runes_from_str(txt string) []rune {
 		runes = append(runes, runeNow)
 	}
 	return runes
+}
+
+func str_double_space_remove(txt string) string {
+	for strings.Contains(txt, "  ") {
+		txt = strings.Replace(txt, "  ", " ", -1)
+	}
+	return txt
 }

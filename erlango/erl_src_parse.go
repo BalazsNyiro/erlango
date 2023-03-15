@@ -18,8 +18,14 @@ import (
      an embedded token structure
 */
 
-const Token_type_txt_quoted_double string = "txt_quoted_double" // "abc"
-const Token_type_txt_quoted_single string = "txt_quoted_single" // 'abc'
+///////////////////// Globals////////////////////////////////////////////
+// this is a perfect theoretical example for an atom, because
+// the value here is not important, useless.
+// maybe in debugging it's easier to see something instead of a flag
+const Token_type_txt_quoted_double string = "txt_quoted_double"  // "abc"
+const Token_type_txt_quoted_single string = "txt_quoted_single"  // 'abc'
+////////////////////////////////////////////////////////////////////////
+
 
 // Token: indepentend language unit, formed by one or more char
 type ErlSrcToken struct {

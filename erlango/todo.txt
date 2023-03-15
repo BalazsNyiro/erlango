@@ -1,7 +1,7 @@
 
 // TODO:
-// pattern find in src: func Test_ErlSrcTokens_Quoted(t *testing.T)
-// and re-checking the algorithm
+// more tests:: func Test_ErlSrcTokens_Quoted(t *testing.T)
+// DOCUMENTATION
 
 ################################################
 

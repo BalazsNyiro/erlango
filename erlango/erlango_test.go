@@ -10,8 +10,27 @@ package erlango
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"testing"
 )
+///////////////////// TEST Globals //////////////////////////////////////
+/* sometimes the direct GLOBAL names are used, sometime I can use it as a key only.
+   so these key-value pairs are defined in two ways, the meaning is same.
+   the calling mode is different.
+
+   They are test supporter variables, used in strings - with these values
+   the testing is much easier
+*/
+var TestGlobals = map[string]string{  // used from tests
+	"Token_type_txt_quoted_double": Token_type_txt_quoted_double,
+	"Token_type_txt_quoted_single": Token_type_txt_quoted_single,
+	"no_type"                     : "", // in ErlSrcChar, "" means: no-type
+	"empty_string"                : "",
+	"space"                       : " ",
+	"tabulator"                   : "\t",
+	"newline_unix"                : "\n",
+} //////////////////////////////////////////////////////////////////////
 
 // TODO: at the end do a normal test for a complete parse
 func Test_ParseErlangSourceFile(t *testing.T) {
@@ -38,14 +57,49 @@ func Test_ErlSrcRead(t *testing.T) {
 }
 
 func Test_ErlSrcTokens_Quoted(t *testing.T) {
-	chars := ErlSrcChars_from_str("abc'def'ghi")
+	// rules: the left column is the char, the right column is the type
+	// a single char means himself. Keywords has special meanings
+	wantedTable := `   a       no_type 
+                       b       no_type
+                       c       no_type
+                       '       Token_type_txt_quoted_single
+                       d       Token_type_txt_quoted_single
+                       e       Token_type_txt_quoted_single
+                       \       Token_type_txt_quoted_single
+                       '       Token_type_txt_quoted_single
+                       f       Token_type_txt_quoted_single
+                       '       Token_type_txt_quoted_single
+                       g       no_type
+                       h       no_type
+                       i       no_type                       `
+
+	txt:= str_joined_from_wanted_table_char_column(wantedTable)
+	chars := ErlSrcChars_from_str(txt)
 	ErlSrcTokens_Quoted__connect_to_chars('\'', chars, true)
-	compare_str_pair("tokens_quoted 2", chars[2].Type(), "", t)
-	compare_str_pair("tokens_quoted 3", chars[3].Type(), Token_type_txt_quoted_single, t)
+	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars, wantedTable,  t)
 	debug_print_ErlSrcChars(chars)
 }
 
 // //////// test tools /////////////
+
+func wanted_table_line_cleaning(line string) string {
+	return str_double_space_remove(strings.TrimSpace(line))
+}
+func str_joined_from_wanted_table_char_column(wantedTable string) string {
+	var chars []string
+	for _, line := range strings.Split(wantedTable, "\n") {
+		// at this point there is a CHAR-TYPE pair with one space only:
+		line = wanted_table_line_cleaning(line)
+		charOrKey:= strings.Split(line, " ")[0]
+		if val, ok := TestGlobals[charOrKey]; ok {
+			chars = append(chars, val)
+		}
+		chars = append(chars, charOrKey)
+	}
+	return strings.Join(chars, "")
+}
+
+
 func debug_print_ErlSrcChars(chars []ErlSrcChar) {
 	fmt.Println("")
 	for i, _ := range chars {
@@ -63,6 +117,18 @@ func debug_print_ErlSrcChars(chars []ErlSrcChar) {
 		}
 		fmt.Printf(" %p <- %p -> %p token: %p %s", chars[i].PrevChar, &chars[i], chars[i].NextChar, chars[i].Token, tokenType)
 		fmt.Println("")
+	}
+}
+
+func compare_ErlSrcChar_with_wantedTable(caller string, chars []ErlSrcChar, wantedTable string,  t *testing.T) {
+	wantedTableLines := strings.Split(wantedTable, "\n")
+	for charId, charObj := range chars {
+		line := wanted_table_line_cleaning(wantedTableLines[charId])
+		typeKey := strings.Split(line, " ")[1]
+		wantedType, _ := TestGlobals[typeKey]
+		compare_str_pair(
+			caller+":compare_ErlSrcChar:"+strconv.Itoa(charId),
+			charObj.Type(), wantedType, t)
 	}
 }
 
