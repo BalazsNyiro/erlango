@@ -56,12 +56,12 @@ func ParseErlangSourceFile() int {
 	return 0
 }
 
-func ErlSrcRead(filePath string) ([]ErlSrcChar, error) {
-	runes, err := file_read_runes(filePath, "ErlSrcRead")
+func ErlSrcChars_from_file(filePath string) ([]ErlSrcChar, error) {
+	runes, err := file_read_runes(filePath, "ErlSrcChars_from_file")
 	if err != nil { return []ErlSrcChar{}, err}
 	erlChars := ErlSrcChars_from_runes(runes)
 	// Test_what_happens_with_struct_pointers
-	// fmt.Printf("ErlSrcRead, chars pointer before return: %p\n", erlChars)
+	// fmt.Printf("ErlSrcChars_from_file, chars pointer before return: %p\n", erlChars)
 	return erlChars, nil
 }
 
@@ -92,6 +92,21 @@ func ErlSrcChars_from_runes(runes []rune) []ErlSrcChar {
 	return erlChars
 }
 
+/* This fun process the chars one by one:
+    - if this is in a Quote: char->Token pointing happens.
+    - more than one char can be connected to the same token.
+
+    char_1  ↘
+    char_2 → Token - collector, a lot of chars are linked into one Token
+    char_3  ↗
+
+	The function connects new Tokens to the existing characters,
+    this is the reason why there is no return value here.
+
+    arrows: https://en.wikipedia.org/wiki/Arrows_(Unicode_block)
+
+
+ */
 func ErlSrcTokens_Quoted__connect_to_chars(wanted rune, chars []ErlSrcChar, verbose bool) {
 	typeToken := Token_type_txt_quoted_single
 	if wanted == '"' { typeToken = Token_type_txt_quoted_double }

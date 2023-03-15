@@ -40,7 +40,7 @@ func Test_ParseErlangSourceFile(t *testing.T) {
 }
 
 func Test_ErlSrcRead(t *testing.T) {
-	chars, _ := ErlSrcRead("test/parse/hello.erl")
+	chars, _ := ErlSrcChars_from_file("test/parse/hello.erl")
 	compare_rune_pair("val m", chars[1].Value, 'm', t)
 	compare_rune_pair("val o", chars[2].Value, 'o', t)
 	compare_rune_pair("val d", chars[3].Value, 'd', t)
@@ -161,13 +161,13 @@ func compare_str_pair(callerInfo, received, wanted string, t *testing.T) {
 
 // /// pointer address checks
 func Test_what_happens_with_struct_pointers(_ *testing.T) {
-	/*  in ErlSrcRead, chars variable's pointer is similar with
+	/*  in ErlSrcChars_from_file, chars variable's pointer is similar with
 	    the current one here, so at this point there is no copyyin:
-		ErlSrcRead, chars pointer before return: 0xc000158a80
-		ErlSrcRead->Test chars pointer: 0xc000158a80
+		ErlSrcChars_from_file, chars pointer before return: 0xc000158a80
+		ErlSrcChars_from_file->Test chars pointer: 0xc000158a80
 	*/
-	chars, _ := ErlSrcRead("test/parse/hello.erl")
-	fmt.Printf("ErlSrcRead->Test chars pointer: %p\n", chars)
+	chars, _ := ErlSrcChars_from_file("test/parse/hello.erl")
+	fmt.Printf("ErlSrcChars_from_file->Test chars pointer: %p\n", chars)
 	_what_happens_with_the_address_simple_obj_pass(chars)
 	_what_happens_with_the_address_pointer_pass(&chars)
 	/*
@@ -176,10 +176,10 @@ func Test_what_happens_with_struct_pointers(_ *testing.T) {
 	*/
 }
 func _what_happens_with_the_address_simple_obj_pass(obj []ErlSrcChar) {
-	fmt.Printf("ErlSrcRead, Test chars ojb passed, pointer: %p\n", obj)
+	fmt.Printf("ErlSrcChars_from_file, Test chars ojb passed, pointer: %p\n", obj)
 }
 func _what_happens_with_the_address_pointer_pass(obj *[]ErlSrcChar) {
-	fmt.Printf("ErlSrcRead, Test chars PTR passed, pointer: %p\n", *obj)
+	fmt.Printf("ErlSrcChars_from_file, Test chars PTR passed, pointer: %p\n", *obj)
 }
 
 ///// pointer address checks
