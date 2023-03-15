@@ -75,15 +75,13 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	// here we search the "..." sections only, so the '...' is not detected
 	wantedTable2 := `  a       no_type 
                        "       Token_type_txt_quoted_double 
-                       c       Token_type_txt_quoted_double
+                     space     Token_type_txt_quoted_double
                        '       Token_type_txt_quoted_double
                        \       Token_type_txt_quoted_double
                        "       Token_type_txt_quoted_double
                        "       Token_type_txt_quoted_double
                        f       no_type
                        '       no_type
-                       g       no_type
-                       h       no_type
                        i       no_type `
 
 	txt2:= str_joined_from_wanted_table_char_column(wantedTable2)
@@ -103,11 +101,15 @@ func str_joined_from_wanted_table_char_column(wantedTable string) string {
 	for _, line := range strings.Split(wantedTable, "\n") {
 		// at this point there is a CHAR-TYPE pair with one space only:
 		line = wanted_table_line_cleaning(line)
-		charsOrKey := strings.Split(line, " ")[0]
-		if val, ok := TestGlobals[charsOrKey]; ok {
-			chars = append(chars, val)
+		charOrKey := strings.Split(line, " ")[0]
+		if val, ok := TestGlobals[charOrKey]; ok {
+			chars = append(chars, val)  // use the value from the Global table, or:
+		} else {
+			if len(charOrKey) > 1 {
+				panic("ERROR in test - use one char only: " + charOrKey)
+			}
+			chars = append(chars, charOrKey) // use the original chars
 		}
-		chars = append(chars, charsOrKey)
 	}
 	return strings.Join(chars, "")
 }
