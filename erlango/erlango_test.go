@@ -32,13 +32,6 @@ var TestGlobals = map[string]string{  // used from tests
 	"newline_unix"                : "\n",
 } //////////////////////////////////////////////////////////////////////
 
-// TODO: at the end do a normal test for a complete parse
-func Test_ParseErlangSourceFile(t *testing.T) {
-	received := ParseErlangSourceFile()
-	wanted := 0
-	compare_int_pair("fake parse test", received, wanted, t)
-}
-
 func Test_ErlSrcRead(t *testing.T) {
 	chars, _ := ErlSrcChars_from_file("test/parse/hello.erl")
 	compare_rune_pair("val m", chars[1].Value, 'm', t)

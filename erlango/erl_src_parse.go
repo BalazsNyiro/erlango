@@ -44,16 +44,12 @@ type ErlSrcChar struct {
 	Token     *ErlSrcToken
 }
 
+// a char's type is the parent Token's type
 func (char ErlSrcChar) Type () string {
 	if char.Token == nil {
 		return ""
 	}
 	return char.Token.Type
-}
-
-
-func ParseErlangSourceFile() int {
-	return 0
 }
 
 func ErlSrcChars_from_file(filePath string) ([]ErlSrcChar, error) {
@@ -78,7 +74,7 @@ func ErlSrcChars_from_runes(runes []rune) []ErlSrcChar {
 			PosInFile: posInFile,
 		})
 	}
-	// the slice pointers won't be change after this point,
+	// the slice pointers won't be changed after this point,
 	// there is no capacity change later.
 	// if we do this from the 'previous linking position'
 	// then because of the capacity limit reach, the pointers
@@ -104,8 +100,6 @@ func ErlSrcChars_from_runes(runes []rune) []ErlSrcChar {
     this is the reason why there is no return value here.
 
     arrows: https://en.wikipedia.org/wiki/Arrows_(Unicode_block)
-
-
  */
 func ErlSrcTokens_Quoted__connect_to_chars(wanted rune, chars []ErlSrcChar, verbose bool) {
 	typeToken := Token_type_txt_quoted_single
