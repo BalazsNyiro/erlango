@@ -102,19 +102,23 @@ func ErlSrcChars_from_runes(runes []rune) []ErlSrcChar {
     arrows: https://en.wikipedia.org/wiki/Arrows_(Unicode_block)
  */
 func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
-	//typeToken := Token_type_txt_quoted_single
-	// if wanted == '"' { typeToken = Token_type_txt_quoted_double }
 	empty_token := func() ErlSrcToken { return ErlSrcToken{} }
 	isSingleQuoteRune := func(r rune) bool { return r == '\''}
 	isDoubleQuoteRune := func(r rune) bool { return r == '"'}
 	isSingleOrDoubleQuoteRune := func (r rune) bool {return isSingleQuoteRune(r) || isDoubleQuoteRune(r)}
 
+	// in Go, a variable's memory address stay the same when you assign a new value.
+	// so, I can use a token only once - it's necessary to generate always new tokens,
+	// and a simple 'tokenActual = empty_token()' can't work, if the variable is always the same,
+	// because if I pass its pointer, later I can overwrite the value behind the variable.
+	// the current solution generates new tokens into a list, and the last elem is always
+	// updated, so it will have a new address after each update
 	tokens := []ErlSrcToken{ empty_token()}
 
 	inQuote, escapeOn := false, false
 	actualQuoteChar := '-' // the default value is different from both quotes
 
-	for id :=0; id<len(chars); id++ {
+	for id, _ := range chars {
 		nowOpened, nowEscaped := false, false
 
 		tokenIdLast := len(tokens) - 1
