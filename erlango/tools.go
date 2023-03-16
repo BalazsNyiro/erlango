@@ -74,3 +74,54 @@ func str_double_space_remove(txt string) string {
 	}
 	return txt
 }
+
+
+
+
+
+/////////////////////////// DEBUG //////////////////////////////////////////////
+// I need it from tests and normal code too, so this is the best place
+func debug_print_ErlSrcChars_original(chars []ErlSrcChar) {
+	fmt.Println("")
+	for i, _ := range chars {
+		fmt.Printf("%3d posInFile:%3d val:%4s ", i, chars[i].PosInFile, string(chars[i].Value))
+
+		prevPos := -1
+		if chars[i].PrevChar != nil {
+			prevPos = chars[i].PrevChar.PosInFile
+		}
+		fmt.Printf(" PrevPosInFile:%3d ", prevPos)
+
+		tokenType := ""
+		if chars[i].Token != nil {
+			tokenType = chars[i].Token.Type
+		}
+		fmt.Printf(" %p <- %p -> %p token: %p %s", chars[i].PrevChar, &chars[i], chars[i].NextChar, chars[i].Token, tokenType)
+		fmt.Println("")
+	}
+}
+
+func debug_print_ErlSrcChars(charsPtr *([]ErlSrcChar)) {
+	fmt.Printf("inside >>>  debug_print_ErlSrcChars %p \n", charsPtr)
+	for id, _ := range *charsPtr {
+		debug_print_ErlSrcChar(id, &( (*charsPtr)[id])  )
+	}
+}
+
+func debug_print_ErlSrcChar(id int, charPtr *ErlSrcChar) {
+		fmt.Printf("charPtr:%p  %3d posInFile:%3d val:%4s ",charPtr, id, charPtr.PosInFile, string(charPtr.Value))
+
+		prevPos := -1
+		if charPtr.PrevChar != nil {
+			prevPos = charPtr.PrevChar.PosInFile
+		}
+		fmt.Printf(" PrevPosInFile:%3d ", prevPos)
+
+		tokenType := "<?>"
+		if charPtr.Token != nil {
+			tokenType = charPtr.Token.Type
+		}
+		fmt.Printf(" %p <- %p -> %p tokenPtr: %p type->%s<-", charPtr.PrevChar, charPtr, charPtr.NextChar, charPtr.Token, tokenType)
+		fmt.Println("")
+}
+/////////////////////////// DEBUG //////////////////////////////////////////////

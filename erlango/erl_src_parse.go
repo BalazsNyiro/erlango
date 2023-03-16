@@ -101,41 +101,57 @@ func ErlSrcChars_from_runes(runes []rune) []ErlSrcChar {
 
     arrows: https://en.wikipedia.org/wiki/Arrows_(Unicode_block)
  */
-func ErlSrcTokens_Quoted__connect_to_chars(wanted rune, chars []ErlSrcChar, verbose bool) {
-	typeToken := Token_type_txt_quoted_single
-	if wanted == '"' { typeToken = Token_type_txt_quoted_double }
-	empty_token := func() ErlSrcToken { return ErlSrcToken{Type: typeToken} }
+func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	//typeToken := Token_type_txt_quoted_single
+	// if wanted == '"' { typeToken = Token_type_txt_quoted_double }
+	empty_token := func() ErlSrcToken { return ErlSrcToken{} }
+	isSingleQuoteRune := func(r rune) bool { return r == '\''}
+	isDoubleQuoteRune := func(r rune) bool { return r == '"'}
+	isSingleOrDoubleQuoteRune := func (r rune) bool {return isSingleQuoteRune(r) || isDoubleQuoteRune(r)}
 
-	tokenActual := empty_token()
+	tokens := []ErlSrcToken{ empty_token()}
+
 	inQuote, escapeOn := false, false
+	actualQuoteChar := '-' // the default value is different from both quotes
 
-	for id, char := range chars {
+	for id :=0; id<len(chars); id++ {
 		nowOpened, nowEscaped := false, false
 
-		if !inQuote && (char.Value == wanted) {
+		tokenIdLast := len(tokens) - 1
+		if !inQuote && isSingleOrDoubleQuoteRune(chars[id].Value) {
+			actualQuoteChar = chars[id].Value
+			if isSingleQuoteRune(actualQuoteChar) {
+				tokens[tokenIdLast].Type = Token_type_txt_quoted_single
+			} else {
+				tokens[tokenIdLast].Type = Token_type_txt_quoted_double
+			}
 			inQuote, nowOpened = true, true
 		}
 
-		if !escapeOn && inQuote && (char.Value == '\\') {
+		if !escapeOn && inQuote && (chars[id].Value == '\\') {
 			escapeOn, nowEscaped = true, true
 		}
 
 		if inQuote {
-			tokenActual.Chars = append(tokenActual.Chars, &chars[id])
-			chars[id].Token = &tokenActual
+			chars[id].Token = &(tokens[tokenIdLast])
+			chars[id].Token.Chars = append(chars[id].Token.Chars, &(chars[id]))
 		}
-		if verbose { fmt.Println("ErlSrcTokens_Quoted__connect_to_chars", id, string(char.Value), bool_to_str(inQuote, "in Quote", "")) }
+		if verbose {
+			fmt.Println("ErlSrcTokens_Quoted__connect_to_chars", id, string(chars[id].Value),
+				        fmt.Sprintf("tokenPtr: %p", chars[id].Token),
+				        "type->",chars[id].Type(), "<>", tokens[tokenIdLast].Type, "<- ",
+		                bool_to_str(inQuote, "in Quote:"+string(actualQuoteChar), "")) }
+			// debug_print_ErlSrcChar(id, &(chars[id]))
 
 		if nowOpened || nowEscaped { continue }
 		// ##### stop here ^^^^ the char processing in these 2 cases ###########
 		// if nowOpened == true, the sign is '\' and I don't want to turn it off if it was turned on just now
 		// if it's nowEscaped, I don't want to turn it off too because it has effect on the next char
 
-		if !escapeOn && inQuote && (char.Value == wanted) { // active escape blocks the next char detection: \", \'
+		if !escapeOn && inQuote && (chars[id].Value == actualQuoteChar) { // active escape blocks the next char detection: \", \'
 			inQuote = false
-			tokenActual = empty_token()
+			tokens = append(tokens, empty_token())
 		}
-
 		escapeOn = false // if not now escaped, the escape disappearing at the next char.
 	}
 }

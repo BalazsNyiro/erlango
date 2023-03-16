@@ -45,7 +45,7 @@ func Test_ErlSrcRead(t *testing.T) {
 	compare_char_pointer_pair("compare char_0 and nil_prev_char", chars[0].PrevChar, nil, t)
 
 	compare_int_pair("pos_0.next, pos2.prev", chars[0].NextChar.PosInFile, chars[2].PrevChar.PosInFile, t)
-	debug_print_ErlSrcChars(chars)
+	// debug_print_ErlSrcChars(&chars)
 	// compare_char_pointer_pair("compare char_0.next and char_2.prev", chars[0].NextChar, chars[2].PrevChar, t)
 }
 
@@ -66,11 +66,11 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        h       no_type
                        i       no_type                       `
 
-	txt:= str_joined_from_wanted_table_char_column(wantedTable)
+	txt := str_joined_from_wanted_table_char_column(wantedTable)
 	chars := ErlSrcChars_from_str(txt)
-	ErlSrcTokens_Quoted__connect_to_chars('\'', chars, true)
+	ErlSrcTokens_Quoted__connect_to_chars(chars, true)
+	// debug_print_ErlSrcChars(&chars)
 	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars, wantedTable,  t)
-	debug_print_ErlSrcChars(chars)
 
 	// here we search the "..." sections only, so the '...' is not detected
 	wantedTable2 := `  a       no_type 
@@ -82,17 +82,17 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        1       Token_type_txt_quoted_double
                        "       Token_type_txt_quoted_double
                        f       no_type
-                       '       no_type
-                       i       no_type
-	                   h       no_type
-	                   '       no_type`
+                       '       Token_type_txt_quoted_single
+                       i       Token_type_txt_quoted_single
+	                   h       Token_type_txt_quoted_single
+	                   '       Token_type_txt_quoted_single
+                     `
 
 	txt2:= str_joined_from_wanted_table_char_column(wantedTable2)
 	chars2 := ErlSrcChars_from_str(txt2)
-	ErlSrcTokens_Quoted__connect_to_chars('"', chars2, true)
+	ErlSrcTokens_Quoted__connect_to_chars(chars2, true)
 	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars2, wantedTable2,  t)
-	debug_print_ErlSrcChars(chars2)
-
+	// debug_print_ErlSrcChars(&chars2)
 
 	// mixed test
 	wantedTable3 := `  a       no_type 
@@ -112,10 +112,9 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt3:= str_joined_from_wanted_table_char_column(wantedTable3)
 	chars3 := ErlSrcChars_from_str(txt3)
-	ErlSrcTokens_Quoted__connect_to_chars('"', chars3, true)
-	ErlSrcTokens_Quoted__connect_to_chars('\'', chars3, true)
-	// compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars3, wantedTable3,  t)
-	debug_print_ErlSrcChars(chars3)
+	ErlSrcTokens_Quoted__connect_to_chars(chars3, true)
+	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars3, wantedTable3,  t)
+	// debug_print_ErlSrcChars(&chars3)
 }
 
 // //////// test tools /////////////
@@ -141,25 +140,6 @@ func str_joined_from_wanted_table_char_column(wantedTable string) string {
 	return strings.Join(chars, "")
 }
 
-func debug_print_ErlSrcChars(chars []ErlSrcChar) {
-	fmt.Println("")
-	for i, _ := range chars {
-		fmt.Printf("%3d posInFile:%3d val:%4s ", i, chars[i].PosInFile, string(chars[i].Value))
-
-		prevPos := -1
-		if chars[i].PrevChar != nil {
-			prevPos = chars[i].PrevChar.PosInFile
-		}
-		fmt.Printf(" PrevPosInFile:%3d ", prevPos)
-
-		tokenType := ""
-		if chars[i].Token != nil {
-			tokenType = chars[i].Token.Type
-		}
-		fmt.Printf(" %p <- %p -> %p token: %p %s", chars[i].PrevChar, &chars[i], chars[i].NextChar, chars[i].Token, tokenType)
-		fmt.Println("")
-	}
-}
 
 func compare_ErlSrcChar_with_wantedTable(caller string, chars []ErlSrcChar, wantedTable string,  t *testing.T) {
 	wantedTableLines := strings.Split(wantedTable, "\n")
@@ -168,7 +148,7 @@ func compare_ErlSrcChar_with_wantedTable(caller string, chars []ErlSrcChar, want
 		typeKey := strings.Split(line, " ")[1]
 		wantedType, _ := TestGlobals[typeKey]
 		compare_str_pair(
-			caller+":compare_ErlSrcChar:"+strconv.Itoa(charId),
+			caller+":compare_ErlSrcChar:"+strconv.Itoa(charId)+"->" + string(charObj.Value)+"<-",
 			charObj.Type(), wantedType, t)
 	}
 }
@@ -193,7 +173,7 @@ func compare_rune_pair(callerInfo string, received, wanted rune, t *testing.T) {
 
 func compare_str_pair(callerInfo, received, wanted string, t *testing.T) {
 	if received != wanted {
-		t.Fatalf("\nErr: %s received string = %s, wanted %s, error", callerInfo, received, wanted)
+		t.Fatalf("\nErr: %s received string ->%s<-, wanted ->%s<-, error", callerInfo, received, wanted)
 	}
 }
 
@@ -248,5 +228,4 @@ func _what_happens_with_the_address_pointer_pass(obj *[]ErlSrcChar) {
 }
 ///// pointer address checks
 // /////// go experimental tests //////////////////////////////////////////////////////////////
-
 
