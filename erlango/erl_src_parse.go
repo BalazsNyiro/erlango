@@ -26,8 +26,17 @@ const Token_type_txt_quoted_double string = "txt_quoted_double"  // "abc"
 const Token_type_txt_quoted_single string = "txt_quoted_single"  // 'abc'
 ////////////////////////////////////////////////////////////////////////
 
-
-// Token: indepentend language unit, formed by one or more char
+// ErlSrcToken : independent language unit, formed by one or more char
+// they are character holders, they group the characters,
+// if the characters form one meaning.
+// for example '123' text has 3 symbols, and they are
+// represented by 3 ErlSrcChar elems,
+// and they are stored in one Token because they represent one number
+//
+// Same token can have a totally different meaning at the end,
+// depends on the environment.
+// for example "name" can be a key in a map, a string, or be a binary elem, too.
+// so these token's don't have any meaning at this point
 type ErlSrcToken struct {
 	PrevToken *ErlSrcToken
 	NextToken *ErlSrcToken
@@ -35,7 +44,7 @@ type ErlSrcToken struct {
 	Type      string
 }
 
-// represents one char in the Erlang source codes
+// ErlSrcChar represents one char in the Erlang source codes
 type ErlSrcChar struct {
 	NextChar  *ErlSrcChar
 	PrevChar  *ErlSrcChar
@@ -44,7 +53,7 @@ type ErlSrcChar struct {
 	Token     *ErlSrcToken
 }
 
-// a char's type is the parent Token's type
+// Type a char's type is the parent Token's type
 func (char ErlSrcChar) Type () string {
 	if char.Token == nil {
 		return ""
@@ -74,6 +83,10 @@ func ErlSrcChars_from_runes(runes []rune) []ErlSrcChar {
 			PosInFile: posInFile,
 		})
 	}
+	// after the first for loop exec, the slice size is finalised.
+	// when I used one for loop first time, the slice was changed
+	// when it reached the capacity limit, and the pointers were incorrect.
+
 	// the slice pointers won't be changed after this point,
 	// there is no capacity change later.
 	// if we do this from the 'previous linking position'
@@ -88,7 +101,7 @@ func ErlSrcChars_from_runes(runes []rune) []ErlSrcChar {
 	return erlChars
 }
 
-/* This fun process the chars one by one:
+/* ErlSrcTokens_Quoted__connect_to_chars fun processes the chars one by one:
     - if this is in a Quote: char->Token pointing happens.
     - more than one char can be connected to the same token.
 
