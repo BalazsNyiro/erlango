@@ -139,18 +139,7 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
     So now this behaviour is not a problem.
  */
 func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
-	empty_token := func() ErlSrcToken { return ErlSrcToken{} }
-	isSingleQuoteRune := func(r rune) bool { return r == '\''}
-	isDoubleQuoteRune := func(r rune) bool { return r == '"'}
-	isSingleOrDoubleQuoteRune := func (r rune) bool {return isSingleQuoteRune(r) || isDoubleQuoteRune(r)}
-
-	// in Go, a variable's memory address stay the same when you assign a new value.
-	// so, I can use a token only once - it's necessary to generate always new tokens,
-	// and a simple 'tokenActual = empty_token()' can't work, if the variable is always the same,
-	// because if I pass its pointer, later I can overwrite the value behind the variable.
-	// the current solution generates new tokens into a list, and the last elem is always
-	// updated, so it will have a new address after each update
-	tokens := []ErlSrcToken{ empty_token()}
+	tokens := emptyTokens()
 
 	inQuote, escapeOn := false, false
 	actualQuoteChar := '-' // the default value is different from both quotes
@@ -191,8 +180,22 @@ func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
 
 		if !escapeOn && inQuote && (chars[id].Value == actualQuoteChar) { // active escape blocks the next char detection: \", \'
 			inQuote = false
-			tokens = append(tokens, empty_token())
+			tokens = append(tokens, emptyToken())
 		}
 		escapeOn = false // if not now escaped, the escape disappearing at the next char.
 	}
 }
+
+////////////////////////////////// token funs ////////////////////////////////////
+func isSingleQuoteRune(r rune) bool { return r == '\''}
+func isDoubleQuoteRune(r rune) bool { return r == '"'}
+func isSingleOrDoubleQuoteRune (r rune) bool {return isSingleQuoteRune(r) || isDoubleQuoteRune(r)}
+func emptyToken() ErlSrcToken                { return ErlSrcToken{} }
+func emptyTokens() []ErlSrcToken            { return []ErlSrcToken{emptyToken()} }
+//  ^^^^ // in Go, a variable's memory address stay the same when you assign a new value.
+// so, I can use a token only once - it's necessary to generate always new tokens,
+// and a simple 'tokenActual = emptyToken()' can't work, if the variable is always the same,
+// because if I pass its pointer, later I can overwrite the value behind the variable.
+// the current solution generates new tokens into a list, and the last elem is always
+// updated, so it will have a new address after each update
+////////////////////////////////// token funs ////////////////////////////////////
