@@ -69,6 +69,7 @@ when it is compared to other languages, the demand for Erlang is a lot less.
    - András Boroska    (who was my interviewer with Boldó, and gave me a chance to learn Erlang)
    - Konyári Sándor    (who helped a lot to understand financial processes)
    - László Popovics   (who himself believed in our toolset, and tested Erlang in special hardwares)
+   - Zoltán Dankó      (who had a vision, a dream about our team) 
 
 
    Thank you for our common time.

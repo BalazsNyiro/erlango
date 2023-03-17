@@ -148,16 +148,16 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 		conditionCloser func([]ErlSrcChar, int, *conditionMemory) bool,
 		verbose bool) {
 	tokens := emptyTokens()
-
 	inCharRange, escapeOn := false, false
 	conditionMemory := conditionMemoryEmpty()
-	conditionMemory.runes["actualQuoteChar"] = '-' // the default value is different from both quotes
 
-	for id, _ := range chars {
+	for position, _ := range chars {
 		nowOpened, nowEscaped := false, false
 
 		tokenIdLast := len(tokens) - 1
-		if !inCharRange && conditionOpener(chars, id, &conditionMemory) {
+		if !inCharRange && conditionOpener(chars, position, &conditionMemory) {
+
+			// TODO: TOKEN TYPE SETTER - this is quote specific:
 			if isSingleQuoteRune(conditionMemory.runes["actualQuoteChar"]) {
 				tokens[tokenIdLast].Type = Token_type_txt_quoted_single
 			} else {
@@ -166,27 +166,26 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 			inCharRange, nowOpened = true, true
 		}
 
-		if !escapeOn && inCharRange && (chars[id].Value == '\\') {
+		if !escapeOn && inCharRange && (chars[position].Value == '\\') {
 			escapeOn, nowEscaped = true, true
 		}
 
 		if inCharRange {
-			chars[id].Token = &(tokens[tokenIdLast])
-			chars[id].Token.Chars = append(chars[id].Token.Chars, &(chars[id]))
+			chars[position].Token = &(tokens[tokenIdLast])
+			chars[position].Token.Chars = append(chars[position].Token.Chars, &(chars[position]))
 		}
 		if verbose {
-			fmt.Println("ErlSrcTokens_Quoted__connect_to_chars", id, string(chars[id].Value),
-				        fmt.Sprintf("tokenPtr: %p", chars[id].Token),
-				        "type->",chars[id].Type(), "<>", tokens[tokenIdLast].Type, "<- ",
+			fmt.Println("ErlSrcTokens_Quoted__connect_to_chars", position, string(chars[position].Value),
+				        fmt.Sprintf("tokenPtr: %p", chars[position].Token),
+				        "type->",chars[position].Type(), "<>", tokens[tokenIdLast].Type, "<- ",
 		                bool_to_str(inCharRange, "in Quote:"+string(conditionMemory.runes["actualQuoteChar"]), "")) }
-			// debug_print_ErlSrcChar(id, &(chars[id]))
 
 		if nowOpened || nowEscaped { continue }
 		// ##### stop here ^^^^ the char processing in these 2 cases ###########
 		// if nowOpened == true, the sign is '\' and I don't want to turn it off if it was turned on just now
 		// if it's nowEscaped, I don't want to turn it off too because it has effect on the next char
 
-		if !escapeOn && inCharRange && conditionCloser(chars, id, &conditionMemory) { // active escape blocks the next char detection: \", \'
+		if !escapeOn && inCharRange && conditionCloser(chars, position, &conditionMemory) { // active escape blocks the next char detection: \", \'
 			inCharRange = false
 			tokens = append(tokens, emptyToken())
 		}
@@ -204,16 +203,16 @@ type conditionMemory struct {
 	runes map[string]rune
 }
 
-func conditionQuoteOpener(chars []ErlSrcChar, id int, memory *conditionMemory) bool {
-	result := isSingleOrDoubleQuoteRune(chars[id].Value)
+func conditionQuoteOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	result := isSingleOrDoubleQuoteRune(chars[position].Value)
 	if result {
-		memory.runes["actualQuoteChar"] = chars[id].Value
+		memory.runes["actualQuoteChar"] = chars[position].Value
 	}
 	return result
 }
 
-func conditionQuoteCloser(chars []ErlSrcChar, id int, memory *conditionMemory) bool {
-	return chars[id].Value == memory.runes["actualQuoteChar"]
+func conditionQuoteCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return chars[position].Value == memory.runes["actualQuoteChar"]
 }
 ///////////////// token opener/closer //////////////////
 
