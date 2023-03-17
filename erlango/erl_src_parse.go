@@ -151,7 +151,7 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 		chars []ErlSrcChar,
 	 	conditionOpener func([]ErlSrcChar, int, *conditionMemory) bool,
 		conditionCloser func([]ErlSrcChar, int, *conditionMemory) bool,
-	    tokenTypeSetter func(*[]ErlSrcChar, *conditionMemory),
+	    tokenTypeSetter func(*[]ErlSrcToken, *conditionMemory),
 		verbose bool) {
 	tokens := emptyTokens()
 	inCharRange, escapeOn := false, false
@@ -160,15 +160,8 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 	for position, _ := range chars {
 		nowOpened, nowEscaped := false, false
 
-		tokenIdLast := len(tokens) - 1
 		if !inCharRange && conditionOpener(chars, position, &conditionMemory) {
-
-			// TODO: TOKEN TYPE SETTER - this is quote specific:
-			if isSingleQuoteRune(conditionMemory.runes["actualQuoteChar"]) {
-				tokens[tokenIdLast].Type = Token_type_txt_quoted_single
-			} else {
-				tokens[tokenIdLast].Type = Token_type_txt_quoted_double
-			}
+			tokenTypeSetter(&tokens, &conditionMemory)
 			inCharRange, nowOpened = true, true
 		}
 
@@ -176,6 +169,7 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 			escapeOn, nowEscaped = true, true
 		}
 
+		tokenIdLast := len(tokens) - 1
 		if inCharRange {
 			chars[position].Token = &(tokens[tokenIdLast])
 			chars[position].Token.Chars = append(chars[position].Token.Chars, &(chars[position]))
@@ -221,7 +215,13 @@ func quoteConditionCloser(chars []ErlSrcChar, position int, memory *conditionMem
 	return chars[position].Value == memory.runes["actualQuoteChar"]
 }
 
-func quoteTokenTypeSet(tokens *[]ErlSrcChar, memory *conditionMemory) {
+func quoteTokenTypeSet(tokens *[]ErlSrcToken, memory *conditionMemory) {
+	tokenIdLast := len(*tokens) - 1
+	if isSingleQuoteRune(memory.runes["actualQuoteChar"]) {
+		(*tokens)[tokenIdLast].Type = Token_type_txt_quoted_single
+	} else {
+		(*tokens)[tokenIdLast].Type = Token_type_txt_quoted_double
+	}
 
 }
 ///////////////// token opener/closer //////////////////
