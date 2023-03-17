@@ -13,10 +13,22 @@ import (
 	"fmt"
 )
 
-/* iterative parsing:
-   - from a flat list of chars the parser builds up
-     an embedded token structure
-*/
+func ParseErlangSourceFile() ([]ErlSrcChar, error) {
+	chars, err := ErlSrcChars_from_file("test/parse/hello.erl")
+	if err != nil { return []ErlSrcChar{}, err}
+
+	// detect "strings" or 'atoms' - quoted texts
+	ErlSrcTokens_Quoted__connect_to_chars(chars, true)
+
+	// detect comments
+
+	// detect whitespaces
+
+	// detect numbers
+	// detect
+
+	return chars, nil
+}
 
 ///////////////////// Globals////////////////////////////////////////////
 // this is a perfect theoretical example for an atom, because
@@ -46,11 +58,12 @@ type ErlSrcToken struct {
 
 // ErlSrcChar represents one char in the Erlang source codes
 type ErlSrcChar struct {
-	NextChar  *ErlSrcChar
-	PrevChar  *ErlSrcChar
-	PosInFile int
-	Value     rune
-	Token     *ErlSrcToken
+	NextChar   *ErlSrcChar
+	PrevChar   *ErlSrcChar
+	PosInFile  int
+	Value      rune
+	Token      *ErlSrcToken
+	SourcePath string
 }
 
 // Type a char's type is the parent Token's type
@@ -64,7 +77,7 @@ func (char ErlSrcChar) Type () string {
 func ErlSrcChars_from_file(filePath string) ([]ErlSrcChar, error) {
 	runes, err := file_read_runes(filePath, "ErlSrcChars_from_file")
 	if err != nil { return []ErlSrcChar{}, err}
-	erlChars := ErlSrcChars_from_runes(runes)
+	erlChars := ErlSrcChars_from_runes(runes, filePath)
 	// Test_what_happens_with_struct_pointers
 	// fmt.Printf("ErlSrcChars_from_file, chars pointer before return: %p\n", erlChars)
 	return erlChars, nil
@@ -72,15 +85,16 @@ func ErlSrcChars_from_file(filePath string) ([]ErlSrcChar, error) {
 
 func ErlSrcChars_from_str(txt string) []ErlSrcChar {
 	runes := runes_from_str(txt)
-	return ErlSrcChars_from_runes(runes)
+	return ErlSrcChars_from_runes(runes, "direct_txt_input")
 }
 
-func ErlSrcChars_from_runes(runes []rune) []ErlSrcChar {
+func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 	var erlChars []ErlSrcChar
 	for posInFile, runeInFile := range runes {
 		erlChars = append(erlChars, ErlSrcChar{
-			Value:     runeInFile,
-			PosInFile: posInFile,
+			Value:      runeInFile,
+			PosInFile:  posInFile,
+			SourcePath: sourcePath,
 		})
 	}
 	// after the first for loop exec, the slice size is finalised.
