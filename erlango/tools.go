@@ -124,4 +124,8 @@ func debug_print_ErlSrcChar(id int, charPtr *ErlSrcChar) {
 		fmt.Printf(" %p <- %p -> %p tokenPtr: %p type->%s<-", charPtr.PrevChar, charPtr, charPtr.NextChar, charPtr.Token, tokenType)
 		fmt.Println("")
 }
+
+func debug_print_mem_address(msg string, object any ){
+	fmt.Printf("%s %p \n", msg, object)
+}
 /////////////////////////// DEBUG //////////////////////////////////////////////

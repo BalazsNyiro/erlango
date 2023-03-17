@@ -140,7 +140,7 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
     So now this behaviour is not a problem.
  */
 func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
-	ErlSrcTokens_rangeDetect__connectToChars(chars, conditionQuoteOpener, conditionQuoteOpener, verbose)
+	ErlSrcTokens_rangeDetect__connectToChars(chars, conditionQuoteOpener, conditionQuoteCloser, verbose)
 }
 func ErlSrcTokens_rangeDetect__connectToChars(
 		chars []ErlSrcChar,
@@ -158,7 +158,6 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 
 		tokenIdLast := len(tokens) - 1
 		if !inCharRange && conditionOpener(chars, id, &conditionMemory) {
-			conditionMemory.runes["actualQuoteChar"] = chars[id].Value
 			if isSingleQuoteRune(conditionMemory.runes["actualQuoteChar"]) {
 				tokens[tokenIdLast].Type = Token_type_txt_quoted_single
 			} else {
@@ -187,7 +186,7 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 		// if nowOpened == true, the sign is '\' and I don't want to turn it off if it was turned on just now
 		// if it's nowEscaped, I don't want to turn it off too because it has effect on the next char
 
-		if !escapeOn && inCharRange && (chars[id].Value == conditionMemory.runes["actualQuoteChar"]) { // active escape blocks the next char detection: \", \'
+		if !escapeOn && inCharRange && conditionCloser(chars, id, &conditionMemory) { // active escape blocks the next char detection: \", \'
 			inCharRange = false
 			tokens = append(tokens, emptyToken())
 		}
@@ -213,6 +212,9 @@ func conditionQuoteOpener(chars []ErlSrcChar, id int, memory *conditionMemory) b
 	return result
 }
 
+func conditionQuoteCloser(chars []ErlSrcChar, id int, memory *conditionMemory) bool {
+	return chars[id].Value == memory.runes["actualQuoteChar"]
+}
 ///////////////// token opener/closer //////////////////
 
 ////////////////////////////////// token funs ////////////////////////////////////
