@@ -142,8 +142,8 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	ErlSrcTokens_rangeDetect__connectToChars(
 		chars,
-		conditionQuoteOpener,
-		conditionQuoteCloser,
+		quoteConditionOpener,
+		quoteConditionCloser,
 		quoteTokenTypeSet,
 		verbose)
 }
@@ -209,7 +209,7 @@ type conditionMemory struct {
 	runes map[string]rune
 }
 
-func conditionQuoteOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+func quoteConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	result := isSingleOrDoubleQuoteRune(chars[position].Value)
 	if result {
 		memory.runes["actualQuoteChar"] = chars[position].Value
@@ -217,7 +217,7 @@ func conditionQuoteOpener(chars []ErlSrcChar, position int, memory *conditionMem
 	return result
 }
 
-func conditionQuoteCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+func quoteConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	return chars[position].Value == memory.runes["actualQuoteChar"]
 }
 
