@@ -153,7 +153,7 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 		conditionCloser func([]ErlSrcChar, int, *conditionMemory) bool,
 	    tokenTypeSetter func(*[]ErlSrcToken, *conditionMemory),
 		verbose bool) {
-	tokens := emptyTokens()
+	tokens := tokensForChars__preInitialized()
 	inCharRange, escapeOn := false, false
 	conditionMemory := conditionMemoryEmpty()
 
@@ -187,7 +187,7 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 
 		if !escapeOn && inCharRange && conditionCloser(chars, position, &conditionMemory) { // active escape blocks the next char detection: \", \'
 			inCharRange = false
-			tokens = append(tokens, emptyToken())
+			tokens = append(tokens, tokenEmpty())
 		}
 		escapeOn = false // if not now escaped, the escape disappearing at the next char.
 	}
@@ -230,11 +230,11 @@ func quoteTokenTypeSet(tokens *[]ErlSrcToken, memory *conditionMemory) {
 func isSingleQuoteRune(r rune) bool { return r == '\''}
 func isDoubleQuoteRune(r rune) bool { return r == '"'}
 func isSingleOrDoubleQuoteRune (r rune) bool {return isSingleQuoteRune(r) || isDoubleQuoteRune(r)}
-func emptyToken() ErlSrcToken                { return ErlSrcToken{} }
-func emptyTokens() []ErlSrcToken            { return []ErlSrcToken{emptyToken()} }
+func tokenEmpty() ErlSrcToken                       { return ErlSrcToken{} }
+func tokensForChars__preInitialized() []ErlSrcToken { return []ErlSrcToken{tokenEmpty()} }
 //  ^^^^ // in Go, a variable's memory address stay the same when you assign a new value.
 // so, I can use a token only once - it's necessary to generate always new tokens,
-// and a simple 'tokenActual = emptyToken()' can't work, if the variable is always the same,
+// and a simple 'tokenActual = tokenEmpty()' can't work, if the variable is always the same,
 // because if I pass its pointer, later I can overwrite the value behind the variable.
 // the current solution generates new tokens into a list, and the last elem is always
 // updated, so it will have a new address after each update
