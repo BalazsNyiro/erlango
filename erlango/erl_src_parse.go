@@ -66,6 +66,7 @@ type ErlSrcChar struct {
 	SourcePath string
 }
 
+
 // Type a char's type is the parent Token's type
 func (char ErlSrcChar) Type () string {
 	if char.Token == nil {
@@ -143,21 +144,22 @@ func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
 }
 func ErlSrcTokens_rangeDetect__connectToChars(
 		chars []ErlSrcChar,
-	 	conditionOpener func([]ErlSrcChar, int) bool,
-		conditionCloser func([]ErlSrcChar, int) bool,
+	 	conditionOpener func([]ErlSrcChar, int, *conditionMemory) bool,
+		conditionCloser func([]ErlSrcChar, int, *conditionMemory) bool,
 		verbose bool) {
 	tokens := emptyTokens()
 
 	inCharRange, escapeOn := false, false
-	actualQuoteChar := '-' // the default value is different from both quotes
+	conditionMemory := conditionMemoryEmpty()
+	conditionMemory.runes["actualQuoteChar"] = '-' // the default value is different from both quotes
 
 	for id, _ := range chars {
 		nowOpened, nowEscaped := false, false
 
 		tokenIdLast := len(tokens) - 1
-		if !inCharRange && conditionOpener(chars, id) {
-			actualQuoteChar = chars[id].Value
-			if isSingleQuoteRune(actualQuoteChar) {
+		if !inCharRange && conditionOpener(chars, id, &conditionMemory) {
+			conditionMemory.runes["actualQuoteChar"] = chars[id].Value
+			if isSingleQuoteRune(conditionMemory.runes["actualQuoteChar"]) {
 				tokens[tokenIdLast].Type = Token_type_txt_quoted_single
 			} else {
 				tokens[tokenIdLast].Type = Token_type_txt_quoted_double
@@ -177,7 +179,7 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 			fmt.Println("ErlSrcTokens_Quoted__connect_to_chars", id, string(chars[id].Value),
 				        fmt.Sprintf("tokenPtr: %p", chars[id].Token),
 				        "type->",chars[id].Type(), "<>", tokens[tokenIdLast].Type, "<- ",
-		                bool_to_str(inCharRange, "in Quote:"+string(actualQuoteChar), "")) }
+		                bool_to_str(inCharRange, "in Quote:"+string(conditionMemory.runes["actualQuoteChar"]), "")) }
 			// debug_print_ErlSrcChar(id, &(chars[id]))
 
 		if nowOpened || nowEscaped { continue }
@@ -185,7 +187,7 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 		// if nowOpened == true, the sign is '\' and I don't want to turn it off if it was turned on just now
 		// if it's nowEscaped, I don't want to turn it off too because it has effect on the next char
 
-		if !escapeOn && inCharRange && (chars[id].Value == actualQuoteChar) { // active escape blocks the next char detection: \", \'
+		if !escapeOn && inCharRange && (chars[id].Value == conditionMemory.runes["actualQuoteChar"]) { // active escape blocks the next char detection: \", \'
 			inCharRange = false
 			tokens = append(tokens, emptyToken())
 		}
@@ -194,8 +196,21 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 }
 
 ///////////////// token opener/closer //////////////////
-func conditionQuoteOpener(chars []ErlSrcChar, id int) bool {
-	return isSingleOrDoubleQuoteRune(chars[id].Value)
+func conditionMemoryEmpty() conditionMemory {
+	return conditionMemory{runes: map[string]rune{}}
+}
+type conditionMemory struct {
+	nums map[string]int
+	strings map[string]string
+	runes map[string]rune
+}
+
+func conditionQuoteOpener(chars []ErlSrcChar, id int, memory *conditionMemory) bool {
+	result := isSingleOrDoubleQuoteRune(chars[id].Value)
+	if result {
+		memory.runes["actualQuoteChar"] = chars[id].Value
+	}
+	return result
 }
 
 ///////////////// token opener/closer //////////////////
