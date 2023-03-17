@@ -113,6 +113,16 @@ func ErlSrcChars_from_runes(runes []rune) []ErlSrcChar {
     this is the reason why there is no return value here.
 
     arrows: https://en.wikipedia.org/wiki/Arrows_(Unicode_block)
+
+
+    ### newline handling in quoted texts ###
+    This implementation eats everything between '...' or "..." pairs.
+    so here it works:
+
+				 A := " line 1, not closed with quota
+						line 2, finished with quota sign "
+    The programmer can insert newline into strings with "line1..." ++ "\nline2"
+    So now this behaviour is not a problem.
  */
 func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	empty_token := func() ErlSrcToken { return ErlSrcToken{} }

@@ -57,11 +57,11 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        c       no_type
                        '       Token_type_txt_quoted_single
                        d       Token_type_txt_quoted_single
-                       "       Token_type_txt_quoted_single
-                       \       Token_type_txt_quoted_single
-                       '       Token_type_txt_quoted_single
+                       "       Token_type_txt_quoted_single     <- this " is in the ''pair  
+                       \       Token_type_txt_quoted_single     
+                       '       Token_type_txt_quoted_single     <- escaped ' sign, not valid exit
                        f       Token_type_txt_quoted_single
-                       '       Token_type_txt_quoted_single
+                       '       Token_type_txt_quoted_single     <- valid closing pair
                        g       no_type
                        h       no_type
                        i       no_type                       `
@@ -76,16 +76,16 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	wantedTable2 := `  a       no_type 
                        "       Token_type_txt_quoted_double 
                      space     Token_type_txt_quoted_double
-                       '       Token_type_txt_quoted_double
+                       '       Token_type_txt_quoted_double     <- embedded ' char in the "" pair
                        \       Token_type_txt_quoted_double
-                       "       Token_type_txt_quoted_double
+                       "       Token_type_txt_quoted_double     <- escaped " char, not a valid exit
                        1       Token_type_txt_quoted_double
-                       "       Token_type_txt_quoted_double
+                       "       Token_type_txt_quoted_double     <- valid closing " char
                        f       no_type
-                       '       Token_type_txt_quoted_single
+                       '       Token_type_txt_quoted_single     <- valid opening ' char
                        i       Token_type_txt_quoted_single
 	                   h       Token_type_txt_quoted_single
-	                   '       Token_type_txt_quoted_single
+	                   '       Token_type_txt_quoted_single     <- valid closing ' char
                      `
 
 	txt2:= str_joined_from_wanted_table_char_column(wantedTable2)
@@ -119,6 +119,12 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 // //////// test tools /////////////
 
+/*
+   the first column can contain one character, or a keyword, that is translated to a char.
+   the second column is the type of a bounded token.
+
+   everything from a possible third column can be a comment.
+*/
 func wanted_table_line_cleaning(line string) string {
 	return str_double_space_remove(strings.TrimSpace(line))
 }
