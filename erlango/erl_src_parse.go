@@ -140,12 +140,18 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
     So now this behaviour is not a problem.
  */
 func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
-	ErlSrcTokens_rangeDetect__connectToChars(chars, conditionQuoteOpener, conditionQuoteCloser, verbose)
+	ErlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		conditionQuoteOpener,
+		conditionQuoteCloser,
+		quoteTokenTypeSet,
+		verbose)
 }
 func ErlSrcTokens_rangeDetect__connectToChars(
 		chars []ErlSrcChar,
 	 	conditionOpener func([]ErlSrcChar, int, *conditionMemory) bool,
 		conditionCloser func([]ErlSrcChar, int, *conditionMemory) bool,
+	    tokenTypeSetter func(*[]ErlSrcChar, *conditionMemory),
 		verbose bool) {
 	tokens := emptyTokens()
 	inCharRange, escapeOn := false, false
@@ -213,6 +219,10 @@ func conditionQuoteOpener(chars []ErlSrcChar, position int, memory *conditionMem
 
 func conditionQuoteCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	return chars[position].Value == memory.runes["actualQuoteChar"]
+}
+
+func quoteTokenTypeSet(tokens *[]ErlSrcChar, memory *conditionMemory) {
+
 }
 ///////////////// token opener/closer //////////////////
 
