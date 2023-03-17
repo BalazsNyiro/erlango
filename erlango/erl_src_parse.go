@@ -139,30 +139,37 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
     So now this behaviour is not a problem.
  */
 func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	ErlSrcTokens_rangeDetect__connectToChars(chars, conditionQuoteOpener, conditionQuoteOpener, verbose)
+}
+func ErlSrcTokens_rangeDetect__connectToChars(
+		chars []ErlSrcChar,
+	 	conditionOpener func([]ErlSrcChar, int) bool,
+		conditionCloser func([]ErlSrcChar, int) bool,
+		verbose bool) {
 	tokens := emptyTokens()
 
-	inQuote, escapeOn := false, false
+	inCharRange, escapeOn := false, false
 	actualQuoteChar := '-' // the default value is different from both quotes
 
 	for id, _ := range chars {
 		nowOpened, nowEscaped := false, false
 
 		tokenIdLast := len(tokens) - 1
-		if !inQuote && isSingleOrDoubleQuoteRune(chars[id].Value) {
+		if !inCharRange && conditionOpener(chars, id) {
 			actualQuoteChar = chars[id].Value
 			if isSingleQuoteRune(actualQuoteChar) {
 				tokens[tokenIdLast].Type = Token_type_txt_quoted_single
 			} else {
 				tokens[tokenIdLast].Type = Token_type_txt_quoted_double
 			}
-			inQuote, nowOpened = true, true
+			inCharRange, nowOpened = true, true
 		}
 
-		if !escapeOn && inQuote && (chars[id].Value == '\\') {
+		if !escapeOn && inCharRange && (chars[id].Value == '\\') {
 			escapeOn, nowEscaped = true, true
 		}
 
-		if inQuote {
+		if inCharRange {
 			chars[id].Token = &(tokens[tokenIdLast])
 			chars[id].Token.Chars = append(chars[id].Token.Chars, &(chars[id]))
 		}
@@ -170,7 +177,7 @@ func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
 			fmt.Println("ErlSrcTokens_Quoted__connect_to_chars", id, string(chars[id].Value),
 				        fmt.Sprintf("tokenPtr: %p", chars[id].Token),
 				        "type->",chars[id].Type(), "<>", tokens[tokenIdLast].Type, "<- ",
-		                bool_to_str(inQuote, "in Quote:"+string(actualQuoteChar), "")) }
+		                bool_to_str(inCharRange, "in Quote:"+string(actualQuoteChar), "")) }
 			// debug_print_ErlSrcChar(id, &(chars[id]))
 
 		if nowOpened || nowEscaped { continue }
@@ -178,13 +185,20 @@ func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
 		// if nowOpened == true, the sign is '\' and I don't want to turn it off if it was turned on just now
 		// if it's nowEscaped, I don't want to turn it off too because it has effect on the next char
 
-		if !escapeOn && inQuote && (chars[id].Value == actualQuoteChar) { // active escape blocks the next char detection: \", \'
-			inQuote = false
+		if !escapeOn && inCharRange && (chars[id].Value == actualQuoteChar) { // active escape blocks the next char detection: \", \'
+			inCharRange = false
 			tokens = append(tokens, emptyToken())
 		}
 		escapeOn = false // if not now escaped, the escape disappearing at the next char.
 	}
 }
+
+///////////////// token opener/closer //////////////////
+func conditionQuoteOpener(chars []ErlSrcChar, id int) bool {
+	return isSingleOrDoubleQuoteRune(chars[id].Value)
+}
+
+///////////////// token opener/closer //////////////////
 
 ////////////////////////////////// token funs ////////////////////////////////////
 func isSingleQuoteRune(r rune) bool { return r == '\''}
