@@ -144,6 +144,7 @@ func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
 		chars,
 		quoteConditionOpener,
 		quoteConditionCloser,
+		quoteConditionEscape,
 		quoteTokenTypeSet,
 		verbose)
 }
@@ -151,11 +152,12 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 		chars []ErlSrcChar,
 	 	conditionOpener func([]ErlSrcChar, int, *conditionMemory) bool,
 		conditionCloser func([]ErlSrcChar, int, *conditionMemory) bool,
+		conditionEscape func([]ErlSrcChar, int, *conditionMemory) bool,
 	    tokenTypeSetter func(*[]ErlSrcToken, *conditionMemory),
 		verbose bool) {
 	tokens := tokensForChars__preInitialized()
-	inCharRange, escapeOn := false, false
 	conditionMemory := conditionMemoryEmpty()
+	inCharRange, escapeOn := false, false
 
 	for position, _ := range chars {
 		nowOpened, nowEscaped := false, false
@@ -165,7 +167,7 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 			inCharRange, nowOpened = true, true
 		}
 
-		if !escapeOn && inCharRange && (chars[position].Value == '\\') {
+		if !escapeOn && inCharRange && conditionEscape(chars, position, &conditionMemory) {
 			escapeOn, nowEscaped = true, true
 		}
 
@@ -203,6 +205,7 @@ type conditionMemory struct {
 	runes map[string]rune
 }
 
+// this is the first char in the range if returns with true
 func quoteConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	result := isSingleOrDoubleQuoteRune(chars[position].Value)
 	if result {
@@ -211,8 +214,14 @@ func quoteConditionOpener(chars []ErlSrcChar, position int, memory *conditionMem
 	return result
 }
 
+// this is the last char in the range
 func quoteConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	return chars[position].Value == memory.runes["actualQuoteChar"]
+}
+
+// skip the next char if it returns with true
+func quoteConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return chars[position].Value == '\\'
 }
 
 func quoteTokenTypeSet(tokens *[]ErlSrcToken, memory *conditionMemory) {
