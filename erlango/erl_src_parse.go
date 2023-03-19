@@ -63,6 +63,11 @@ func (token ErlSrcToken) CharAppend(charPtr *ErlSrcChar) {
 type ErlSrcTokens []ErlSrcToken
 func (tokens ErlSrcTokens) IdLast() int {
 	return len(tokens) - 1 // it always has minimum 1 value because of Pre-init:
+	                       // in tokensForChars__preInitialized()
+}
+
+func (tokens ErlSrcTokens) LastPtr() *ErlSrcToken {
+	return &(tokens[tokens.IdLast()])
 }
 //////////////////////////////////////////////////////////////////////
 
@@ -167,10 +172,9 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 		verbose bool) {
 
 	tokenInfo := func (position int, chars []ErlSrcChar, tokens ErlSrcTokens, inCharRange bool, memory conditionMemory ) {
-		tokenIdLast := len(tokens) - 1
 		fmt.Println("ErlSrcTokens_Quoted__connect_to_chars", position, string(chars[position].Value),
 			fmt.Sprintf("tokenPtr: %p", chars[position].Token),
-			"type->",chars[position].Type(), "<>", tokens[tokenIdLast].Type, "<- ",
+			"type->",chars[position].Type(), "<>", (*tokens.LastPtr()).Type, "<- ",
 			bool_to_str(inCharRange, "in Quote:"+string(memory.runes["actualQuoteChar"]), ""))
 	}
 
@@ -190,9 +194,8 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 			escapeOn, nowEscaped = true, true // escaping is important for the closing condition
 		}
 
-		tokenIdLast := len(tokens) - 1
 		if inCharRange {
-			chars[position].Token = &(tokens[tokenIdLast])
+			chars[position].Token = tokens.LastPtr()
 			chars[position].Token.CharAppend(&(chars[position]))
 		}
 		if verbose { tokenInfo(position, chars, tokens, inCharRange, conditionMemory) }

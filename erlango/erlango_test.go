@@ -42,17 +42,17 @@ func Test_ErlSrcRead(t *testing.T) {
 	compare_rune_pair("val prev 3", chars[3].PrevChar.Value, 'o', t)
 
 	compare_int_pair("pos 3", chars[3].PosInFile, 3, t)
-	compare_char_pointer_pair("compare char_0 and nil_prev_char", chars[0].PrevChar, nil, t)
+	compare_char_pointer_pair_are_same("compare char_0 and nil_prev_char", chars[0].PrevChar, nil, t)
 
 	compare_int_pair("pos_0.next, pos2.prev", chars[0].NextChar.PosInFile, chars[2].PrevChar.PosInFile, t)
 	// debug_print_ErlSrcChars(&chars)
-	// compare_char_pointer_pair("compare char_0.next and char_2.prev", chars[0].NextChar, chars[2].PrevChar, t)
+	// compare_char_pointer_pair_are_same("compare char_0.next and char_2.prev", chars[0].NextChar, chars[2].PrevChar, t)
 }
 
 func Test_ErlSrcTokens_Quoted(t *testing.T) {
-	// rules: the left column is the char, the right column is the type
+	// The first column is the char, the second column is the type, others are comments
 	// a single char means himself. Keywords has special meanings
-	wantedTable := `   a       no_type 
+	wantedTable1 := `  a       no_type 
                        b       no_type
                        c       no_type
                        '       Token_type_txt_quoted_single
@@ -66,11 +66,20 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        h       no_type
                        i       no_type                       `
 
-	txt := str_joined_from_wanted_table_char_column(wantedTable)
+	txt := str_joined_from_wanted_table_char_column(wantedTable1)
 	chars := ErlSrcChars_from_str(txt)
 	ErlSrcTokens_Quoted__connect_to_chars(chars, true)
 	// debug_print_ErlSrcChars(&chars)
-	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars, wantedTable,  t)
+	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars, wantedTable1,  t)
+
+	// token checking
+	debug_print_ErlSrcChars(&chars)
+	compare_tokenPointers___are_______nil("test1 token check A", &chars, []int{0,1,2,10,11,12}, t)
+	compare_tokenPointers___are______same("test1 token check B", &chars, []int{3,4,5,6,7,8,9}, t)
+
+	///////////////////////////////////////////////////////////////////////////
+
+
 
 	// here we search the "..." sections only, so the '...' is not detected
 	wantedTable2 := `  a       no_type 
@@ -93,6 +102,14 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	ErlSrcTokens_Quoted__connect_to_chars(chars2, true)
 	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars2, wantedTable2,  t)
 	// debug_print_ErlSrcChars(&chars2)
+
+	compare_tokenPointers___are_______nil("test2 token check AA1", &chars2, []int{0}, t)
+	compare_tokenPointers___are__not__nil("test2 token check BB1", &chars2, []int{1}, t)
+	compare_tokenPointers___are______same("test2 token check BB2", &chars2, []int{1,2,3,4,5,6,7}, t)
+	compare_tokenPointers___are_______nil("test2 token check CC1", &chars2, []int{8}, t)
+	compare_tokenPointers___are______same("test2 token check DD1", &chars2, []int{9,10,11,12}, t)
+	compare_tokenPointerPair_is_different("test2 token check DD2", chars2[7].Token, chars2[9].Token, t)
+
 
 	// mixed test
 	wantedTable3 := `  a       no_type 
@@ -159,8 +176,16 @@ func compare_ErlSrcChar_with_wantedTable(caller string, chars []ErlSrcChar, want
 	}
 }
 
-func compare_char_pointer_pair(callerInfo string, received, wanted *ErlSrcChar, t *testing.T) {
+// the problem: if the received is NOT similar with the wanted
+func compare_char_pointer_pair_are_same(callerInfo string, received, wanted *ErlSrcChar, t *testing.T) {
 	if received != wanted {
+		t.Fatalf("\nErr: %s received: %v\n  wanted: %v, error", callerInfo, received, wanted)
+	}
+}
+
+// the problem is if received is similar with wanted
+func compare_char_pointer_pair_are_different(callerInfo string, received, wanted *ErlSrcChar, t *testing.T) {
+	if received == wanted {
 		t.Fatalf("\nErr: %s received: %v\n  wanted: %v, error", callerInfo, received, wanted)
 	}
 }
@@ -182,6 +207,61 @@ func compare_str_pair(callerInfo, received, wanted string, t *testing.T) {
 		t.Fatalf("\nErr: %s received string ->%s<-, wanted ->%s<-, error", callerInfo, received, wanted)
 	}
 }
+
+func compare_tokenPointer_is_nil(callerInfo string, receivedPtr *ErlSrcToken, t *testing.T) {
+	fmt.Println("receivedPtr:", receivedPtr)
+	if receivedPtr != nil {
+		t.Fatalf("\nErr, PTR is not nil: %s receivedPtr: %v  wanted: nil, error", callerInfo, receivedPtr)
+	}
+}
+
+func compare_tokenPointer_is_not_nil(callerInfo string, receivedPtr *ErlSrcToken, t *testing.T) {
+	fmt.Println("receivedPtr:", receivedPtr)
+	if receivedPtr == nil {
+		t.Fatalf("\nErr, PTR is nil: %s receivedPtr: %v  wanted: nil, error", callerInfo, receivedPtr)
+	}
+}
+
+func compare_tokenPointerPair_is__same(callerInfo string, receivedPtr *ErlSrcToken, wantedPtr *ErlSrcToken, t *testing.T) {
+	if receivedPtr != wantedPtr {
+		t.Fatalf("\nErr, different PTRs: %s receivedPtr: %v  wanted: %v, error", callerInfo, receivedPtr, wantedPtr)
+	}
+}
+
+func compare_tokenPointerPair_is_different(callerInfo string, receivedPtr *ErlSrcToken, wantedPtr *ErlSrcToken, t *testing.T) {
+	if receivedPtr == wantedPtr {
+		t.Fatalf("\nErr, same PTRs: %s receivedPtr: %v  wanted: %v, error", callerInfo, receivedPtr, wantedPtr)
+	}
+}
+
+func compare_tokenPointers___are_______nil(callerInfo string, charsPtr *[]ErlSrcChar, positions []int, t *testing.T) {
+	fmt.Println("compare_tokenPointers___are_______nil positions:", positions)
+	for _, charPos := range positions {
+		fmt.Println("char position:", charPos)
+		compare_tokenPointer_is_nil(callerInfo + fmt.Sprintf(" (charId:%d)", charPos), (*charsPtr)[charPos].Token, t)
+	}
+}
+
+func compare_tokenPointers___are__not__nil(callerInfo string, charsPtr *[]ErlSrcChar, positions []int, t *testing.T) {
+	fmt.Println("compare_tokenPointers___are__not__nil positions:", positions)
+	for _, charPos := range positions {
+		fmt.Println("char position:", charPos, " charValStr:", string((*charsPtr)[charPos].Value),  "  char's token: ", (*charsPtr)[charPos].Token)
+		compare_tokenPointer_is_not_nil(callerInfo + fmt.Sprintf(" (charId:%d)", charPos), (*charsPtr)[charPos].Token, t)
+	}
+}
+
+// a lot of pointers has the same value - it uses the pair comparison
+func compare_tokenPointers___are______same(callerInfo string, charsPtr *[]ErlSrcChar, positions []int, t *testing.T) {
+	fmt.Println(" compare_tokenPointers___are______same, position 0: ", positions[0])
+	wantedTokenPtr := (*charsPtr)[positions[0]].Token  // read the first elem's token - and check that the others have the same?
+	fmt.Println(" compare_tokenPointers___are______same, position 0 token value: ", wantedTokenPtr)
+
+	for _, charPos := range positions {
+		fmt.Println(" compare_tokenPointers___are______same, checked position: ", charPos)
+		compare_tokenPointerPair_is__same(callerInfo + fmt.Sprintf(" (charId:%d)", charPos), (*charsPtr)[charPos].Token, wantedTokenPtr, t)
+	}
+}
+
 
 func Test_struct_modifications(_ *testing.T) {
 

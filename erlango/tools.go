@@ -101,7 +101,7 @@ func debug_print_ErlSrcChars_original(chars []ErlSrcChar) {
 	}
 }
 
-func debug_print_ErlSrcChars(charsPtr *([]ErlSrcChar)) {
+func debug_print_ErlSrcChars(charsPtr *[]ErlSrcChar) {
 	fmt.Printf("inside >>>  debug_print_ErlSrcChars %p \n", charsPtr)
 	for id, _ := range *charsPtr {
 		debug_print_ErlSrcChar(id, &( (*charsPtr)[id])  )

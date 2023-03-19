@@ -18,6 +18,12 @@ main(_) ->
 
   io:format(" - Direct printing from Erlang code, multi-line text: ~n"),
   io:format(MultilineText),
+
+
+  Comments = "ab % cde
+              fgh",
+  io:format(Comments),
+
   io:format(example_fun_call()).
 
 example_fun_call() ->
