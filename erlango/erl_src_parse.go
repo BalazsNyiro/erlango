@@ -55,6 +55,16 @@ type ErlSrcToken struct {
 	Chars     []*ErlSrcChar
 	Type      string
 }
+func (token ErlSrcToken) CharAppend(charPtr *ErlSrcChar) {
+	token.Chars = append(token.Chars, charPtr)
+}
+
+//////////////////////////////////////////////////////////////////////
+type ErlSrcTokens []ErlSrcToken
+func (tokens ErlSrcTokens) IdLast() int {
+	return len(tokens) - 1 // it always has minimum 1 value because of Pre-init:
+}
+//////////////////////////////////////////////////////////////////////
 
 // ErlSrcChar represents one char in the Erlang source codes
 type ErlSrcChar struct {
@@ -153,8 +163,17 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 	 	conditionOpener func([]ErlSrcChar, int, *conditionMemory) bool,
 		conditionCloser func([]ErlSrcChar, int, *conditionMemory) bool,
 		conditionEscape func([]ErlSrcChar, int, *conditionMemory) bool,
-	    tokenTypeSetter func(*[]ErlSrcToken, *conditionMemory),
+	    tokenTypeSetter func(*ErlSrcTokens, *conditionMemory),
 		verbose bool) {
+
+	tokenInfo := func (position int, chars []ErlSrcChar, tokens ErlSrcTokens, inCharRange bool, memory conditionMemory ) {
+		tokenIdLast := len(tokens) - 1
+		fmt.Println("ErlSrcTokens_Quoted__connect_to_chars", position, string(chars[position].Value),
+			fmt.Sprintf("tokenPtr: %p", chars[position].Token),
+			"type->",chars[position].Type(), "<>", tokens[tokenIdLast].Type, "<- ",
+			bool_to_str(inCharRange, "in Quote:"+string(memory.runes["actualQuoteChar"]), ""))
+	}
+
 	tokens := tokensForChars__preInitialized()
 	conditionMemory := conditionMemoryEmpty()
 	inCharRange, escapeOn := false, false
@@ -168,27 +187,23 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 		}
 
 		if !escapeOn && inCharRange && conditionEscape(chars, position, &conditionMemory) {
-			escapeOn, nowEscaped = true, true
+			escapeOn, nowEscaped = true, true // escaping is important for the closing condition
 		}
 
 		tokenIdLast := len(tokens) - 1
 		if inCharRange {
 			chars[position].Token = &(tokens[tokenIdLast])
-			chars[position].Token.Chars = append(chars[position].Token.Chars, &(chars[position]))
+			chars[position].Token.CharAppend(&(chars[position]))
 		}
-		if verbose {
-			fmt.Println("ErlSrcTokens_Quoted__connect_to_chars", position, string(chars[position].Value),
-				        fmt.Sprintf("tokenPtr: %p", chars[position].Token),
-				        "type->",chars[position].Type(), "<>", tokens[tokenIdLast].Type, "<- ",
-		                bool_to_str(inCharRange, "in Quote:"+string(conditionMemory.runes["actualQuoteChar"]), "")) }
+		if verbose { tokenInfo(position, chars, tokens, inCharRange, conditionMemory) }
 
 		if nowOpened || nowEscaped { continue }
 		// ##### stop here ^^^^ the char processing in these 2 cases ###########
 		// if nowOpened == true, the sign is '\' and I don't want to turn it off if it was turned on just now
 		// if it's nowEscaped, I don't want to turn it off too because it has effect on the next char
 
-		if !escapeOn && inCharRange && conditionCloser(chars, position, &conditionMemory) { // active escape blocks the next char detection: \", \'
-			inCharRange = false
+		if !escapeOn && inCharRange && conditionCloser(chars, position, &conditionMemory) {
+			inCharRange = false  // active escape blocks the conditionCloser()
 			tokens = append(tokens, tokenEmpty())
 		}
 		escapeOn = false // if not now escaped, the escape disappearing at the next char.
@@ -224,7 +239,7 @@ func quoteConditionEscape(chars []ErlSrcChar, position int, memory *conditionMem
 	return chars[position].Value == '\\'
 }
 
-func quoteTokenTypeSet(tokens *[]ErlSrcToken, memory *conditionMemory) {
+func quoteTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	tokenIdLast := len(*tokens) - 1
 	if isSingleQuoteRune(memory.runes["actualQuoteChar"]) {
 		(*tokens)[tokenIdLast].Type = Token_type_txt_quoted_single
@@ -240,7 +255,7 @@ func isSingleQuoteRune(r rune) bool { return r == '\''}
 func isDoubleQuoteRune(r rune) bool { return r == '"'}
 func isSingleOrDoubleQuoteRune (r rune) bool {return isSingleQuoteRune(r) || isDoubleQuoteRune(r)}
 func tokenEmpty() ErlSrcToken                       { return ErlSrcToken{} }
-func tokensForChars__preInitialized() []ErlSrcToken { return []ErlSrcToken{tokenEmpty()} }
+func tokensForChars__preInitialized() ErlSrcTokens { return ErlSrcTokens{tokenEmpty()} }
 //  ^^^^ // in Go, a variable's memory address stay the same when you assign a new value.
 // so, I can use a token only once - it's necessary to generate always new tokens,
 // and a simple 'tokenActual = tokenEmpty()' can't work, if the variable is always the same,

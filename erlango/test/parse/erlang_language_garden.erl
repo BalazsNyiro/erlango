@@ -7,9 +7,17 @@ main(_) ->
 
   Text = <<"progress 99%: msg">>, % comment after a "string"
   % comment in an empty line
-
+  
   io:format(Text),
-  io:format(" - Direct printing from Erlang code ~n"),
+
+  MultilineText = "
+                   This is a string,
+                   that contains newlines
+                   between quotes",
+
+
+  io:format(" - Direct printing from Erlang code, multi-line text: ~n"),
+  io:format(MultilineText),
   io:format(example_fun_call()).
 
 example_fun_call() ->
