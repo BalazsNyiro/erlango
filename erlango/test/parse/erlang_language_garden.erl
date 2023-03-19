@@ -16,11 +16,11 @@ main(_) ->
                    between quotes",
 
 
-  io:format(" - Direct printing from Erlang code, multi-line text: ~n"),
+  io:format("multi-line text: ~n"),
   io:format(MultilineText),
 
 
-  Comments = "ab % cde
+  Comments = "\n\nab % cde
               fgh",
   io:format(Comments),
 

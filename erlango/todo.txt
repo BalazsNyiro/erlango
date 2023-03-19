@@ -15,3 +15,6 @@ Notice that "B=<<1>>" will be interpreted as "B =< <1>>",
 
 // read this:
 https://en.wikipedia.org/wiki/Erlang_(programming_language)
+
+
+https://www.erlang.org/doc/reference_manual/data_types.html

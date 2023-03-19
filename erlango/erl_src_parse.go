@@ -91,6 +91,11 @@ func (char ErlSrcChar) Type () string {
 	return char.Token.Type
 }
 
+// true: if the char is connected to a token
+func (char ErlSrcChar) TokenConnected () bool {
+	return char.Token != nil
+}
+
 func ErlSrcChars_from_file(filePath string) ([]ErlSrcChar, error) {
 	runes, err := file_read_runes(filePath, "ErlSrcChars_from_file")
 	if err != nil { return []ErlSrcChar{}, err}
@@ -184,8 +189,8 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 	inCharRange, escapeOn := false, false
 
 	for position, _ := range chars {
+		if chars[position].TokenConnected() { continue } // modify only the unprocessed chars, without Tokens
 		nowOpened, nowEscaped := false, false
-		fmt.Println("last token:", *tokens.LastPtr())
 
 		if !inCharRange && conditionOpener(chars, position, &conditionMemory) {
 			tokenTypeSetter(&tokens, &conditionMemory)
