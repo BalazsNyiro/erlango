@@ -23,13 +23,13 @@ import (
    the testing is much easier
 */
 var TestGlobals = map[string]string{  // used from tests
-	"Token_type_txt_quoted_double": Token_type_txt_quoted_double,
-	"Token_type_txt_quoted_single": Token_type_txt_quoted_single,
-	"no_type"                     : "", // in ErlSrcChar, "" means: no-type
-	"empty_string"                : "",
-	"space"                       : " ",
-	"tabulator"                   : "\t",
-	"newline_unix"                : "\n",
+	"Token_type_txt_quoted_double"   : Token_type_txt_quoted_double,
+	"Token_type_txt_quoted_single"   : Token_type_txt_quoted_single,
+	"no_token_connected_to_the_char" : Char_no_token_connected_to_the_char,
+	"empty_string"                   : "",
+	"space"                          : " ",
+	"tabulator"                      : "\t",
+	"newline_unix"                   : "\n",
 } //////////////////////////////////////////////////////////////////////
 
 func Test_ErlSrcRead(t *testing.T) {
@@ -52,9 +52,9 @@ func Test_ErlSrcRead(t *testing.T) {
 func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	// The first column is the char, the second column is the type, others are comments
 	// a single char means himself. Keywords has special meanings
-	wantedTable1 := `  a       no_type 
-                       b       no_type
-                       c       no_type
+	wantedTable1 := `  a       no_token_connected_to_the_char 
+                       b       no_token_connected_to_the_char
+                       c       no_token_connected_to_the_char
                        '       Token_type_txt_quoted_single
                        d       Token_type_txt_quoted_single
                        "       Token_type_txt_quoted_single     <- this " is in the ''pair  
@@ -62,14 +62,14 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        '       Token_type_txt_quoted_single     <- escaped ' sign, not valid exit
                        f       Token_type_txt_quoted_single
                        '       Token_type_txt_quoted_single     <- valid closing pair
-                       g       no_type
-                       h       no_type
-                       i       no_type                       `
+                       g       no_token_connected_to_the_char
+                       h       no_token_connected_to_the_char
+                       i       no_token_connected_to_the_char                       `
 
 	txt := str_joined_from_wanted_table_char_column(wantedTable1)
 	chars := ErlSrcChars_from_str(txt)
 	ErlSrcTokens_Quoted__connect_to_chars(chars, true)
-	// debug_print_ErlSrcChars(&chars)
+	debug_print_ErlSrcChars(&chars)
 	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars, wantedTable1,  t)
 
 	// token checking
@@ -82,7 +82,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 
 	// here we search the "..." sections only, so the '...' is not detected
-	wantedTable2 := `  a       no_type 
+	wantedTable2 := `  a       no_token_connected_to_the_char 
                        "       Token_type_txt_quoted_double 
                      space     Token_type_txt_quoted_double
                        '       Token_type_txt_quoted_double     <- embedded ' char in the "" pair
@@ -90,7 +90,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        "       Token_type_txt_quoted_double     <- escaped " char, not a valid exit
                        1       Token_type_txt_quoted_double
                        "       Token_type_txt_quoted_double     <- valid closing " char
-                       f       no_type
+                       f       no_token_connected_to_the_char
                        '       Token_type_txt_quoted_single     <- valid opening ' char
                        i       Token_type_txt_quoted_single
 	                   h       Token_type_txt_quoted_single
@@ -112,7 +112,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 
 	// mixed test
-	wantedTable3 := `  a       no_type 
+	wantedTable3 := `  a       no_token_connected_to_the_char 
                        "       Token_type_txt_quoted_double 
                      space     Token_type_txt_quoted_double
                        '       Token_type_txt_quoted_double
@@ -120,7 +120,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        "       Token_type_txt_quoted_double
                        1       Token_type_txt_quoted_double
                        "       Token_type_txt_quoted_double
-                       f       no_type
+                       f       no_token_connected_to_the_char
                        '       Token_type_txt_quoted_single
                        "       Token_type_txt_quoted_single
 	                   h       Token_type_txt_quoted_single

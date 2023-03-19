@@ -36,6 +36,7 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 // maybe in debugging it's easier to see something instead of a flag
 const Token_type_txt_quoted_double string = "txt_quoted_double"  // "abc"
 const Token_type_txt_quoted_single string = "txt_quoted_single"  // 'abc'
+const Char_no_token_connected_to_the_char string = "noTokenConnected"
 ////////////////////////////////////////////////////////////////////////
 
 // ErlSrcToken : independent language unit, formed by one or more char
@@ -85,7 +86,7 @@ type ErlSrcChar struct {
 // Type a char's type is the parent Token's type
 func (char ErlSrcChar) Type () string {
 	if char.Token == nil {
-		return ""
+		return Char_no_token_connected_to_the_char
 	}
 	return char.Token.Type
 }
@@ -184,6 +185,7 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 
 	for position, _ := range chars {
 		nowOpened, nowEscaped := false, false
+		fmt.Println("last token:", *tokens.LastPtr())
 
 		if !inCharRange && conditionOpener(chars, position, &conditionMemory) {
 			tokenTypeSetter(&tokens, &conditionMemory)
@@ -257,7 +259,7 @@ func quoteTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 func isSingleQuoteRune(r rune) bool { return r == '\''}
 func isDoubleQuoteRune(r rune) bool { return r == '"'}
 func isSingleOrDoubleQuoteRune (r rune) bool {return isSingleQuoteRune(r) || isDoubleQuoteRune(r)}
-func tokenEmpty() ErlSrcToken                       { return ErlSrcToken{} }
+func tokenEmpty() ErlSrcToken { return ErlSrcToken{Type: "???"} }
 func tokensForChars__preInitialized() ErlSrcTokens { return ErlSrcTokens{tokenEmpty()} }
 //  ^^^^ // in Go, a variable's memory address stay the same when you assign a new value.
 // so, I can use a token only once - it's necessary to generate always new tokens,
