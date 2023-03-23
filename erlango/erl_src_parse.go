@@ -17,8 +17,11 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 	chars, err := ErlSrcChars_from_file("test/parse/hello.erl")
 	if err != nil { return []ErlSrcChar{}, err}
 
+
+	// TODO: theoretically it doesn't work, because chars is not a pointer!!!
 	// detect "strings" or 'atoms' - quoted texts
-	ErlSrcTokens_Quoted__connect_to_chars(chars, true)
+	ErlSrcTokensDetect__string_atom__connect_to_chars(chars, true)
+	ErlSrcTokensDetect__comments__connect_to_chars(chars, true)
 
 	// detect comments
 
@@ -36,6 +39,7 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 // maybe in debugging it's easier to see something instead of a flag
 const Token_type_txt_quoted_double string = "txt_quoted_double"  // "abc"
 const Token_type_txt_quoted_single string = "txt_quoted_single"  // 'abc'
+const Token_type_txt_comment string = "txt_comment"              // % abc
 const Char_no_token_connected_to_the_char string = "noTokenConnected"
 ////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +89,7 @@ type ErlSrcChar struct {
 
 // Type a char's type is the parent Token's type
 func (char ErlSrcChar) Type () string {
-	if char.Token == nil {
+	if ! char.TokenConnected() {
 		return Char_no_token_connected_to_the_char
 	}
 	return char.Token.Type
@@ -99,7 +103,7 @@ func (char ErlSrcChar) TokenConnected () bool {
 func ErlSrcChars_from_file(filePath string) ([]ErlSrcChar, error) {
 	runes, err := file_read_runes(filePath, "ErlSrcChars_from_file")
 	if err != nil { return []ErlSrcChar{}, err}
-	erlChars := ErlSrcChars_from_runes(runes, filePath)
+	erlChars := erlSrcChars_from_runes(runes, filePath)
 	// Test_what_happens_with_struct_pointers
 	// fmt.Printf("ErlSrcChars_from_file, chars pointer before return: %p\n", erlChars)
 	return erlChars, nil
@@ -107,10 +111,10 @@ func ErlSrcChars_from_file(filePath string) ([]ErlSrcChar, error) {
 
 func ErlSrcChars_from_str(txt string) []ErlSrcChar {
 	runes := runes_from_str(txt)
-	return ErlSrcChars_from_runes(runes, "direct_txt_input")
+	return erlSrcChars_from_runes(runes, "direct_txt_input")
 }
 
-func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
+func erlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 	var erlChars []ErlSrcChar
 	for posInFile, runeInFile := range runes {
 		erlChars = append(erlChars, ErlSrcChar{
@@ -137,7 +141,7 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 	return erlChars
 }
 
-/* ErlSrcTokens_Quoted__connect_to_chars fun processes the chars one by one:
+/* ErlSrcTokensDetect__string_atom__connect_to_chars fun processes the chars one by one:
     - if this is in a Quote: char->Token pointing happens.
     - more than one char can be connected to the same token.
 
@@ -159,26 +163,40 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 						line 2, finished with quota sign "
     The programmer can insert newline into strings with "line1..." ++ "\nline2"
     So now this behaviour is not a problem.
- */
-func ErlSrcTokens_Quoted__connect_to_chars(chars []ErlSrcChar, verbose bool) {
-	ErlSrcTokens_rangeDetect__connectToChars(
+*/
+func ErlSrcTokensDetect__string_atom__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		quoteConditionOpener,
 		quoteConditionCloser,
 		quoteConditionEscape,
 		quoteTokenTypeSet,
+		false,
 		verbose)
 }
-func ErlSrcTokens_rangeDetect__connectToChars(
+
+func ErlSrcTokensDetect__comments__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		commentConditionOpener,
+		commentConditionCloser,
+		commentConditionEscape,
+		commentTokenTypeSet,
+		false,
+		verbose)
+}
+
+func erlSrcTokens_rangeDetect__connectToChars(
 		chars []ErlSrcChar,
 	 	conditionOpener func([]ErlSrcChar, int, *conditionMemory) bool,
 		conditionCloser func([]ErlSrcChar, int, *conditionMemory) bool,
 		conditionEscape func([]ErlSrcChar, int, *conditionMemory) bool,
 	    tokenTypeSetter func(*ErlSrcTokens, *conditionMemory),
+		skip_chars_with_tokens bool,
 		verbose bool) {
 
 	tokenInfo := func (position int, chars []ErlSrcChar, tokens ErlSrcTokens, inCharRange bool, memory conditionMemory ) {
-		fmt.Println("ErlSrcTokens_Quoted__connect_to_chars", position, string(chars[position].Value),
+		fmt.Println("ErlSrcTokensDetect__string_atom__connect_to_chars", position, string(chars[position].Value),
 			fmt.Sprintf("tokenPtr: %p", chars[position].Token),
 			"type->",chars[position].Type(), "<>", (*tokens.LastPtr()).Type, "<- ",
 			bool_to_str(inCharRange, "in Quote:"+string(memory.runes["actualQuoteChar"]), ""))
@@ -189,7 +207,7 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 	inCharRange, escapeOn := false, false
 
 	for position, _ := range chars {
-		if chars[position].TokenConnected() { continue } // modify only the unprocessed chars, without Tokens
+		if skip_chars_with_tokens && chars[position].TokenConnected() { continue } // modify only the unprocessed chars, without Tokens
 		nowOpened, nowEscaped := false, false
 
 		if !inCharRange && conditionOpener(chars, position, &conditionMemory) {
@@ -217,7 +235,7 @@ func ErlSrcTokens_rangeDetect__connectToChars(
 			tokens = append(tokens, tokenEmpty())
 		}
 		escapeOn = false // if not now escaped, the escape disappearing at the next char.
-	}
+	} // for
 }
 
 ///////////////// token opener/closer //////////////////
@@ -256,7 +274,32 @@ func quoteTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	} else {
 		(*tokens)[tokenIdLast].Type = Token_type_txt_quoted_double
 	}
+}
 
+
+func commentConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	if chars[position].TokenConnected() { return false } // "in text, % is not a comment"
+	return chars[position].Value == '%'
+}
+
+func commentConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	lenChars := len(chars)
+	if position == lenChars-1 { return true}	// this is the last char, we won't find a newline.
+
+	// if the next char is not in token and the next char is a newline
+	if (! chars[position+1].TokenConnected()) &&  chars[position+1].Value == '\n' {
+		return true	 // the newline is not part of the comment Token
+	}
+	return chars[position].Value == '\n'
+}
+
+func commentConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in comments
+}
+
+func commentTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	tokenIdLast := len(*tokens) - 1
+	(*tokens)[tokenIdLast].Type = Token_type_txt_comment
 }
 ///////////////// token opener/closer //////////////////
 

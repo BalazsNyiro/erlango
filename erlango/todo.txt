@@ -3,7 +3,7 @@
 // more tests:: func Test_ErlSrcTokens_Quoted(t *testing.T)
 // DOCUMENTATION
 
-################################################
+################### ERLANG #############################
 
 Erlang compile flags
 https://stackoverflow.com/questions/34205406/how-do-i-export-all-functions-for-common-test-only
@@ -18,3 +18,6 @@ https://en.wikipedia.org/wiki/Erlang_(programming_language)
 
 
 https://www.erlang.org/doc/reference_manual/data_types.html
+
+################### GOLANG #############################
+math/big package deﬁnes two types: one for arbitrary-length integers

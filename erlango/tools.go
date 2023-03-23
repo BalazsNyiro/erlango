@@ -93,7 +93,7 @@ func debug_print_ErlSrcChars_original(chars []ErlSrcChar) {
 		fmt.Printf(" PrevPosInFile:%3d ", prevPos)
 
 		tokenType := ""
-		if chars[i].Token != nil {
+		if chars[i].TokenConnected() {
 			tokenType = chars[i].Token.Type
 		}
 		fmt.Printf(" %p <- %p -> %p token: %p %s", chars[i].PrevChar, &chars[i], chars[i].NextChar, chars[i].Token, tokenType)
