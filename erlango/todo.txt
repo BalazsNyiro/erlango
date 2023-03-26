@@ -5,6 +5,28 @@
 
 ################### ERLANG #############################
 
+supervisors
+
+BIF: the built-in-functions can be called without modle prefix:
+erlang:list_to_binary() can be called as 'list_to_binary()'
+
+guards  OR: when is_integer(a); is_float(a)  % one of them is true
+guards AND: when is_list(a), length(a)<5 % all of them has to be true
+
+
+Boolean tricks:
+true and 1 < 2    % (it is 'true and 1', doesn't work, precedence is too high)
+true and (1<2)    % works
+true andalso 1<2  %
+
+
+#### PROCESSES #######
+
+supervisors:    process_flag(trap_exit, true)
+monitor processes
+
+
+############
 Erlang compile flags
 https://stackoverflow.com/questions/34205406/how-do-i-export-all-functions-for-common-test-only
 -compile(export_all).

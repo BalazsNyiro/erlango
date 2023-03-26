@@ -25,6 +25,7 @@ import (
 var TestGlobals = map[string]string{  // used from tests
 	"Token_type_txt_quoted_double"   : Token_type_txt_quoted_double,
 	"Token_type_txt_quoted_single"   : Token_type_txt_quoted_single,
+	"Token_type_txt_comment"         : Token_type_txt_comment,
 	"no_token_connected_to_the_char" : Char_no_token_connected_to_the_char,
 	"empty_string"                   : "",
 	"space"                          : " ",
@@ -133,6 +134,53 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars3, wantedTable3,  t)
 	// debug_print_ErlSrcChars(&chars3)
 }
+
+
+func Test_ErlSrcTokens_Comments(t *testing.T) {
+	wantedTable1 := `  a       no_token_connected_to_the_char 
+	                   b       no_token_connected_to_the_char
+                       %       Token_type_txt_comment
+                       n       Token_type_txt_comment
+                       o       Token_type_txt_comment
+                       t       Token_type_txt_comment
+                       e       Token_type_txt_comment
+                 newline_unix  no_token_connected_to_the_char
+                       t       no_token_connected_to_the_char   
+                       x       no_token_connected_to_the_char
+                       t       no_token_connected_to_the_char
+    `
+
+	txt := str_joined_from_wanted_table_char_column(wantedTable1)
+	chars := ErlSrcChars_from_str(txt)
+	ParseErlangSourceCode(chars, "strings_atoms,comments")
+	debug_print_ErlSrcChars(&chars)
+	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Comments_1", chars, wantedTable1,  t)
+
+
+	wantedTable2 := `  a       no_token_connected_to_the_char 
+	                   b       no_token_connected_to_the_char
+                       %       Token_type_txt_comment
+                       n       Token_type_txt_comment
+                       o       Token_type_txt_comment
+                       t       Token_type_txt_comment
+                       e       Token_type_txt_comment
+                 newline_unix  no_token_connected_to_the_char
+                       t       no_token_connected_to_the_char   
+                       x       no_token_connected_to_the_char
+                       t       no_token_connected_to_the_char
+    `
+
+	txt2 := str_joined_from_wanted_table_char_column(wantedTable2)
+	chars2 := ErlSrcChars_from_str(txt2)
+	ParseErlangSourceCode(chars2, "strings_atoms,comments")
+	debug_print_ErlSrcChars(&chars2)
+	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Comments_1", chars, wantedTable1,  t)
+
+
+
+}
+
+
 
 // //////// test tools /////////////
 

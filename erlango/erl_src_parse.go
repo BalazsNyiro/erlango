@@ -11,25 +11,34 @@ package erlango
 
 import (
 	"fmt"
+	"strings"
 )
 
 func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 	chars, err := ErlSrcChars_from_file("test/parse/hello.erl")
 	if err != nil { return []ErlSrcChar{}, err}
+	return ParseErlangSourceCode(chars, "__all__")
+}
 
-
-	// TODO: theoretically it doesn't work, because chars is not a pointer!!!
+func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar, error) {
 	// detect "strings" or 'atoms' - quoted texts
-	ErlSrcTokensDetect__string_atom__connect_to_chars(chars, true)
-	ErlSrcTokensDetect__comments__connect_to_chars(chars, true)
+
+	execStep := func (stepName string) bool {
+		if strings.Contains(stepsWanted, "__all__") || strings.Contains(stepsWanted, stepName) {
+			return true
+		} else {return false}
+	}
+
+	// when you call ParseErlangSourceCode(), you can pass which steps do you want to execute
+	// so different steps can be executed from different tests
+	verbose := true
+	if execStep("strings_atoms") { ErlSrcTokensDetect__string_atom__connect_to_chars(chars, verbose) }
+	if execStep("comments") { ErlSrcTokensDetect__comments__connect_to_chars(chars, verbose) }
 
 	// detect comments
-
 	// detect whitespaces
-
 	// detect numbers
 	// detect
-
 	return chars, nil
 }
 
