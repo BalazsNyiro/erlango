@@ -46,7 +46,7 @@ func Test_ErlSrcRead(t *testing.T) {
 	compare_char_pointer_pair_are_same("compare char_0 and nil_prev_char", chars[0].PrevChar, nil, t)
 
 	compare_int_pair("pos_0.next, pos2.prev", chars[0].NextChar.PosInFile, chars[2].PrevChar.PosInFile, t)
-	// debug_print_ErlSrcChars(&chars)
+	// debug_print_ErlSrcChars(chars)
 	// compare_char_pointer_pair_are_same("compare char_0.next and char_2.prev", chars[0].NextChar, chars[2].PrevChar, t)
 }
 
@@ -70,11 +70,11 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	txt := str_joined_from_wanted_table_char_column(wantedTable1)
 	chars := ErlSrcChars_from_str(txt)
 	ErlSrcTokensDetect__string_atom__connect_to_chars(chars, true)
-	debug_print_ErlSrcChars(&chars)
+	debug_print_ErlSrcChars(chars)
 	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars, wantedTable1,  t)
 
 	// token checking
-	debug_print_ErlSrcChars(&chars)
+	debug_print_ErlSrcChars(chars)
 	compare_tokenPointers___are_______nil("test1 token check A", &chars, []int{0,1,2,10,11,12}, t)
 	compare_tokenPointers___are______same("test1 token check B", &chars, []int{3,4,5,6,7,8,9}, t)
 
@@ -102,7 +102,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	chars2 := ErlSrcChars_from_str(txt2)
 	ErlSrcTokensDetect__string_atom__connect_to_chars(chars2, true)
 	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars2, wantedTable2,  t)
-	// debug_print_ErlSrcChars(&chars2)
+	// debug_print_ErlSrcChars(chars2)
 
 	compare_tokenPointers___are_______nil("test2 token check AA1", &chars2, []int{0}, t)
 	compare_tokenPointers___are__not__nil("test2 token check BB1", &chars2, []int{1}, t)
@@ -132,7 +132,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	chars3 := ErlSrcChars_from_str(txt3)
 	ErlSrcTokensDetect__string_atom__connect_to_chars(chars3, true)
 	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars3, wantedTable3,  t)
-	// debug_print_ErlSrcChars(&chars3)
+	// debug_print_ErlSrcChars(chars3)
 }
 
 
@@ -153,7 +153,7 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
 	txt := str_joined_from_wanted_table_char_column(wantedTable1)
 	chars := ErlSrcChars_from_str(txt)
 	ParseErlangSourceCode(chars, "strings_atoms,comments")
-	debug_print_ErlSrcChars(&chars)
+	debug_print_ErlSrcChars(chars)
 	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Comments_1", chars, wantedTable1,  t)
 
 
@@ -173,7 +173,7 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
 	txt2 := str_joined_from_wanted_table_char_column(wantedTable2)
 	chars2 := ErlSrcChars_from_str(txt2)
 	ParseErlangSourceCode(chars2, "strings_atoms,comments")
-	debug_print_ErlSrcChars(&chars2)
+	debug_print_ErlSrcChars(chars2)
 	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Comments_1", chars, wantedTable1,  t)
 
 
