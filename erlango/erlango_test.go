@@ -159,6 +159,19 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
                        t       no_token_connected_to_the_char   
                        x       no_token_connected_to_the_char
                        t       no_token_connected_to_the_char
+                       "       Token_type_txt_quoted_double
+                       %       Token_type_txt_quoted_double   <- comment sign in a string
+                       s       Token_type_txt_quoted_double
+                       t       Token_type_txt_quoted_double
+                       r       Token_type_txt_quoted_double
+                       "       Token_type_txt_quoted_double
+                       '       Token_type_txt_quoted_single
+                       %       Token_type_txt_quoted_single   <- comment sign in an atom
+                       a       Token_type_txt_quoted_single
+                       t       Token_type_txt_quoted_single
+                       o       Token_type_txt_quoted_single
+                       m       Token_type_txt_quoted_single
+                       '       Token_type_txt_quoted_single
     `
 
 	txt := str_joined_from_wanted_table_char_column(wantedTable1)
