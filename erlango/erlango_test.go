@@ -25,7 +25,7 @@ import (
 var TestGlobals = map[string]string{  // used from tests
 	"Token_type_txt_quoted_double"   : Token_type_txt_quoted_double,
 	"Token_type_txt_quoted_single"   : Token_type_txt_quoted_single,
-	"Token_type_txt_comment"         : Token_type_txt_comment,
+	"Token_type_comment"         : Token_type_comment,
 	"no_token_connected_to_the_char" : Char_no_token_connected_to_the_char,
 	"empty_string"                   : "",
 	"space"                          : " ",
@@ -67,11 +67,11 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        h       no_token_connected_to_the_char
                        i       no_token_connected_to_the_char                       `
 
-	txt := str_joined_from_wanted_table_char_column(wantedTable1)
+	txt := str_joined_from_wantedCharsTable_char_column(wantedTable1)
 	chars := ErlSrcChars_from_str(txt)
 	ErlSrcTokensDetect__string_atom__connect_to_chars(chars, true)
 	debug_print_ErlSrcChars(chars)
-	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars, wantedTable1,  t)
+	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars, wantedTable1,  t)
 
 	// token checking
 	debug_print_ErlSrcChars(chars)
@@ -98,10 +98,10 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	                   '       Token_type_txt_quoted_single     <- valid closing ' char
                      `
 
-	txt2:= str_joined_from_wanted_table_char_column(wantedTable2)
+	txt2:= str_joined_from_wantedCharsTable_char_column(wantedTable2)
 	chars2 := ErlSrcChars_from_str(txt2)
 	ErlSrcTokensDetect__string_atom__connect_to_chars(chars2, true)
-	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars2, wantedTable2,  t)
+	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars2, wantedTable2,  t)
 	// debug_print_ErlSrcChars(chars2)
 
 	compare_tokenPointers___are_______nil("test2 token check AA1", &chars2, []int{0}, t)
@@ -128,10 +128,10 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        "       Token_type_txt_quoted_single
 	                   '       Token_type_txt_quoted_single `
 
-	txt3:= str_joined_from_wanted_table_char_column(wantedTable3)
+	txt3:= str_joined_from_wantedCharsTable_char_column(wantedTable3)
 	chars3 := ErlSrcChars_from_str(txt3)
 	ErlSrcTokensDetect__string_atom__connect_to_chars(chars3, true)
-	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Quoted", chars3, wantedTable3,  t)
+	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars3, wantedTable3,  t)
 	// debug_print_ErlSrcChars(chars3)
 }
 
@@ -139,22 +139,23 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 func Test_ErlSrcTokens_Comments(t *testing.T) {
 	wantedTable1 := `  a       no_token_connected_to_the_char 
 	                   b       no_token_connected_to_the_char
-                       %       Token_type_txt_comment
-                       '       Token_type_txt_comment  <- comment detection is AFTER str/atom detect
-                       a       Token_type_txt_comment     but: you can have a string in a comment, too!
-                       t       Token_type_txt_comment
-                       o       Token_type_txt_comment
-                       m       Token_type_txt_comment
-                       '       Token_type_txt_comment
-                       "       Token_type_txt_comment  <- string in the comment
-                       s       Token_type_txt_comment
-                       t       Token_type_txt_comment
-                       r       Token_type_txt_comment
-                       "       Token_type_txt_comment
-                       n       Token_type_txt_comment
-                       o       Token_type_txt_comment
-                       t       Token_type_txt_comment
-                       e       Token_type_txt_comment
+                       %       Token_type_comment
+                       %       Token_type_comment
+                       '       Token_type_comment  <- comment detection is AFTER str/atom detect
+                       a       Token_type_comment     but: you can have a string in a comment, too!
+                       t       Token_type_comment
+                       o       Token_type_comment
+                       m       Token_type_comment
+                       '       Token_type_comment
+                       "       Token_type_comment  <- string in the comment
+                       s       Token_type_comment
+                       t       Token_type_comment
+                       r       Token_type_comment
+                       "       Token_type_comment
+                       n       Token_type_comment
+                       o       Token_type_comment
+                       t       Token_type_comment
+                       e       Token_type_comment
                  newline_unix  no_token_connected_to_the_char  <- newline is the closer of comments
                        t       no_token_connected_to_the_char   
                        x       no_token_connected_to_the_char
@@ -174,34 +175,32 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
                        '       Token_type_txt_quoted_single
     `
 
-	txt := str_joined_from_wanted_table_char_column(wantedTable1)
+	txt := str_joined_from_wantedCharsTable_char_column(wantedTable1)
 	chars := ErlSrcChars_from_str(txt)
 	ParseErlangSourceCode(chars, "strings_atoms,comments")
 	debug_print_ErlSrcChars(chars)
-	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Comments_1", chars, wantedTable1,  t)
+	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Comments_1", chars, wantedTable1,  t)
 
 
+	// basic comment test
 	wantedTable2 := `  a       no_token_connected_to_the_char 
 	                   b       no_token_connected_to_the_char
-                       %       Token_type_txt_comment
-                       n       Token_type_txt_comment
-                       o       Token_type_txt_comment
-                       t       Token_type_txt_comment
-                       e       Token_type_txt_comment
+                       %       Token_type_comment
+                       n       Token_type_comment
+                       o       Token_type_comment
+                       t       Token_type_comment
+                       e       Token_type_comment
                  newline_unix  no_token_connected_to_the_char
                        t       no_token_connected_to_the_char   
                        x       no_token_connected_to_the_char
                        t       no_token_connected_to_the_char
     `
 
-	txt2 := str_joined_from_wanted_table_char_column(wantedTable2)
+	txt2 := str_joined_from_wantedCharsTable_char_column(wantedTable2)
 	chars2 := ErlSrcChars_from_str(txt2)
 	ParseErlangSourceCode(chars2, "strings_atoms,comments")
 	debug_print_ErlSrcChars(chars2)
-	compare_ErlSrcChar_with_wantedTable("ErlSrcTokens_Comments_1", chars, wantedTable1,  t)
-
-
-
+	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Comments_1", chars, wantedTable1,  t)
 }
 
 
@@ -214,14 +213,14 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
 
    everything from a possible third column can be a comment.
 */
-func wanted_table_line_cleaning(line string) string {
+func wantedCharsTable_line_cleaning(line string) string {
 	return str_double_space_remove(strings.TrimSpace(line))
 }
-func str_joined_from_wanted_table_char_column(wantedTable string) string {
+func str_joined_from_wantedCharsTable_char_column(wantedTable string) string {
 	var chars []string
 	for _, line := range strings.Split(wantedTable, "\n") {
 		// at this point there is a CHAR-TYPE pair with one space only:
-		line = wanted_table_line_cleaning(line)
+		line = wantedCharsTable_line_cleaning(line)
 		charOrKey := strings.Split(line, " ")[0]
 		if val, ok := TestGlobals[charOrKey]; ok {
 			chars = append(chars, val)  // use the value from the Global table, or:
@@ -236,10 +235,10 @@ func str_joined_from_wanted_table_char_column(wantedTable string) string {
 }
 
 
-func compare_ErlSrcChar_with_wantedTable(caller string, chars []ErlSrcChar, wantedTable string,  t *testing.T) {
+func compare_ErlSrcChar_with_wantedCharsTable(caller string, chars []ErlSrcChar, wantedTable string,  t *testing.T) {
 	wantedTableLines := strings.Split(wantedTable, "\n")
 	for charId, charObj := range chars {
-		line := wanted_table_line_cleaning(wantedTableLines[charId])
+		line := wantedCharsTable_line_cleaning(wantedTableLines[charId])
 		typeKey := strings.Split(line, " ")[1]
 		wantedType, _ := TestGlobals[typeKey]
 		compare_str_pair(

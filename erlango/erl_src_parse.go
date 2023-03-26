@@ -48,7 +48,7 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 // maybe in debugging it's easier to see something instead of a flag
 const Token_type_txt_quoted_double string = "txt_quoted_double"  // "abc"
 const Token_type_txt_quoted_single string = "txt_quoted_single"  // 'abc'
-const Token_type_txt_comment string = "txt_comment"              // % abc
+const Token_type_comment string = "txt_comment"              // % abc
 const Char_no_token_connected_to_the_char string = "noTokenConnected"
 ////////////////////////////////////////////////////////////////////////
 
@@ -308,7 +308,7 @@ func commentConditionEscape(chars []ErlSrcChar, position int, memory *conditionM
 
 func commentTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	tokenIdLast := len(*tokens) - 1
-	(*tokens)[tokenIdLast].Type = Token_type_txt_comment
+	(*tokens)[tokenIdLast].Type = Token_type_comment
 }
 ///////////////// token opener/closer //////////////////
 
