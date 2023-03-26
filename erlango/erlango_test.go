@@ -25,8 +25,11 @@ import (
 var TestGlobals = map[string]string{  // used from tests
 	"Token_type_txt_quoted_double"   : Token_type_txt_quoted_double,
 	"Token_type_txt_quoted_single"   : Token_type_txt_quoted_single,
-	"Token_type_comment"         : Token_type_comment,
-	"no_token_connected_to_the_char" : Char_no_token_connected_to_the_char,
+	"Token_type_comment"             : Token_type_comment,
+	"Token_type_not_detected"        : Token_type_not_detected,
+
+	// these are important to describe a char that you can't write
+	// in a wantedChar table
 	"empty_string"                   : "",
 	"space"                          : " ",
 	"tabulator"                      : "\t",
@@ -53,9 +56,9 @@ func Test_ErlSrcRead(t *testing.T) {
 func Test_ErlSrcTokens_Quoted(t *testing.T) {
 	// The first column is the char, the second column is the type, others are comments
 	// a single char means himself. Keywords has special meanings
-	wantedTable1 := `  a       no_token_connected_to_the_char 
-                       b       no_token_connected_to_the_char
-                       c       no_token_connected_to_the_char
+	wantedTable1 := `  a       Token_type_not_detected 
+                       b       Token_type_not_detected
+                       c       Token_type_not_detected
                        '       Token_type_txt_quoted_single
                        d       Token_type_txt_quoted_single
                        "       Token_type_txt_quoted_single     <- this " is in the ''pair  
@@ -63,9 +66,9 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        '       Token_type_txt_quoted_single     <- escaped ' sign, not valid exit
                        f       Token_type_txt_quoted_single
                        '       Token_type_txt_quoted_single     <- valid closing pair
-                       g       no_token_connected_to_the_char
-                       h       no_token_connected_to_the_char
-                       i       no_token_connected_to_the_char                       `
+                       g       Token_type_not_detected
+                       h       Token_type_not_detected
+                       i       Token_type_not_detected                       `
 
 	txt := str_joined_from_wantedCharsTable_char_column(wantedTable1)
 	chars := ErlSrcChars_from_str(txt)
@@ -83,7 +86,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 
 	// here we search the "..." sections only, so the '...' is not detected
-	wantedTable2 := `  a       no_token_connected_to_the_char 
+	wantedTable2 := `  a       Token_type_not_detected 
                        "       Token_type_txt_quoted_double 
                      space     Token_type_txt_quoted_double
                        '       Token_type_txt_quoted_double     <- embedded ' char in the "" pair
@@ -91,7 +94,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        "       Token_type_txt_quoted_double     <- escaped " char, not a valid exit
                        1       Token_type_txt_quoted_double
                        "       Token_type_txt_quoted_double     <- valid closing " char
-                       f       no_token_connected_to_the_char
+                       f       Token_type_not_detected
                        '       Token_type_txt_quoted_single     <- valid opening ' char
                        i       Token_type_txt_quoted_single
 	                   h       Token_type_txt_quoted_single
@@ -113,7 +116,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 
 	// mixed test
-	wantedTable3 := `  a       no_token_connected_to_the_char 
+	wantedTable3 := `  a       Token_type_not_detected 
                        "       Token_type_txt_quoted_double 
                      space     Token_type_txt_quoted_double
                        '       Token_type_txt_quoted_double
@@ -121,14 +124,14 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
                        "       Token_type_txt_quoted_double
                        1       Token_type_txt_quoted_double
                        "       Token_type_txt_quoted_double
-                       f       no_token_connected_to_the_char
+                       f       Token_type_not_detected
                        '       Token_type_txt_quoted_single
                        "       Token_type_txt_quoted_single
 	                   h       Token_type_txt_quoted_single
                        "       Token_type_txt_quoted_single
 	                   '       Token_type_txt_quoted_single `
 
-	txt3:= str_joined_from_wantedCharsTable_char_column(wantedTable3)
+	txt3 := str_joined_from_wantedCharsTable_char_column(wantedTable3)
 	chars3 := ErlSrcChars_from_str(txt3)
 	ErlSrcTokensDetect__string_atom__connect_to_chars(chars3, true)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars3, wantedTable3,  t)
@@ -137,8 +140,8 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 
 func Test_ErlSrcTokens_Comments(t *testing.T) {
-	wantedTable1 := `  a       no_token_connected_to_the_char 
-	                   b       no_token_connected_to_the_char
+	wantedTable1 := `  a       Token_type_not_detected 
+	                   b       Token_type_not_detected
                        %       Token_type_comment
                        %       Token_type_comment
                        '       Token_type_comment  <- comment detection is AFTER str/atom detect
@@ -156,10 +159,10 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
                        o       Token_type_comment
                        t       Token_type_comment
                        e       Token_type_comment
-                 newline_unix  no_token_connected_to_the_char  <- newline is the closer of comments
-                       t       no_token_connected_to_the_char   
-                       x       no_token_connected_to_the_char
-                       t       no_token_connected_to_the_char
+                 newline_unix  Token_type_not_detected  <- newline is the closer of comments
+                       t       Token_type_not_detected   
+                       x       Token_type_not_detected
+                       t       Token_type_not_detected
                        "       Token_type_txt_quoted_double
                        %       Token_type_txt_quoted_double   <- comment sign in a string
                        s       Token_type_txt_quoted_double
@@ -183,17 +186,17 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
 
 
 	// basic comment test
-	wantedTable2 := `  a       no_token_connected_to_the_char 
-	                   b       no_token_connected_to_the_char
+	wantedTable2 := `  a       Token_type_not_detected 
+	                   b       Token_type_not_detected
                        %       Token_type_comment
                        n       Token_type_comment
                        o       Token_type_comment
                        t       Token_type_comment
                        e       Token_type_comment
-                 newline_unix  no_token_connected_to_the_char
-                       t       no_token_connected_to_the_char   
-                       x       no_token_connected_to_the_char
-                       t       no_token_connected_to_the_char
+                 newline_unix  Token_type_not_detected
+                       t       Token_type_not_detected   
+                       x       Token_type_not_detected
+                       t       Token_type_not_detected
     `
 
 	txt2 := str_joined_from_wantedCharsTable_char_column(wantedTable2)

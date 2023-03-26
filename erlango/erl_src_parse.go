@@ -49,7 +49,7 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 const Token_type_txt_quoted_double string = "txt_quoted_double"  // "abc"
 const Token_type_txt_quoted_single string = "txt_quoted_single"  // 'abc'
 const Token_type_comment string = "txt_comment"              // % abc
-const Char_no_token_connected_to_the_char string = "noTokenConnected"
+const Token_type_not_detected string = "noTokenConnected"
 ////////////////////////////////////////////////////////////////////////
 
 // ErlSrcToken : independent language unit, formed by one or more char
@@ -99,7 +99,7 @@ type ErlSrcChar struct {
 // Type a char's type is the parent Token's type
 func (char ErlSrcChar) Type () string {
 	if ! char.TokenConnected() {
-		return Char_no_token_connected_to_the_char
+		return Token_type_not_detected
 	}
 	return char.Token.Type
 }
