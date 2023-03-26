@@ -140,11 +140,22 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
 	wantedTable1 := `  a       no_token_connected_to_the_char 
 	                   b       no_token_connected_to_the_char
                        %       Token_type_txt_comment
+                       '       Token_type_txt_comment  <- comment detection is AFTER str/atom detect
+                       a       Token_type_txt_comment     but: you can have a string in a comment, too!
+                       t       Token_type_txt_comment
+                       o       Token_type_txt_comment
+                       m       Token_type_txt_comment
+                       '       Token_type_txt_comment
+                       "       Token_type_txt_comment  <- string in the comment
+                       s       Token_type_txt_comment
+                       t       Token_type_txt_comment
+                       r       Token_type_txt_comment
+                       "       Token_type_txt_comment
                        n       Token_type_txt_comment
                        o       Token_type_txt_comment
                        t       Token_type_txt_comment
                        e       Token_type_txt_comment
-                 newline_unix  no_token_connected_to_the_char
+                 newline_unix  no_token_connected_to_the_char  <- newline is the closer of comments
                        t       no_token_connected_to_the_char   
                        x       no_token_connected_to_the_char
                        t       no_token_connected_to_the_char
