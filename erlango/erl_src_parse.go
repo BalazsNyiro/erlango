@@ -112,7 +112,7 @@ func (char ErlSrcChar) TokenConnected () bool {
 func ErlSrcChars_from_file(filePath string) ([]ErlSrcChar, error) {
 	runes, err := file_read_runes(filePath, "ErlSrcChars_from_file")
 	if err != nil { return []ErlSrcChar{}, err}
-	erlChars := erlSrcChars_from_runes(runes, filePath)
+	erlChars := ErlSrcChars_from_runes(runes, filePath)
 	// Test_what_happens_with_struct_pointers
 	// fmt.Printf("ErlSrcChars_from_file, chars pointer before return: %p\n", erlChars)
 	return erlChars, nil
@@ -120,10 +120,10 @@ func ErlSrcChars_from_file(filePath string) ([]ErlSrcChar, error) {
 
 func ErlSrcChars_from_str(txt string) []ErlSrcChar {
 	runes := runes_from_str(txt)
-	return erlSrcChars_from_runes(runes, "direct_txt_input")
+	return ErlSrcChars_from_runes(runes, "direct_txt_input")
 }
 
-func erlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
+func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 	var erlChars []ErlSrcChar
 	for posInFile, runeInFile := range runes {
 		erlChars = append(erlChars, ErlSrcChar{

@@ -207,8 +207,32 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
 }
 
 
+func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
+	wantedCharTable := wantedCharsTable_from_src_file("test/parse/erlang_whitespaces_separators.erl")
+	fmt.Println(">>> Test_ErlSrcTokens_whitespaces_separators")
+	fmt.Println(wantedCharTable)
+}
 
 // //////// test tools /////////////
+
+// There is a normal source code + TEST DATA in the src file.
+// This fun builds a wantedCharsTable from the src
+// TODO: fix this function
+func wantedCharsTable_from_src_file(filePath string) string   {
+	// this is the src+test wanted data.
+	funcName := "wantedCharsTable_from_src_file"
+
+	var linesWithoutTestData []string
+	lines, _ := file_read_lines(filePath, funcName)
+	for _, line:= range lines {
+		linesWithoutTestData = append(linesWithoutTestData, line)
+	}
+	return strings.Join(linesWithoutTestData, "\n")
+}
+
+
+
+
 
 /*
    the first column can contain one character, or a keyword, that is translated to a char.

@@ -60,12 +60,36 @@ func file_read_runes(filePath, caller string) ([]rune, error) {
 	return runes, nil
 }
 
+func file_read_lines(filePath, caller string) ([]string, error){
+	f, err := os.Open(filePath)
+	if err != nil {
+		LogError(err, caller + " open: "+filePath)
+		return []string{}, err
+	}
+	fileScanner := bufio.NewScanner(f)
+	fileScanner.Split(bufio.ScanLines)
+
+	var lines []string
+	for fileScanner.Scan() {
+		lines = append(lines, fileScanner.Text())
+	}
+	err2 := f.Close()
+	if err2 != nil {
+		LogError(err, caller + " close: "+filePath)
+		return []string{}, err2
+	}
+	return lines, nil
+}
+
 func runes_from_str(txt string) []rune {
 	var runes []rune
 	for _, runeNow := range txt {
 		runes = append(runes, runeNow)
 	}
 	return runes
+}
+func str_from_runes(runes []rune) string {
+	return string(runes)
 }
 
 func str_double_space_remove(txt string) string {
