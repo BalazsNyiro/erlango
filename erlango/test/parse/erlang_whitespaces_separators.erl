@@ -5,14 +5,16 @@
        % Token_type_whitespace
           % Token_type_whitespace (newline as last char)
 main(_) ->
-% Token_type_whitespace (tab indentation)
-                                  % Token_type_comma
-	io:format(  example_fun_call(), "something else").
+% Token_type_whitespace
+	io:format(example(), "tab indentation instead of space, before io:format").
 
-                   % Token_type_whitespace (space)
-                      % Token_type_whitespace (space)
-                               % Token_type_semicolon
-example_fun_call(1) -> "case 1";
-                                    % Token_type_dot
-example_fun_call(_) -> "case others".
+                       % Token_type_comma
+                        % Token_type_whitespace (space)
+    io:format(example(), "comma token in the line").
+          % Token_type_whitespace (space)
+             % Token_type_whitespace (space)
+                      % Token_type_semicolon
+example(1) -> "case 1";
+                           % Token_type_dot
+example(_) -> "case others".
 

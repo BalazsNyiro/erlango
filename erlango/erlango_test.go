@@ -222,10 +222,29 @@ func wantedCharsTable_from_src_file(filePath string) string   {
 	// this is the src+test wanted data.
 	funcName := "wantedCharsTable_from_src_file"
 
+	isTestLine := func(txt string) bool {
+		txt = strings.TrimSpace(txt)
+		if strings.Contains(txt, "%") {
+			if txt[0] == '%' {
+				if strings.Contains(txt, "Token_type_") {
+					return true
+				}
+			}
+		}
+		return false
+	}
+
 	var linesWithoutTestData []string
+	var linesTestData []string
+
 	lines, _ := file_read_lines(filePath, funcName)
 	for _, line:= range lines {
-		linesWithoutTestData = append(linesWithoutTestData, line)
+		if isTestLine(line) {
+			linesTestData = append(linesTestData, line)
+		} else {
+			linesWithoutTestData = append(linesWithoutTestData, line)
+			linesTestData = []string{}
+		}
 	}
 	return strings.Join(linesWithoutTestData, "\n")
 }
