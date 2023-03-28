@@ -233,6 +233,14 @@ func wantedCharsTable_from_src_file(filePath string) string   {
 		}
 		return false
 	}
+	wantedTokenTypeInTestline := func(lineActual string) string {
+		for _, word := range strings.Split(lineActual, " ") {
+			if strings.Contains(word, "Token_type") {
+				return word
+			}
+		}
+		return "wantedTestResult!"
+	}
 
 	var charsAndWantedTestResult []string
 	testData := map[int]string{}
@@ -242,14 +250,7 @@ func wantedCharsTable_from_src_file(filePath string) string   {
 		line = line + string('\n') // restore original line ending
 		if isTestLine(line) {
 
-			// find the wanted Token_type in the testline
-			wantedTestResult := "wantedTestResult!"
-			for _, word := range strings.Split(line, " ") {
-				if strings.Contains(word, "Token_type") {
-					wantedTestResult = word
-					break
-				}
-			}
+			wantedTestResult := wantedTokenTypeInTestline(line)
 
 			// modify the matching chars' wanted test Result
 			inTokenMatchArea := false
@@ -279,7 +280,8 @@ func wantedCharsTable_from_src_file(filePath string) string   {
 				}
 				// all linenum and position is 0 based so they are incremented in the output because in the original sources the editors use 1 based numbering
 				charsAndWantedTestResult = append(charsAndWantedTestResult,
-					prefix + insertedStr + postfix + wantedTestResult + "   line: " + strconv.Itoa(lineNumInSrc+1) + " pos:" + strconv.Itoa(posInLine+1))
+					prefix + insertedStr + postfix + wantedTestResult +
+					"   line: " + strconv.Itoa(lineNumInSrc+1) + " pos:" + strconv.Itoa(posInLine+1))
 			}
 			testData = map[int]string{}
 		}
