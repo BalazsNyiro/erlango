@@ -234,24 +234,58 @@ func wantedCharsTable_from_src_file(filePath string) string   {
 		return false
 	}
 
-	var linesWithoutTestData []string
-	var linesTestData []string
+	var charsAndWantedTestResult []string
+	testData := map[int]string{}
 
 	lines, _ := file_read_lines(filePath, funcName)
-	for _, line:= range lines {
+	for lineNumInSrc, line:= range lines {
+		line = line + string('\n') // restore original line ending
 		if isTestLine(line) {
-			linesTestData = append(linesTestData, line)
+
+			// find the wanted Token_type in the testline
+			wantedTestResult := "wantedTestResult!"
+			for _, word := range strings.Split(line, " ") {
+				if strings.Contains(word, "Token_type") {
+					wantedTestResult = word
+					break
+				}
+			}
+
+			// modify the matching chars' wanted test Result
+			inTokenMatchArea := false
+			for positionInLine, runeNow := range line {
+				if runeNow == '%' && !inTokenMatchArea { inTokenMatchArea = true }
+				if runeNow != '%' && inTokenMatchArea { break }
+				if runeNow == '%' && inTokenMatchArea {
+					testData[positionInLine] = wantedTestResult
+				}
+			}
 		} else {
-			linesWithoutTestData = append(linesWithoutTestData, line)
-			linesTestData = []string{}
+			// convert the line to list of chars and append the wanted test results
+			for posInLine, char := range line {
+				prefix := "                 "
+				postfix:= "    "
+				wantedTestResult := "Token_type_not_detected"
+				if realWantedTestResult, ok := testData[posInLine]; ok {
+					wantedTestResult = strings.TrimSpace(realWantedTestResult)
+				}
+
+				insertedStr := string(char)
+				if char == ' '  { insertedStr = "       space"}
+				if char == '\t' { insertedStr = "   tabulator"}
+				if char == '\n' { insertedStr = "newline_unix"}
+				if insertedStr != string(char) { // so if it's 'space', 'tabulator' or other...
+					prefix = "      "
+				}
+				// all linenum and position is 0 based so they are incremented in the output because in the original sources the editors use 1 based numbering
+				charsAndWantedTestResult = append(charsAndWantedTestResult,
+					prefix + insertedStr + postfix + wantedTestResult + "   line: " + strconv.Itoa(lineNumInSrc+1) + " pos:" + strconv.Itoa(posInLine+1))
+			}
+			testData = map[int]string{}
 		}
 	}
-	return strings.Join(linesWithoutTestData, "\n")
+	return strings.Join(charsAndWantedTestResult, "\n")
 }
-
-
-
-
 
 /*
    the first column can contain one character, or a keyword, that is translated to a char.
