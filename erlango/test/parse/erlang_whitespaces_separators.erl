@@ -1,20 +1,20 @@
 #!/usr/bin/env escript
 
-% tested:
-% newline | tab | space | comma | dot | semicolon
+%INFO tested:
+%INFO newline | tab | space | comma | dot | semicolon
        % Token_type_whitespace
-          % Token_type_whitespace (newline as last char)
+          %INFO Token_type_whitespace (newline as last char)
 main(_) ->
-% Token_type_whitespace
+%INFO Token_type_whitespace
 	io:format(example(), "tab indentation instead of space, before io:format").
 
-                       % Token_type_comma
-                        % Token_type_whitespace (space)
+                       %INFO Token_type_comma
+                        %INFO Token_type_whitespace (space)
     io:format(example(), "comma token in the line").
-          % Token_type_whitespace (space)
-             % Token_type_whitespace (space)
-                      % Token_type_semicolon
+          %INFO Token_type_whitespace (space)
+             %INFO Token_type_whitespace (space)
+                      %INFO Token_type_semicolon
 example(1) -> "case 1";
-                           % Token_type_dot
+                           %INFO Token_type_dot
 example(_) -> "case others".
 

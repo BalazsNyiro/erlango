@@ -140,85 +140,94 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 
 func Test_ErlSrcTokens_Comments(t *testing.T) {
-	wantedTable1 := `  a       Token_type_not_detected 
-	                   b       Token_type_not_detected
-                       %       Token_type_comment
-                       %       Token_type_comment
-                       '       Token_type_comment  <- comment detection is AFTER str/atom detect
-                       a       Token_type_comment     but: you can have a string in a comment, too!
-                       t       Token_type_comment
-                       o       Token_type_comment
-                       m       Token_type_comment
-                       '       Token_type_comment
-                       "       Token_type_comment  <- string in the comment
-                       s       Token_type_comment
-                       t       Token_type_comment
-                       r       Token_type_comment
-                       "       Token_type_comment
-                       n       Token_type_comment
-                       o       Token_type_comment
-                       t       Token_type_comment
-                       e       Token_type_comment
-                 newline_unix  Token_type_not_detected  <- newline is the closer of comments
-                       t       Token_type_not_detected   
-                       x       Token_type_not_detected
-                       t       Token_type_not_detected
-                       "       Token_type_txt_quoted_double
-                       %       Token_type_txt_quoted_double   <- comment sign in a string
-                       s       Token_type_txt_quoted_double
-                       t       Token_type_txt_quoted_double
-                       r       Token_type_txt_quoted_double
-                       "       Token_type_txt_quoted_double
-                       '       Token_type_txt_quoted_single
-                       %       Token_type_txt_quoted_single   <- comment sign in an atom
-                       a       Token_type_txt_quoted_single
-                       t       Token_type_txt_quoted_single
-                       o       Token_type_txt_quoted_single
-                       m       Token_type_txt_quoted_single
-                       '       Token_type_txt_quoted_single
+	wantedCharsTable1 := `  a       Token_type_not_detected 
+	                        b       Token_type_not_detected
+                            %       Token_type_comment
+                            %       Token_type_comment
+                            '       Token_type_comment  <- comment detection is AFTER str/atom detect
+                            a       Token_type_comment     but: you can have a string in a comment, too!
+                            t       Token_type_comment
+                            o       Token_type_comment
+                            m       Token_type_comment
+                            '       Token_type_comment
+                            "       Token_type_comment  <- string in the comment
+                            s       Token_type_comment
+                            t       Token_type_comment
+                            r       Token_type_comment
+                            "       Token_type_comment
+                            n       Token_type_comment
+                            o       Token_type_comment
+                            t       Token_type_comment
+                            e       Token_type_comment
+                      newline_unix  Token_type_not_detected  <- newline is the closer of comments
+                            t       Token_type_not_detected   
+                            x       Token_type_not_detected
+                            t       Token_type_not_detected
+                            "       Token_type_txt_quoted_double
+                            %       Token_type_txt_quoted_double   <- comment sign in a string
+                            s       Token_type_txt_quoted_double
+                            t       Token_type_txt_quoted_double
+                            r       Token_type_txt_quoted_double
+                            "       Token_type_txt_quoted_double
+                            '       Token_type_txt_quoted_single
+                            %       Token_type_txt_quoted_single   <- comment sign in an atom
+                            a       Token_type_txt_quoted_single
+                            t       Token_type_txt_quoted_single
+                            o       Token_type_txt_quoted_single
+                            m       Token_type_txt_quoted_single
+                            '       Token_type_txt_quoted_single
     `
 
-	txt := str_joined_from_wantedCharsTable_char_column(wantedTable1)
-	chars := ErlSrcChars_from_str(txt)
-	ParseErlangSourceCode(chars, "strings_atoms,comments")
-	debug_print_ErlSrcChars(chars)
-	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Comments_1", chars, wantedTable1,  t)
+	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
+	chars1 := ErlSrcChars_from_str(srcFromChars1)
+	ParseErlangSourceCode(chars1, "strings_atoms,comments")
+	debug_print_ErlSrcChars(chars1)
+	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Comments_1", chars1, wantedCharsTable1,  t)
 
 
 	// basic comment test
-	wantedTable2 := `  a       Token_type_not_detected 
-	                   b       Token_type_not_detected
-                       %       Token_type_comment
-                       n       Token_type_comment
-                       o       Token_type_comment
-                       t       Token_type_comment
-                       e       Token_type_comment
-                 newline_unix  Token_type_not_detected
-                       t       Token_type_not_detected   
-                       x       Token_type_not_detected
-                       t       Token_type_not_detected
+	wantedCharTable2 := `  a       Token_type_not_detected 
+	                       b       Token_type_not_detected
+                           %       Token_type_comment
+                           n       Token_type_comment
+                           o       Token_type_comment
+                           t       Token_type_comment
+                           e       Token_type_comment
+                     newline_unix  Token_type_not_detected
+                           t       Token_type_not_detected   
+                           x       Token_type_not_detected
+                           t       Token_type_not_detected
     `
 
-	txt2 := str_joined_from_wantedCharsTable_char_column(wantedTable2)
-	chars2 := ErlSrcChars_from_str(txt2)
+	srcFromChars2 := str_joined_from_wantedCharsTable_char_column(wantedCharTable2)
+	chars2 := ErlSrcChars_from_str(srcFromChars2)
 	ParseErlangSourceCode(chars2, "strings_atoms,comments")
 	debug_print_ErlSrcChars(chars2)
-	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Comments_1", chars, wantedTable1,  t)
+	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Comments_2", chars2, wantedCharTable2,  t)
 }
 
-
 func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
-	wantedCharTable := wantedCharsTable_from_src_file("test/parse/erlang_whitespaces_separators.erl")
 	fmt.Println(">>> Test_ErlSrcTokens_whitespaces_separators")
-	fmt.Println(wantedCharTable)
+	wantedCharTable := wantedCharsTable_from_src_file("test/parse/erlang_whitespaces_separators.erl", 2, 7)
+	srcWithoutTestdata := str_joined_from_wantedCharsTable_char_column(wantedCharTable)
+
+	fmt.Println("=============== 1 src ===================")
+	fmt.Println(srcWithoutTestdata)
+	fmt.Println("=============== 2 - chars ===============")
+	chars := ErlSrcChars_from_str(srcWithoutTestdata)
+	fmt.Println("=============== 3 - parse ===============")
+	ParseErlangSourceCode(chars, "strings_atoms,comments")
+	fmt.Println("=============== 4 - compare ===============")
+	compare_ErlSrcChar_with_wantedCharsTable("Test_ErlSrcTokens_whitespaces_separators", chars, wantedCharTable,  t)
 }
 
 // //////// test tools /////////////
 
 // There is a normal source code + TEST DATA in the src file.
 // This fun builds a wantedCharsTable from the src
-// TODO: fix this function
-func wantedCharsTable_from_src_file(filePath string) string   {
+// lineRange: in escripts, the first line is for Bash - don't process.
+// lineRange 2: if you want to focus on selected lines only
+func wantedCharsTable_from_src_file(filePath string, lineRangeStart, lineRangeEnd int) string   {
 	// this is the src+test wanted data.
 	funcName := "wantedCharsTable_from_src_file"
 
@@ -246,13 +255,15 @@ func wantedCharsTable_from_src_file(filePath string) string   {
 	testData := map[int]string{}
 
 	lines, _ := file_read_lines(filePath, funcName)
-	for lineNumInSrc, line:= range lines {
+	for lineNumInSrc, line:= range lines { // %INFO: skipt these lines too, not real comments.
+		if lineNumInSrc < lineRangeStart-1 || lineNumInSrc > lineRangeEnd-1 || strings.Contains(line, "%INFO"){
+			continue // process only the selected line range: -1 because of internal 0 based line numbering
+		}
 		line = line + string('\n') // restore original line ending
 		if isTestLine(line) {
-
 			wantedTestResult := wantedTokenTypeInTestline(line)
-
 			// modify the matching chars' wanted test Result
+			// collect the test lines from the source code
 			inTokenMatchArea := false
 			for positionInLine, runeNow := range line {
 				if runeNow == '%' && !inTokenMatchArea { inTokenMatchArea = true }

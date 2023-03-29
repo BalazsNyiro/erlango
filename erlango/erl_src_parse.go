@@ -181,7 +181,8 @@ func ErlSrcTokensDetect__string_atom__connect_to_chars(chars []ErlSrcChar, verbo
 		quoteConditionEscape,
 		quoteTokenTypeSet,
 		false,
-		verbose)
+		verbose,
+		"parse_strings_atoms")
 }
 
 func ErlSrcTokensDetect__comments__connect_to_chars(chars []ErlSrcChar, verbose bool) {
@@ -192,7 +193,8 @@ func ErlSrcTokensDetect__comments__connect_to_chars(chars []ErlSrcChar, verbose 
 		commentConditionEscape,
 		commentTokenTypeSet,
 		false,
-		verbose)
+		verbose,
+		"parse comments")
 }
 
 func erlSrcTokens_rangeDetect__connectToChars(
@@ -202,10 +204,10 @@ func erlSrcTokens_rangeDetect__connectToChars(
 		conditionEscape func([]ErlSrcChar, int, *conditionMemory) bool,
 	    tokenTypeSetter func(*ErlSrcTokens, *conditionMemory),
 		skip_chars_with_tokens bool,
-		verbose bool) {
+		verbose bool, caller string) {
 
 	tokenInfo := func (position int, chars []ErlSrcChar, tokens ErlSrcTokens, inCharRange bool, memory conditionMemory ) {
-		fmt.Println("ErlSrcTokensDetect__string_atom__connect_to_chars", position, string(chars[position].Value),
+		fmt.Println("ErlSrcTokensDetect", caller, position, string(chars[position].Value),
 			fmt.Sprintf("tokenPtr: %p", chars[position].Token),
 			"type->",chars[position].Type(), "<>", (*tokens.LastPtr()).Type, "<- ",
 			bool_to_str(inCharRange, "in Quote:"+string(memory.runes["actualQuoteChar"]), ""))
