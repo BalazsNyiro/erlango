@@ -33,7 +33,8 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	// so different steps can be executed from different tests
 	verbose := true
 	if execStep("strings_atoms") { ErlSrcTokensDetect__string_atom__connect_to_chars(chars, verbose) }
-	if execStep("comments") { ErlSrcTokensDetect__comments__connect_to_chars(chars, verbose) }
+	if execStep("comments")      { ErlSrcTokensDetect____comments___connect_to_chars(chars, verbose) }
+	if execStep("whitespaces")   { ErlSrcTokensDetect__whitespaces__connect_to_chars(chars, verbose) }
 
 	// detect comments
 	// detect whitespaces
@@ -186,7 +187,7 @@ func ErlSrcTokensDetect__string_atom__connect_to_chars(chars []ErlSrcChar, verbo
 		"parse_strings_atoms")
 }
 
-func ErlSrcTokensDetect__comments__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____comments___connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		commentConditionOpener,
@@ -196,6 +197,18 @@ func ErlSrcTokensDetect__comments__connect_to_chars(chars []ErlSrcChar, verbose 
 		false,
 		verbose,
 		"parse comments")
+}
+
+func ErlSrcTokensDetect__whitespaces__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		whitespacesConditionOpener,
+		whitespacesConditionCloser,
+		whitespacesConditionEscape,
+		whitespacesTokenTypeSet,
+		true, // skip comments and texts
+		verbose,
+		"parse whitespaces")
 }
 
 func erlSrcTokens_rangeDetect__connectToChars(
@@ -288,7 +301,7 @@ func quoteTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	}
 }
 
-
+///////////////////////////////////////
 func commentConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	if chars[position].TokenConnected() { return false } // "in text, % is not a comment"
 	return chars[position].Value == '%'
@@ -313,6 +326,27 @@ func commentTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	tokenIdLast := len(*tokens) - 1
 	(*tokens)[tokenIdLast].Type = Token_type_comment
 }
+///////////////////////////////////////
+
+func whitespacesConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	if chars[position].TokenConnected() { return false }
+	return strings.Contains( string(chars[position].Value), " \r\n\t")
+}
+
+func whitespacesConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true // the opener is a closer in same time
+}
+
+func whitespacesConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in whitespaces
+}
+
+func whitespacesTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	tokenIdLast := len(*tokens) - 1
+	(*tokens)[tokenIdLast].Type = Token_type_whitespace
+}
+
+
 ///////////////// token opener/closer //////////////////
 
 ////////////////////////////////// token funs ////////////////////////////////////
