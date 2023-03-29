@@ -48,8 +48,9 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 // maybe in debugging it's easier to see something instead of a flag
 const Token_type_txt_quoted_double string = "txt_quoted_double"  // "abc"
 const Token_type_txt_quoted_single string = "txt_quoted_single"  // 'abc'
-const Token_type_comment string = "txt_comment"              // % abc
+const Token_type_comment string = "comment"                      // % abc
 const Token_type_not_detected string = "noTokenConnected"
+const Token_type_whitespace string ="separator_whitespace"       // \t ' ' \n
 ////////////////////////////////////////////////////////////////////////
 
 // ErlSrcToken : independent language unit, formed by one or more char

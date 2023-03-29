@@ -27,6 +27,7 @@ var TestGlobals = map[string]string{  // used from tests
 	"Token_type_txt_quoted_single"   : Token_type_txt_quoted_single,
 	"Token_type_comment"             : Token_type_comment,
 	"Token_type_not_detected"        : Token_type_not_detected,
+	"Token_type_whitespace"          : Token_type_whitespace,
 
 	// these are important to describe a char that you can't write
 	// in a wantedChar table
@@ -332,8 +333,13 @@ func compare_ErlSrcChar_with_wantedCharsTable(caller string, chars []ErlSrcChar,
 	wantedTableLines := strings.Split(wantedTable, "\n")
 	for charId, charObj := range chars {
 		line := wantedCharsTable_line_cleaning(wantedTableLines[charId])
+		fmt.Println("DEBUG line compare:", line)
 		typeKey := strings.Split(line, " ")[1]
-		wantedType, _ := TestGlobals[typeKey]
+		fmt.Println("DEBUG      typeKey:", typeKey)
+		wantedType, keyExists:= TestGlobals[typeKey]
+		if ! keyExists {
+			print("ERROR: ", typeKey, " not in TestGlobals")
+		}
 		compare_str_pair(
 			caller+":compare_ErlSrcChar:"+strconv.Itoa(charId)+"->" + string(charObj.Value)+"<-",
 			charObj.Type(), wantedType, t)
