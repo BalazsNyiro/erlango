@@ -34,7 +34,9 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	verbose := true
 	if execStep("strings_atoms") { ErlSrcTokensDetect__string_atom__connect_to_chars(chars, verbose) }
 	if execStep("comments")      { ErlSrcTokensDetect____comments___connect_to_chars(chars, verbose) }
-	if execStep("whitespaces")   { ErlSrcTokensDetect__whitespaces__connect_to_chars(chars, verbose) }
+	if execStep("whitespaces")   {
+		ErlSrcTokensDetect__whitespaces__connect_to_chars(chars, verbose)
+	}
 
 	// detect comments
 	// detect whitespaces
@@ -184,7 +186,9 @@ func ErlSrcTokensDetect__string_atom__connect_to_chars(chars []ErlSrcChar, verbo
 		quoteTokenTypeSet,
 		false,
 		verbose,
-		"parse_strings_atoms")
+		"parse_strings_atoms",
+		false,  // the opener char cannot be the closer: we find pairs: "..."
+	)
 }
 
 func ErlSrcTokensDetect____comments___connect_to_chars(chars []ErlSrcChar, verbose bool) {
@@ -196,7 +200,9 @@ func ErlSrcTokensDetect____comments___connect_to_chars(chars []ErlSrcChar, verbo
 		commentTokenTypeSet,
 		false,
 		verbose,
-		"parse comments")
+		"parse comments",
+		false,  // the opener char cannot be the closer: comment...newLine
+		)
 }
 
 func ErlSrcTokensDetect__whitespaces__connect_to_chars(chars []ErlSrcChar, verbose bool) {
@@ -208,7 +214,9 @@ func ErlSrcTokensDetect__whitespaces__connect_to_chars(chars []ErlSrcChar, verbo
 		whitespacesTokenTypeSet,
 		true, // skip comments and texts
 		verbose,
-		"parse whitespaces")
+		"parse whitespaces",
+		true,  // the opener char is the closer char in same time
+	)
 }
 
 func erlSrcTokens_rangeDetect__connectToChars(
@@ -218,7 +226,9 @@ func erlSrcTokens_rangeDetect__connectToChars(
 		conditionEscape func([]ErlSrcChar, int, *conditionMemory) bool,
 	    tokenTypeSetter func(*ErlSrcTokens, *conditionMemory),
 		skip_chars_with_tokens bool,
-		verbose bool, caller string) {
+		verbose bool, caller string,
+		one_char_wide_token_detection bool,
+		) {
 
 	tokenInfo := func (position int, chars []ErlSrcChar, tokens ErlSrcTokens, inCharRange bool, memory conditionMemory ) {
 		fmt.Println("ErlSrcTokensDetect", caller, position, string(chars[position].Value),
@@ -228,35 +238,40 @@ func erlSrcTokens_rangeDetect__connectToChars(
 	}
 
 	tokens := tokensForChars__preInitialized()
-	conditionMemory := conditionMemoryEmpty()
-	inCharRange, escapeOn := false, false
+	conditionMemoryTemporaryWorkspace := conditionMemoryEmpty()
+	inCharRange__multicharTokenElem, escapeOn := false, false
 
-	for position, _ := range chars {
+	for position, charNow := range chars {
+		if verbose { fmt.Println("Token to char, charNow:", charNow) }
+
 		if skip_chars_with_tokens && chars[position].TokenConnected() { continue } // modify only the unprocessed chars, without Tokens
 		nowOpened, nowEscaped := false, false
 
-		if !inCharRange && conditionOpener(chars, position, &conditionMemory) {
-			tokenTypeSetter(&tokens, &conditionMemory)
-			inCharRange, nowOpened = true, true
+		if !inCharRange__multicharTokenElem && conditionOpener(chars, position, &conditionMemoryTemporaryWorkspace) {
+			tokenTypeSetter(&tokens, &conditionMemoryTemporaryWorkspace)
+			inCharRange__multicharTokenElem, nowOpened = true, true
 		}
 
-		if !escapeOn && inCharRange && conditionEscape(chars, position, &conditionMemory) {
+		if !escapeOn && inCharRange__multicharTokenElem && conditionEscape(chars, position, &conditionMemoryTemporaryWorkspace) {
 			escapeOn, nowEscaped = true, true // escaping is important for the closing condition
 		}
 
-		if inCharRange {
+		// inCharRange: one token can be built with more than one chars.
+		if inCharRange__multicharTokenElem {
 			chars[position].Token = tokens.LastPtr()
 			chars[position].Token.CharAppend(&(chars[position]))
 		}
-		if verbose { tokenInfo(position, chars, tokens, inCharRange, conditionMemory) }
+		if verbose { tokenInfo(position, chars, tokens, inCharRange__multicharTokenElem, conditionMemoryTemporaryWorkspace) }
 
-		if nowOpened || nowEscaped { continue }
+		if !one_char_wide_token_detection {
+			if nowOpened || nowEscaped { continue }
+		}
 		// ##### stop here ^^^^ the char processing in these 2 cases ###########
 		// if nowOpened == true, the sign is '\' and I don't want to turn it off if it was turned on just now
 		// if it's nowEscaped, I don't want to turn it off too because it has effect on the next char
 
-		if !escapeOn && inCharRange && conditionCloser(chars, position, &conditionMemory) {
-			inCharRange = false  // active escape blocks the conditionCloser()
+		if !escapeOn && inCharRange__multicharTokenElem && conditionCloser(chars, position, &conditionMemoryTemporaryWorkspace) {
+			inCharRange__multicharTokenElem = false // active escape blocks the conditionCloser()
 			tokens = append(tokens, tokenEmpty())
 		}
 		escapeOn = false // if not now escaped, the escape disappearing at the next char.
@@ -264,6 +279,7 @@ func erlSrcTokens_rangeDetect__connectToChars(
 }
 
 ///////////////// token opener/closer //////////////////
+// conditionMemory is a place where the opener/closer/other funs can save their infos during the detection.
 func conditionMemoryEmpty() conditionMemory {
 	return conditionMemory{runes: map[string]rune{}}
 }
@@ -330,7 +346,8 @@ func commentTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 
 func whitespacesConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	if chars[position].TokenConnected() { return false }
-	return strings.Contains( string(chars[position].Value), " \r\n\t")
+	charNow := string(chars[position].Value)
+	return strings.Contains(" \r\n\t", charNow)
 }
 
 func whitespacesConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {

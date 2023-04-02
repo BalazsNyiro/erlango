@@ -214,6 +214,12 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	wantedCharsTable1 := `  a       Token_type_not_detected 
 	                      space     Token_type_whitespace
 	                        b       Token_type_not_detected
+	                      space     Token_type_whitespace
+	                        c       Token_type_not_detected
+                        tabulator   Token_type_whitespace
+	                        d       Token_type_not_detected
+                       newline_unix Token_type_whitespace
+	                        d       Token_type_not_detected
     `
 
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
@@ -350,9 +356,9 @@ func compare_ErlSrcChar_with_wantedCharsTable(caller string, chars []ErlSrcChar,
 	wantedTableLines := strings.Split(wantedTable, "\n")
 	for charId, charObj := range chars {
 		line := wantedCharsTable_line_cleaning(wantedTableLines[charId])
-		fmt.Println("DEBUG line compare:", line)
+		// fmt.Println("DEBUG line compare:", line)
 		typeKey := strings.Split(line, " ")[1]
-		fmt.Println("DEBUG      typeKey:", typeKey)
+		// fmt.Println("DEBUG      typeKey:", typeKey)
 		wantedType, keyExists:= TestGlobals[typeKey]
 		if ! keyExists {
 			print("ERROR: ", typeKey, " not in TestGlobals")
