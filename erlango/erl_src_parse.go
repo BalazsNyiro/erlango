@@ -264,7 +264,7 @@ func erlSrcTokens_rangeDetect__connectToChars(
 		if verbose { tokenInfo(position, chars, tokens, inCharRange__multicharTokenElem, conditionMemoryTemporaryWorkspace) }
 
 		if !one_char_wide_token_detection {
-			if nowOpened || nowEscaped { continue }
+			if nowOpened || nowEscaped { continue } // the opener cannot be the closer: ".." pairs for example
 		}
 		// ##### stop here ^^^^ the char processing in these 2 cases ###########
 		// if nowOpened == true, the sign is '\' and I don't want to turn it off if it was turned on just now

@@ -220,6 +220,27 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	                        d       Token_type_not_detected
                        newline_unix Token_type_whitespace
 	                        d       Token_type_not_detected
+                            "       Token_type_txt_quoted_double
+                            %       Token_type_txt_quoted_double   <- comment sign in a string
+	                      space     Token_type_txt_quoted_double   
+                            s       Token_type_txt_quoted_double
+                            t       Token_type_txt_quoted_double
+                            r       Token_type_txt_quoted_double
+                       newline_unix Token_type_txt_quoted_double
+                            "       Token_type_txt_quoted_double
+                            '       Token_type_txt_quoted_single
+                            %       Token_type_txt_quoted_single   <- comment sign in an atom
+                            a       Token_type_txt_quoted_single
+                            t       Token_type_txt_quoted_single
+                            o       Token_type_txt_quoted_single
+                            m       Token_type_txt_quoted_single
+                            '       Token_type_txt_quoted_single
+                            %       Token_type_comment
+	                      space     Token_type_comment
+                            n       Token_type_comment
+                            o       Token_type_comment
+                            t       Token_type_comment
+                            e       Token_type_comment  <- no newline at the end of the comment
     `
 
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
