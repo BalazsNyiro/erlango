@@ -5,10 +5,15 @@
        % Token_type_whitespace
           % Token_type_whitespace (newline as last char)
 main(_) ->
-% Token_type_whitespace
-	io:format(example(), "tab indentation instead of space, before io:format").
+% Token_type_whitespace  tab indented line:
+	io:format(example()).
 
-                       %INFO Token_type_comma
+%INFO in the tab indented space it's difficult to represent the string, because the tab causes display problems
+%INFO so I create a separated line to that
+                         %%%%%%%%%%%%%%%%%%% Token_type_txt_quoted_double
+    io:format(example(), "space indentation").
+
+                       % Token_type_comma
                         % Token_type_whitespace (space)
     io:format(example(), "comma token in the line").
           % Token_type_whitespace (space)

@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -147,5 +148,17 @@ func debug_print_ErlSrcChar(id int, charPtr *ErlSrcChar) {
 
 func debug_print_mem_address(msg string, object any ){
 	fmt.Printf("%s %p \n", msg, object)
+}
+
+func map_print_keysorted__int_str(m map[int]string) {
+	keys := make([]int, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+
+	for _, k := range keys {
+		fmt.Println(k, m[k])
+	}
 }
 /////////////////////////// DEBUG //////////////////////////////////////////////

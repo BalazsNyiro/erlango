@@ -29,6 +29,8 @@ var TestGlobals = map[string]string{  // used from tests
 	"Token_type_not_detected"        : Token_type_not_detected,
 	"Token_type_whitespace"          : Token_type_whitespace,
 
+	"Token_type_always_accepted" : "Token_type_always_accepted",
+
 	// these are important to describe a char that you can't write
 	// in a wantedChar table
 	"empty_string"                   : "",
@@ -74,12 +76,12 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt := str_joined_from_wantedCharsTable_char_column(wantedTable1)
 	chars := ErlSrcChars_from_str(txt)
-	ErlSrcTokensDetect__string_atom__connect_to_chars(chars, true)
-	debug_print_ErlSrcChars(chars)
+	ErlSrcTokensDetect__string_atom__connect_to_chars(chars, false)
+	// debug_print_ErlSrcChars(chars)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars, wantedTable1,  t)
 
 	// token checking
-	debug_print_ErlSrcChars(chars)
+	// debug_print_ErlSrcChars(chars)
 	compare_tokenPointers___are_______nil("test1 token check A", &chars, []int{0,1,2,10,11,12}, t)
 	compare_tokenPointers___are______same("test1 token check B", &chars, []int{3,4,5,6,7,8,9}, t)
 
@@ -105,7 +107,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt2:= str_joined_from_wantedCharsTable_char_column(wantedTable2)
 	chars2 := ErlSrcChars_from_str(txt2)
-	ErlSrcTokensDetect__string_atom__connect_to_chars(chars2, true)
+	ErlSrcTokensDetect__string_atom__connect_to_chars(chars2, false)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars2, wantedTable2,  t)
 	// debug_print_ErlSrcChars(chars2)
 
@@ -135,7 +137,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt3 := str_joined_from_wantedCharsTable_char_column(wantedTable3)
 	chars3 := ErlSrcChars_from_str(txt3)
-	ErlSrcTokensDetect__string_atom__connect_to_chars(chars3, true)
+	ErlSrcTokensDetect__string_atom__connect_to_chars(chars3, false)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars3, wantedTable3,  t)
 	// debug_print_ErlSrcChars(chars3)
 }
@@ -183,7 +185,7 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars1 := ErlSrcChars_from_str(srcFromChars1)
 	ParseErlangSourceCode(chars1, "strings_atoms,comments")
-	debug_print_ErlSrcChars(chars1)
+	// debug_print_ErlSrcChars(chars1)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Comments_1", chars1, wantedCharsTable1,  t)
 
 
@@ -204,7 +206,7 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
 	srcFromChars2 := str_joined_from_wantedCharsTable_char_column(wantedCharTable2)
 	chars2 := ErlSrcChars_from_str(srcFromChars2)
 	ParseErlangSourceCode(chars2, "strings_atoms,comments")
-	debug_print_ErlSrcChars(chars2)
+	// debug_print_ErlSrcChars(chars2)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Comments_2", chars2, wantedCharTable2,  t)
 }
 
@@ -247,11 +249,11 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars1 := ErlSrcChars_from_str(srcFromChars1)
 	ParseErlangSourceCode(chars1, "strings_atoms,comments,whitespaces")
-	debug_print_ErlSrcChars(chars1)
+	// debug_print_ErlSrcChars(chars1)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_whitespace_naive", chars1, wantedCharsTable1,  t)
 
 
-	wantedCharTable := wantedCharsTable_from_src_file("test/parse/erlang_whitespaces_separators.erl", 2, 7)
+	wantedCharTable := wantedCharsTable_from_src_file("test/parse/erlang_whitespaces_separators.erl", 2, 16)
 	srcWithoutTestdata := str_joined_from_wantedCharsTable_char_column(wantedCharTable)
 
 	fmt.Println("=============== 1 src ===================")
@@ -260,6 +262,8 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	chars := ErlSrcChars_from_str(srcWithoutTestdata)
 	fmt.Println("=============== 3 - parse ===============")
 	ParseErlangSourceCode(chars, "strings_atoms,comments,whitespaces")
+	debug_print_ErlSrcChars(chars)
+	fmt.Println(" wantedCharTable:\n", wantedCharTable)
 	fmt.Println("=============== 4 - compare ===============")
 	compare_ErlSrcChar_with_wantedCharsTable("Test_ErlSrcTokens_whitespaces_separators", chars, wantedCharTable,  t)
 }
@@ -291,14 +295,14 @@ func wantedCharsTable_from_src_file(filePath string, lineRangeStart, lineRangeEn
 				return word
 			}
 		}
-		return "wantedTestResult!"
+		return "no detected token type in TEST LINE!"
 	}
 
 	var charsAndWantedTestResult []string
 	testData := map[int]string{}
 
 	lines, _ := file_read_lines(filePath, funcName)
-	for lineNumInSrc, line:= range lines { // %INFO: skipt these lines too, not real comments.
+	for lineNumInSrc, line:= range lines { // %INFO: skip these lines too, not real comments.
 		if lineNumInSrc < lineRangeStart-1 || lineNumInSrc > lineRangeEnd-1 || strings.Contains(line, "%INFO"){
 			continue // process only the selected line range: -1 because of internal 0 based line numbering
 		}
@@ -316,27 +320,37 @@ func wantedCharsTable_from_src_file(filePath string, lineRangeStart, lineRangeEn
 				}
 			}
 		} else {
+			fmt.Println("<< testData, positionInLine >>", line)
+			map_print_keysorted__int_str(testData)
+
+
 			// convert the line to list of chars and append the wanted test results
+			postfix:= "yyyy"
+			wantedTestResult := "xxx"
+			prefix := "                 "
+			bigSpace := "                                          "
+
 			for posInLine, char := range line {
-				prefix := "                 "
-				postfix:= "    "
-				wantedTestResult := "Token_type_not_detected"
 				if realWantedTestResult, ok := testData[posInLine]; ok {
 					wantedTestResult = strings.TrimSpace(realWantedTestResult)
+				} else {
+					wantedTestResult = "Token_type_always_accepted"
 				}
+				postfix = bigSpace[:30 -len(wantedTestResult)]
 
 				insertedStr := string(char)
-				if char == ' '  { insertedStr = "          space"; wantedTestResult = "Token_type_whitespace" }
-				if char == '\t' { insertedStr = "      tabulator"; wantedTestResult = "Token_type_whitespace" }
-				if char == '\n' { insertedStr = "   newline_unix"; wantedTestResult = "Token_type_whitespace" }
-				if char == '\r' { insertedStr = "carriage_return"; wantedTestResult = "Token_type_whitespace" }
-				if insertedStr != string(char) { // so if it's 'space', 'tabulator' or other...
-					prefix = "   "
-				}
-				// all linenum and position is 0 based so they are incremented in the output because in the original sources the editors use 1 based numbering
+
+				if char == ' '  { insertedStr = "          space"}
+				if char == '\t' { insertedStr = "      tabulator"}
+				if char == '\n' { insertedStr = "   newline_unix"}
+				if char == '\r' { insertedStr = "carriage_return"}
+				// if char == '"' { insertedStr = "              \""; wantedTestResult = "Token_type_txt_quoted_double" }
+				prefix= bigSpace[:30 - len(insertedStr)]
+
+				// all linenum and position is 0 based
 				charsAndWantedTestResult = append(charsAndWantedTestResult,
 					prefix + insertedStr + postfix + wantedTestResult +
-					"   line: " + strconv.Itoa(lineNumInSrc+1) + " pos:" + strconv.Itoa(posInLine+1))
+					"   line: " + strconv.Itoa(lineNumInSrc) + " pos:" + strconv.Itoa(posInLine))
 			}
 			testData = map[int]string{}
 		}
@@ -375,17 +389,22 @@ func str_joined_from_wantedCharsTable_char_column(wantedTable string) string {
 func compare_ErlSrcChar_with_wantedCharsTable(caller string, chars []ErlSrcChar, wantedTable string,  t *testing.T) {
 	wantedTableLines := strings.Split(wantedTable, "\n")
 	for charId, charObj := range chars {
+		// fmt.Println("DEBUG line compare 1:",wantedTableLines[charId])
 		line := wantedCharsTable_line_cleaning(wantedTableLines[charId])
-		// fmt.Println("DEBUG line compare:", line)
+		// fmt.Println("DEBUG line compare 2:", line)
 		typeKey := strings.Split(line, " ")[1]
 		// fmt.Println("DEBUG      typeKey:", typeKey)
 		wantedType, keyExists:= TestGlobals[typeKey]
+
 		if ! keyExists {
 			print("ERROR: ", typeKey, " not in TestGlobals")
 		}
-		compare_str_pair(
-			caller+":compare_ErlSrcChar:"+strconv.Itoa(charId)+"->" + string(charObj.Value)+"<-",
-			charObj.Type(), wantedType, t)
+
+		if ! strings.Contains(wantedType, "Token_type_always_accepted") {
+			compare_str_pair(
+				caller+":compare_ErlSrcChar:"+strconv.Itoa(charId)+"->" + string(charObj.Value)+"<-",
+				charObj.Type(), wantedType, t)
+		}
 	}
 }
 

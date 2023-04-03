@@ -31,7 +31,7 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 
 	// when you call ParseErlangSourceCode(), you can pass which steps do you want to execute
 	// so different steps can be executed from different tests
-	verbose := true
+	verbose := false
 	if execStep("strings_atoms") { ErlSrcTokensDetect__string_atom__connect_to_chars(chars, verbose) }
 	if execStep("comments")      { ErlSrcTokensDetect____comments___connect_to_chars(chars, verbose) }
 	if execStep("whitespaces")   {
