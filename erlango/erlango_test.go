@@ -35,6 +35,7 @@ var TestGlobals = map[string]string{  // used from tests
 	"space"                          : " ",
 	"tabulator"                      : "\t",
 	"newline_unix"                   : "\n",
+	"carriage_return"                : "\r",
 } //////////////////////////////////////////////////////////////////////
 
 func Test_ErlSrcRead(t *testing.T) {
@@ -250,7 +251,6 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_whitespace_naive", chars1, wantedCharsTable1,  t)
 
 
-	/*
 	wantedCharTable := wantedCharsTable_from_src_file("test/parse/erlang_whitespaces_separators.erl", 2, 7)
 	srcWithoutTestdata := str_joined_from_wantedCharsTable_char_column(wantedCharTable)
 
@@ -262,8 +262,6 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	ParseErlangSourceCode(chars, "strings_atoms,comments,whitespaces")
 	fmt.Println("=============== 4 - compare ===============")
 	compare_ErlSrcChar_with_wantedCharsTable("Test_ErlSrcTokens_whitespaces_separators", chars, wantedCharTable,  t)
-
-	 */
 }
 
 // //////// test tools /////////////
@@ -328,11 +326,12 @@ func wantedCharsTable_from_src_file(filePath string, lineRangeStart, lineRangeEn
 				}
 
 				insertedStr := string(char)
-				if char == ' '  { insertedStr = "       space"}
-				if char == '\t' { insertedStr = "   tabulator"}
-				if char == '\n' { insertedStr = "newline_unix"}
+				if char == ' '  { insertedStr = "          space"; wantedTestResult = "Token_type_whitespace" }
+				if char == '\t' { insertedStr = "      tabulator"; wantedTestResult = "Token_type_whitespace" }
+				if char == '\n' { insertedStr = "   newline_unix"; wantedTestResult = "Token_type_whitespace" }
+				if char == '\r' { insertedStr = "carriage_return"; wantedTestResult = "Token_type_whitespace" }
 				if insertedStr != string(char) { // so if it's 'space', 'tabulator' or other...
-					prefix = "      "
+					prefix = "   "
 				}
 				// all linenum and position is 0 based so they are incremented in the output because in the original sources the editors use 1 based numbering
 				charsAndWantedTestResult = append(charsAndWantedTestResult,

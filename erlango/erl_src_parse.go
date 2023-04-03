@@ -227,7 +227,7 @@ func erlSrcTokens_rangeDetect__connectToChars(
 	    tokenTypeSetter func(*ErlSrcTokens, *conditionMemory),
 		skip_chars_with_tokens bool,
 		verbose bool, caller string,
-		one_char_wide_token_detection bool,
+		oneCharWideTokenDetection bool,
 		) {
 
 	tokenInfo := func (position int, chars []ErlSrcChar, tokens ErlSrcTokens, inCharRange bool, memory conditionMemory ) {
@@ -239,7 +239,7 @@ func erlSrcTokens_rangeDetect__connectToChars(
 
 	tokens := tokensForChars__preInitialized()
 	conditionMemoryTemporaryWorkspace := conditionMemoryEmpty()
-	inCharRange__multicharTokenElem, escapeOn := false, false
+	inTokenDetection_activeCharsFound, escapeOn := false, false
 
 	for position, charNow := range chars {
 		if verbose { fmt.Println("Token to char, charNow:", charNow) }
@@ -247,31 +247,32 @@ func erlSrcTokens_rangeDetect__connectToChars(
 		if skip_chars_with_tokens && chars[position].TokenConnected() { continue } // modify only the unprocessed chars, without Tokens
 		nowOpened, nowEscaped := false, false
 
-		if !inCharRange__multicharTokenElem && conditionOpener(chars, position, &conditionMemoryTemporaryWorkspace) {
+		if !inTokenDetection_activeCharsFound && conditionOpener(chars, position, &conditionMemoryTemporaryWorkspace) {
 			tokenTypeSetter(&tokens, &conditionMemoryTemporaryWorkspace)
-			inCharRange__multicharTokenElem, nowOpened = true, true
+			inTokenDetection_activeCharsFound, nowOpened = true, true
 		}
 
-		if !escapeOn && inCharRange__multicharTokenElem && conditionEscape(chars, position, &conditionMemoryTemporaryWorkspace) {
+		if !escapeOn && inTokenDetection_activeCharsFound && conditionEscape(chars, position, &conditionMemoryTemporaryWorkspace) {
 			escapeOn, nowEscaped = true, true // escaping is important for the closing condition
 		}
 
-		// inCharRange: one token can be built with more than one chars.
-		if inCharRange__multicharTokenElem {
+		if inTokenDetection_activeCharsFound {
 			chars[position].Token = tokens.LastPtr()
 			chars[position].Token.CharAppend(&(chars[position]))
 		}
-		if verbose { tokenInfo(position, chars, tokens, inCharRange__multicharTokenElem, conditionMemoryTemporaryWorkspace) }
+		if verbose { tokenInfo(position, chars, tokens, inTokenDetection_activeCharsFound, conditionMemoryTemporaryWorkspace) }
 
-		if !one_char_wide_token_detection {
+		if !oneCharWideTokenDetection {
 			if nowOpened || nowEscaped { continue } // the opener cannot be the closer: ".." pairs for example
-		}
+		} // else: if oneCharWideToken == true, the char can be a closer char, too
+
+
 		// ##### stop here ^^^^ the char processing in these 2 cases ###########
 		// if nowOpened == true, the sign is '\' and I don't want to turn it off if it was turned on just now
 		// if it's nowEscaped, I don't want to turn it off too because it has effect on the next char
 
-		if !escapeOn && inCharRange__multicharTokenElem && conditionCloser(chars, position, &conditionMemoryTemporaryWorkspace) {
-			inCharRange__multicharTokenElem = false // active escape blocks the conditionCloser()
+		if !escapeOn && inTokenDetection_activeCharsFound && conditionCloser(chars, position, &conditionMemoryTemporaryWorkspace) {
+			inTokenDetection_activeCharsFound = false // active escape blocks the conditionCloser()
 			tokens = append(tokens, tokenEmpty())
 		}
 		escapeOn = false // if not now escaped, the escape disappearing at the next char.
