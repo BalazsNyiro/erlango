@@ -32,12 +32,15 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	// when you call ParseErlangSourceCode(), you can pass which steps do you want to execute
 	// so different steps can be executed from different tests
 	verbose := false
-	if execStep("strings_atoms") { ErlSrcTokensDetect__string_atom__connect_to_chars(chars, verbose) }
-	if execStep("comments")      { ErlSrcTokensDetect____comments___connect_to_chars(chars, verbose) }
-	if execStep("whitespaces")   { ErlSrcTokensDetect__whitespaces__connect_to_chars(chars, verbose) }
-	if execStep("commas")        { ErlSrcTokensDetect____commas_____connect_to_chars(chars, verbose) }
-	if execStep("dots")          { ErlSrcTokensDetect______dot______connect_to_chars(chars, verbose) }
-	if execStep("semicolons")    { ErlSrcTokensDetect___semicolon___connect_to_chars(chars, verbose) }
+	if execStep("strings_atoms")        { ErlSrcTokensDetect___string_atom___connect_to_chars(chars, verbose) }
+	if execStep("comments")             { ErlSrcTokensDetect_____comments____connect_to_chars(chars, verbose) }
+	if execStep("whitespaces")          { ErlSrcTokensDetect___whitespaces___connect_to_chars(chars, verbose) }
+	if execStep("commas")               { ErlSrcTokensDetect_____commas______connect_to_chars(chars, verbose) }
+	if execStep("dots")                 { ErlSrcTokensDetect_______dot_______connect_to_chars(chars, verbose) }
+	if execStep("semicolons")           { ErlSrcTokensDetect____semicolon____connect_to_chars(chars, verbose) }
+
+	if execStep("bracket_round_opener") { ErlSrcTokensDetect_bracketRoundOp__connect_to_chars(chars, verbose) }
+	if execStep("bracket_round_closer") { ErlSrcTokensDetect_bracketRoundCl__connect_to_chars(chars, verbose) }
 
 	// detect comments
 	// detect whitespaces
@@ -50,14 +53,20 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 // this is a perfect theoretical example for an atom, because
 // the value here is not important, useless.
 // maybe in debugging it's easier to see something instead of a flag
-const Token_type_txt_quoted_double string = "txt_quoted_double"  // "abc"
-const Token_type_txt_quoted_single string = "txt_quoted_single"  // 'abc'
-const Token_type_comment string = "comment"                      // % abc
-const Token_type_not_detected string = "noTokenConnected"
-const Token_type_whitespace string ="separator_whitespace"       // \t ' ' \n
-const Token_type_comma string ="separator_comma"                 // ,
-const Token_type_dot string ="separator_comma"                   // .
-const Token_type_semicolon string ="separator_comma"             // ;
+const Token_type_txt_quoted_double     string = "txt_quoted_double"     // "abc"
+const Token_type_txt_quoted_single     string = "txt_quoted_single"     // 'abc'
+const Token_type_comment               string = "comment"               // % abc
+const Token_type_not_detected          string = "noTokenConnected"
+const Token_type_whitespace            string = "separator_whitespace"  // \t ' ' \n
+const Token_type_comma                 string = "separator_comma"       // ,
+const Token_type_dot                   string = "separator_dot"         // .
+const Token_type_semicolon             string = "separator_semicolon"   // ;
+const Token_type_bracket_round_open    string = "bracket_round_open"    // (
+const Token_type_bracket_round_close   string = "bracket_round_close"   // )
+const Token_type_bracket_square_open   string = "bracket_square_open"   // [
+const Token_type_bracket_square_close  string = "bracket_square_close"  // ]
+const Token_type_bracket_curly_open    string = "bracket_curly_open"    // {
+const Token_type_bracket_curyl_close   string = "bracket_curly_close"   // }
 
 // //////////////////////////////////////////////////////////////////////
 
@@ -159,7 +168,7 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 	return erlChars
 }
 
-/* ErlSrcTokensDetect__string_atom__connect_to_chars fun processes the chars one by one:
+/* ErlSrcTokensDetect___string_atom___connect_to_chars fun processes the chars one by one:
     - if this is in a Quote: char->Token pointing happens.
     - more than one char can be connected to the same token.
 
@@ -182,7 +191,7 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
     The programmer can insert newline into strings with "line1..." ++ "\nline2"
     So now this behaviour is not a problem.
 */
-func ErlSrcTokensDetect__string_atom__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___string_atom___connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		quoteConditionOpener,
@@ -196,7 +205,7 @@ func ErlSrcTokensDetect__string_atom__connect_to_chars(chars []ErlSrcChar, verbo
 	)
 }
 
-func ErlSrcTokensDetect____comments___connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_____comments____connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		commentConditionOpener,
@@ -210,7 +219,7 @@ func ErlSrcTokensDetect____comments___connect_to_chars(chars []ErlSrcChar, verbo
 		)
 }
 
-func ErlSrcTokensDetect__whitespaces__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___whitespaces___connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		whitespacesConditionOpener,
@@ -224,7 +233,7 @@ func ErlSrcTokensDetect__whitespaces__connect_to_chars(chars []ErlSrcChar, verbo
 	)
 }
 
-func ErlSrcTokensDetect____commas_____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_____commas______connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		commaConditionOpener,
@@ -238,7 +247,7 @@ func ErlSrcTokensDetect____commas_____connect_to_chars(chars []ErlSrcChar, verbo
 	)
 }
 
-func ErlSrcTokensDetect______dot______connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_______dot_______connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		dotConditionOpener,
@@ -252,8 +261,7 @@ func ErlSrcTokensDetect______dot______connect_to_chars(chars []ErlSrcChar, verbo
 	)
 }
 
-
-func ErlSrcTokensDetect___semicolon___connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____semicolon____connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		semicolonConditionOpener,
@@ -266,6 +274,35 @@ func ErlSrcTokensDetect___semicolon___connect_to_chars(chars []ErlSrcChar, verbo
 		true,  // the opener char is the closer char in same time
 	)
 }
+
+func ErlSrcTokensDetect_bracketRoundOp__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		bracketRoundOpConditionOpener,
+		bracketRoundOpConditionCloser,
+		bracketRoundOpConditionEscape,
+		bracketRoundOpTokenTypeSet,
+		true, // skip comments and texts
+		verbose,
+		"parse bracket Round opener",
+		true,  // the opener char is the closer char in same time
+	)
+}
+
+func ErlSrcTokensDetect_bracketRoundCl__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		bracketRoundClConditionOpener,
+		bracketRoundClConditionCloser,
+		bracketRoundClConditionEscape,
+		bracketRoundClTokenTypeSet,
+		true, // skip comments and texts
+		verbose,
+		"parse bracket Round opener",
+		true,  // the opener char is the closer char in same time
+	)
+}
+
 
 func erlSrcTokens_rangeDetect__connectToChars(
 		chars []ErlSrcChar,
@@ -461,6 +498,41 @@ func semicolonTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	generalTokenTypeSetThis(tokens, memory, Token_type_semicolon)
 }
 
+/////////////////// bracket round opener ////////////////////
+
+func bracketRoundOpConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, "(")
+}
+
+func bracketRoundOpConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true // the opener is a closer in same time
+}
+
+func bracketRoundOpConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in bracketRoundOp
+}
+
+func bracketRoundOpTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_bracket_round_open)
+}
+
+/////////////////// bracket round closer ////////////////////
+
+func bracketRoundClConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, ")")
+}
+
+func bracketRoundClConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true // the opener is a closer in same time
+}
+
+func bracketRoundClConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in bracketRoundCl
+}
+
+func bracketRoundClTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_bracket_round_close)
+}
 
 //////////////  general opener, type setter /////////////////////////
 

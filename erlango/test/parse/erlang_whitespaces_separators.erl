@@ -20,6 +20,8 @@ main(_) ->
              % Token_type_whitespace (space)
                       % Token_type_semicolon
 example(1) -> "case 1";
+       % Token_type_bracket_round_open
+         % Token_type_bracket_round_close
                            % Token_type_dot
 example(_) -> "case others".
 

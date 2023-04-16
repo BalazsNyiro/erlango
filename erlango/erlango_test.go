@@ -32,6 +32,14 @@ var TestGlobals = map[string]string{  // used from tests
 	"Token_type_dot"                 : Token_type_dot,
 	"Token_type_semicolon"           : Token_type_semicolon,
 
+	"Token_type_bracket_round_open"  : Token_type_bracket_round_open,
+	"Token_type_bracket_round_close" : Token_type_bracket_round_close,
+	"Token_type_bracket_square_open" : Token_type_bracket_square_open,
+	"Token_type_bracket_square_close": Token_type_bracket_square_close,
+	"Token_type_bracket_curly_open"  : Token_type_bracket_curly_open,
+	"Token_type_bracket_curyl_close" : Token_type_bracket_curyl_close,
+
+
 	"Token_type_always_accepted" : "Token_type_always_accepted",
 
 	// these are important to describe a char that you can't write
@@ -79,7 +87,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt := str_joined_from_wantedCharsTable_char_column(wantedTable1)
 	chars := ErlSrcChars_from_str(txt)
-	ErlSrcTokensDetect__string_atom__connect_to_chars(chars, false)
+	ErlSrcTokensDetect___string_atom___connect_to_chars(chars, false)
 	// debug_print_ErlSrcChars(chars)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars, wantedTable1,  t)
 
@@ -110,7 +118,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt2:= str_joined_from_wantedCharsTable_char_column(wantedTable2)
 	chars2 := ErlSrcChars_from_str(txt2)
-	ErlSrcTokensDetect__string_atom__connect_to_chars(chars2, false)
+	ErlSrcTokensDetect___string_atom___connect_to_chars(chars2, false)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars2, wantedTable2,  t)
 	// debug_print_ErlSrcChars(chars2)
 
@@ -140,7 +148,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt3 := str_joined_from_wantedCharsTable_char_column(wantedTable3)
 	chars3 := ErlSrcChars_from_str(txt3)
-	ErlSrcTokensDetect__string_atom__connect_to_chars(chars3, false)
+	ErlSrcTokensDetect___string_atom___connect_to_chars(chars3, false)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars3, wantedTable3,  t)
 	// debug_print_ErlSrcChars(chars3)
 }
@@ -256,7 +264,7 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_whitespace_naive", chars1, wantedCharsTable1,  t)
 
 
-	wantedCharTable := wantedCharsTable_from_src_file("test/parse/erlang_whitespaces_separators.erl", 2, 24)
+	wantedCharTable := wantedCharsTable_from_src_file("test/parse/erlang_whitespaces_separators.erl", 2, 999)
 	srcWithoutTestdata := str_joined_from_wantedCharsTable_char_column(wantedCharTable)
 
 	fmt.Println("=============== 1 src ===================")
@@ -264,7 +272,7 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	fmt.Println("=============== 2 - chars ===============")
 	chars := ErlSrcChars_from_str(srcWithoutTestdata)
 	fmt.Println("=============== 3 - parse ===============")
-	ParseErlangSourceCode(chars, "strings_atoms,comments,whitespaces,commas,dots,semicolons")
+	ParseErlangSourceCode(chars, "strings_atoms,comments,whitespaces,commas,dots,semicolons,bracket_round_opener,bracket_round_closer")
 	debug_print_ErlSrcChars(chars)
 	fmt.Println(" wantedCharTable:\n", wantedCharTable)
 	fmt.Println("=============== 4 - compare ===============")
@@ -340,7 +348,7 @@ func wantedCharsTable_from_src_file(filePath string, lineRangeStart1based, lineR
 				} else {
 					wantedTestResult = "Token_type_always_accepted"
 				}
-				postfix = bigSpace[:30 -len(wantedTestResult)]
+				postfix = bigSpace[:len(bigSpace) -len(wantedTestResult)]
 
 				insertedStr := string(char)
 
@@ -349,12 +357,12 @@ func wantedCharsTable_from_src_file(filePath string, lineRangeStart1based, lineR
 				if char == '\n' { insertedStr = "   newline_unix"}
 				if char == '\r' { insertedStr = "carriage_return"}
 				// if char == '"' { insertedStr = "              \""; wantedTestResult = "Token_type_txt_quoted_double" }
-				prefix= bigSpace[:30 - len(insertedStr)]
+				prefix= bigSpace[:len(bigSpace) - len(insertedStr)]
 
 				// all linenum and position is 0 based
 				charsAndWantedTestResult = append(charsAndWantedTestResult,
 					prefix + insertedStr + postfix + wantedTestResult +
-					"   line (1 based): " + strconv.Itoa(lineNum1basedThatYouSeeInAnEditor) + " pos:" + strconv.Itoa(posInLine))
+					"   line: " + strconv.Itoa(lineNum1basedThatYouSeeInAnEditor) + " pos:" + strconv.Itoa(posInLine))
 			}
 			testData = map[int]string{}
 		}
