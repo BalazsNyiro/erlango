@@ -35,7 +35,9 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	if execStep("strings_atoms") { ErlSrcTokensDetect__string_atom__connect_to_chars(chars, verbose) }
 	if execStep("comments")      { ErlSrcTokensDetect____comments___connect_to_chars(chars, verbose) }
 	if execStep("whitespaces")   { ErlSrcTokensDetect__whitespaces__connect_to_chars(chars, verbose) }
-	if execStep("comma")         { ErlSrcTokensDetect____commas_____connect_to_chars(chars, verbose) }
+	if execStep("commas")        { ErlSrcTokensDetect____commas_____connect_to_chars(chars, verbose) }
+	if execStep("dots")          { ErlSrcTokensDetect______dot______connect_to_chars(chars, verbose) }
+	if execStep("semicolons")    { ErlSrcTokensDetect___semicolon___connect_to_chars(chars, verbose) }
 
 	// detect comments
 	// detect whitespaces
@@ -54,7 +56,10 @@ const Token_type_comment string = "comment"                      // % abc
 const Token_type_not_detected string = "noTokenConnected"
 const Token_type_whitespace string ="separator_whitespace"       // \t ' ' \n
 const Token_type_comma string ="separator_comma"                 // ,
-////////////////////////////////////////////////////////////////////////
+const Token_type_dot string ="separator_comma"                   // .
+const Token_type_semicolon string ="separator_comma"             // ;
+
+// //////////////////////////////////////////////////////////////////////
 
 // ErlSrcToken : independent language unit, formed by one or more char
 // they are character holders, they group the characters,
@@ -233,6 +238,35 @@ func ErlSrcTokensDetect____commas_____connect_to_chars(chars []ErlSrcChar, verbo
 	)
 }
 
+func ErlSrcTokensDetect______dot______connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		dotConditionOpener,
+		dotConditionCloser,
+		dotConditionEscape,
+		dotTokenTypeSet,
+		true, // skip comments and texts
+		verbose,
+		"parse dots",
+		true,  // the opener char is the closer char in same time
+	)
+}
+
+
+func ErlSrcTokensDetect___semicolon___connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		semicolonConditionOpener,
+		semicolonConditionCloser,
+		semicolonConditionEscape,
+		semicolonTokenTypeSet,
+		true, // skip comments and texts
+		verbose,
+		"parse semicolons",
+		true,  // the opener char is the closer char in same time
+	)
+}
+
 func erlSrcTokens_rangeDetect__connectToChars(
 		chars []ErlSrcChar,
 	 	conditionOpener func([]ErlSrcChar, int, *conditionMemory) bool,
@@ -390,6 +424,43 @@ func commaConditionEscape(chars []ErlSrcChar, position int, memory *conditionMem
 func commaTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	generalTokenTypeSetThis(tokens, memory, Token_type_comma)
 }
+
+/////////////////// dot ////////////////////
+
+func dotConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, ".")
+}
+
+func dotConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true // the opener is a closer in same time
+}
+
+func dotConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in dot
+}
+
+func dotTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_dot)
+}
+
+/////////////////// semicolon ////////////////////
+
+func semicolonConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, ";")
+}
+
+func semicolonConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true // the opener is a closer in same time
+}
+
+func semicolonConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in semicolon
+}
+
+func semicolonTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_semicolon)
+}
+
 
 //////////////  general opener, type setter /////////////////////////
 

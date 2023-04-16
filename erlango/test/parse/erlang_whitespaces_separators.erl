@@ -18,8 +18,8 @@ main(_) ->
     io:format(example(), "comma token in the line").
           % Token_type_whitespace (space)
              % Token_type_whitespace (space)
-                      %INFO Token_type_semicolon
+                      % Token_type_semicolon
 example(1) -> "case 1";
-                           %INFO Token_type_dot
+                           % Token_type_dot
 example(_) -> "case others".
 
