@@ -35,6 +35,7 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	if execStep("strings_atoms") { ErlSrcTokensDetect__string_atom__connect_to_chars(chars, verbose) }
 	if execStep("comments")      { ErlSrcTokensDetect____comments___connect_to_chars(chars, verbose) }
 	if execStep("whitespaces")   { ErlSrcTokensDetect__whitespaces__connect_to_chars(chars, verbose) }
+	if execStep("comma")         { ErlSrcTokensDetect____commas_____connect_to_chars(chars, verbose) }
 
 	// detect comments
 	// detect whitespaces
@@ -52,6 +53,7 @@ const Token_type_txt_quoted_single string = "txt_quoted_single"  // 'abc'
 const Token_type_comment string = "comment"                      // % abc
 const Token_type_not_detected string = "noTokenConnected"
 const Token_type_whitespace string ="separator_whitespace"       // \t ' ' \n
+const Token_type_comma string ="separator_comma"                 // ,
 ////////////////////////////////////////////////////////////////////////
 
 // ErlSrcToken : independent language unit, formed by one or more char
@@ -217,6 +219,20 @@ func ErlSrcTokensDetect__whitespaces__connect_to_chars(chars []ErlSrcChar, verbo
 	)
 }
 
+func ErlSrcTokensDetect____commas_____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		commaConditionOpener,
+		commaConditionCloser,
+		commaConditionEscape,
+		commaTokenTypeSet,
+		true, // skip comments and texts
+		verbose,
+		"parse commas",
+		true,  // the opener char is the closer char in same time
+	)
+}
+
 func erlSrcTokens_rangeDetect__connectToChars(
 		chars []ErlSrcChar,
 	 	conditionOpener func([]ErlSrcChar, int, *conditionMemory) bool,
@@ -355,6 +371,24 @@ func whitespacesConditionEscape(chars []ErlSrcChar, position int, memory *condit
 
 func whitespacesTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	generalTokenTypeSetThis(tokens, memory, Token_type_whitespace)
+}
+
+/////////////////// comma ////////////////////
+
+func commaConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, ",")
+}
+
+func commaConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true // the opener is a closer in same time
+}
+
+func commaConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in comma
+}
+
+func commaTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_comma)
 }
 
 //////////////  general opener, type setter /////////////////////////

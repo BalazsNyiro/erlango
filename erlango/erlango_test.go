@@ -28,6 +28,7 @@ var TestGlobals = map[string]string{  // used from tests
 	"Token_type_comment"             : Token_type_comment,
 	"Token_type_not_detected"        : Token_type_not_detected,
 	"Token_type_whitespace"          : Token_type_whitespace,
+	"Token_type_comma"               : Token_type_comma,
 
 	"Token_type_always_accepted" : "Token_type_always_accepted",
 
@@ -253,7 +254,7 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_whitespace_naive", chars1, wantedCharsTable1,  t)
 
 
-	wantedCharTable := wantedCharsTable_from_src_file("test/parse/erlang_whitespaces_separators.erl", 2, 16)
+	wantedCharTable := wantedCharsTable_from_src_file("test/parse/erlang_whitespaces_separators.erl", 2, 18)
 	srcWithoutTestdata := str_joined_from_wantedCharsTable_char_column(wantedCharTable)
 
 	fmt.Println("=============== 1 src ===================")
@@ -261,7 +262,7 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	fmt.Println("=============== 2 - chars ===============")
 	chars := ErlSrcChars_from_str(srcWithoutTestdata)
 	fmt.Println("=============== 3 - parse ===============")
-	ParseErlangSourceCode(chars, "strings_atoms,comments,whitespaces")
+	ParseErlangSourceCode(chars, "strings_atoms,comments,whitespaces,comma")
 	debug_print_ErlSrcChars(chars)
 	fmt.Println(" wantedCharTable:\n", wantedCharTable)
 	fmt.Println("=============== 4 - compare ===============")
