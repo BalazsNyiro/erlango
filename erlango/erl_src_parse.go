@@ -34,9 +34,7 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	verbose := false
 	if execStep("strings_atoms") { ErlSrcTokensDetect__string_atom__connect_to_chars(chars, verbose) }
 	if execStep("comments")      { ErlSrcTokensDetect____comments___connect_to_chars(chars, verbose) }
-	if execStep("whitespaces")   {
-		ErlSrcTokensDetect__whitespaces__connect_to_chars(chars, verbose)
-	}
+	if execStep("whitespaces")   { ErlSrcTokensDetect__whitespaces__connect_to_chars(chars, verbose) }
 
 	// detect comments
 	// detect whitespaces
@@ -310,11 +308,10 @@ func quoteConditionEscape(chars []ErlSrcChar, position int, memory *conditionMem
 }
 
 func quoteTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
-	tokenIdLast := len(*tokens) - 1
 	if isSingleQuoteRune(memory.runes["actualQuoteChar"]) {
-		(*tokens)[tokenIdLast].Type = Token_type_txt_quoted_single
+		generalTokenTypeSetThis(tokens, memory, Token_type_txt_quoted_single)
 	} else {
-		(*tokens)[tokenIdLast].Type = Token_type_txt_quoted_double
+		generalTokenTypeSetThis(tokens, memory, Token_type_txt_quoted_double)
 	}
 }
 
@@ -340,15 +337,12 @@ func commentConditionEscape(chars []ErlSrcChar, position int, memory *conditionM
 }
 
 func commentTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
-	tokenIdLast := len(*tokens) - 1
-	(*tokens)[tokenIdLast].Type = Token_type_comment
+	generalTokenTypeSetThis(tokens, memory, Token_type_comment)
 }
 ///////////////////////////////////////
 
 func whitespacesConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
-	if chars[position].TokenConnected() { return false }
-	charNow := string(chars[position].Value)
-	return strings.Contains(" \r\n\t", charNow)
+	return generalConditionOpenerCharInPattern(chars, position, memory, " \r\n\t")
 }
 
 func whitespacesConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
@@ -360,10 +354,21 @@ func whitespacesConditionEscape(chars []ErlSrcChar, position int, memory *condit
 }
 
 func whitespacesTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
-	tokenIdLast := len(*tokens) - 1
-	(*tokens)[tokenIdLast].Type = Token_type_whitespace
+	generalTokenTypeSetThis(tokens, memory, Token_type_whitespace)
 }
 
+//////////////  general opener, type setter /////////////////////////
+
+func generalConditionOpenerCharInPattern(chars []ErlSrcChar, position int, memory *conditionMemory, pattern string) bool {
+	if chars[position].TokenConnected() { return false }
+	charNow := string(chars[position].Value)
+	return strings.Contains(pattern, charNow)
+}
+
+func generalTokenTypeSetThis(tokens *ErlSrcTokens, memory *conditionMemory, typeNew string) {
+	tokenIdLast := len(*tokens) - 1
+	(*tokens)[tokenIdLast].Type = typeNew
+}
 
 ///////////////// token opener/closer //////////////////
 

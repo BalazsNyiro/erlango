@@ -274,7 +274,7 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 // This fun builds a wantedCharsTable from the src
 // lineRange: in escripts, the first line is for Bash - don't process.
 // lineRange 2: if you want to focus on selected lines only
-func wantedCharsTable_from_src_file(filePath string, lineRangeStart, lineRangeEnd int) string   {
+func wantedCharsTable_from_src_file(filePath string, lineRangeStart1based, lineRangeEnd1based int) string   {
 	// this is the src+test wanted data.
 	funcName := "wantedCharsTable_from_src_file"
 
@@ -302,9 +302,10 @@ func wantedCharsTable_from_src_file(filePath string, lineRangeStart, lineRangeEn
 	testData := map[int]string{}
 
 	lines, _ := file_read_lines(filePath, funcName)
-	for lineNumInSrc, line:= range lines { // %INFO: skip these lines too, not real comments.
-		if lineNumInSrc < lineRangeStart-1 || lineNumInSrc > lineRangeEnd-1 || strings.Contains(line, "%INFO"){
-			continue // process only the selected line range: -1 because of internal 0 based line numbering
+	for lineNumInSrc0based, line:= range lines { // %INFO: skip these lines too, not real comments.
+		lineNum1basedThatYouSeeInAnEditor := lineNumInSrc0based + 1
+		if lineNum1basedThatYouSeeInAnEditor < lineRangeStart1based || lineNum1basedThatYouSeeInAnEditor > lineRangeEnd1based || strings.Contains(line, "%INFO"){
+			continue
 		}
 		line = line + string('\n') // restore original line ending
 		if isTestLine(line) {
@@ -350,7 +351,7 @@ func wantedCharsTable_from_src_file(filePath string, lineRangeStart, lineRangeEn
 				// all linenum and position is 0 based
 				charsAndWantedTestResult = append(charsAndWantedTestResult,
 					prefix + insertedStr + postfix + wantedTestResult +
-					"   line: " + strconv.Itoa(lineNumInSrc) + " pos:" + strconv.Itoa(posInLine))
+					"   line (1 based): " + strconv.Itoa(lineNum1basedThatYouSeeInAnEditor) + " pos:" + strconv.Itoa(posInLine))
 			}
 			testData = map[int]string{}
 		}
