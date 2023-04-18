@@ -37,7 +37,10 @@ var TestGlobals = map[string]string{  // used from tests
 	"Token_type_bracket_square_open" : Token_type_bracket_square_open,
 	"Token_type_bracket_square_close": Token_type_bracket_square_close,
 	"Token_type_bracket_curly_open"  : Token_type_bracket_curly_open,
-	"Token_type_bracket_curyl_close" : Token_type_bracket_curyl_close,
+	"Token_type_bracket_curly_close" : Token_type_bracket_curly_close,
+
+	"Token_type_digits_base10_form"  : Token_type_digits_base10_form,
+	"Token_type_digits_baseDefined"  : Token_type_digits_baseDefined,
 
 
 	"Token_type_always_accepted" : "Token_type_always_accepted",

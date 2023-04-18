@@ -42,6 +42,11 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	if execStep("bracket_round_opener") { ErlSrcTokensDetect_bracketRoundOp__connect_to_chars(chars, verbose) }
 	if execStep("bracket_round_closer") { ErlSrcTokensDetect_bracketRoundCl__connect_to_chars(chars, verbose) }
 
+	// TODO: detect nums
+	// baseDefined is a more wider range than base10
+	if execStep("digits_baseDefined") { }
+	if execStep("digits_base10_form")   { ErlSrcTokensDetect__digits_base10__connect_to_chars(chars, verbose) }
+
 	// detect comments
 	// detect whitespaces
 	// detect numbers
@@ -66,7 +71,10 @@ const Token_type_bracket_round_close   string = "bracket_round_close"   // )
 const Token_type_bracket_square_open   string = "bracket_square_open"   // [
 const Token_type_bracket_square_close  string = "bracket_square_close"  // ]
 const Token_type_bracket_curly_open    string = "bracket_curly_open"    // {
-const Token_type_bracket_curyl_close   string = "bracket_curly_close"   // }
+const Token_type_bracket_curly_close   string = "bracket_curly_close"   // }
+
+const Token_type_digits_base10_form    string = "Token_type_digits_base10_form"  // 1234567890
+const Token_type_digits_baseDefined    string = "Token_type_digits_baseDefined"  // 16#af6bfa23
 
 // //////////////////////////////////////////////////////////////////////
 
@@ -304,6 +312,21 @@ func ErlSrcTokensDetect_bracketRoundCl__connect_to_chars(chars []ErlSrcChar, ver
 }
 
 
+
+func ErlSrcTokensDetect__digits_base10__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		digitsBase10ConditionOpener,
+		digitsBase10ConditionCloser,
+		digitsBase10ConditionEscape,
+		digitsBase10TokenTypeSet,
+		true, // skip comments and texts
+		verbose,
+		"parse digits base10",
+		false,  // the opener char is NOT the closer char in same time
+	)
+}
+
 func erlSrcTokens_rangeDetect__connectToChars(
 		chars []ErlSrcChar,
 	 	conditionOpener func([]ErlSrcChar, int, *conditionMemory) bool,
@@ -533,7 +556,36 @@ func bracketRoundClConditionEscape(chars []ErlSrcChar, position int, memory *con
 func bracketRoundClTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	generalTokenTypeSetThis(tokens, memory, Token_type_bracket_round_close)
 }
+/////////////////// bracket round closer ////////////////////
 
+
+func digitsBase10ConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, "0123456789")
+}
+
+func digitsBase10ConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	lenChars := len(chars)
+	if position == lenChars-1 { return true}	// this is the last char, we won't find a newline.
+	// ^^^^ this situation can't happen with digits, because a ; , . has to follow the digits, minimum, it's part of an expression
+	// so a digit cannot be the last char of a file
+
+	// if the next char is a detected token:
+	if chars[position+1].TokenConnected() { return true }
+
+	// or if the next char is not a digit, 0-9:
+	if ! strings.Contains("0123456789", string(chars[position+1].Value)) {
+		return true	 // this is a closer
+	}
+	return false
+}
+
+func digitsBase10ConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in digitsBase10
+}
+
+func digitsBase10TokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_digits_base10_form)
+}
 //////////////  general opener, type setter /////////////////////////
 
 func generalConditionOpenerCharInPattern(chars []ErlSrcChar, position int, memory *conditionMemory, pattern string) bool {
