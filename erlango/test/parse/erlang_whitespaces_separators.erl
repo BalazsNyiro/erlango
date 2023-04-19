@@ -20,7 +20,7 @@ main(_) ->
              % Token_type_whitespace (space)
                       % Token_type_semicolon
 example(1) -> "case 1";
-        %INFO %%%%%%%%% Token_type_digits_base10_form
+        %%%%%%%%%% Token_type_digits_base10_form
 example(1234567890) -> "case 1234567890";
 example(16#af6bfa23) -> "case 1";
        % Token_type_bracket_round_open

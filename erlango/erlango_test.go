@@ -275,13 +275,38 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	fmt.Println("=============== 2 - chars ===============")
 	chars := ErlSrcChars_from_str(srcWithoutTestdata)
 	fmt.Println("=============== 3 - parse ===============")
-	ParseErlangSourceCode(chars, "strings_atoms,comments,whitespaces,commas,dots,semicolons,bracket_round_opener,bracket_round_closer")
+	ParseErlangSourceCode(chars, "strings_atoms,comments,whitespaces,commas,dots,semicolons,bracket_round_opener,bracket_round_closer,digits_base10_form")
 	debug_print_ErlSrcChars(chars)
 	fmt.Println(" wantedCharTable:\n", wantedCharTable)
 	fmt.Println("=============== 4 - compare ===============")
 	compare_ErlSrcChar_with_wantedCharsTable("Test_ErlSrcTokens_whitespaces_separators", chars, wantedCharTable,  t)
 }
 
+func Test_ErlSrcTokens_numbers(t *testing.T) {
+	fmt.Println(">>> Test_ErlSrcTokens_numbers")
+
+	wantedCharsTable1 := `  A       Token_type_not_detected 
+	                      space     Token_type_not_detected
+	                        =       Token_type_not_detected
+	                      space     Token_type_not_detected
+	                        1       Token_type_digits_base10_form
+	                        2       Token_type_digits_base10_form
+	                        3       Token_type_digits_base10_form
+	                        4       Token_type_digits_base10_form
+	                        ,       Token_type_not_detected
+    `
+
+	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
+	chars1 := ErlSrcChars_from_str(srcFromChars1)
+	ParseErlangSourceCode(chars1, "digits_base10_form")
+	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_numbers_naive", chars1, wantedCharsTable1,  t)
+
+	// TODO: fix Str values in a token:
+	// debug_print_ErlSrcChars(chars1)
+	// fmt.Println(chars1[5].Token)
+	// compare_str_pair("ErlSrcTokens_numbers_naive", chars1[5].Token.StrValueFromChars(), "1234", t)
+
+}
 // //////// test tools /////////////
 
 // There is a normal source code + TEST DATA in the src file.

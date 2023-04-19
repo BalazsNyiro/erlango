@@ -1,6 +1,6 @@
 
 // TODO:
-// more tests:: func Test_ErlSrcTokens_Quoted(t *testing.T)
+// more tests:
 // DOCUMENTATION
 
 ################### ERLANG #############################

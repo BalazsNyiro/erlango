@@ -99,6 +99,14 @@ func (token ErlSrcToken) CharAppend(charPtr *ErlSrcChar) {
 	token.Chars = append(token.Chars, charPtr)
 }
 
+func (token ErlSrcToken) StrValueFromChars() string {
+	ret := ""
+	for _, chrPtr := range token.Chars {
+		ret += string(chrPtr.Value)
+	}
+	return ret
+}
+
 //////////////////////////////////////////////////////////////////////
 type ErlSrcTokens []ErlSrcToken
 func (tokens ErlSrcTokens) IdLast() int {
