@@ -285,7 +285,12 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 func Test_ErlSrcTokens_numbers(t *testing.T) {
 	fmt.Println(">>> Test_ErlSrcTokens_numbers")
 
-	wantedCharsTable1 := `  A       Token_type_not_detected 
+	wantedCharsTable1 := `  "       Token_type_txt_quoted_double
+                            s       Token_type_txt_quoted_double
+                            t       Token_type_txt_quoted_double
+                            r       Token_type_txt_quoted_double
+                            "       Token_type_txt_quoted_double
+                            A       Token_type_not_detected 
 	                      space     Token_type_not_detected
 	                        =       Token_type_not_detected
 	                      space     Token_type_not_detected
@@ -298,13 +303,13 @@ func Test_ErlSrcTokens_numbers(t *testing.T) {
 
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars1 := ErlSrcChars_from_str(srcFromChars1)
-	ParseErlangSourceCode(chars1, "digits_base10_form")
+	ParseErlangSourceCode(chars1, "strings_atoms,digits_base10_form")
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_numbers_naive", chars1, wantedCharsTable1,  t)
 
-	// TODO: fix Str values in a token:
-	// debug_print_ErlSrcChars(chars1)
-	// fmt.Println(chars1[5].Token)
-	// compare_str_pair("ErlSrcTokens_numbers_naive", chars1[5].Token.StrValueFromChars(), "1234", t)
+	//		 TODO: fix Str values in a token:
+	debug_print_ErlSrcChars(chars1)
+	fmt.Println(chars1[10].Token)
+	compare_str_pair("ErlSrcTokens_numbers_naive", chars1[10].Token.StrValueFromChars(), "1234", t)
 
 }
 // //////// test tools /////////////

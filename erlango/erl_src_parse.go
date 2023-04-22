@@ -374,7 +374,9 @@ func erlSrcTokens_rangeDetect__connectToChars(
 
 		if inTokenDetection_activeCharsFound {
 			chars[position].Token = tokens.LastPtr()
-			chars[position].Token.CharAppend(&(chars[position]))
+			// FIXME: the first solution can't collect the chars, maybe because that work on a copy?
+			// chars[position].Token.CharAppend(&(chars[position]))
+			chars[position].Token.Chars = append(chars[position].Token.Chars, &(chars[position]))
 		}
 		if verbose { tokenInfo(position, chars, tokens, inTokenDetection_activeCharsFound, conditionMemoryTemporaryWorkspace) }
 
