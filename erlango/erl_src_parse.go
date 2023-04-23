@@ -20,6 +20,31 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 	return ParseErlangSourceCode(chars, "__all__")
 }
 
+/*  What is a token? (my terminology).
+    Expression: the smallest usable language unit with meaning:
+                example a: 1
+                example b: 23.456
+
+    but in the source code: the float 2.3 has 3 tokens:
+                token 1: 23
+                token 2: .
+                token 3: 456
+
+     Why do we have 3 tokens in that float?
+       because the dot (.) can have different meanings in different environments.
+       so the interpreter detects the <digits+dot+digits>
+       and later the interpreter realises that if we have a digit-dot-digit combo, than that is a float num
+
+       in other situations the dot has different semantic meaning, so the interpreter has to understand the circumstances.
+
+	So: a token is a unit, that maybe has, maybe doesn't have standalone language meanings,
+        and more token can build an expression.
+
+    with other words: a token is a building block of expressions.
+
+*/
+
+
 /* New Token type definition steps:
 
 	- in ParseErlangSourceCode():

@@ -5,20 +5,70 @@ contact: Balazs Nyiro (balazs.nyiro.ca@gmail.com)
 
 ## Roadmap:
 
+Actual state:
+  - token detections:
+    - "strings" 
+    - 'atoms in quotes'
+    - atoms
+    - brackets, openings/closings: round, square, curly
+    - numbers, base10
+    - operator: binding =
+    - whitespaces
+    - separators: dot, comma, semicolon
+    - variable names
+   
+  - TODO:
+    - numbers (floats)
+    - numbers (base defineds)
+    - lists: ||     // example:  [X*2 || X <- [1,2,3]].
+    - lists: <-
+    - funs : ->
+    - maps: #{
+    - structs 
+    
+Operator list, token detection:
+   :
+   #	 
+   unary + 
+   unary - 
+   bnot, not                    detected as atoms
+   math / 
+   math * 
+   div rem band and             detected as atoms
+   math + 
+   math - 
+   bor bxor bsl bsr or xor      detected as atoms
+   '++' '--'	
+   == /= =< < >= > =:= =/=	 
+   andalso                      detected as atoms
+   orelse	                    detected as atoms
+   =                            detected: Token_type_binding_matching
+   !
+   ?=	 
+   catch                        detected as atoms
+
+
+
+
+
+
+
+
+
 ### in progress: 
- - [] Erlang source parse (raw token detection)          ETA: 2023 Marc 31
+ - [] Erlang source parse (raw token detection)                in progress
 
 ### todo
- - [] Erlang code objects creation from tokens                 (2023 April)
- - [] basic code execution                                     (2023 May)
- - [] Erlang standard lib 1. implementation with version hooks (2023 Jun-July)
+ - [] Erlang code objects creation from tokens                 (2023 Jun)
+ - [] basic code execution                                     (2023 July)
+ - [] Erlang standard lib 1. implementation with version hooks (2023 Aug-Sep)
    - only the most important internal functions)
 
- - [] Debugger tool building                                   (2023 Aug)
- - [] speed optimization                                       (2023 Sep)
+ - [] Debugger tool building                                   (2023 Oct)
+ - [] speed optimization                                       (?)
  - [] documentations, tutorials
 
- - [] Erlang standard lib 2. implementation with version hooks (2023 Jul - 2024 Dec) - this is a huge task, I hope 
+ - [] Erlang standard lib 2. implementation with version hooks (?) - this is a huge task, I hope 
 
  - [] signal sending/receiving with native Erlang instances (2025)
    (the first signal handling implementation will work with the Go version first)
