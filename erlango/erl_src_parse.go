@@ -33,7 +33,7 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 
     - CREATE funs: opener, closer, escape, typesetter
 
-    - binding: in tests create a string -> constant binding to detect token type names from tests, for example:
+    - in tests create a string -> constant binding to detect token type names from tests, for example:
       "Token_type_always_accepted" : "Token_type_always_accepted",
 
     - create tests
@@ -68,6 +68,7 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 
 	if execStep("variables")            { ErlSrcTokensDetect_______variables_______connect_to_chars(chars, verbose) }
 	if execStep("atoms_quoteless")      { ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars, verbose) }
+	if execStep("binding_matching")     { ErlSrcTokensDetect____binding_matching___connect_to_chars(chars, verbose) }
 
 	return chars, nil
 }
@@ -95,7 +96,8 @@ const Token_type_digits_base10_form    string = "Token_type_digits_base10_form" 
 const Token_type_digits_baseDefined    string = "Token_type_digits_baseDefined"  // 16#af6bfa23
 
 const Token_type_variable              string = "Token_type_digits_baseDefined"  // ErlangVariableName :-)
-const Token_type_atom_quoteless        string = "Token_type_atom_quoteless"  // erlang_atom_defined_without_quotes
+const Token_type_atom_quoteless        string = "Token_type_atom_quoteless"      // erlang_atom_defined_without_quotes
+const Token_type_binding_matching      string = "Token_type_binding_matching"    // =
 
 
 const ABC_Eng_Upper string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -390,6 +392,21 @@ func ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars []ErlSrcCha
 		verbose,
 		"parse digits base10",
 		true,  // atom name can be 1 char long
+	)
+}
+
+
+func  ErlSrcTokensDetect____binding_matching___connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		bindingMatchingConditionOpener,
+		bindingMatchingConditionCloser,
+		bindingMatchingConditionEscape,
+		bindingMatchingTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse =",
+		true,  // =  is 1 char long
 	)
 }
 
@@ -730,7 +747,22 @@ func atomsConditionEscape(chars []ErlSrcChar, position int, memory *conditionMem
 func atomsTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	generalTokenTypeSetThis(tokens, memory, Token_type_atom_quoteless)
 }
+////////////// binding-matching ////////////
+func bindingMatchingConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, "=")
+}
 
+func bindingMatchingConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true
+}
+
+func bindingMatchingConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in bindingMatching
+}
+
+func bindingMatchingTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_binding_matching)
+}
 
 //////////////  general opener, type setter /////////////////////////
 

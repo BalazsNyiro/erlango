@@ -44,6 +44,7 @@ var TestGlobals = map[string]string{  // used from tests
 
 	"Token_type_variable"            : Token_type_variable,
 	"Token_type_atom_quoteless"      : Token_type_atom_quoteless,
+	"Token_type_binding_matching"    : Token_type_binding_matching,
 
 	"Token_type_always_accepted"     : "Token_type_always_accepted",
 
@@ -284,8 +285,8 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	compare_ErlSrcChar_with_wantedCharsTable("Test_ErlSrcTokens_whitespaces_separators", chars, wantedCharTable,  t)
 }
 
-func Test_ErlSrcTokens_numbers(t *testing.T) {
-	fmt.Println(">>> Test_ErlSrcTokens_numbers")
+func Test_ErlSrcTokens_numbers_variables(t *testing.T) {
+	fmt.Println(">>> Test_ErlSrcTokens_numbers_variables")
 
 	wantedCharsTable1 := `  "       Token_type_txt_quoted_double
                             s       Token_type_txt_quoted_double
@@ -296,28 +297,32 @@ func Test_ErlSrcTokens_numbers(t *testing.T) {
                             u       Token_type_variable
                             m       Token_type_variable
 	                      space     Token_type_not_detected
-	                        =       Token_type_not_detected
+	                        =       Token_type_binding_matching
 	                      space     Token_type_not_detected
 	                        1       Token_type_digits_base10_form
 	                        2       Token_type_digits_base10_form
 	                        3       Token_type_digits_base10_form
 	                        4       Token_type_digits_base10_form
-	                        ,       Token_type_not_detected
+	                        ,       Token_type_comma
                             A       Token_type_variable                <- variable, 1 char long
-	                        =       Token_type_not_detected
+	                        =       Token_type_binding_matching
 	                        5       Token_type_digits_base10_form
-	                        ,       Token_type_not_detected
+	                        ,       Token_type_comma
                             A       Token_type_variable                <- variable, 1 char long
                             T       Token_type_variable                <- variable, 1 char long
                             O       Token_type_variable                <- variable, 1 char long
                             M       Token_type_variable                <- variable, 1 char long
-	                        =       Token_type_not_detected
+	                        =       Token_type_binding_matching
 	                        a       Token_type_atom_quoteless
+	                        ,       Token_type_comma
+                            B       Token_type_variable                <- variable, 1 char long
+	                        =       Token_type_binding_matching
+	                        b       Token_type_atom_quoteless
     `
 
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars1 := ErlSrcChars_from_str(srcFromChars1)
-	ParseErlangSourceCode(chars1, "strings_atoms_quotes,digits_base10_form,variables,atoms_quoteless")
+	ParseErlangSourceCode(chars1, "strings_atoms_quotes,digits_base10_form,variables,atoms_quoteless,commas,binding_matching")
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_numbers_naive", chars1, wantedCharsTable1,  t)
 	// debug_print_ErlSrcChars(chars1)
 	compare_str_pair("ErlSrcTokens_numbers_naive", chars1[12].Token.StrValueFromChars(), "1234", t)
