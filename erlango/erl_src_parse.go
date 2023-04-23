@@ -64,6 +64,8 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
     - create tests
 */
 
+// https://www.erlang.org/doc/reference_manual/expressions.html#expression-evaluation
+// https://www.tutorialspoint.com/erlang/erlang_operators.htm
 func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar, error) {
 	// detect "strings" or 'atoms' - quoted texts
 
@@ -93,6 +95,14 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 
 	if execStep("variables")            { ErlSrcTokensDetect_______variables_______connect_to_chars(chars, verbose) }
 	if execStep("atoms_quoteless")      { ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars, verbose) }
+
+
+	// arrows:  ->    <-    =>
+	if execStep("arrow_singleToRight")  { ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(chars, verbose) } // ->
+	if execStep("arrow_singleToLeft")   { ErlSrcTokensDetect__arrow_singleToLeft___connect_to_chars(chars, verbose) } // <-
+	if execStep("arrow_doubleToRight")  { ErlSrcTokensDetect__arrow_doubleToRight__connect_to_chars(chars, verbose) } // =>
+
+
 	if execStep("binding_matching")     { ErlSrcTokensDetect____binding_matching___connect_to_chars(chars, verbose) }
 
 	if execStep("math_binary_add")      { ErlSrcTokensDetect____math_binary_add____connect_to_chars(chars, verbose) }
@@ -127,6 +137,11 @@ const Token_type_digits_baseDefined    string = "Token_type_digits_baseDefined" 
 
 const Token_type_variable              string = "Token_type_digits_baseDefined"  // ErlangVariableName :-)
 const Token_type_atom_quoteless        string = "Token_type_atom_quoteless"      // erlang_atom_defined_without_quotes
+
+const Token_type_arrow_singleToRight   string = "Token_type_arrow_singleToRight" // ->
+const Token_type_arrow_singleToLeft    string = "Token_type_arrow_singleToLeft"  // <-
+const Token_type_arrow_doubleToRight   string = "Token_type_arrow_singleToRight" // ->
+
 const Token_type_binding_matching      string = "Token_type_binding_matching"    // =
 
 const Token_type_math_binary_add      string = "Token_type_math_binary_add"    // +
@@ -432,6 +447,49 @@ func ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars []ErlSrcCha
 	)
 }
 
+//////////// ARROWS  ->   <-  =>
+func  ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		arrowSingleToRightConditionOpener,
+		arrowSingleToRightConditionCloser,
+		arrowSingleToRightConditionEscape,
+		arrowSingleToRightTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse arrow single to right",
+		false,  // because it's longer than 1 char
+	)
+}
+func ErlSrcTokensDetect__arrow_singleToLeft___connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		arrowSingleToLeftConditionOpener,
+		arrowSingleToLeftConditionCloser,
+		arrowSingleToLeftConditionEscape,
+		arrowSingleToLeftTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse arrow single to left",
+		false,  // because it's longer than 1 char
+	)
+}
+func ErlSrcTokensDetect__arrow_doubleToRight__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		arrowDoubleToRightConditionOpener,
+		arrowDoubleToRightConditionCloser,
+		arrowDoubleToRightConditionEscape,
+		arrowDoubleToRightTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse arrow double to right",
+		false,  // because it's longer than 1 char
+	)
+}
+
+
+/// binding_matching
 
 func  ErlSrcTokensDetect____binding_matching___connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
@@ -594,7 +652,6 @@ type conditionMemory struct {
 /////////      I tried to use groups first time, and this structure is easier from interpreter development perspective.
 
 ///////// last but not least: if the result is correct, it doesn't matter anymore.
-
 
 // this is the first char in the range if returns with true
 func quoteConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
@@ -795,6 +852,12 @@ func digitsBase10TokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	generalTokenTypeSetThis(tokens, memory, Token_type_digits_base10_form)
 }
 
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////  variables, quoteless-atoms //////////////////////////
 
 // Erlang variable can start with a capital letter or underscore
@@ -808,18 +871,14 @@ func variablesConditionCloser(chars []ErlSrcChar, position int, memory *conditio
 	lastPos := lenChars-1
 
 	if nextPos <= lastPos {
-		// if the next char is a detected token:
 		if chars[nextPos].TokenConnected() { return true }
-
-		// https://www.erlang.org/doc/reference_manual/expressions.html
-		// Variables start with an uppercase letter or underscore (_). Variables can contain alphanumeric characters, underscore and @.
 		if ! strings.Contains(ErlangVariableBody, string(chars[nextPos].Value)) {
 			return true	 // this is a closer
 		} else {
 			return false
 		}
 	}
-	return false
+	return true  // because nextpos > lastPos
 }
 
 func variablesConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
@@ -840,11 +899,7 @@ func atomsConditionCloser(chars []ErlSrcChar, position int, memory *conditionMem
 	lastPos := lenChars-1
 
 	if nextPos <= lastPos {
-		// if the next char is a detected token:
 		if chars[nextPos].TokenConnected() { return true }
-
-		// https://www.erlang.org/doc/reference_manual/expressions.html
-		// Variables start with an uppercase letter or underscore (_). Variables can contain alphanumeric characters, underscore and @.
 		if ! strings.Contains(ErlangAtomNoQuotesBody, string(chars[nextPos].Value)) {
 			return true	 // this is a closer
 		} else {
@@ -861,6 +916,64 @@ func atomsConditionEscape(chars []ErlSrcChar, position int, memory *conditionMem
 func atomsTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	generalTokenTypeSetThis(tokens, memory, Token_type_atom_quoteless)
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+////////////// ARROWS ->  <-  <= ////////////
+func arrowSingleToRightConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerMultiCharsInPattern(chars, position, memory, "->")
+}
+
+func arrowSingleToRightConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return chars[position].Value == '>'
+}
+
+func arrowSingleToRightConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false
+}
+
+func arrowSingleToRightTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_arrow_singleToRight)
+}
+
+func arrowDoubleToRightConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerMultiCharsInPattern(chars, position, memory, "=>")
+}
+
+func arrowDoubleToRightConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return chars[position].Value == '>'
+}
+
+func arrowDoubleToRightConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false
+}
+
+func arrowDoubleToRightTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_arrow_doubleToRight)
+}
+
+func arrowSingleToLeftConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerMultiCharsInPattern(chars, position, memory, "<-")
+}
+
+func arrowSingleToLeftConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return chars[position].Value == '-'
+}
+
+func arrowSingleToLeftConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false
+}
+
+func arrowSingleToLeftTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_arrow_singleToLeft)
+}
+
+
+
 ////////////// binding-matching ////////////
 func bindingMatchingConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	return generalConditionOpenerCharInPattern(chars, position, memory, "=")
@@ -952,10 +1065,27 @@ func mathBinaryDivTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 
 //////////////  general opener, type setter /////////////////////////
 
+// test one char: can it be an opener?
 func generalConditionOpenerCharInPattern(chars []ErlSrcChar, position int, memory *conditionMemory, pattern string) bool {
+	lenChars := len(chars)
+	lastPos := lenChars-1
+
+	if position > lastPos { return false } // can't look over the end of the chars
 	if chars[position].TokenConnected() { return false }
+
 	charNow := string(chars[position].Value)
 	return strings.Contains(pattern, charNow)
+}
+
+// test series of chars, so in one step we can say if the first char can be an opener for a multi-char wide opener
+func generalConditionOpenerMultiCharsInPattern(chars []ErlSrcChar, position int, memory *conditionMemory, pattern string) bool {
+	for patternRelativePos, charInPattern := range pattern {
+		// if any of the relative Opener test is false, the whole test is failed
+		if ! generalConditionOpenerCharInPattern(chars, position+patternRelativePos, memory, string(charInPattern)) {
+			return false
+		}
+	}
+	return true
 }
 
 func generalTokenTypeSetThis(tokens *ErlSrcTokens, memory *conditionMemory, typeNew string) {
