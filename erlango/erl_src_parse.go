@@ -276,7 +276,7 @@ func ErlSrcTokensDetect___whitespaces___connect_to_chars(chars []ErlSrcChar, ver
 		whitespacesConditionCloser,
 		whitespacesConditionEscape,
 		whitespacesTokenTypeSet,
-		true, // skip comments and texts
+		true, // skip chars with tokens
 		verbose,
 		"parse whitespaces",
 		true,  // the opener char is the closer char in same time
@@ -290,7 +290,7 @@ func ErlSrcTokensDetect_____commas______connect_to_chars(chars []ErlSrcChar, ver
 		commaConditionCloser,
 		commaConditionEscape,
 		commaTokenTypeSet,
-		true, // skip comments and texts
+		true, // skip chars with tokens
 		verbose,
 		"parse commas",
 		true,  // the opener char is the closer char in same time
@@ -304,7 +304,7 @@ func ErlSrcTokensDetect_______dot_______connect_to_chars(chars []ErlSrcChar, ver
 		dotConditionCloser,
 		dotConditionEscape,
 		dotTokenTypeSet,
-		true, // skip comments and texts
+		true, // skip chars with tokens
 		verbose,
 		"parse dots",
 		true,  // the opener char is the closer char in same time
@@ -318,7 +318,7 @@ func ErlSrcTokensDetect____semicolon____connect_to_chars(chars []ErlSrcChar, ver
 		semicolonConditionCloser,
 		semicolonConditionEscape,
 		semicolonTokenTypeSet,
-		true, // skip comments and texts
+		true, // skip chars with tokens
 		verbose,
 		"parse semicolons",
 		true,  // the opener char is the closer char in same time
@@ -332,7 +332,7 @@ func ErlSrcTokensDetect_bracketRoundOp__connect_to_chars(chars []ErlSrcChar, ver
 		bracketRoundOpConditionCloser,
 		bracketRoundOpConditionEscape,
 		bracketRoundOpTokenTypeSet,
-		true, // skip comments and texts
+		true, // skip chars with tokens
 		verbose,
 		"parse bracket Round opener",
 		true,  // the opener char is the closer char in same time
@@ -346,7 +346,7 @@ func ErlSrcTokensDetect_bracketRoundCl__connect_to_chars(chars []ErlSrcChar, ver
 		bracketRoundClConditionCloser,
 		bracketRoundClConditionEscape,
 		bracketRoundClTokenTypeSet,
-		true, // skip comments and texts
+		true, // skip chars with tokens
 		verbose,
 		"parse bracket Round opener",
 		true,  // the opener char is the closer char in same time
@@ -362,10 +362,10 @@ func ErlSrcTokensDetect__digits_base10__connect_to_chars(chars []ErlSrcChar, ver
 		digitsBase10ConditionCloser,
 		digitsBase10ConditionEscape,
 		digitsBase10TokenTypeSet,
-		true, // skip comments and texts
+		true, // skip chars with tokens
 		verbose,
 		"parse digits base10",
-		false,  // the opener char is NOT the closer char in same time
+		true,  // the opener char can be closer, too
 	)
 }
 
@@ -376,7 +376,7 @@ func ErlSrcTokensDetect____variables____connect_to_chars(chars []ErlSrcChar, ver
 		variablesConditionCloser,
 		variablesConditionEscape,
 		variablesTokenTypeSet,
-		true, // skip comments and texts
+		true, // skip chars with tokens
 		verbose,
 		"parse variables",
 		true,  // variable name can be 1 char long, too
@@ -390,7 +390,7 @@ func ErlSrcTokensDetect_atoms_quoteless_connect_to_chars(chars []ErlSrcChar, ver
 		atomsConditionCloser,
 		atomsConditionEscape,
 		atomsTokenTypeSet,
-		true, // skip comments and texts
+		true, // skip chars with tokens
 		verbose,
 		"parse digits base10",
 		true,  // atom name can be 1 char long
@@ -406,7 +406,7 @@ func erlSrcTokens_rangeDetect__connectToChars(
 	    tokenTypeSetter func(*ErlSrcTokens, *conditionMemory),
 		skip_chars_with_tokens bool,
 		verbose bool, caller string,
-		oneCharWideTokenDetection bool,
+		canBeOneCharWideTokenDetection bool,
 		) {
 
 	tokenInfo := func (position int, chars []ErlSrcChar, tokens ErlSrcTokens, inCharRange bool, memory conditionMemory ) {
@@ -441,7 +441,7 @@ func erlSrcTokens_rangeDetect__connectToChars(
 		}
 		if verbose { tokenInfo(position, chars, tokens, inTokenDetection_activeCharsFound, conditionMemoryTemporaryWorkspace) }
 
-		if !oneCharWideTokenDetection {
+		if !canBeOneCharWideTokenDetection { // here we know that the wanted token leng is bigger than 1
 			if nowOpened || nowEscaped { continue } // the opener cannot be the closer: ".." pairs for example
 		} // else: if oneCharWideToken == true, the char can be a closer char, too
 
