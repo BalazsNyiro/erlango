@@ -826,22 +826,7 @@ func digitsBase10ConditionOpener(chars []ErlSrcChar, position int, memory *condi
 }
 
 func digitsBase10ConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
-	lenChars := len(chars)
-	nextPos := position+1
-	lastPos := lenChars-1
-
-	if nextPos <= lastPos {
-		// if the next char is a detected token:
-		if chars[nextPos].TokenConnected() { return true }
-
-		// or if the next char is not a digit, 0-9:
-		if ! strings.Contains(ABC_Eng_digits, string(chars[nextPos].Value)) {
-			return true	 // this is a closer
-		} else { // if the next char is a digit, it cannot be a closer
-			return false
-		}
-	}
-	return true
+	return generalConditionCloser(chars, position, ABC_Eng_digits)
 }
 
 func digitsBase10ConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
@@ -866,19 +851,7 @@ func variablesConditionOpener(chars []ErlSrcChar, position int, memory *conditio
 }
 
 func variablesConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
-	lenChars := len(chars)
-	nextPos := position+1
-	lastPos := lenChars-1
-
-	if nextPos <= lastPos {
-		if chars[nextPos].TokenConnected() { return true }
-		if ! strings.Contains(ErlangVariableBody, string(chars[nextPos].Value)) {
-			return true	 // this is a closer
-		} else {
-			return false
-		}
-	}
-	return true  // because nextpos > lastPos
+	return generalConditionCloser(chars, position, ErlangVariableBody)
 }
 
 func variablesConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
@@ -894,19 +867,7 @@ func atomsConditionOpener(chars []ErlSrcChar, position int, memory *conditionMem
 }
 
 func atomsConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
-	lenChars := len(chars)
-	nextPos := position+1
-	lastPos := lenChars-1
-
-	if nextPos <= lastPos {
-		if chars[nextPos].TokenConnected() { return true }
-		if ! strings.Contains(ErlangAtomNoQuotesBody, string(chars[nextPos].Value)) {
-			return true	 // this is a closer
-		} else {
-			return false
-		}
-	}
-	return false
+	return generalConditionCloser(chars, position, ErlangAtomNoQuotesBody)
 }
 
 func atomsConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
@@ -1087,6 +1048,25 @@ func generalConditionOpenerMultiCharsInPattern(chars []ErlSrcChar, position int,
 	}
 	return true
 }
+
+func generalConditionCloser(chars []ErlSrcChar, position int, validPossibleBodyPattern string) bool {
+	lenChars := len(chars)
+	nextPos := position+1
+	lastPos := lenChars-1
+
+	if nextPos <= lastPos {
+		if chars[nextPos].TokenConnected() { return true }
+		if ! strings.Contains(validPossibleBodyPattern, string(chars[nextPos].Value)) {
+			return true	 // this is a closer, because nextPos hasn't got a valid body pattern
+		} else {
+			return false
+		}
+	}
+	return true  // because nextpos > lastPos
+
+
+}
+
 
 func generalTokenTypeSetThis(tokens *ErlSrcTokens, memory *conditionMemory, typeNew string) {
 	tokenIdLast := len(*tokens) - 1
