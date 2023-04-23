@@ -20,6 +20,25 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 	return ParseErlangSourceCode(chars, "__all__")
 }
 
+/* New Token type definition steps:
+
+	- in ParseErlangSourceCode():
+       if execStep(<FIND-A-GOOD-EXECUTION-STEP-NAME) { <CREATE-STANDARD-TOKEN-DETECTOR-FUN-NAME> }
+
+	- define a new constant, example:
+        const Token_type_variable  string = "Token_type_digits_baseDefined"
+
+    - Detector creation:
+        ErlSrcTokensDetect____variables____connect_to_chars
+
+    - CREATE funs: opener, closer, escape, typesetter
+
+    - binding: in tests create a string -> constant binding to detect token type names from tests, for example:
+      "Token_type_always_accepted" : "Token_type_always_accepted",
+
+    - create tests
+*/
+
 func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar, error) {
 	// detect "strings" or 'atoms' - quoted texts
 
@@ -46,6 +65,9 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	// baseDefined is a more wider range than base10
 	if execStep("digits_baseDefined") { }
 	if execStep("digits_base10_form")   { ErlSrcTokensDetect__digits_base10__connect_to_chars(chars, verbose) }
+
+	if execStep("variables")            { ErlSrcTokensDetect____variables____connect_to_chars(chars, verbose) }
+	if execStep("atoms_quoteless")      { ErlSrcTokensDetect_atoms_quoteless_connect_to_chars(chars, verbose) }
 
 	// detect comments
 	// detect whitespaces
@@ -76,6 +98,17 @@ const Token_type_bracket_curly_close   string = "bracket_curly_close"   // }
 const Token_type_digits_base10_form    string = "Token_type_digits_base10_form"  // 1234567890
 const Token_type_digits_baseDefined    string = "Token_type_digits_baseDefined"  // 16#af6bfa23
 
+const Token_type_variable              string = "Token_type_digits_baseDefined"  // ErlangVariableName :-)
+const Token_type_atom_quoteless        string = "Token_type_atom_quoteless"  // erlang_atom_defined_without_quotes
+
+
+const ABC_Eng_Upper string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const ABC_Eng_Lower string = "abcdefghijklmnopqrstuvwxyz"
+const ABC_Eng_digits string = "0123456789"
+const ABC_Eng_alphanum string = ABC_Eng_Upper + ABC_Eng_Lower + ABC_Eng_digits
+
+const ErlangVariableAfterCapital = ABC_Eng_alphanum + "_@"
+const ErlangAtomNoQuotesAfterLowFirst  = ErlangVariableAfterCapital
 // //////////////////////////////////////////////////////////////////////
 
 // ErlSrcToken : independent language unit, formed by one or more char
@@ -95,7 +128,8 @@ type ErlSrcToken struct {
 	Chars     []*ErlSrcChar
 	Type      string
 }
-func (token ErlSrcToken) CharAppend(charPtr *ErlSrcChar) {
+
+func (token *ErlSrcToken) CharAppend(charPtr *ErlSrcChar) {
 	token.Chars = append(token.Chars, charPtr)
 }
 
@@ -335,6 +369,35 @@ func ErlSrcTokensDetect__digits_base10__connect_to_chars(chars []ErlSrcChar, ver
 	)
 }
 
+func ErlSrcTokensDetect____variables____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		variablesConditionOpener,
+		variablesConditionCloser,
+		variablesConditionEscape,
+		variablesTokenTypeSet,
+		true, // skip comments and texts
+		verbose,
+		"parse variables",
+		true,  // variable name can be 1 char long, too
+	)
+}
+
+func ErlSrcTokensDetect_atoms_quoteless_connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		atomsConditionOpener,
+		atomsConditionCloser,
+		atomsConditionEscape,
+		atomsTokenTypeSet,
+		true, // skip comments and texts
+		verbose,
+		"parse digits base10",
+		true,  // atom name can be 1 char long
+	)
+}
+
+///////////////////////////////////////////////////////////////////////
 func erlSrcTokens_rangeDetect__connectToChars(
 		chars []ErlSrcChar,
 	 	conditionOpener func([]ErlSrcChar, int, *conditionMemory) bool,
@@ -374,9 +437,7 @@ func erlSrcTokens_rangeDetect__connectToChars(
 
 		if inTokenDetection_activeCharsFound {
 			chars[position].Token = tokens.LastPtr()
-			// FIXME: the first solution can't collect the chars, maybe because that work on a copy?
-			// chars[position].Token.CharAppend(&(chars[position]))
-			chars[position].Token.Chars = append(chars[position].Token.Chars, &(chars[position]))
+			chars[position].Token.CharAppend(&(chars[position]))
 		}
 		if verbose { tokenInfo(position, chars, tokens, inTokenDetection_activeCharsFound, conditionMemoryTemporaryWorkspace) }
 
@@ -443,13 +504,20 @@ func commentConditionOpener(chars []ErlSrcChar, position int, memory *conditionM
 
 func commentConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	lenChars := len(chars)
-	if position == lenChars-1 { return true}	// this is the last char, we won't find a newline.
+	nextPos := position+1
+	lastPos := lenChars-1
+	if position == lastPos { return true}	// this is the last char, we won't find a newline.
 
-	// if the next char is not in token and the next char is a newline
-	if (! chars[position+1].TokenConnected()) &&  chars[position+1].Value == '\n' {
-		return true	 // the newline is not part of the comment Token
+	if nextPos <= lastPos {
+
+		// if the next char is not in token and the next char is a newline
+		if (! chars[nextPos].TokenConnected()) &&  chars[nextPos].Value == '\n' {
+			return true	 // the newline is not part of the comment Token
+		} else {
+			return false
+		}
 	}
-	return chars[position].Value == '\n'
+	return true
 }
 
 func commentConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
@@ -570,23 +638,26 @@ func bracketRoundClTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 
 
 func digitsBase10ConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
-	return generalConditionOpenerCharInPattern(chars, position, memory, "0123456789")
+	return generalConditionOpenerCharInPattern(chars, position, memory, ABC_Eng_digits)
 }
 
 func digitsBase10ConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	lenChars := len(chars)
-	if position == lenChars-1 { return true}	// this is the last char, we won't find a newline.
-	// ^^^^ this situation can't happen with digits, because a ; , . has to follow the digits, minimum, it's part of an expression
-	// so a digit cannot be the last char of a file
+	nextPos := position+1
+	lastPos := lenChars-1
 
-	// if the next char is a detected token:
-	if chars[position+1].TokenConnected() { return true }
+	if nextPos <= lastPos {
+		// if the next char is a detected token:
+		if chars[nextPos].TokenConnected() { return true }
 
-	// or if the next char is not a digit, 0-9:
-	if ! strings.Contains("0123456789", string(chars[position+1].Value)) {
-		return true	 // this is a closer
+		// or if the next char is not a digit, 0-9:
+		if ! strings.Contains(ABC_Eng_digits, string(chars[nextPos].Value)) {
+			return true	 // this is a closer
+		} else { // if the next char is a digit, it cannot be a closer
+			return false
+		}
 	}
-	return false
+	return true
 }
 
 func digitsBase10ConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
@@ -596,6 +667,75 @@ func digitsBase10ConditionEscape(chars []ErlSrcChar, position int, memory *condi
 func digitsBase10TokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	generalTokenTypeSetThis(tokens, memory, Token_type_digits_base10_form)
 }
+
+//////////////  variables, quoteless-atoms //////////////////////////
+
+// Erlang variable can start with a capital letter or underscore
+func variablesConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, ABC_Eng_Upper+"_")
+}
+
+func variablesConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	lenChars := len(chars)
+	nextPos := position+1
+	lastPos := lenChars-1
+
+	if nextPos <= lastPos {
+		// if the next char is a detected token:
+		if chars[nextPos].TokenConnected() { return true }
+
+		// https://www.erlang.org/doc/reference_manual/expressions.html
+		// Variables start with an uppercase letter or underscore (_). Variables can contain alphanumeric characters, underscore and @.
+		if ! strings.Contains(ABC_Eng_alphanum + "_@", string(chars[nextPos].Value)) {
+			return true	 // this is a closer
+		} else {
+			return false
+		}
+	}
+	return false
+}
+
+func variablesConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in variables
+}
+
+func variablesTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_variable)
+}
+
+func atomsConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, ABC_Eng_Lower)
+}
+
+func atomsConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	lenChars := len(chars)
+	nextPos := position+1
+	lastPos := lenChars-1
+
+	if nextPos <= lastPos {
+		// if the next char is a detected token:
+		if chars[nextPos].TokenConnected() { return true }
+
+		// https://www.erlang.org/doc/reference_manual/expressions.html
+		// Variables start with an uppercase letter or underscore (_). Variables can contain alphanumeric characters, underscore and @.
+		if ! strings.Contains(ErlangAtomNoQuotesAfterLowFirst, string(chars[nextPos].Value)) {
+			return true	 // this is a closer
+		} else {
+			return false
+		}
+	}
+	return false
+}
+
+func atomsConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in atoms
+}
+
+func atomsTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_atom_quoteless)
+}
+
+
 //////////////  general opener, type setter /////////////////////////
 
 func generalConditionOpenerCharInPattern(chars []ErlSrcChar, position int, memory *conditionMemory, pattern string) bool {

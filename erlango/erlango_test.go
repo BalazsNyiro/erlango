@@ -42,8 +42,10 @@ var TestGlobals = map[string]string{  // used from tests
 	"Token_type_digits_base10_form"  : Token_type_digits_base10_form,
 	"Token_type_digits_baseDefined"  : Token_type_digits_baseDefined,
 
+	"Token_type_variable"            : Token_type_variable,
+	"Token_type_atom_quoteless"      : Token_type_atom_quoteless,
 
-	"Token_type_always_accepted" : "Token_type_always_accepted",
+	"Token_type_always_accepted"     : "Token_type_always_accepted",
 
 	// these are important to describe a char that you can't write
 	// in a wantedChar table
@@ -290,7 +292,9 @@ func Test_ErlSrcTokens_numbers(t *testing.T) {
                             t       Token_type_txt_quoted_double
                             r       Token_type_txt_quoted_double
                             "       Token_type_txt_quoted_double
-                            A       Token_type_not_detected 
+                            N       Token_type_variable
+                            u       Token_type_variable
+                            m       Token_type_variable
 	                      space     Token_type_not_detected
 	                        =       Token_type_not_detected
 	                      space     Token_type_not_detected
@@ -299,17 +303,18 @@ func Test_ErlSrcTokens_numbers(t *testing.T) {
 	                        3       Token_type_digits_base10_form
 	                        4       Token_type_digits_base10_form
 	                        ,       Token_type_not_detected
+                            A       Token_type_variable                <- variable, 1 char long
+	                        =       Token_type_not_detected
+	                        5       Token_type_digits_base10_form
+	                        ,       Token_type_not_detected
     `
 
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars1 := ErlSrcChars_from_str(srcFromChars1)
-	ParseErlangSourceCode(chars1, "strings_atoms,digits_base10_form")
+	ParseErlangSourceCode(chars1, "strings_atoms,digits_base10_form,variables")
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_numbers_naive", chars1, wantedCharsTable1,  t)
-
-	//		 TODO: fix Str values in a token:
-	debug_print_ErlSrcChars(chars1)
-	fmt.Println(chars1[10].Token)
-	compare_str_pair("ErlSrcTokens_numbers_naive", chars1[10].Token.StrValueFromChars(), "1234", t)
+	// debug_print_ErlSrcChars(chars1)
+	compare_str_pair("ErlSrcTokens_numbers_naive", chars1[12].Token.StrValueFromChars(), "1234", t)
 
 }
 // //////// test tools /////////////
