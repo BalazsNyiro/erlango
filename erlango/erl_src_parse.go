@@ -95,6 +95,11 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	if execStep("atoms_quoteless")      { ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars, verbose) }
 	if execStep("binding_matching")     { ErlSrcTokensDetect____binding_matching___connect_to_chars(chars, verbose) }
 
+	if execStep("math_binary_add")      { ErlSrcTokensDetect____math_binary_add____connect_to_chars(chars, verbose) }
+	if execStep("math_binary_sub")      { ErlSrcTokensDetect____math_binary_sub____connect_to_chars(chars, verbose) }
+	if execStep("math_binary_mul")      { ErlSrcTokensDetect____math_binary_mul____connect_to_chars(chars, verbose) }
+	if execStep("math_binary_div")      { ErlSrcTokensDetect____math_binary_div____connect_to_chars(chars, verbose) }
+
 	return chars, nil
 }
 
@@ -124,14 +129,21 @@ const Token_type_variable              string = "Token_type_digits_baseDefined" 
 const Token_type_atom_quoteless        string = "Token_type_atom_quoteless"      // erlang_atom_defined_without_quotes
 const Token_type_binding_matching      string = "Token_type_binding_matching"    // =
 
+const Token_type_math_binary_add      string = "Token_type_math_binary_add"    // +
+const Token_type_math_binary_sub      string = "Token_type_math_binary_sub"    // +
+const Token_type_math_binary_mul      string = "Token_type_math_binary_mul"    // +
+const Token_type_math_binary_div      string = "Token_type_math_binary_div"    // +
+
 
 const ABC_Eng_Upper string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const ABC_Eng_Lower string = "abcdefghijklmnopqrstuvwxyz"
 const ABC_Eng_digits string = "0123456789"
 const ABC_Eng_alphanum string = ABC_Eng_Upper + ABC_Eng_Lower + ABC_Eng_digits
 
-const ErlangVariableAfterCapital = ABC_Eng_alphanum + "_@"
-const ErlangAtomNoQuotesAfterLowFirst  = ErlangVariableAfterCapital
+const ErlangVariableOpener = ABC_Eng_Upper + "_"
+const ErlangVariableBody = ABC_Eng_alphanum + "_@"
+const ErlangAtomNoQuotesOpener = ABC_Eng_Lower + "_"
+const ErlangAtomNoQuotesBody = ABC_Eng_alphanum + "_@"
 // //////////////////////////////////////////////////////////////////////
 
 // ErlSrcToken : independent language unit, formed by one or more char
@@ -435,6 +447,64 @@ func  ErlSrcTokensDetect____binding_matching___connect_to_chars(chars []ErlSrcCh
 	)
 }
 
+/////////////////  math binary operators //////////////////////
+
+func ErlSrcTokensDetect____math_binary_add____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		mathBinaryAddConditionOpener,
+		mathBinaryAddConditionCloser,
+		mathBinaryAddConditionEscape,
+		mathBinaryAddTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse math binary add",
+		true,  // +  is 1 char long
+	)
+}
+func ErlSrcTokensDetect____math_binary_sub____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		mathBinarySubConditionOpener,
+		mathBinarySubConditionCloser,
+		mathBinarySubConditionEscape,
+		mathBinarySubTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse math binary sub",
+		true,  // - is one char long
+	)
+}
+func ErlSrcTokensDetect____math_binary_mul____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		mathBinaryMulConditionOpener,
+		mathBinaryMulConditionCloser,
+		mathBinaryMulConditionEscape,
+		mathBinaryMulTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse math binary mul",
+		true,  // *  is 1 char long
+	)
+}
+
+
+func ErlSrcTokensDetect____math_binary_div____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		mathBinaryDivConditionOpener,
+		mathBinaryDivConditionCloser,
+		mathBinaryDivConditionEscape,
+		mathBinaryDivTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse math binary div",
+		true,  //  /(division)  is 1 char long
+	)
+}
+
+
 ///////////////////////////////////////////////////////////////////////
 func erlSrcTokens_rangeDetect__connectToChars(
 		chars []ErlSrcChar,
@@ -506,6 +576,25 @@ type conditionMemory struct {
 	strings map[string]string
 	runes map[string]rune
 }
+
+
+///////// NOTE for the reader: I know that a lot of sections are similar,
+///////// and it is a valid question: why do we use always 4 funs,
+///////// and why the interpreter doesn't use general functions for the similar operators, for exampe math binary / *
+///////// with this solution:
+/////////  - complexity is not increased
+/////////  - the tokens can have small differences, for example + can be unary or binary operators, too, / or * cannot.
+/////////    it means if you dig yourself deeper into this question, it doesn't worth to add more layers here now.
+/////////
+///////// So dear reader:
+/////////   first, you are right. here you can see more-or-less similar sections.
+/////////   and it is possible to remove code duplications with wrapper functions.
+/////////
+///////// But: this method is simpler, and it is easier to tune, debug, and fix it.
+/////////      I tried to use groups first time, and this structure is easier from interpreter development perspective.
+
+///////// last but not least: if the result is correct, it doesn't matter anymore.
+
 
 // this is the first char in the range if returns with true
 func quoteConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
@@ -710,7 +799,7 @@ func digitsBase10TokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 
 // Erlang variable can start with a capital letter or underscore
 func variablesConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
-	return generalConditionOpenerCharInPattern(chars, position, memory, ABC_Eng_Upper+"_")
+	return generalConditionOpenerCharInPattern(chars, position, memory, ErlangVariableOpener)
 }
 
 func variablesConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
@@ -724,7 +813,7 @@ func variablesConditionCloser(chars []ErlSrcChar, position int, memory *conditio
 
 		// https://www.erlang.org/doc/reference_manual/expressions.html
 		// Variables start with an uppercase letter or underscore (_). Variables can contain alphanumeric characters, underscore and @.
-		if ! strings.Contains(ABC_Eng_alphanum + "_@", string(chars[nextPos].Value)) {
+		if ! strings.Contains(ErlangVariableBody, string(chars[nextPos].Value)) {
 			return true	 // this is a closer
 		} else {
 			return false
@@ -742,7 +831,7 @@ func variablesTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 }
 
 func atomsConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
-	return generalConditionOpenerCharInPattern(chars, position, memory, ABC_Eng_Lower)
+	return generalConditionOpenerCharInPattern(chars, position, memory, ErlangAtomNoQuotesOpener)
 }
 
 func atomsConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
@@ -756,7 +845,7 @@ func atomsConditionCloser(chars []ErlSrcChar, position int, memory *conditionMem
 
 		// https://www.erlang.org/doc/reference_manual/expressions.html
 		// Variables start with an uppercase letter or underscore (_). Variables can contain alphanumeric characters, underscore and @.
-		if ! strings.Contains(ErlangAtomNoQuotesAfterLowFirst, string(chars[nextPos].Value)) {
+		if ! strings.Contains(ErlangAtomNoQuotesBody, string(chars[nextPos].Value)) {
 			return true	 // this is a closer
 		} else {
 			return false
@@ -788,6 +877,78 @@ func bindingMatchingConditionEscape(chars []ErlSrcChar, position int, memory *co
 func bindingMatchingTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	generalTokenTypeSetThis(tokens, memory, Token_type_binding_matching)
 }
+
+
+
+
+/// math binary operators ///
+
+func mathBinaryAddConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, "+")
+}
+
+func mathBinaryAddConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true
+}
+
+func mathBinaryAddConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in math operators
+}
+
+func mathBinaryAddTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_math_binary_add)
+} ///
+
+
+func mathBinarySubConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, "-")
+}
+
+func mathBinarySubConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true
+}
+
+func mathBinarySubConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in math operators
+}
+
+func mathBinarySubTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_math_binary_sub)
+} ///
+
+func mathBinaryMulConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, "*")
+}
+
+func mathBinaryMulConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true
+}
+
+func mathBinaryMulConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in math operators
+}
+
+func mathBinaryMulTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_math_binary_mul)
+} ///
+
+func mathBinaryDivConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, "/")
+}
+
+func mathBinaryDivConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true
+}
+
+func mathBinaryDivConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in math operators
+}
+
+func mathBinaryDivTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_math_binary_div)
+}
+
+
 
 //////////////  general opener, type setter /////////////////////////
 
