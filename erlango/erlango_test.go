@@ -92,7 +92,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt := str_joined_from_wantedCharsTable_char_column(wantedTable1)
 	chars := ErlSrcChars_from_str(txt)
-	ErlSrcTokensDetect___string_atom___connect_to_chars(chars, false)
+	ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars, false)
 	// debug_print_ErlSrcChars(chars)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars, wantedTable1,  t)
 
@@ -123,7 +123,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt2:= str_joined_from_wantedCharsTable_char_column(wantedTable2)
 	chars2 := ErlSrcChars_from_str(txt2)
-	ErlSrcTokensDetect___string_atom___connect_to_chars(chars2, false)
+	ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars2, false)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars2, wantedTable2,  t)
 	// debug_print_ErlSrcChars(chars2)
 
@@ -153,7 +153,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt3 := str_joined_from_wantedCharsTable_char_column(wantedTable3)
 	chars3 := ErlSrcChars_from_str(txt3)
-	ErlSrcTokensDetect___string_atom___connect_to_chars(chars3, false)
+	ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars3, false)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars3, wantedTable3,  t)
 	// debug_print_ErlSrcChars(chars3)
 }
@@ -200,7 +200,7 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
 
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars1 := ErlSrcChars_from_str(srcFromChars1)
-	ParseErlangSourceCode(chars1, "strings_atoms,comments")
+	ParseErlangSourceCode(chars1, "strings_atoms_quotes,comments")
 	// debug_print_ErlSrcChars(chars1)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Comments_1", chars1, wantedCharsTable1,  t)
 
@@ -221,7 +221,7 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
 
 	srcFromChars2 := str_joined_from_wantedCharsTable_char_column(wantedCharTable2)
 	chars2 := ErlSrcChars_from_str(srcFromChars2)
-	ParseErlangSourceCode(chars2, "strings_atoms,comments")
+	ParseErlangSourceCode(chars2, "strings_atoms_quotes,comments")
 	// debug_print_ErlSrcChars(chars2)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Comments_2", chars2, wantedCharTable2,  t)
 }
@@ -264,7 +264,7 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars1 := ErlSrcChars_from_str(srcFromChars1)
-	ParseErlangSourceCode(chars1, "strings_atoms,comments,whitespaces")
+	ParseErlangSourceCode(chars1, "strings_atoms_quotes,comments,whitespaces")
 	// debug_print_ErlSrcChars(chars1)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_whitespace_naive", chars1, wantedCharsTable1,  t)
 
@@ -277,7 +277,7 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	fmt.Println("=============== 2 - chars ===============")
 	chars := ErlSrcChars_from_str(srcWithoutTestdata)
 	fmt.Println("=============== 3 - parse ===============")
-	ParseErlangSourceCode(chars, "strings_atoms,comments,whitespaces,commas,dots,semicolons,bracket_round_opener,bracket_round_closer,digits_base10_form")
+	ParseErlangSourceCode(chars, "strings_atoms_quotes,comments,whitespaces,commas,dots,semicolons,bracket_round_opener,bracket_round_closer,digits_base10_form")
 	debug_print_ErlSrcChars(chars)
 	fmt.Println(" wantedCharTable:\n", wantedCharTable)
 	fmt.Println("=============== 4 - compare ===============")
@@ -307,11 +307,17 @@ func Test_ErlSrcTokens_numbers(t *testing.T) {
 	                        =       Token_type_not_detected
 	                        5       Token_type_digits_base10_form
 	                        ,       Token_type_not_detected
+                            A       Token_type_variable                <- variable, 1 char long
+                            T       Token_type_variable                <- variable, 1 char long
+                            O       Token_type_variable                <- variable, 1 char long
+                            M       Token_type_variable                <- variable, 1 char long
+	                        =       Token_type_not_detected
+	                        a       Token_type_atom_quoteless
     `
 
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars1 := ErlSrcChars_from_str(srcFromChars1)
-	ParseErlangSourceCode(chars1, "strings_atoms,digits_base10_form,variables")
+	ParseErlangSourceCode(chars1, "strings_atoms_quotes,digits_base10_form,variables,atoms_quoteless")
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_numbers_naive", chars1, wantedCharsTable1,  t)
 	// debug_print_ErlSrcChars(chars1)
 	compare_str_pair("ErlSrcTokens_numbers_naive", chars1[12].Token.StrValueFromChars(), "1234", t)

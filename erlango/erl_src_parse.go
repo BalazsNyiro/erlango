@@ -29,7 +29,7 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
         const Token_type_variable  string = "Token_type_digits_baseDefined"
 
     - Detector creation:
-        ErlSrcTokensDetect____variables____connect_to_chars
+        ErlSrcTokensDetect_______variables_______connect_to_chars
 
     - CREATE funs: opener, closer, escape, typesetter
 
@@ -51,28 +51,24 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	// when you call ParseErlangSourceCode(), you can pass which steps do you want to execute
 	// so different steps can be executed from different tests
 	verbose := false
-	if execStep("strings_atoms")        { ErlSrcTokensDetect___string_atom___connect_to_chars(chars, verbose) }
-	if execStep("comments")             { ErlSrcTokensDetect_____comments____connect_to_chars(chars, verbose) }
-	if execStep("whitespaces")          { ErlSrcTokensDetect___whitespaces___connect_to_chars(chars, verbose) }
-	if execStep("commas")               { ErlSrcTokensDetect_____commas______connect_to_chars(chars, verbose) }
-	if execStep("dots")                 { ErlSrcTokensDetect_______dot_______connect_to_chars(chars, verbose) }
-	if execStep("semicolons")           { ErlSrcTokensDetect____semicolon____connect_to_chars(chars, verbose) }
+	if execStep("strings_atoms_quotes") { ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars, verbose) }
+	if execStep("comments")             { ErlSrcTokensDetect________comments_______connect_to_chars(chars, verbose) }
+	if execStep("whitespaces")          { ErlSrcTokensDetect______whitespaces______connect_to_chars(chars, verbose) }
+	if execStep("commas")               { ErlSrcTokensDetect________commas_________connect_to_chars(chars, verbose) }
+	if execStep("dots")                 { ErlSrcTokensDetect__________dot__________connect_to_chars(chars, verbose) }
+	if execStep("semicolons")           { ErlSrcTokensDetect_______semicolon_______connect_to_chars(chars, verbose) }
 
-	if execStep("bracket_round_opener") { ErlSrcTokensDetect_bracketRoundOp__connect_to_chars(chars, verbose) }
-	if execStep("bracket_round_closer") { ErlSrcTokensDetect_bracketRoundCl__connect_to_chars(chars, verbose) }
+	if execStep("bracket_round_opener") { ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(chars, verbose) }
+	if execStep("bracket_round_closer") { ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(chars, verbose) }
 
 	// TODO: detect nums
 	// baseDefined is a more wider range than base10
 	if execStep("digits_baseDefined") { }
-	if execStep("digits_base10_form")   { ErlSrcTokensDetect__digits_base10__connect_to_chars(chars, verbose) }
+	if execStep("digits_base10_form")   { ErlSrcTokensDetect_____digits_base10_____connect_to_chars(chars, verbose) }
 
-	if execStep("variables")            { ErlSrcTokensDetect____variables____connect_to_chars(chars, verbose) }
-	if execStep("atoms_quoteless")      { ErlSrcTokensDetect_atoms_quoteless_connect_to_chars(chars, verbose) }
+	if execStep("variables")            { ErlSrcTokensDetect_______variables_______connect_to_chars(chars, verbose) }
+	if execStep("atoms_quoteless")      { ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars, verbose) }
 
-	// detect comments
-	// detect whitespaces
-	// detect numbers
-	// detect
 	return chars, nil
 }
 
@@ -218,7 +214,7 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 	return erlChars
 }
 
-/* ErlSrcTokensDetect___string_atom___connect_to_chars fun processes the chars one by one:
+/* ErlSrcTokensDetect___string_atom_quotes__connect_to_chars fun processes the chars one by one:
     - if this is in a Quote: char->Token pointing happens.
     - more than one char can be connected to the same token.
 
@@ -241,7 +237,7 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
     The programmer can insert newline into strings with "line1..." ++ "\nline2"
     So now this behaviour is not a problem.
 */
-func ErlSrcTokensDetect___string_atom___connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		quoteConditionOpener,
@@ -255,7 +251,7 @@ func ErlSrcTokensDetect___string_atom___connect_to_chars(chars []ErlSrcChar, ver
 	)
 }
 
-func ErlSrcTokensDetect_____comments____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect________comments_______connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		commentConditionOpener,
@@ -269,7 +265,7 @@ func ErlSrcTokensDetect_____comments____connect_to_chars(chars []ErlSrcChar, ver
 		)
 }
 
-func ErlSrcTokensDetect___whitespaces___connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect______whitespaces______connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		whitespacesConditionOpener,
@@ -283,7 +279,7 @@ func ErlSrcTokensDetect___whitespaces___connect_to_chars(chars []ErlSrcChar, ver
 	)
 }
 
-func ErlSrcTokensDetect_____commas______connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect________commas_________connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		commaConditionOpener,
@@ -297,7 +293,7 @@ func ErlSrcTokensDetect_____commas______connect_to_chars(chars []ErlSrcChar, ver
 	)
 }
 
-func ErlSrcTokensDetect_______dot_______connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect__________dot__________connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		dotConditionOpener,
@@ -311,7 +307,7 @@ func ErlSrcTokensDetect_______dot_______connect_to_chars(chars []ErlSrcChar, ver
 	)
 }
 
-func ErlSrcTokensDetect____semicolon____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_______semicolon_______connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		semicolonConditionOpener,
@@ -325,7 +321,7 @@ func ErlSrcTokensDetect____semicolon____connect_to_chars(chars []ErlSrcChar, ver
 	)
 }
 
-func ErlSrcTokensDetect_bracketRoundOp__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		bracketRoundOpConditionOpener,
@@ -339,7 +335,7 @@ func ErlSrcTokensDetect_bracketRoundOp__connect_to_chars(chars []ErlSrcChar, ver
 	)
 }
 
-func ErlSrcTokensDetect_bracketRoundCl__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		bracketRoundClConditionOpener,
@@ -355,7 +351,7 @@ func ErlSrcTokensDetect_bracketRoundCl__connect_to_chars(chars []ErlSrcChar, ver
 
 
 
-func ErlSrcTokensDetect__digits_base10__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_____digits_base10_____connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		digitsBase10ConditionOpener,
@@ -369,7 +365,7 @@ func ErlSrcTokensDetect__digits_base10__connect_to_chars(chars []ErlSrcChar, ver
 	)
 }
 
-func ErlSrcTokensDetect____variables____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_______variables_______connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		variablesConditionOpener,
@@ -383,7 +379,7 @@ func ErlSrcTokensDetect____variables____connect_to_chars(chars []ErlSrcChar, ver
 	)
 }
 
-func ErlSrcTokensDetect_atoms_quoteless_connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
 		atomsConditionOpener,
