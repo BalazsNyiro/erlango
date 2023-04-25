@@ -635,24 +635,6 @@ type conditionMemory struct {
 	runes map[string]rune
 }
 
-
-///////// NOTE for the reader: I know that a lot of sections are similar,
-///////// and it is a valid question: why do we use always 4 funs,
-///////// and why the interpreter doesn't use general functions for the similar operators, for exampe math binary / *
-///////// with this solution:
-/////////  - complexity is not increased
-/////////  - the tokens can have small differences, for example + can be unary or binary operators, too, / or * cannot.
-/////////    it means if you dig yourself deeper into this question, it doesn't worth to add more layers here now.
-/////////
-///////// So dear reader:
-/////////   first, you are right. here you can see more-or-less similar sections.
-/////////   and it is possible to remove code duplications with wrapper functions.
-/////////
-///////// But: this method is simpler, and it is easier to tune, debug, and fix it.
-/////////      I tried to use groups first time, and this structure is easier from interpreter development perspective.
-
-///////// last but not least: if the result is correct, it doesn't matter anymore.
-
 // this is the first char in the range if returns with true
 func quoteConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	result := isSingleOrDoubleQuoteRune(chars[position].Value)
@@ -686,6 +668,8 @@ func commentConditionOpener(chars []ErlSrcChar, position int, memory *conditionM
 	return chars[position].Value == '%'
 }
 
+
+// this is a special situation, the general closer is a little different.
 func commentConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	lenChars := len(chars)
 	nextPos := position+1

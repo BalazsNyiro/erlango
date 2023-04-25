@@ -44,6 +44,12 @@ var TestGlobals = map[string]string{  // used from tests
 
 	"Token_type_variable"            : Token_type_variable,
 	"Token_type_atom_quoteless"      : Token_type_atom_quoteless,
+
+
+	"Token_type_arrow_singleToRight" : Token_type_arrow_singleToRight,
+	"Token_type_arrow_singleToLeft"  : Token_type_arrow_singleToLeft,
+	"Token_type_arrow_doubleToRight" : Token_type_arrow_singleToRight,
+
 	"Token_type_binding_matching"    : Token_type_binding_matching,
 
 	"Token_type_math_binary_add"     : Token_type_math_binary_add,
@@ -343,8 +349,28 @@ func Test_ErlSrcTokens_numbers_variables(t *testing.T) {
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_numbers_naive", chars1, wantedCharsTable1,  t)
 	// debug_print_ErlSrcChars(chars1)
 	compare_str_pair("ErlSrcTokens_numbers_naive", chars1[12].Token.StrValueFromChars(), "1234", t)
-
 }
+
+
+func Test_ErlSrcTokens_arrows(t *testing.T) {
+	fmt.Println(">>> Test_ErlSrcTokens_arrows")
+
+	wantedCharsTable1 := `  =       Token_type_arrow_doubleToRight      <- from this point it is not valid Erlang code, 
+	                        >       Token_type_arrow_doubleToRight      <- but from token detection point it's fine
+	                        ,       Token_type_comma
+	                        -       Token_type_arrow_singleToRight      
+	                        >       Token_type_arrow_singleToRight      
+	                        ,       Token_type_comma
+	                        <       Token_type_arrow_singleToLeft      
+	                        -       Token_type_arrow_singleToLeft
+	                        ,       Token_type_comma
+    `
+	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
+	chars1 := ErlSrcChars_from_str(srcFromChars1)
+	ParseErlangSourceCode(chars1, "commas,arrow_singleToRight,arrow_singleToLeft,arrow_doubleToRight")
+	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_arrows_naive", chars1, wantedCharsTable1,  t)
+}
+
 // //////// test tools /////////////
 
 // There is a normal source code + TEST DATA in the src file.
