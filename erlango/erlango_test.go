@@ -364,10 +364,11 @@ func Test_ErlSrcTokens_arrows(t *testing.T) {
 	                        <       Token_type_arrow_singleToLeft      
 	                        -       Token_type_arrow_singleToLeft
 	                        ,       Token_type_comma
+	                        =       Token_type_binding_matching
     `
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars1 := ErlSrcChars_from_str(srcFromChars1)
-	ParseErlangSourceCode(chars1, "commas,arrow_singleToRight,arrow_singleToLeft,arrow_doubleToRight")
+	ParseErlangSourceCode(chars1, "__all__")
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_arrows_naive", chars1, wantedCharsTable1,  t)
 }
 

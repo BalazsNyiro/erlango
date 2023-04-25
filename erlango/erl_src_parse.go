@@ -66,6 +66,7 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 
 // https://www.erlang.org/doc/reference_manual/expressions.html#expression-evaluation
 // https://www.tutorialspoint.com/erlang/erlang_operators.htm
+// the order of stepsWanted doesn't important, because the here defined execStep() order is the competent.
 func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar, error) {
 	// detect "strings" or 'atoms' - quoted texts
 
@@ -88,13 +89,14 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	if execStep("bracket_round_opener") { ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(chars, verbose) }
 	if execStep("bracket_round_closer") { ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(chars, verbose) }
 
-	// TODO: detect nums
-	// baseDefined is a more wider range than base10
-	if execStep("digits_baseDefined") { }
-	if execStep("digits_base10_form")   { ErlSrcTokensDetect_____digits_base10_____connect_to_chars(chars, verbose) }
-
 	if execStep("variables")            { ErlSrcTokensDetect_______variables_______connect_to_chars(chars, verbose) }
 	if execStep("atoms_quoteless")      { ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars, verbose) }
+
+	// TODO: detect nums
+	// baseDefined is a more wider range than base10
+	// // digits can be in atoms/variableNames too, so this section has to be after variables/atoms
+	if execStep("digits_baseDefined") { }
+	if execStep("digits_base10_form")   { ErlSrcTokensDetect_____digits_base10_____connect_to_chars(chars, verbose) }
 
 
 	// arrows:  ->    <-    =>
