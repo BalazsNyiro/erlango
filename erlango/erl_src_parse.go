@@ -135,7 +135,8 @@ const Token_type_bracket_curly_open    string = "bracket_curly_open"    // {
 const Token_type_bracket_curly_close   string = "bracket_curly_close"   // }
 
 const Token_type_digits_base10_form    string = "Token_type_digits_base10_form"  // 1234567890
-const Token_type_digits_baseDefined    string = "Token_type_digits_baseDefined"  // 16#af6bfa23
+const Token_type_digits_baseDefined    string = "Token_type_digits_baseDefined"  // 16#af6bfa23, only whole nums, there is no 16 based float
+const Token_type_float_dotInDigits     string = "Token_type_float_dotInDigits"   // 12.34
 
 const Token_type_variable              string = "Token_type_digits_baseDefined"  // ErlangVariableName :-)
 const Token_type_atom_quoteless        string = "Token_type_atom_quoteless"      // erlang_atom_defined_without_quotes
@@ -629,10 +630,11 @@ func erlSrcTokens_rangeDetect__connectToChars(
 ///////////////// token opener/closer //////////////////
 // conditionMemory is a place where the opener/closer/other funs can save their infos during the detection.
 func conditionMemoryEmpty() conditionMemory {
-	return conditionMemory{runes: map[string]rune{}}
+	return conditionMemory{bools: map[string]bool{}, runes: map[string]rune{}}
 }
 type conditionMemory struct {
 	nums map[string]int
+	bools map[string]bool
 	strings map[string]string
 	runes map[string]rune
 }

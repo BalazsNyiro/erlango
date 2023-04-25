@@ -41,6 +41,7 @@ var TestGlobals = map[string]string{  // used from tests
 
 	"Token_type_digits_base10_form"  : Token_type_digits_base10_form,
 	"Token_type_digits_baseDefined"  : Token_type_digits_baseDefined,
+	"Token_type_float_dotInDigits"   : Token_type_float_dotInDigits,
 
 	"Token_type_variable"            : Token_type_variable,
 	"Token_type_atom_quoteless"      : Token_type_atom_quoteless,
