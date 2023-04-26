@@ -96,8 +96,15 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	// baseDefined is a more wider range than base10
 	// // digits can be in atoms/variableNames too, so this section has to be after variables/atoms
 	if execStep("digits_baseDefined") { }
+	// here we can't detect dots/float nums, because . is not a digit and the float detection exists before the first dot
 	if execStep("digits_base10_form")   { ErlSrcTokensDetect_____digits_base10_____connect_to_chars(chars, verbose) }
 
+	fmt.Println("len chars:", len(chars))
+	fmt.Println("char 0a comment", chars[0].Comment, &chars)
+	fmt.Printf("!!!!! chars Ptr outside: %p %p", &chars, &chars[0])
+	multi_token_detect_floats(chars, true)
+	fmt.Println("char 0b comment", chars[0].Comment, &chars)
+	fmt.Println("len chars:", len(chars))
 
 	// arrows:  ->    <-    =>
 	if execStep("arrow_singleToRight")  { ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(chars, verbose) } // ->
@@ -214,6 +221,7 @@ type ErlSrcChar struct {
 	Value      rune
 	Token      *ErlSrcToken
 	SourcePath string
+	Comment    string
 }
 
 
@@ -247,6 +255,10 @@ func ErlSrcChars_from_str(txt string) []ErlSrcChar {
 func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 	var erlChars []ErlSrcChar
 	for posInFile, runeInFile := range runes {
+
+		// FIXME: this is a big question: here the new struct is added into the slice,
+		// or only the pointer of the structure?
+		// because based on my tests, a pointer.
 		erlChars = append(erlChars, ErlSrcChar{
 			Value:      runeInFile,
 			PosInFile:  posInFile,
@@ -1055,13 +1067,31 @@ func generalConditionCloser(chars []ErlSrcChar, position int, validPossibleBodyP
 
 }
 
-
 func generalTokenTypeSetThis(tokens *ErlSrcTokens, memory *conditionMemory, typeNew string) {
 	tokenIdLast := len(*tokens) - 1
 	(*tokens)[tokenIdLast].Type = typeNew
 }
 
 ///////////////// token opener/closer //////////////////
+
+
+// digit-dot-digit token combo -> this is a float num.
+func multi_token_detect_floats(chars []ErlSrcChar, verbose bool) {
+	fmt.Printf("!!!!! chars Ptr inside: %p %p", &chars, &chars[0])
+	chars[0].Comment = "bentrol modositva"
+	for position, charNow := range chars {
+		if verbose {
+			fmt.Println("multi token detect floats:", position, charNow)
+			if charNow.Token != nil {
+				fmt.Println("multi token detect floats:", position, charNow, charNow.Token.Type )
+
+			}
+		}
+	}
+}
+
+
+
 
 ////////////////////////////////// token funs ////////////////////////////////////
 func isSingleQuoteRune(r rune) bool { return r == '\''}
