@@ -59,6 +59,7 @@ var TestGlobals = map[string]string{  // used from tests
 	"Token_type_math_binary_div"     : Token_type_math_binary_div,
 
 	"Token_type_always_accepted"     : "Token_type_always_accepted",
+	"Token_type_deleted_dont_use"    : Token_type_deleted_dont_use,
 
 	// these are important to describe a char that you can't write
 	// in a wantedChar table
@@ -345,15 +346,15 @@ func Test_ErlSrcTokens_numbers_variables(t *testing.T) {
     `
 
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
-	chars1 := ErlSrcChars_from_str(srcFromChars1)
-	ParseErlangSourceCode(chars1, "strings_atoms_quotes,digits_base10_form,variables,atoms_quoteless,commas,binding_matching,math_binary_add,math_binary_sub,math_binary_mul,math_binary_div")
-	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_numbers_naive", chars1, wantedCharsTable1,  t)
+	chars := ErlSrcChars_from_str(srcFromChars1)
+	chars, _ = ParseErlangSourceCode(chars, "strings_atoms_quotes,digits_base10_form,variables,atoms_quoteless,commas,binding_matching,math_binary_add,math_binary_sub,math_binary_mul,math_binary_div")
+	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_numbers_naive", chars, wantedCharsTable1,  t)
 	// debug_print_ErlSrcChars(chars1)
-	compare_str_pair("ErlSrcTokens_numbers_naive", chars1[12].Token.StrValueFromChars(), "1234", t)
+	compare_str_pair("ErlSrcTokens_numbers_naive", chars[12].Token.StrValueFromChars(), "1234", t)
 }
 
 
-func Test_ErlSrcTokens_arrows(t *testing.T) {
+func Test_ErlSrcTokens_arrows_floats(t *testing.T) {
 	fmt.Println(">>> Test_ErlSrcTokens_arrows")
 
 	wantedCharsTable1 := `  =       Token_type_arrow_doubleToRight      <- from this point it is not valid Erlang code, 
@@ -365,12 +366,21 @@ func Test_ErlSrcTokens_arrows(t *testing.T) {
 	                        <       Token_type_arrow_singleToLeft      
 	                        -       Token_type_arrow_singleToLeft
 	                        ,       Token_type_comma
+                            X       Token_type_variable                <- variable, 1 char long
 	                        =       Token_type_binding_matching
+	                        5       Token_type_float_dotInDigits     
+	                        .       Token_type_float_dotInDigits     
+	                        6       Token_type_float_dotInDigits     
+	                        ,       Token_type_comma
+                            Y       Token_type_variable                <- variable, 1 char long
+	                        =       Token_type_binding_matching
+	                        5       Token_type_digits_base10_form
+			
     `
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
-	chars1 := ErlSrcChars_from_str(srcFromChars1)
-	ParseErlangSourceCode(chars1, "__all__")
-	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_arrows_naive", chars1, wantedCharsTable1,  t)
+	chars := ErlSrcChars_from_str(srcFromChars1)
+	chars, _ = ParseErlangSourceCode(chars, "__all__")
+	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_floats", chars, wantedCharsTable1,  t)
 }
 
 // //////// test tools /////////////

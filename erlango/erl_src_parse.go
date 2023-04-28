@@ -67,6 +67,9 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 // https://www.erlang.org/doc/reference_manual/expressions.html#expression-evaluation
 // https://www.tutorialspoint.com/erlang/erlang_operators.htm
 // the order of stepsWanted doesn't important, because the here defined execStep() order is the competent.
+
+// important: this whole function is based on Shallow-Copy. chars is passed and copied in the called functions,
+// but inside the structs are the same. So, all func changes only structs, and chars are not changed.
 func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar, error) {
 	// detect "strings" or 'atoms' - quoted texts
 
@@ -98,13 +101,7 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	if execStep("digits_baseDefined") { }
 	// here we can't detect dots/float nums, because . is not a digit and the float detection exists before the first dot
 	if execStep("digits_base10_form")   { ErlSrcTokensDetect_____digits_base10_____connect_to_chars(chars, verbose) }
-
-	fmt.Println("len chars:", len(chars))
-	fmt.Println("char 0a comment", chars[0].Comment, &chars)
-	fmt.Printf("!!!!! chars Ptr outside: %p %p", &chars, &chars[0])
-	multi_token_detect_floats(chars, true)
-	fmt.Println("char 0b comment", chars[0].Comment, &chars)
-	fmt.Println("len chars:", len(chars))
+	if execStep("numbers_floats")       { chars = multi_token_detect(chars, verbose, detector_tokens_floats)        }
 
 	// arrows:  ->    <-    =>
 	if execStep("arrow_singleToRight")  { ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(chars, verbose) } // ->
@@ -159,6 +156,9 @@ const Token_type_math_binary_sub      string = "Token_type_math_binary_sub"    /
 const Token_type_math_binary_mul      string = "Token_type_math_binary_mul"    // +
 const Token_type_math_binary_div      string = "Token_type_math_binary_div"    // +
 
+
+const Token_type_deleted_dont_use      string = "Token_type_deleted_dont_use"    // in some situations from more Tokens the intrepreter creates one.
+                                                                                 // in float detection for example: digit.digit
 
 const ABC_Eng_Upper string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const ABC_Eng_Lower string = "abcdefghijklmnopqrstuvwxyz"
@@ -221,7 +221,6 @@ type ErlSrcChar struct {
 	Value      rune
 	Token      *ErlSrcToken
 	SourcePath string
-	Comment    string
 }
 
 
@@ -256,9 +255,6 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 	var erlChars []ErlSrcChar
 	for posInFile, runeInFile := range runes {
 
-		// FIXME: this is a big question: here the new struct is added into the slice,
-		// or only the pointer of the structure?
-		// because based on my tests, a pointer.
 		erlChars = append(erlChars, ErlSrcChar{
 			Value:      runeInFile,
 			PosInFile:  posInFile,
@@ -1075,21 +1071,52 @@ func generalTokenTypeSetThis(tokens *ErlSrcTokens, memory *conditionMemory, type
 ///////////////// token opener/closer //////////////////
 
 
-// digit-dot-digit token combo -> this is a float num.
-func multi_token_detect_floats(chars []ErlSrcChar, verbose bool) {
-	fmt.Printf("!!!!! chars Ptr inside: %p %p", &chars, &chars[0])
-	chars[0].Comment = "bentrol modositva"
-	for position, charNow := range chars {
-		if verbose {
-			fmt.Println("multi token detect floats:", position, charNow)
-			if charNow.Token != nil {
-				fmt.Println("multi token detect floats:", position, charNow, charNow.Token.Type )
-
-			}
+func tokens_from_chars(chars []ErlSrcChar) []*ErlSrcToken {
+	TokensPtrs := []*ErlSrcToken{}
+	for _, charNow := range chars {
+		if charNow.Token != nil {
+			TokensPtrs = append(TokensPtrs, charNow.Token)
 		}
 	}
+	return TokensPtrs
 }
 
+// digit-dot-digit token combo -> this is a float num.
+// this fun works with Tokens, not with chars.
+// so take the first Token
+func detector_tokens_floats(tokenPtrs []*ErlSrcToken, tokenIdActual int, verbose bool) {
+
+		tokenId_prev_1 := tokenIdActual - 1
+		tokenId_prev_2 := tokenId_prev_1 - 1
+
+		if tokenId_prev_2 < 0 { return }
+
+		if tokenPtrs[tokenId_prev_2].Type == Token_type_digits_base10_form &&
+	 	   tokenPtrs[tokenId_prev_1].Type == Token_type_dot &&
+			tokenPtrs[tokenIdActual].Type == Token_type_digits_base10_form {
+
+			tokenPtrs[tokenId_prev_2].Type = Token_type_deleted_dont_use
+			tokenPtrs[tokenId_prev_1].Type = Token_type_deleted_dont_use
+			tokenPtrs[tokenIdActual].Type = Token_type_float_dotInDigits
+
+			charsAllThree := []*ErlSrcChar{}
+			charsAllThree = append(charsAllThree, tokenPtrs[tokenId_prev_2].Chars...)
+			charsAllThree = append(charsAllThree, tokenPtrs[tokenId_prev_1].Chars...)
+			charsAllThree = append(charsAllThree, tokenPtrs[tokenIdActual].Chars...)
+			tokenPtrs[tokenIdActual].Chars = charsAllThree
+			for _, Char := range tokenPtrs[tokenIdActual].Chars {
+				Char.Token = tokenPtrs[tokenIdActual]
+			}
+		}
+}
+
+func multi_token_detect(chars []ErlSrcChar, verbose bool, detector func([]*ErlSrcToken, int, bool) )[]ErlSrcChar {
+	// fmt.Println("---------- MULTI-TOKEN DETECT 1")
+	// debug_print_ErlSrcChars(chars)
+	tokenPtrs := tokens_from_chars(chars)
+	for tokenId, _ := range tokenPtrs { detector(tokenPtrs, tokenId, verbose) }
+	return chars
+}
 
 
 
