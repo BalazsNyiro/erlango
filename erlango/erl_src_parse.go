@@ -88,6 +88,7 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	if execStep("commas")               { ErlSrcTokensDetect________commas_________connect_to_chars(chars, verbose) } // ,
 	if execStep("dots")                 { ErlSrcTokensDetect__________dot__________connect_to_chars(chars, verbose) } // .
 	if execStep("semicolons")           { ErlSrcTokensDetect_______semicolon_______connect_to_chars(chars, verbose) } // ;
+	if execStep("colons")               { ErlSrcTokensDetect_________colon_________connect_to_chars(chars, verbose) } // ;
 
 	// TODO:  ':' colon detection
 
@@ -142,6 +143,7 @@ const Token_type_whitespace            string = "separator_whitespace"  // \t ' 
 const Token_type_comma                 string = "separator_comma"       // ,
 const Token_type_dot                   string = "separator_dot"         // .
 const Token_type_semicolon             string = "separator_semicolon"   // ;
+const Token_type_colon                 string = "separator_colon"       // :
 const Token_type_bracket_round_open    string = "bracket_round_open"    // (
 const Token_type_bracket_round_close   string = "bracket_round_close"   // )
 const Token_type_bracket_square_open   string = "bracket_square_open"   // [
@@ -394,6 +396,20 @@ func ErlSrcTokensDetect_______semicolon_______connect_to_chars(chars []ErlSrcCha
 		true, // skip chars with tokens
 		verbose,
 		"parse semicolons",
+		true,  // the opener char is the closer char in same time
+	)
+}
+
+func ErlSrcTokensDetect_________colon_________connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		colonConditionOpener,
+		colonConditionCloser,
+		colonConditionEscape,
+		colonTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse colons",
 		true,  // the opener char is the closer char in same time
 	)
 }
@@ -855,7 +871,7 @@ func dotTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	generalTokenTypeSetThis(tokens, memory, Token_type_dot)
 }
 
-/////////////////// semicolon ////////////////////
+/////////////////// semicolon, colon ////////////////////
 
 func semicolonConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	return generalConditionOpenerCharInPattern(chars, position, memory, ";")
@@ -871,6 +887,22 @@ func semicolonConditionEscape(chars []ErlSrcChar, position int, memory *conditio
 
 func semicolonTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	generalTokenTypeSetThis(tokens, memory, Token_type_semicolon)
+}
+
+func colonConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, ":")
+}
+
+func colonConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true // the opener is a closer in same time
+}
+
+func colonConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in colon
+}
+
+func colonTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_colon)
 }
 
 /////////////////// bracket round opener ////////////////////

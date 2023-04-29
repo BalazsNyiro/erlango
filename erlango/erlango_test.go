@@ -31,6 +31,7 @@ var TestGlobals = map[string]string{  // used from tests
 	"Token_type_comma"               : Token_type_comma,
 	"Token_type_dot"                 : Token_type_dot,
 	"Token_type_semicolon"           : Token_type_semicolon,
+	"Token_type_colon"               : Token_type_colon,
 
 	"Token_type_bracket_round_open"  : Token_type_bracket_round_open,
 	"Token_type_bracket_round_close" : Token_type_bracket_round_close,
@@ -384,6 +385,7 @@ func Test_ErlSrcTokens_arrows_floats_brackets(t *testing.T) {
 	                        }       Token_type_bracket_curly_close
 	                        [       Token_type_bracket_square_open       
 	                        ]       Token_type_bracket_square_close
+	                        :       Token_type_colon
 			
     `
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
