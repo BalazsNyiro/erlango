@@ -85,9 +85,11 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	if execStep("strings_atoms_quotes") { ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars, verbose) }
 	if execStep("comments")             { ErlSrcTokensDetect________comments_______connect_to_chars(chars, verbose) }
 	if execStep("whitespaces")          { ErlSrcTokensDetect______whitespaces______connect_to_chars(chars, verbose) }
-	if execStep("commas")               { ErlSrcTokensDetect________commas_________connect_to_chars(chars, verbose) }
-	if execStep("dots")                 { ErlSrcTokensDetect__________dot__________connect_to_chars(chars, verbose) }
-	if execStep("semicolons")           { ErlSrcTokensDetect_______semicolon_______connect_to_chars(chars, verbose) }
+	if execStep("commas")               { ErlSrcTokensDetect________commas_________connect_to_chars(chars, verbose) } // ,
+	if execStep("dots")                 { ErlSrcTokensDetect__________dot__________connect_to_chars(chars, verbose) } // .
+	if execStep("semicolons")           { ErlSrcTokensDetect_______semicolon_______connect_to_chars(chars, verbose) } // ;
+
+	// TODO:  ':' colon detection
 
 	if execStep("bracket_round_opener") { ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(chars, verbose) }
 	if execStep("bracket_round_closer") { ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(chars, verbose) }
@@ -97,19 +99,19 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 
 
 	if execStep("bracket_map_opener")   { ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(chars, verbose) } // #{
-	if execStep("bracket_curly_opener") { ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(chars, verbose) }
-	if execStep("bracket_curly_closer") { ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(chars, verbose) }
+	if execStep("bracket_curly_opener") { ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(chars, verbose) } // {
+	if execStep("bracket_curly_closer") { ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(chars, verbose) } // }
 
-	if execStep("variables")            { ErlSrcTokensDetect_______variables_______connect_to_chars(chars, verbose) }
-	if execStep("atoms_quoteless")      { ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars, verbose) }
+	if execStep("variables")            { ErlSrcTokensDetect_______variables_______connect_to_chars(chars, verbose) } // Var
+	if execStep("atoms_quoteless")      { ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars, verbose) } // atom
 
 	// TODO: detect nums
 	// baseDefined is a more wider range than base10
 	// // digits can be in atoms/variableNames too, so this section has to be after variables/atoms
 	if execStep("digits_baseDefined") { }
 	// here we can't detect dots/float nums, because . is not a digit and the float detection exists before the first dot
-	if execStep("digits_base10_form")   { ErlSrcTokensDetect_____digits_base10_____connect_to_chars(chars, verbose) }
-	if execStep("numbers_floats")       { chars = multi_token_detect(chars, verbose, detector_tokens_floats)        }
+	if execStep("digits_base10_form")   { ErlSrcTokensDetect_____digits_base10_____connect_to_chars(chars, verbose) } // 123
+	if execStep("numbers_floats")       { chars = multi_token_detect(chars, verbose, detector_tokens_floats)        } // 1.3
 
 	// arrows:  ->    <-    =>
 	if execStep("arrow_singleToRight")  { ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(chars, verbose) } // ->
@@ -119,11 +121,12 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 
 	if execStep("binding_matching")     { ErlSrcTokensDetect____binding_matching___connect_to_chars(chars, verbose) }
 
-	if execStep("math_binary_add")      { ErlSrcTokensDetect____math_binary_add____connect_to_chars(chars, verbose) }
-	if execStep("math_binary_sub")      { ErlSrcTokensDetect____math_binary_sub____connect_to_chars(chars, verbose) }
-	if execStep("math_binary_mul")      { ErlSrcTokensDetect____math_binary_mul____connect_to_chars(chars, verbose) }
-	if execStep("math_binary_div")      { ErlSrcTokensDetect____math_binary_div____connect_to_chars(chars, verbose) }
+	if execStep("math_binary_add")      { ErlSrcTokensDetect____math_binary_add____connect_to_chars(chars, verbose) } // +
+	if execStep("math_binary_sub")      { ErlSrcTokensDetect____math_binary_sub____connect_to_chars(chars, verbose) } // -
+	if execStep("math_binary_mul")      { ErlSrcTokensDetect____math_binary_mul____connect_to_chars(chars, verbose) } // *
+	if execStep("math_binary_div")      { ErlSrcTokensDetect____math_binary_div____connect_to_chars(chars, verbose) } // /
 
+	// TODO:  << >> >= <=	 ==
 	return chars, nil
 }
 
@@ -782,7 +785,7 @@ func commentConditionCloser(chars []ErlSrcChar, position int, memory *conditionM
 }
 
 /*
-Hi! it was one of my biggest dilemma to do these more-or-less similar funcs blocks here,
+Hi! It was one of my biggest dilemma to do these more-or-less similar funcs blocks here,
 because a lot of them can be replaced with fun generators - but in that situation
 the complexity is increasing, and sometimes it's a big chance that you can tune
 the functions one by one, if it's necessary.
