@@ -1115,7 +1115,7 @@ func multi_token_detect(chars []ErlSrcChar, verbose bool, detector func([]*ErlSr
 	// debug_print_ErlSrcChars(chars)
 	tokenPtrs := tokens_from_chars(chars)
 	for tokenId, _ := range tokenPtrs { detector(tokenPtrs, tokenId, verbose) }
-	return chars
+	return chars // this is not necessary, the orig chars are modified from the detector
 }
 
 

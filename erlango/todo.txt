@@ -1,6 +1,6 @@
 
 // TODO:
-// more tests:
+// READ about slices and shallow copy
 // DOCUMENTATION
 
 ################### ERLANG #############################
