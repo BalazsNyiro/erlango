@@ -354,7 +354,7 @@ func Test_ErlSrcTokens_numbers_variables(t *testing.T) {
 }
 
 
-func Test_ErlSrcTokens_arrows_floats(t *testing.T) {
+func Test_ErlSrcTokens_arrows_floats_brackets(t *testing.T) {
 	fmt.Println(">>> Test_ErlSrcTokens_arrows")
 
 	wantedCharsTable1 := `  =       Token_type_arrow_doubleToRight      <- from this point it is not valid Erlang code, 
@@ -375,12 +375,17 @@ func Test_ErlSrcTokens_arrows_floats(t *testing.T) {
                             Y       Token_type_variable                <- variable, 1 char long
 	                        =       Token_type_binding_matching
 	                        5       Token_type_digits_base10_form
+	                        ,       Token_type_comma
+	                        {       Token_type_bracket_curly_open       <- bracket detections
+	                        }       Token_type_bracket_curly_close
+	                        [       Token_type_bracket_square_open       
+	                        ]       Token_type_bracket_square_close
 			
     `
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars := ErlSrcChars_from_str(srcFromChars1)
 	chars, _ = ParseErlangSourceCode(chars, "__all__")
-	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_floats", chars, wantedCharsTable1,  t)
+	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_arrows_floats_brackets", chars, wantedCharsTable1,  t)
 }
 
 // //////// test tools /////////////

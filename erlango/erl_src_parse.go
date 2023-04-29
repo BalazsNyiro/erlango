@@ -92,6 +92,11 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	if execStep("bracket_round_opener") { ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(chars, verbose) }
 	if execStep("bracket_round_closer") { ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(chars, verbose) }
 
+	if execStep("bracket_square_opener"){ ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(chars, verbose) }
+	if execStep("bracket_square_closer"){ ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(chars, verbose) }
+	if execStep("bracket_curly_opener") { ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(chars, verbose) }
+	if execStep("bracket_curly_closer") { ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(chars, verbose) }
+
 	if execStep("variables")            { ErlSrcTokensDetect_______variables_______connect_to_chars(chars, verbose) }
 	if execStep("atoms_quoteless")      { ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars, verbose) }
 
@@ -409,7 +414,65 @@ func ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(chars []ErlSrcCha
 		bracketRoundClTokenTypeSet,
 		true, // skip chars with tokens
 		verbose,
-		"parse bracket Round opener",
+		"parse bracket Round closer",
+		true,  // the opener char is the closer char in same time
+	)
+}
+
+
+func ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		bracketSquareOpConditionOpener,
+		bracketSquareOpConditionCloser,
+		bracketSquareOpConditionEscape,
+		bracketSquareOpTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse bracket Square opener",
+		true,  // the opener char is the closer char in same time
+	)
+}
+
+func ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		bracketSquareClConditionOpener,
+		bracketSquareClConditionCloser,
+		bracketSquareClConditionEscape,
+		bracketSquareClTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse bracket Square closer",
+		true,  // the opener char is the closer char in same time
+	)
+}
+
+
+func ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		bracketCurlyOpConditionOpener,
+		bracketCurlyOpConditionCloser,
+		bracketCurlyOpConditionEscape,
+		bracketCurlyOpTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse bracket Curly opener",
+		true,  // the opener char is the closer char in same time
+	)
+}
+
+func ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		bracketCurlyClConditionOpener,
+		bracketCurlyClConditionCloser,
+		bracketCurlyClConditionEscape,
+		bracketCurlyClTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse bracket Curly closer",
 		true,  // the opener char is the closer char in same time
 	)
 }
@@ -815,6 +878,88 @@ func bracketRoundClTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 	generalTokenTypeSetThis(tokens, memory, Token_type_bracket_round_close)
 }
 /////////////////// bracket round closer ////////////////////
+
+
+
+
+
+func bracketSquareOpConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, "[")
+}
+
+func bracketSquareOpConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true // the opener is a closer in same time
+}
+
+func bracketSquareOpConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in bracketSquareOp
+}
+
+func bracketSquareOpTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_bracket_square_open)
+}
+
+func bracketSquareClConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, "]")
+}
+
+func bracketSquareClConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true // the opener is a closer in same time
+}
+
+func bracketSquareClConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in bracketSquareCl
+}
+
+func bracketSquareClTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_bracket_square_close)
+}
+
+
+func bracketCurlyOpConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, "{")
+}
+
+func bracketCurlyOpConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true // the opener is a closer in same time
+}
+
+func bracketCurlyOpConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in bracketCurlyOp
+}
+
+func bracketCurlyOpTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_bracket_curly_open)
+}
+
+func bracketCurlyClConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerCharInPattern(chars, position, memory, "}")
+}
+
+func bracketCurlyClConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return true // the opener is a closer in same time
+}
+
+func bracketCurlyClConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false // there is no meaning of an escape in bracketCurlyCl
+}
+
+func bracketCurlyClTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_bracket_curly_close)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 func digitsBase10ConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
