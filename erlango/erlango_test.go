@@ -38,6 +38,7 @@ var TestGlobals = map[string]string{  // used from tests
 	"Token_type_bracket_square_close": Token_type_bracket_square_close,
 	"Token_type_bracket_curly_open"  : Token_type_bracket_curly_open,
 	"Token_type_bracket_curly_close" : Token_type_bracket_curly_close,
+	"Token_type_bracket_map_open"    : Token_type_bracket_map_open,
 
 	"Token_type_digits_base10_form"  : Token_type_digits_base10_form,
 	"Token_type_digits_baseDefined"  : Token_type_digits_baseDefined,
@@ -375,6 +376,9 @@ func Test_ErlSrcTokens_arrows_floats_brackets(t *testing.T) {
                             Y       Token_type_variable                <- variable, 1 char long
 	                        =       Token_type_binding_matching
 	                        5       Token_type_digits_base10_form
+	                        ,       Token_type_comma
+	                        #       Token_type_bracket_map_open
+	                        {       Token_type_bracket_map_open
 	                        ,       Token_type_comma
 	                        {       Token_type_bracket_curly_open       <- bracket detections
 	                        }       Token_type_bracket_curly_close

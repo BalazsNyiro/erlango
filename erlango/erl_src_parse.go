@@ -94,6 +94,9 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 
 	if execStep("bracket_square_opener"){ ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(chars, verbose) }
 	if execStep("bracket_square_closer"){ ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(chars, verbose) }
+
+
+	if execStep("bracket_map_opener")   { ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(chars, verbose) } // #{
 	if execStep("bracket_curly_opener") { ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(chars, verbose) }
 	if execStep("bracket_curly_closer") { ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(chars, verbose) }
 
@@ -142,6 +145,7 @@ const Token_type_bracket_square_open   string = "bracket_square_open"   // [
 const Token_type_bracket_square_close  string = "bracket_square_close"  // ]
 const Token_type_bracket_curly_open    string = "bracket_curly_open"    // {
 const Token_type_bracket_curly_close   string = "bracket_curly_close"   // }
+const Token_type_bracket_map_open      string = "Token_type_bracket_map_open" // #{
 
 const Token_type_digits_base10_form    string = "Token_type_digits_base10_form"  // 1234567890
 const Token_type_digits_baseDefined    string = "Token_type_digits_baseDefined"  // 16#af6bfa23, only whole nums, there is no 16 based float
@@ -449,6 +453,20 @@ func ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(chars []ErlSrcCha
 }
 
 
+// if execStep("bracket_map_opener")   { ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(chars, verbose) } // #{
+func ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(chars []ErlSrcChar, verbose bool) {
+	erlSrcTokens_rangeDetect__connectToChars(
+		chars,
+		bracketMapOpConditionOpener,
+		bracketMapOpConditionCloser,
+		bracketMapOpConditionEscape,
+		bracketMapOpTokenTypeSet,
+		true, // skip chars with tokens
+		verbose,
+		"parse bracket map opener",
+		true,  // the opener char is the closer char in same time
+	)
+}
 func ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
 		chars,
@@ -1022,6 +1040,23 @@ func atomsTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
+func bracketMapOpConditionOpener(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return generalConditionOpenerMultiCharsInPattern(chars, position, memory, "#{")
+}
+
+func bracketMapOpConditionCloser(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return chars[position].Value == '{'
+}
+
+func bracketMapOpConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
+	return false
+}
+
+func bracketMapOpTokenTypeSet(tokens *ErlSrcTokens, memory *conditionMemory) {
+	generalTokenTypeSetThis(tokens, memory, Token_type_bracket_map_open)
+}
 
 
 
