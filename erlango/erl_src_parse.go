@@ -781,6 +781,16 @@ func commentConditionCloser(chars []ErlSrcChar, position int, memory *conditionM
 	return true
 }
 
+/*
+Hi! it was one of my biggest dilemma to do these more-or-less similar funcs blocks here,
+because a lot of them can be replaced with fun generators - but in that situation
+the complexity is increasing, and sometimes it's a big chance that you can tune
+the functions one by one, if it's necessary.
+
+I think when I write this code, this is not the best solution.
+But later when I have to support/debug/fix it, it's maybe simpler/easier to see what is happening.
+*/
+
 func commentConditionEscape(chars []ErlSrcChar, position int, memory *conditionMemory) bool {
 	return false // there is no meaning of an escape in comments
 }
