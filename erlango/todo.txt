@@ -5,6 +5,8 @@
 
 ################### ERLANG #############################
 
+preprocessor: https://www.erlang.org/doc/reference_manual/macros.html
+
 supervisors
 
 BIF: the built-in-functions can be called without modle prefix:
