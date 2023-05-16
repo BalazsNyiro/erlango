@@ -9,7 +9,5 @@ LICENSE file in the root directory of this source tree.
 
 package erlango
 
-
-func StructuresDetectFromFlatChars(chars []ErlSrcChar) {
-
+func embeddedStructuresDetectFromFlatChars(chars []ErlSrcChar) {
 }
