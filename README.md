@@ -98,8 +98,11 @@ for Erlang developers than there are developers available,
 when it is compared to other languages, the demand for Erlang is a lot less.
 
 ## HALL OF FAME
+
+ In memory of Csanád Imreh (University of Szeged)
+
 ###  For the Erlang education: 
-   - Melinda Tóth (ELTE)
+   - Melinda Tóth (Eötvös Loránd University)
    - Zsolt Laky 
    - Robert Virding (special education in OTP Bank, Budapest)
 
