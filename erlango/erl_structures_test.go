@@ -13,14 +13,16 @@ import (
 	"testing"
 )
 
-// exec specific test: go test -run Test_Simple_structures  *.go
+// exec specific test: go test -run Test_simple_structures  *.go
 
 func Test_simple_structures(t *testing.T) {
-	txt := `(1, 2)`
+	txt := `M = #{9 => "nine"}, ID = (1+2)*3, maps:find(ID, M).`
+	// {ok,"nine"}
+
 	chars := ErlSrcChars_from_str(txt)
-	ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars, false)
+	chars, _ = ParseErlangSourceCode(chars, "__all__")
 	debug_print_ErlSrcChars(chars)
 
-	fmt.Println("Test simple structures")
-	// compare_int_pair("Test simple structures", 1, 2, t)
+	fmt.Println("Test simple structures - printed only in an error :-)")
+	compare_int_pair("Test simple structures", 2, 1, t)
 }

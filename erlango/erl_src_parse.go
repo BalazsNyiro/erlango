@@ -163,7 +163,7 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 
 	if execStep("binding_matching") {
 		ErlSrcTokensDetect____binding_matching___connect_to_chars(chars, verbose)
-	}
+	} // =
 
 	if execStep("math_binary_add") {
 		ErlSrcTokensDetect____math_binary_add____connect_to_chars(chars, verbose)
