@@ -73,6 +73,7 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 // but inside the structs are the same. So, all func changes only structs, and chars are not changed.
 func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar, error) {
 	// detect "strings" or 'atoms' - quoted texts
+	log_fun("->", getCurrentFuncName())
 
 	execStep := func(stepName string) bool {
 		if strings.Contains(stepsWanted, "__all__") || strings.Contains(stepsWanted, stepName) {
@@ -179,6 +180,7 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	} // /
 
 	// TODO:  << >> >= <=	 ==
+	log_fun("<-", getCurrentFuncName())
 	return chars, nil
 }
 
