@@ -164,12 +164,12 @@ func map_print_keysorted__int_str(m map[int]string) {
 }
 /////////////////////////// DEBUG //////////////////////////////////////////////
 
-func log_fun(msg, funName str) {
+func log_fun(msg, funName string) {
 	fname := "devlog/log.txt"
 	f, _ := os.OpenFile(fname, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	defer f.Close()
 	text := fmt.Sprintf("%s %s", msg, funName)
-	f.WriteString(text);
+	f.WriteString(text+"\n");
 	f.Close()
 }
 
