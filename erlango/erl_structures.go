@@ -57,7 +57,8 @@ func languageElemsDetect(chars []ErlSrcChar) {
 	/* From chars, the ParseErlangSourceDoce detected Tokens.
 	   Here from tokens, generate executable LanguageElems. */
 
-	chars, _ = ParseErlangSourceCode(chars, "__all__")
+	prg := Prg{callStackDisplay: true}
+	chars, _ = ParseErlangSourceCode(prg, chars, "__all__")
 	debug_print_ErlSrcChars(chars)
 
 }

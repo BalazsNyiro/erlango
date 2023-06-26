@@ -19,7 +19,9 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 	if err != nil {
 		return []ErlSrcChar{}, err
 	}
-	return ParseErlangSourceCode(chars, "__all__")
+
+	prg := Prg{callStackDisplay: true}
+	return ParseErlangSourceCode(prg, chars, "__all__")
 }
 
 /*  What is a token? (my terminology).
@@ -71,9 +73,10 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 
 // important: this whole function is based on Shallow-Copy. chars is passed and copied in the called functions,
 // but inside the structs are the same. So, all func changes only structs, and chars are not changed.
-func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar, error) {
+func ParseErlangSourceCode(prg Prg, chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar, error) {
 	// detect "strings" or 'atoms' - quoted texts
-	log_fun("->", getCurrentFuncName())
+
+	log_fun(prg, "->", getCurrentFuncName())
 
 	execStep := func(stepName string) bool {
 		if strings.Contains(stepsWanted, "__all__") || strings.Contains(stepsWanted, stepName) {
@@ -180,7 +183,7 @@ func ParseErlangSourceCode(chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar
 	} // /
 
 	// TODO:  << >> >= <=	 ==
-	log_fun("<-", getCurrentFuncName())
+	log_fun(prg, "<-", getCurrentFuncName())
 	return chars, nil
 }
 
@@ -281,6 +284,12 @@ func (tokens ErlSrcTokens) LastPtr() *ErlSrcToken {
 }
 
 //////////////////////////////////////////////////////////////////////
+
+type Prg struct {
+	callStackDisplay bool
+
+}
+
 
 // ErlSrcChar represents one char in the Erlang source codes
 type ErlSrcChar struct {

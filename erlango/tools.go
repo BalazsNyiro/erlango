@@ -164,16 +164,27 @@ func map_print_keysorted__int_str(m map[int]string) {
 }
 /////////////////////////// DEBUG //////////////////////////////////////////////
 
-func log_fun(msg, funName string) {
+func log_fun(prg Prg, msg, funName string) {
 	fname := "devlog/log.txt"
 	f, _ := os.OpenFile(fname, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	defer f.Close()
-	text := fmt.Sprintf("%s %s", msg, funName)
-	f.WriteString(text+"\n");
+	text := fmt.Sprintf("%s %s", msg, funName) + "\n"
+	f.WriteString(text);
 	f.Close()
+
+	/////////////////////////////////////////////////////
+
+	if prg.callStackDisplay {
+		fmt.Printf(text)
+	}
 }
 
 func getCurrentFuncName() string {
 	pc, _, _, _ := runtime.Caller(1)
-	return fmt.Sprintf("%s", runtime.FuncForPC(pc).Name())
+	// complex fun name: command_x2dline_x2darguments.ParseErlangSourceCode
+	funName := fmt.Sprintf("%s", runtime.FuncForPC(pc).Name())
+	if strings.Contains(funName, ".") {
+		funName = strings.Split(funName, ".")[1]
+	}
+	return funName
 }
