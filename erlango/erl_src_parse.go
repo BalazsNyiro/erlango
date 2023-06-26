@@ -382,7 +382,9 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 	    The programmer can insert newline into strings with "line1..." ++ "\nline2"
 	    So now this behaviour is not a problem.
 */
+
 func ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		quoteConditionOpener,
@@ -394,9 +396,11 @@ func ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(prg Prg, chars []
 		"parse_strings_atoms",
 		false, // the opener char cannot be the closer: we find pairs: "..."
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect________comments_______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		commentConditionOpener,
@@ -408,9 +412,11 @@ func ErlSrcTokensDetect________comments_______connect_to_chars(prg Prg, chars []
 		"parse comments",
 		false, // the opener char cannot be the closer: comment...newLine
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect______whitespaces______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		whitespacesConditionOpener,
@@ -422,9 +428,11 @@ func ErlSrcTokensDetect______whitespaces______connect_to_chars(prg Prg, chars []
 		"parse whitespaces",
 		true, // the opener char is the closer char in same time
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect________commas_________connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		commaConditionOpener,
@@ -436,9 +444,11 @@ func ErlSrcTokensDetect________commas_________connect_to_chars(prg Prg, chars []
 		"parse commas",
 		true, // the opener char is the closer char in same time
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect__________dot__________connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		dotConditionOpener,
@@ -450,9 +460,11 @@ func ErlSrcTokensDetect__________dot__________connect_to_chars(prg Prg, chars []
 		"parse dots",
 		true, // the opener char is the closer char in same time
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect_______semicolon_______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		semicolonConditionOpener,
@@ -464,9 +476,11 @@ func ErlSrcTokensDetect_______semicolon_______connect_to_chars(prg Prg, chars []
 		"parse semicolons",
 		true, // the opener char is the closer char in same time
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect_________colon_________connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		colonConditionOpener,
@@ -478,9 +492,11 @@ func ErlSrcTokensDetect_________colon_________connect_to_chars(prg Prg, chars []
 		"parse colons",
 		true, // the opener char is the closer char in same time
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		bracketRoundOpConditionOpener,
@@ -492,9 +508,11 @@ func ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(prg Prg, chars []
 		"parse bracket Round opener",
 		true, // the opener char is the closer char in same time
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		bracketRoundClConditionOpener,
@@ -506,9 +524,11 @@ func ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(prg Prg, chars []
 		"parse bracket Round closer",
 		true, // the opener char is the closer char in same time
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		bracketSquareOpConditionOpener,
@@ -520,9 +540,11 @@ func ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(prg Prg, chars []
 		"parse bracket Square opener",
 		true, // the opener char is the closer char in same time
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		bracketSquareClConditionOpener,
@@ -534,10 +556,12 @@ func ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(prg Prg, chars []
 		"parse bracket Square closer",
 		true, // the opener char is the closer char in same time
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 // if execStep("bracket_map_opener")   { ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(chars, verbose) } // #{
 func ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		bracketMapOpConditionOpener,
@@ -549,8 +573,10 @@ func ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(prg Prg, chars []
 		"parse bracket map opener",
 		true, // the opener char is the closer char in same time
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 func ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		bracketCurlyOpConditionOpener,
@@ -562,9 +588,11 @@ func ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(prg Prg, chars []
 		"parse bracket Curly opener",
 		true, // the opener char is the closer char in same time
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		bracketCurlyClConditionOpener,
@@ -576,9 +604,11 @@ func ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(prg Prg, chars []
 		"parse bracket Curly closer",
 		true, // the opener char is the closer char in same time
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect_____digits_base10_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		digitsBase10ConditionOpener,
@@ -590,9 +620,11 @@ func ErlSrcTokensDetect_____digits_base10_____connect_to_chars(prg Prg, chars []
 		"parse digits base10",
 		true, // the opener char can be closer, too
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect_______variables_______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		variablesConditionOpener,
@@ -604,9 +636,11 @@ func ErlSrcTokensDetect_______variables_______connect_to_chars(prg Prg, chars []
 		"parse variables",
 		true, // variable name can be 1 char long, too
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		atomsConditionOpener,
@@ -618,10 +652,12 @@ func ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(prg Prg, chars []
 		"parse digits base10",
 		true, // atom name can be 1 char long
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 // ////////// ARROWS  ->   <-  =>
 func ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		arrowSingleToRightConditionOpener,
@@ -633,8 +669,10 @@ func ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(prg Prg, chars []
 		"parse arrow single to right",
 		false, // because it's longer than 1 char
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 func ErlSrcTokensDetect__arrow_singleToLeft___connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		arrowSingleToLeftConditionOpener,
@@ -646,8 +684,10 @@ func ErlSrcTokensDetect__arrow_singleToLeft___connect_to_chars(prg Prg, chars []
 		"parse arrow single to left",
 		false, // because it's longer than 1 char
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 func ErlSrcTokensDetect__arrow_doubleToRight__connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		arrowDoubleToRightConditionOpener,
@@ -659,11 +699,13 @@ func ErlSrcTokensDetect__arrow_doubleToRight__connect_to_chars(prg Prg, chars []
 		"parse arrow double to right",
 		false, // because it's longer than 1 char
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 /// binding_matching
 
 func ErlSrcTokensDetect____binding_matching___connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		bindingMatchingConditionOpener,
@@ -675,11 +717,13 @@ func ErlSrcTokensDetect____binding_matching___connect_to_chars(prg Prg, chars []
 		"parse =",
 		true, // =  is 1 char long
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 /////////////////  math binary operators //////////////////////
 
 func ErlSrcTokensDetect____math_binary_add____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		mathBinaryAddConditionOpener,
@@ -691,8 +735,10 @@ func ErlSrcTokensDetect____math_binary_add____connect_to_chars(prg Prg, chars []
 		"parse math binary add",
 		true, // +  is 1 char long
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 func ErlSrcTokensDetect____math_binary_sub____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		mathBinarySubConditionOpener,
@@ -704,8 +750,10 @@ func ErlSrcTokensDetect____math_binary_sub____connect_to_chars(prg Prg, chars []
 		"parse math binary sub",
 		true, // - is one char long
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 func ErlSrcTokensDetect____math_binary_mul____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		mathBinaryMulConditionOpener,
@@ -717,9 +765,11 @@ func ErlSrcTokensDetect____math_binary_mul____connect_to_chars(prg Prg, chars []
 		"parse math binary mul",
 		true, // *  is 1 char long
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 func ErlSrcTokensDetect____math_binary_div____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
 		mathBinaryDivConditionOpener,
@@ -731,6 +781,7 @@ func ErlSrcTokensDetect____math_binary_div____connect_to_chars(prg Prg, chars []
 		"parse math binary div",
 		true, //  /(division)  is 1 char long
 	)
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 // /////////////////////////////////////////////////////////////////////
