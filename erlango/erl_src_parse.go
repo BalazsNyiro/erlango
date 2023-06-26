@@ -287,7 +287,7 @@ func (tokens ErlSrcTokens) LastPtr() *ErlSrcToken {
 
 type Prg struct {
 	callStackDisplay bool
-
+	callStackFunNames []string
 }
 
 
@@ -796,7 +796,8 @@ func erlSrcTokens_rangeDetect__connectToChars(
 	verbose bool, caller string,
 	canBeOneCharWideTokenDetection bool,
 ) {
-	_ = prg
+	log_fun(prg, "->", getCurrentFuncName())
+
 	tokenInfo := func(position int, chars []ErlSrcChar, tokens ErlSrcTokens, inCharRange bool, memory conditionMemory) {
 		fmt.Println("ErlSrcTokensDetect", caller, position, string(chars[position].Value),
 			fmt.Sprintf("tokenPtr: %p", chars[position].Token),
@@ -851,6 +852,8 @@ func erlSrcTokens_rangeDetect__connectToChars(
 		}
 		escapeOn = false // if not now escaped, the escape disappearing at the next char.
 	} // for
+
+	log_fun(prg, "<-", getCurrentFuncName())
 }
 
 // /////////////// token opener/closer //////////////////
