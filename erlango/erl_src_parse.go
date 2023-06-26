@@ -20,7 +20,7 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 		return []ErlSrcChar{}, err
 	}
 
-	prg := Prg{callStackDisplay: true}
+	prg := &Prg{callStackDisplay: true}
 	return ParseErlangSourceCode(prg, chars, "__all__")
 }
 
@@ -73,7 +73,7 @@ func ParseErlangSourceFile() ([]ErlSrcChar, error) {
 
 // important: this whole function is based on Shallow-Copy. chars is passed and copied in the called functions,
 // but inside the structs are the same. So, all func changes only structs, and chars are not changed.
-func ParseErlangSourceCode(prg Prg, chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar, error) {
+func ParseErlangSourceCode(prg *Prg, chars []ErlSrcChar, stepsWanted string) ([]ErlSrcChar, error) {
 	// detect "strings" or 'atoms' - quoted texts
 
 	log_fun(prg, "->", getCurrentFuncName())
@@ -383,7 +383,7 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 	    So now this behaviour is not a problem.
 */
 
-func ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -399,7 +399,7 @@ func ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect________comments_______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect________comments_______connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -415,7 +415,7 @@ func ErlSrcTokensDetect________comments_______connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect______whitespaces______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect______whitespaces______connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -431,7 +431,7 @@ func ErlSrcTokensDetect______whitespaces______connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect________commas_________connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect________commas_________connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -447,7 +447,7 @@ func ErlSrcTokensDetect________commas_________connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect__________dot__________connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect__________dot__________connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -463,7 +463,7 @@ func ErlSrcTokensDetect__________dot__________connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect_______semicolon_______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_______semicolon_______connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -479,7 +479,7 @@ func ErlSrcTokensDetect_______semicolon_______connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect_________colon_________connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_________colon_________connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -495,7 +495,7 @@ func ErlSrcTokensDetect_________colon_________connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -511,7 +511,7 @@ func ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -527,7 +527,7 @@ func ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -543,7 +543,7 @@ func ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -560,7 +560,7 @@ func ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(prg Prg, chars []
 }
 
 // if execStep("bracket_map_opener")   { ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(chars, verbose) } // #{
-func ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -575,7 +575,7 @@ func ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(prg Prg, chars []
 	)
 	log_fun(prg, "<-", getCurrentFuncName())
 }
-func ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -591,7 +591,7 @@ func ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -607,7 +607,7 @@ func ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect_____digits_base10_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_____digits_base10_____connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -623,7 +623,7 @@ func ErlSrcTokensDetect_____digits_base10_____connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect_______variables_______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_______variables_______connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -639,7 +639,7 @@ func ErlSrcTokensDetect_______variables_______connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -656,7 +656,7 @@ func ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(prg Prg, chars []
 }
 
 // ////////// ARROWS  ->   <-  =>
-func ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -671,7 +671,7 @@ func ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(prg Prg, chars []
 	)
 	log_fun(prg, "<-", getCurrentFuncName())
 }
-func ErlSrcTokensDetect__arrow_singleToLeft___connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect__arrow_singleToLeft___connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -686,7 +686,7 @@ func ErlSrcTokensDetect__arrow_singleToLeft___connect_to_chars(prg Prg, chars []
 	)
 	log_fun(prg, "<-", getCurrentFuncName())
 }
-func ErlSrcTokensDetect__arrow_doubleToRight__connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect__arrow_doubleToRight__connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -704,7 +704,7 @@ func ErlSrcTokensDetect__arrow_doubleToRight__connect_to_chars(prg Prg, chars []
 
 /// binding_matching
 
-func ErlSrcTokensDetect____binding_matching___connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____binding_matching___connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -722,7 +722,7 @@ func ErlSrcTokensDetect____binding_matching___connect_to_chars(prg Prg, chars []
 
 /////////////////  math binary operators //////////////////////
 
-func ErlSrcTokensDetect____math_binary_add____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____math_binary_add____connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -737,7 +737,7 @@ func ErlSrcTokensDetect____math_binary_add____connect_to_chars(prg Prg, chars []
 	)
 	log_fun(prg, "<-", getCurrentFuncName())
 }
-func ErlSrcTokensDetect____math_binary_sub____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____math_binary_sub____connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -752,7 +752,7 @@ func ErlSrcTokensDetect____math_binary_sub____connect_to_chars(prg Prg, chars []
 	)
 	log_fun(prg, "<-", getCurrentFuncName())
 }
-func ErlSrcTokensDetect____math_binary_mul____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____math_binary_mul____connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -768,7 +768,7 @@ func ErlSrcTokensDetect____math_binary_mul____connect_to_chars(prg Prg, chars []
 	log_fun(prg, "<-", getCurrentFuncName())
 }
 
-func ErlSrcTokensDetect____math_binary_div____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____math_binary_div____connect_to_chars(prg *Prg, chars []ErlSrcChar, verbose bool) {
 	log_fun(prg, "->", getCurrentFuncName())
 	erlSrcTokens_rangeDetect__connectToChars(
 		prg, chars,
@@ -786,7 +786,7 @@ func ErlSrcTokensDetect____math_binary_div____connect_to_chars(prg Prg, chars []
 
 // /////////////////////////////////////////////////////////////////////
 func erlSrcTokens_rangeDetect__connectToChars(
-	prg Prg,
+	prg *Prg,
 	chars []ErlSrcChar,
 	conditionOpener func([]ErlSrcChar, int, *conditionMemory) bool,
 	conditionCloser func([]ErlSrcChar, int, *conditionMemory) bool,

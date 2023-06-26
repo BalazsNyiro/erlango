@@ -109,7 +109,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt := str_joined_from_wantedCharsTable_char_column(wantedTable1)
 	chars := ErlSrcChars_from_str(txt)
-	prg := Prg{callStackDisplay: true}
+	prg := &Prg{callStackDisplay: true}
 	ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(prg, chars, false)
 	// debug_print_ErlSrcChars(chars)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars, wantedTable1, t)
@@ -212,7 +212,7 @@ func Test_ErlSrcTokens_Comments(t *testing.T) {
                             '       Token_type_txt_quoted_single
     `
 
-	prg := Prg{callStackDisplay: true}
+	prg := &Prg{callStackDisplay: true}
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars1 := ErlSrcChars_from_str(srcFromChars1)
 	ParseErlangSourceCode(prg, chars1, "strings_atoms_quotes,comments")
@@ -276,7 +276,7 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
                             e       Token_type_comment  <- no newline at the end of the comment
     `
 
-	prg := Prg{callStackDisplay: true}
+	prg := &Prg{callStackDisplay: true}
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars1 := ErlSrcChars_from_str(srcFromChars1)
 	ParseErlangSourceCode(prg, chars1, "strings_atoms_quotes,comments,whitespaces")
@@ -345,7 +345,7 @@ func Test_ErlSrcTokens_numbers_variables(t *testing.T) {
 	                        9       Token_type_digits_base10_form
     `
 
-	prg := Prg{callStackDisplay: true}
+	prg := &Prg{callStackDisplay: true}
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars := ErlSrcChars_from_str(srcFromChars1)
 	chars, _ = ParseErlangSourceCode(prg, chars, "strings_atoms_quotes,digits_base10_form,variables,atoms_quoteless,commas,binding_matching,math_binary_add,math_binary_sub,math_binary_mul,math_binary_div")
@@ -386,7 +386,7 @@ func Test_ErlSrcTokens_arrows_floats_brackets(t *testing.T) {
 			                        :       Token_type_colon
 
 		    `
-	prg := Prg{callStackDisplay: true}
+	prg := &Prg{callStackDisplay: true}
 
 	srcFromChars1 := str_joined_from_wantedCharsTable_char_column(wantedCharsTable1)
 	chars := ErlSrcChars_from_str(srcFromChars1)

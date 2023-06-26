@@ -18,7 +18,7 @@ import (
 func Test_simple_structures(t *testing.T) {
 	txt := `M = #{9 => "nine"}, ID = (1+2)*3, maps:find(ID, M).`
 
-	prg := Prg{callStackDisplay: true}
+	prg := &Prg{callStackDisplay: true}
 
 	chars := ErlSrcChars_from_str(txt)
 	chars, _ = ParseErlangSourceCode(prg, chars, "__all__")

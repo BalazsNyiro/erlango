@@ -16,6 +16,7 @@ import (
 	"os"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -164,7 +165,7 @@ func map_print_keysorted__int_str(m map[int]string) {
 }
 /////////////////////////// DEBUG //////////////////////////////////////////////
 
-func log_fun(prg Prg, msg, funName string) {
+func log_fun(prg *Prg, msg, funName string) {
 	fname := "devlog/log.txt"
 	f, _ := os.OpenFile(fname, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	defer f.Close()
@@ -177,14 +178,21 @@ func log_fun(prg Prg, msg, funName string) {
 	if prg.callStackDisplay {
 		if msg == "->" {
 			prg.callStackFunNames = append(prg.callStackFunNames, funName)
-			fmt.Println("callstack", prg.callStackFunNames)
 		}
-		fmt.Printf(text)
+
+		callLevel := len(prg.callStackFunNames)
+		indentation := ""
+		if callLevel > 0 {
+			indentation = fmt.Sprintf("%"+strconv.Itoa(callLevel)+"s", " ")
+		}
+		fmt.Printf(indentation + text)
+
 		if msg == "<-" {
 			// don't check the length, because it can hide open/close mismatching errors
 			// if len(prg.callStackFunNames) > 0 { }
 			prg.callStackFunNames = prg.callStackFunNames[:len(prg.callStackFunNames)-1]
 		}
+
 	}
 }
 
