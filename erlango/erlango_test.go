@@ -109,7 +109,8 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt := str_joined_from_wantedCharsTable_char_column(wantedTable1)
 	chars := ErlSrcChars_from_str(txt)
-	ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars, false)
+	prg := Prg{callStackDisplay: true}
+	ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(prg, chars, false)
 	// debug_print_ErlSrcChars(chars)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars, wantedTable1, t)
 
@@ -138,7 +139,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt2 := str_joined_from_wantedCharsTable_char_column(wantedTable2)
 	chars2 := ErlSrcChars_from_str(txt2)
-	ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars2, false)
+	ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(prg, chars2, false)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars2, wantedTable2, t)
 	// debug_print_ErlSrcChars(chars2)
 
@@ -167,7 +168,7 @@ func Test_ErlSrcTokens_Quoted(t *testing.T) {
 
 	txt3 := str_joined_from_wantedCharsTable_char_column(wantedTable3)
 	chars3 := ErlSrcChars_from_str(txt3)
-	ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars3, false)
+	ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(prg, chars3, false)
 	compare_ErlSrcChar_with_wantedCharsTable("ErlSrcTokens_Quoted", chars3, wantedTable3, t)
 	// debug_print_ErlSrcChars(chars3)
 }

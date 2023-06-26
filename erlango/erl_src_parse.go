@@ -90,56 +90,56 @@ func ParseErlangSourceCode(prg Prg, chars []ErlSrcChar, stepsWanted string) ([]E
 	// so different steps can be executed from different tests
 	verbose := false
 	if execStep("strings_atoms_quotes") {
-		ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(prg, chars, verbose)
 	}
 	if execStep("comments") {
-		ErlSrcTokensDetect________comments_______connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect________comments_______connect_to_chars(prg, chars, verbose)
 	}
 	if execStep("whitespaces") {
-		ErlSrcTokensDetect______whitespaces______connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect______whitespaces______connect_to_chars(prg, chars, verbose)
 	}
 	if execStep("commas") {
-		ErlSrcTokensDetect________commas_________connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect________commas_________connect_to_chars(prg, chars, verbose)
 	} // ,
 	if execStep("dots") {
-		ErlSrcTokensDetect__________dot__________connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect__________dot__________connect_to_chars(prg, chars, verbose)
 	} // .
 	if execStep("semicolons") {
-		ErlSrcTokensDetect_______semicolon_______connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect_______semicolon_______connect_to_chars(prg, chars, verbose)
 	} // ;
 	if execStep("colons") {
-		ErlSrcTokensDetect_________colon_________connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect_________colon_________connect_to_chars(prg, chars, verbose)
 	} // ;
 
 	if execStep("bracket_round_opener") {
-		ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(prg, chars, verbose)
 	}
 	if execStep("bracket_round_closer") {
-		ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(prg, chars, verbose)
 	}
 
 	if execStep("bracket_square_opener") {
-		ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(prg, chars, verbose)
 	}
 	if execStep("bracket_square_closer") {
-		ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(prg, chars, verbose)
 	}
 
 	if execStep("bracket_map_opener") {
-		ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(prg, chars, verbose)
 	} // #{
 	if execStep("bracket_curly_opener") {
-		ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(prg, chars, verbose)
 	} // {
 	if execStep("bracket_curly_closer") {
-		ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(prg, chars, verbose)
 	} // }
 
 	if execStep("variables") {
-		ErlSrcTokensDetect_______variables_______connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect_______variables_______connect_to_chars(prg, chars, verbose)
 	} // Var
 	if execStep("atoms_quoteless") {
-		ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(prg, chars, verbose)
 	} // atom
 
 	// baseDefined is a more wider range than base10
@@ -148,7 +148,7 @@ func ParseErlangSourceCode(prg Prg, chars []ErlSrcChar, stepsWanted string) ([]E
 	}
 	// here we can't detect dots/float nums, because . is not a digit and the float detection exists before the first dot
 	if execStep("digits_base10_form") {
-		ErlSrcTokensDetect_____digits_base10_____connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect_____digits_base10_____connect_to_chars(prg, chars, verbose)
 	} // 123
 	if execStep("numbers_floats") {
 		chars = multi_token_detect(chars, verbose, detector_tokens_floats)
@@ -156,30 +156,30 @@ func ParseErlangSourceCode(prg Prg, chars []ErlSrcChar, stepsWanted string) ([]E
 
 	// arrows:  ->    <-    =>
 	if execStep("arrow_singleToRight") {
-		ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(prg, chars, verbose)
 	} // ->
 	if execStep("arrow_singleToLeft") {
-		ErlSrcTokensDetect__arrow_singleToLeft___connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect__arrow_singleToLeft___connect_to_chars(prg, chars, verbose)
 	} // <-
 	if execStep("arrow_doubleToRight") {
-		ErlSrcTokensDetect__arrow_doubleToRight__connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect__arrow_doubleToRight__connect_to_chars(prg, chars, verbose)
 	} // =>
 
 	if execStep("binding_matching") {
-		ErlSrcTokensDetect____binding_matching___connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect____binding_matching___connect_to_chars(prg, chars, verbose)
 	} // =
 
 	if execStep("math_binary_add") {
-		ErlSrcTokensDetect____math_binary_add____connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect____math_binary_add____connect_to_chars(prg, chars, verbose)
 	} // +
 	if execStep("math_binary_sub") {
-		ErlSrcTokensDetect____math_binary_sub____connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect____math_binary_sub____connect_to_chars(prg, chars, verbose)
 	} // -
 	if execStep("math_binary_mul") {
-		ErlSrcTokensDetect____math_binary_mul____connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect____math_binary_mul____connect_to_chars(prg, chars, verbose)
 	} // *
 	if execStep("math_binary_div") {
-		ErlSrcTokensDetect____math_binary_div____connect_to_chars(chars, verbose)
+		ErlSrcTokensDetect____math_binary_div____connect_to_chars(prg, chars, verbose)
 	} // /
 
 	// TODO:  << >> >= <=	 ==
@@ -382,9 +382,9 @@ func ErlSrcChars_from_runes(runes []rune, sourcePath string) []ErlSrcChar {
 	    The programmer can insert newline into strings with "line1..." ++ "\nline2"
 	    So now this behaviour is not a problem.
 */
-func ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		quoteConditionOpener,
 		quoteConditionCloser,
 		quoteConditionEscape,
@@ -396,9 +396,9 @@ func ErlSrcTokensDetect___string_atom_quotes__connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect________comments_______connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect________comments_______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		commentConditionOpener,
 		commentConditionCloser,
 		commentConditionEscape,
@@ -410,9 +410,9 @@ func ErlSrcTokensDetect________comments_______connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect______whitespaces______connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect______whitespaces______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		whitespacesConditionOpener,
 		whitespacesConditionCloser,
 		whitespacesConditionEscape,
@@ -424,9 +424,9 @@ func ErlSrcTokensDetect______whitespaces______connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect________commas_________connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect________commas_________connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		commaConditionOpener,
 		commaConditionCloser,
 		commaConditionEscape,
@@ -438,9 +438,9 @@ func ErlSrcTokensDetect________commas_________connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect__________dot__________connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect__________dot__________connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		dotConditionOpener,
 		dotConditionCloser,
 		dotConditionEscape,
@@ -452,9 +452,9 @@ func ErlSrcTokensDetect__________dot__________connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect_______semicolon_______connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_______semicolon_______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		semicolonConditionOpener,
 		semicolonConditionCloser,
 		semicolonConditionEscape,
@@ -466,9 +466,9 @@ func ErlSrcTokensDetect_______semicolon_______connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect_________colon_________connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_________colon_________connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		colonConditionOpener,
 		colonConditionCloser,
 		colonConditionEscape,
@@ -480,9 +480,9 @@ func ErlSrcTokensDetect_________colon_________connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		bracketRoundOpConditionOpener,
 		bracketRoundOpConditionCloser,
 		bracketRoundOpConditionEscape,
@@ -494,9 +494,9 @@ func ErlSrcTokensDetect____bracketRoundOp_____connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		bracketRoundClConditionOpener,
 		bracketRoundClConditionCloser,
 		bracketRoundClConditionEscape,
@@ -508,9 +508,9 @@ func ErlSrcTokensDetect____bracketRoundCl_____connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		bracketSquareOpConditionOpener,
 		bracketSquareOpConditionCloser,
 		bracketSquareOpConditionEscape,
@@ -522,9 +522,9 @@ func ErlSrcTokensDetect___bracketSquareOp_____connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		bracketSquareClConditionOpener,
 		bracketSquareClConditionCloser,
 		bracketSquareClConditionEscape,
@@ -537,9 +537,9 @@ func ErlSrcTokensDetect___bracketSquareCl_____connect_to_chars(chars []ErlSrcCha
 }
 
 // if execStep("bracket_map_opener")   { ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(chars, verbose) } // #{
-func ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		bracketMapOpConditionOpener,
 		bracketMapOpConditionCloser,
 		bracketMapOpConditionEscape,
@@ -550,9 +550,9 @@ func ErlSrcTokensDetect____bracketMapOpener___connect_to_chars(chars []ErlSrcCha
 		true, // the opener char is the closer char in same time
 	)
 }
-func ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		bracketCurlyOpConditionOpener,
 		bracketCurlyOpConditionCloser,
 		bracketCurlyOpConditionEscape,
@@ -564,9 +564,9 @@ func ErlSrcTokensDetect___bracketCurlyOp______connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		bracketCurlyClConditionOpener,
 		bracketCurlyClConditionCloser,
 		bracketCurlyClConditionEscape,
@@ -578,9 +578,9 @@ func ErlSrcTokensDetect___bracketCurlyCl______connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect_____digits_base10_____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_____digits_base10_____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		digitsBase10ConditionOpener,
 		digitsBase10ConditionCloser,
 		digitsBase10ConditionEscape,
@@ -592,9 +592,9 @@ func ErlSrcTokensDetect_____digits_base10_____connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect_______variables_______connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect_______variables_______connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		variablesConditionOpener,
 		variablesConditionCloser,
 		variablesConditionEscape,
@@ -606,9 +606,9 @@ func ErlSrcTokensDetect_______variables_______connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		atomsConditionOpener,
 		atomsConditionCloser,
 		atomsConditionEscape,
@@ -621,9 +621,9 @@ func ErlSrcTokensDetect____atoms_quoteless____connect_to_chars(chars []ErlSrcCha
 }
 
 // ////////// ARROWS  ->   <-  =>
-func ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		arrowSingleToRightConditionOpener,
 		arrowSingleToRightConditionCloser,
 		arrowSingleToRightConditionEscape,
@@ -634,9 +634,9 @@ func ErlSrcTokensDetect__arrow_singleToRight__connect_to_chars(chars []ErlSrcCha
 		false, // because it's longer than 1 char
 	)
 }
-func ErlSrcTokensDetect__arrow_singleToLeft___connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect__arrow_singleToLeft___connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		arrowSingleToLeftConditionOpener,
 		arrowSingleToLeftConditionCloser,
 		arrowSingleToLeftConditionEscape,
@@ -647,9 +647,9 @@ func ErlSrcTokensDetect__arrow_singleToLeft___connect_to_chars(chars []ErlSrcCha
 		false, // because it's longer than 1 char
 	)
 }
-func ErlSrcTokensDetect__arrow_doubleToRight__connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect__arrow_doubleToRight__connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		arrowDoubleToRightConditionOpener,
 		arrowDoubleToRightConditionCloser,
 		arrowDoubleToRightConditionEscape,
@@ -663,9 +663,9 @@ func ErlSrcTokensDetect__arrow_doubleToRight__connect_to_chars(chars []ErlSrcCha
 
 /// binding_matching
 
-func ErlSrcTokensDetect____binding_matching___connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____binding_matching___connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		bindingMatchingConditionOpener,
 		bindingMatchingConditionCloser,
 		bindingMatchingConditionEscape,
@@ -679,9 +679,9 @@ func ErlSrcTokensDetect____binding_matching___connect_to_chars(chars []ErlSrcCha
 
 /////////////////  math binary operators //////////////////////
 
-func ErlSrcTokensDetect____math_binary_add____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____math_binary_add____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		mathBinaryAddConditionOpener,
 		mathBinaryAddConditionCloser,
 		mathBinaryAddConditionEscape,
@@ -692,9 +692,9 @@ func ErlSrcTokensDetect____math_binary_add____connect_to_chars(chars []ErlSrcCha
 		true, // +  is 1 char long
 	)
 }
-func ErlSrcTokensDetect____math_binary_sub____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____math_binary_sub____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		mathBinarySubConditionOpener,
 		mathBinarySubConditionCloser,
 		mathBinarySubConditionEscape,
@@ -705,9 +705,9 @@ func ErlSrcTokensDetect____math_binary_sub____connect_to_chars(chars []ErlSrcCha
 		true, // - is one char long
 	)
 }
-func ErlSrcTokensDetect____math_binary_mul____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____math_binary_mul____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		mathBinaryMulConditionOpener,
 		mathBinaryMulConditionCloser,
 		mathBinaryMulConditionEscape,
@@ -719,9 +719,9 @@ func ErlSrcTokensDetect____math_binary_mul____connect_to_chars(chars []ErlSrcCha
 	)
 }
 
-func ErlSrcTokensDetect____math_binary_div____connect_to_chars(chars []ErlSrcChar, verbose bool) {
+func ErlSrcTokensDetect____math_binary_div____connect_to_chars(prg Prg, chars []ErlSrcChar, verbose bool) {
 	erlSrcTokens_rangeDetect__connectToChars(
-		chars,
+		prg, chars,
 		mathBinaryDivConditionOpener,
 		mathBinaryDivConditionCloser,
 		mathBinaryDivConditionEscape,
@@ -735,6 +735,7 @@ func ErlSrcTokensDetect____math_binary_div____connect_to_chars(chars []ErlSrcCha
 
 // /////////////////////////////////////////////////////////////////////
 func erlSrcTokens_rangeDetect__connectToChars(
+	prg Prg,
 	chars []ErlSrcChar,
 	conditionOpener func([]ErlSrcChar, int, *conditionMemory) bool,
 	conditionCloser func([]ErlSrcChar, int, *conditionMemory) bool,
@@ -744,7 +745,7 @@ func erlSrcTokens_rangeDetect__connectToChars(
 	verbose bool, caller string,
 	canBeOneCharWideTokenDetection bool,
 ) {
-
+	_ = prg
 	tokenInfo := func(position int, chars []ErlSrcChar, tokens ErlSrcTokens, inCharRange bool, memory conditionMemory) {
 		fmt.Println("ErlSrcTokensDetect", caller, position, string(chars[position].Value),
 			fmt.Sprintf("tokenPtr: %p", chars[position].Token),
