@@ -59,6 +59,6 @@ func languageElemsDetect(chars []ErlSrcChar) {
 
 	prg := &Prg{callStackDisplay: true}
 	chars, _ = ParseErlangSourceCode(prg, chars, "__all__")
-	debug_print_ErlSrcChars(chars)
+	debug_print_ErlSrcChars(prg, chars)
 
 }

@@ -292,7 +292,7 @@ func Test_ErlSrcTokens_whitespaces_separators(t *testing.T) {
 	chars := ErlSrcChars_from_str(srcWithoutTestdata)
 	fmt.Println("=============== 3 - parse ===============")
 	ParseErlangSourceCode(prg, chars, "strings_atoms_quotes,comments,whitespaces,commas,dots,semicolons,bracket_round_opener,bracket_round_closer,digits_base10_form")
-	debug_print_ErlSrcChars(chars)
+	debug_print_ErlSrcChars(prg, chars)
 	fmt.Println(" wantedCharTable:\n", wantedCharTable)
 	fmt.Println("=============== 4 - compare ===============")
 	compare_ErlSrcChar_with_wantedCharsTable("Test_ErlSrcTokens_whitespaces_separators", chars, wantedCharTable, t)

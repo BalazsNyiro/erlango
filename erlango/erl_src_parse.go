@@ -288,6 +288,7 @@ func (tokens ErlSrcTokens) LastPtr() *ErlSrcToken {
 type Prg struct {
 	callStackDisplay bool
 	callStackFunNames []string
+	debugHtmlCounter int
 }
 
 

@@ -14,7 +14,6 @@ import (
 )
 
 // exec specific test: go test -run Test_simple_structures  *.go
-
 func Test_simple_structures(t *testing.T) {
 	txt := `M = #{9 => "nine"}, ID = (1+2)*3, maps:find(ID, M).`
 
@@ -22,8 +21,8 @@ func Test_simple_structures(t *testing.T) {
 
 	chars := ErlSrcChars_from_str(txt)
 	chars, _ = ParseErlangSourceCode(prg, chars, "__all__")
-	debug_print_ErlSrcChars(chars)
+	debug_print_ErlSrcChars(prg, chars)
 
 	fmt.Println("Test simple structures - printed only in an error :-)")
-	// compare_int_pair("Test simple structures", 2, 1, t)
+	compare_int_pair("Test simple structures", 2, 1, t)
 }

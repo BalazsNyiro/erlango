@@ -107,51 +107,6 @@ func str_double_space_remove(txt string) string {
 
 
 /////////////////////////// DEBUG //////////////////////////////////////////////
-// I need it from tests and normal code too, so this is the best place
-func debug_print_ErlSrcChars_original(chars []ErlSrcChar) {
-	fmt.Println("")
-	for i, _ := range chars {
-		fmt.Printf("%3d posInFile:%3d val:%4s ", i, chars[i].PosInFile, string(chars[i].Value))
-
-		prevPos := -1
-		if chars[i].PrevChar != nil {
-			prevPos = chars[i].PrevChar.PosInFile
-		}
-		fmt.Printf(" PrevPosInFile:%3d ", prevPos)
-
-		tokenType := ""
-		if chars[i].TokenConnected() {
-			tokenType = chars[i].Token.Type
-		}
-		fmt.Printf(" %p <- %p -> %p token: %p %s", chars[i].PrevChar, &chars[i], chars[i].NextChar, chars[i].Token, tokenType)
-		fmt.Println("")
-	}
-}
-
-func debug_print_ErlSrcChars(chars []ErlSrcChar) {
-	fmt.Printf("inside >>>  debug_print_ErlSrcChars %p \n", chars)
-	for id, _ := range chars {
-		debug_print_ErlSrcChar(id, &(chars[id])  )
-	}
-}
-
-func debug_print_ErlSrcChar(id int, charPtr *ErlSrcChar) {
-		fmt.Printf("charPtr:%p  %3d posInFile:%3d val:%4s ",charPtr, id, charPtr.PosInFile, string(charPtr.Value))
-
-		prevPos := -1
-		if charPtr.PrevChar != nil {
-			prevPos = charPtr.PrevChar.PosInFile
-		}
-		fmt.Printf(" PrevPosInFile:%3d ", prevPos)
-
-		fmt.Printf(" %p <- %p -> %p tokenPtr: %p type->%s<-", charPtr.PrevChar, charPtr, charPtr.NextChar, charPtr.Token, (*charPtr).Type())
-		fmt.Println("")
-}
-
-func debug_print_mem_address(msg string, object any ){
-	fmt.Printf("%s %p \n", msg, object)
-}
-
 func map_print_keysorted__int_str(m map[int]string) {
 	keys := make([]int, 0, len(m))
 	for k := range m {
@@ -170,8 +125,6 @@ func log_fun(prg *Prg, msg, funName string) {
 	f, _ := os.OpenFile(fname, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	defer f.Close()
 	text := fmt.Sprintf("%s %s", msg, funName) + "\n"
-	f.WriteString(text);
-	f.Close()
 
 	/////////////////////////////////////////////////////
 
@@ -185,7 +138,9 @@ func log_fun(prg *Prg, msg, funName string) {
 		if callLevel > 0 {
 			indentation = fmt.Sprintf("%"+strconv.Itoa(callLevel)+"s", " ")
 		}
-		fmt.Printf(indentation + text)
+		formattedOutput := indentation + text
+		fmt.Printf(formattedOutput)
+		f.WriteString(formattedOutput+"\n")
 
 		if msg == "<-" {
 			// don't check the length, because it can hide open/close mismatching errors
