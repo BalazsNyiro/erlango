@@ -1,0 +1,4 @@
+
+Erlang language elems:
+// https://www.erlang.org/doc/reference_manual/expressions.html#expression-evaluation
+// https://www.tutorialspoint.com/erlang/erlang_operators.htm
