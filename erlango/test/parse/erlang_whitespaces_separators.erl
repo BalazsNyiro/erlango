@@ -1,30 +1,28 @@
 #!/usr/bin/env escript
 
-%INFO tested:
-%INFO newline | tab | space | comma | dot | semicolon
-       % Token_type_whitespace
-          % Token_type_whitespace (newline as last char)
 main(_) ->
-% Token_type_whitespace  tab indented line:
-	io:format(example()).
+	% tab used here as indentation
+	io:fwrite("~p~n", [example()]),
+	io:fwrite("~p~n", [example(1)]),
+	io:fwrite("~p~n", [example(1234567890)]),
 
-%INFO in the tab indented space it's difficult to represent the string, because the tab causes display problems
-%INFO so I create a separated line to that
-                         %%%%%%%%%%%%%%%%%%% Token_type_txt_quoted_double
-    io:format(example(), "space indentation").
+    io:fwrite("~p~n", [add(2, 4)]),
 
-                       % Token_type_comma
-                        % Token_type_whitespace (space)
-    io:format(example(), "comma token in the line").
-          % Token_type_whitespace (space)
-             % Token_type_whitespace (space)
-                      % Token_type_semicolon
-example(1) -> "case 1";
-        %%%%%%%%%% Token_type_digits_base10_form
+    ok.
+
+example() ->
+    example.
+
+% "double \"quoted\" comment, with a single quoted 'atom'"
+example(1) -> "case 1";                     % comment in 'example' function
 example(1234567890) -> "case 1234567890";
-example(16#af6bfa23) -> "case 1";
-       % Token_type_bracket_round_open
-         % Token_type_bracket_round_close
-                           % Token_type_dot
+example(16#af6bfa23) -> "hexa num";           % hexa based number
+example(12.34) -> "floated num";           % hexa based number
 example(_) -> "case others".
 
+add(A, B) ->
+    Result = (A + B),
+    Result.
+
+diff(A, B) ->
+    A - B.
