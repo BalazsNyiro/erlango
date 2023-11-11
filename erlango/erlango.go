@@ -11,61 +11,19 @@ Version 0.2, second rewrite
 
 package erlango
 
+import "fmt"
+
+/*
+
+*/
 
 
-// ############# PARSER ELEMS #############################
-// use minimal set of types. Don't overcomplicate the parser.
-type ErlToken struct {
+func Erlang_program_exec() {
 
-	// don't create a pointer to the prev/next Token.
-	// it is a dangerous error source. Use only a positionId in a collector of ErlTokens
+	sourcesTokensExecutables_list := SourcesTokensExecutables_list{}
+	// step_01_tokens_from_source_code()
+	// step_02_executables_from_tokens()
+	// step_03_exec_main()
+	fmt.Print(sourcesTokensExecutables_list)
 
-	/* Possible token types:
-	 - notDetected
-	 - atom
-	 - string
-	 - binaryDoubleOpener      <<
-	 - binaryDoubleCloser      >>
-	 - operatorMathPlusPlus    ++
-	 - operatorMathMinusMinus  --
-	 - operatorBoolEqualDouble ==
-	 - operatorBoolBigger      >
-	 - operatorBoolSmaller     <
-	 - codeBlockStart         ->
-
-	a few sign can have different meanings in different places:
-	a comma can be expression separator, or parameter separator - so it's later decided how is it handled
-	 - langComma ,
-	 - langDot   .
-	 - langColon :
-	 - langBraceRoundOpen   (
-	 - langBraceRoundClose  )
-	 - langBraceSquaredOpen [
-	 - langBraceSqaredClose ]
-	 - langVariableBound    =
-
-	*/
-	tokenType  string
-
-	// one char can have a meaning alone, for example: (
-	// but sometime more than one few char can form a token, for example: '->' which has his own meaning, but represented by 2 chars
-	PosFirstCharInFile int
-	PosLastCharInFile int
-
-	stringRepresentation      string   // in a source code we typically use short words. So instead of an optimization (list of chars) a simple string is used here
-	SourceFilePath string
 }
-
-func TokensDetectFromFile() {
-	// read a file
-	// return with TokensDetectFromString() result
-}
-
-func TokensDetectFromString() {
-	// convert String to ErlTokens
-	// return TokensDetect()
-}
-func TokensDetect(erlSrc []ErlToken) {
-	//
-}
-// ############# PARSER ELEMS #############################

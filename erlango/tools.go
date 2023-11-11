@@ -16,7 +16,6 @@ import (
 	"os"
 	"runtime"
 	"sort"
-	"strconv"
 	"strings"
 )
 
@@ -96,6 +95,7 @@ func map_print_keysorted__int_str(m map[int]string) {
 }
 /////////////////////////// DEBUG //////////////////////////////////////////////
 
+/*
 func log_fun(prg *Prg, msg, funName string) {
 	fname := "devlog/log.txt"
 	f, _ := os.OpenFile(fname, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
@@ -126,6 +126,7 @@ func log_fun(prg *Prg, msg, funName string) {
 
 	}
 }
+*/
 
 func getCurrentFuncName() string {
 	pc, _, _, _ := runtime.Caller(1)
