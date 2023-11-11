@@ -17,10 +17,22 @@ Stored infos:
 	- erlango command line call parameters (good to know everywhere)
 
 */
+type ArgumentsErlangoCliStart struct {
+	ArgStr  map[string][]string
+	ArgInt  map[string][]int
+	ArgBool map[string]bool
+}
+
 type ProgramWideStateVariable struct {
-	ArgumentsErlangoCliStart struct {
-		ArgStr map[string] []string
-		ArgInt map[string] []int
-		ArgBool map[string]bool
+	ArgumentsErlangoCliStart ArgumentsErlangoCliStart
+}
+
+func new_program_state() ProgramWideStateVariable {
+	return ProgramWideStateVariable {
+			ArgumentsErlangoCliStart {
+				ArgStr: map[string][]string{},
+				ArgInt: map[string][]int{},
+				ArgBool: map[string]bool{},
+			},
 	}
 }

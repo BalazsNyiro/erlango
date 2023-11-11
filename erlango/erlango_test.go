@@ -12,5 +12,5 @@ import "testing"
 
 func Test_1(t *testing.T) {
 
-
+	Erlang_program_exec()
 }

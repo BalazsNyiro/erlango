@@ -27,7 +27,7 @@ Main rule:
 	a program flag: where the argument name is defined only, without any values. :-)
 
 */
-func cli_arguments_detect(prg ProgramWideStateVariable) {
+func cli_argument_detect(prg ProgramWideStateVariable) ProgramWideStateVariable {
 
 	prg.ArgumentsErlangoCliStart.ArgStr["interpreterName"] = []string{os.Args[0]}
 
@@ -50,5 +50,5 @@ func cli_arguments_detect(prg ProgramWideStateVariable) {
 		}
 
 	}
-
+	return prg
 }

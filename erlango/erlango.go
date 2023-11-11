@@ -20,12 +20,19 @@ import "fmt"
 
 func Erlang_program_exec() {
 
-	// prg := ProgramWideStateVariable{}
+	prg := new_program_state()
+	prg = cli_argument_detect(prg)
 
 	sourcesTokensExecutables_list := SourcesTokensExecutables_list{}
 	// step_01_tokens_from_source_code()
 	// step_02_executables_from_tokens()
 	// step_03_exec_main()
 	fmt.Print(sourcesTokensExecutables_list)
+	fmt.Print("prg", prg)
 
+}
+
+
+func main() {
+	Erlang_program_exec()
 }
