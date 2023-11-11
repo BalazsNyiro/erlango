@@ -20,6 +20,8 @@ import "fmt"
 
 func Erlang_program_exec() {
 
+	// prg := ProgramWideStateVariable{}
+
 	sourcesTokensExecutables_list := SourcesTokensExecutables_list{}
 	// step_01_tokens_from_source_code()
 	// step_02_executables_from_tokens()

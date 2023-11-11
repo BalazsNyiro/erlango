@@ -117,12 +117,11 @@ type SourceTokensExecutables struct {
 							// in your erl files, you can set it:
 							// % ERLANGO_MODULE_VERSION your_version_definition
 
-
-	ModuleActiveInExecution bool  // if same module has more versions, is this the active?
-	SourceFilePath string
-	SourceCodeChars []Char
-	Tokens []ErlToken
-	ExecutableErlangObjects string // FIXME: This is a pile of executable objects, not a string
+	PathErlFile          string
+	CharsFromErlFile     []Char
+	Tokens               []ErlToken
+	ExecutableFromTokens string // FIXME: This is a pile of executable objects, not a string
 }
 
 type SourcesTokensExecutables_list []SourceTokensExecutables
+
