@@ -29,31 +29,29 @@ func TokensDetect(erlSrc []ErlToken) {
 }
 // ############# PARSER ELEMS #############################
 
-func tokens_in_file(fileName string, parentChannel chan int) {
-	fmt.Println("Tokens from file:", fileName)
-	retCode := 0 // there was no error during token detecton
 
-	// TODO: give back the Tokens, too
-	parentChannel <- retCode
+func tokens_in_file(fileName string, parentChannel chan SourceTokensExecutables) {
+	fmt.Println("Tokens from file:", fileName)
+	sourceTokensExecutables := SourceTokensExecutables{}
+
+	parentChannel <- sourceTokensExecutables
 }
 
 func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_list SourcesTokensExecutables_list, fileNamePaths []string) SourcesTokensExecutables_list {
 	fmt.Println("filenames to detect tokens", fileNamePaths)
-	goRoutineStarted := 0
-	goRoutineFinished := 0
 
-	// 0: detection was fine - bigger than 0: detection had an error
-	returnCodesTokeDetectionFinished := make(chan int)
+	SourceTokensExecutables__list := []SourceTokensExecutables{}
+
+	returnFromTokenDetection := make(chan SourceTokensExecutables)
 
 	for _, fileName := range(fileNamePaths) {
-		go tokens_in_file(fileName, returnCodesTokeDetectionFinished)
-		goRoutineStarted += 1
+		go tokens_in_file(fileName, returnFromTokenDetection)
 	}
 
-	for goRoutineFinished < goRoutineStarted {
-		retCodeMsg := <- returnCodesTokeDetectionFinished
-		fmt.Println("Token detection ret code:", retCodeMsg)
-		goRoutineFinished += 1
+	for len(SourceTokensExecutables__list) <  len(fileNamePaths) {
+		sourceTokensExecutables := <- returnFromTokenDetection
+		fmt.Println("Token detection returned structure:", sourceTokensExecutables)
+		SourceTokensExecutables__list = append(SourceTokensExecutables__list, sourceTokensExecutables)
 	}
 
 	return sourcesTokensExecutables_list
