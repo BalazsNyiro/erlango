@@ -29,10 +29,31 @@ func TokensDetect(erlSrc []ErlToken) {
 }
 // ############# PARSER ELEMS #############################
 
+func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_list SourcesTokensExecutables_list, fileNamePaths []string) SourcesTokensExecutables_list {
+	// parallel token detection from erl sources
+	fmt.Println("filenames to detect tokens", fileNamePaths)
 
-func tokens_detect_in_file(filePath string, parentChannel chan SourceTokensExecutables) {
+	SourceTokensExecutables__list := []SourceTokensExecutables{}
+
+	returnFromTokenDetection := make(chan SourceTokensExecutables)
+
+	for _, fileName := range(fileNamePaths) {
+		go step_01a_tokens_detect_in_file(fileName, returnFromTokenDetection)
+	}
+
+	for len(SourceTokensExecutables__list) <  len(fileNamePaths) {
+		sourceTokensExecutables := <- returnFromTokenDetection
+		// fmt.Println("Token detection returned structure:", sourceTokensExecutables)
+		SourceTokensExecutables__list = append(SourceTokensExecutables__list, sourceTokensExecutables)
+	}
+
+	return sourcesTokensExecutables_list
+}
+
+
+func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTokensExecutables) {
 	fmt.Println("Tokens from file:", filePath)
-	funName := "tokens_detect_in_file"
+	funName := "step_01a_tokens_detect_in_file"
 
 	runes, errFileReadingRunes := file_read_runes(filePath, funName)
 
@@ -49,11 +70,10 @@ func tokens_detect_in_file(filePath string, parentChannel chan SourceTokensExecu
 
 		// ##### step B: Tokens detect ########################
 
+
 	} else {
 		// FIXME: what to do if file_read_runes has a problem?
 	}
-
-
 
 	sourceTokensExecutables := SourceTokensExecutables{
 		PathErlFile: filePath,
@@ -63,25 +83,4 @@ func tokens_detect_in_file(filePath string, parentChannel chan SourceTokensExecu
 	}
 
 	parentChannel <- sourceTokensExecutables
-}
-
-func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_list SourcesTokensExecutables_list, fileNamePaths []string) SourcesTokensExecutables_list {
-	// parallel token detection from erl sources
-	fmt.Println("filenames to detect tokens", fileNamePaths)
-
-	SourceTokensExecutables__list := []SourceTokensExecutables{}
-
-	returnFromTokenDetection := make(chan SourceTokensExecutables)
-
-	for _, fileName := range(fileNamePaths) {
-		go tokens_detect_in_file(fileName, returnFromTokenDetection)
-	}
-
-	for len(SourceTokensExecutables__list) <  len(fileNamePaths) {
-		sourceTokensExecutables := <- returnFromTokenDetection
-		// fmt.Println("Token detection returned structure:", sourceTokensExecutables)
-		SourceTokensExecutables__list = append(SourceTokensExecutables__list, sourceTokensExecutables)
-	}
-
-	return sourcesTokensExecutables_list
 }
