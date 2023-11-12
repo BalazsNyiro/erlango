@@ -112,6 +112,10 @@ func charTxtGet(pos int, chars []Char) string {
 	return ret
 }
 
+func token_empty(tokenType string, tokenId int) ErlToken {
+	return ErlToken{ TokenType: tokenType, TokenId: tokenId, SourceCodeChars: []Char{}, }
+}
+
 func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, []ErlToken){
 	// the "wrapper" quotes around the string values or 'atoms' are the part of the tokens,
 	// they are necessary to define a text block (single or double qoted texts)
@@ -153,9 +157,7 @@ func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, 
 		if charTxtNow == "\""{
 
 			if inBlock == "" {
-				tokenActual = ErlToken{ TokenType: "tokenTextBlockQuotedDouble",
-										TokenId: tokenActualId,
-										SourceCodeChars: []Char{}, }
+				tokenActual = token_empty("tokenTextBlockQuotedDouble", tokenActualId)
 				inBlock = "inTextBlockQuotedDouble"
 				blockStarted = true
 			}
