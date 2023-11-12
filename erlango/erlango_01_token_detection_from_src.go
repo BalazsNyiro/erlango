@@ -116,6 +116,11 @@ func token_empty(tokenType string, tokenId int) ErlToken {
 	return ErlToken{ TokenType: tokenType, TokenId: tokenId, SourceCodeChars: []Char{}, }
 }
 
+
+func is_empty_token_block_name(blockName string) bool {
+	return blockName == ""
+}
+
 func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, []ErlToken){
 	// the "wrapper" quotes around the string values or 'atoms' are the part of the tokens,
 	// they are necessary to define a text block (single or double qoted texts)
@@ -139,9 +144,10 @@ func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, 
 	*/
 
 	fmt.Println("token detext comments, quoted textblocks")
-	inBlock := ""
+	blockName := ""
 
 	tokenActual := ErlToken{}
+	commentLineCloser := "\n"
 
 	for charPos := 0; charPos < len(chars); charPos += 1 {
 		tokenActualId := len(tokens) // len(..) is always represent the next free, unused elem Id in the slice
@@ -150,31 +156,71 @@ func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, 
 		charTxtNow := charTxtGet(charPos, chars)
 		//charTxtNext1 := charTxtGet(charPos+1, chars)
 
+		// block Start detection is important, when the opener and closer patterns are the same: " or ' chars
 		blockStarted := false
-		blockFinished := false
+		blockLastElemDetected__saveCompleteDetectedToken := false
 
-		////////////// quoted text detect //////////
+		///////// this section can be refactored to a separated fun.
+		// BUT: that step means high complexity - it is longer, a little repetitive,
+		// plus readable and easier to follow
+
+		////////////// double quoted text detect //////////
 		if charTxtNow == "\""{
 
-			if inBlock == "" {
+			if is_empty_token_block_name(blockName) {
 				tokenActual = token_empty("tokenTextBlockQuotedDouble", tokenActualId)
-				inBlock = "inTextBlockQuotedDouble"
+				blockName = "inTextBlockQuotedDouble"
 				blockStarted = true
 			}
 
-			if inBlock == "inTextBlockQuotedDouble" && ! blockStarted {
+			if blockName == "inTextBlockQuotedDouble" && ! blockStarted {
 				if ! isCharEscaped(charPos, chars) {
-					blockFinished = true
+					blockLastElemDetected__saveCompleteDetectedToken = true
 				} // char is not escaped
 			}
 		}
 
-		if inBlock != "" {
+		////////////// single quoted text detect //////////
+		if charTxtNow == "'"{
+
+			if is_empty_token_block_name(blockName) {
+				tokenActual = token_empty("tokenTextBlockQuotedSingle", tokenActualId)
+				blockName = "inTextBlockQuotedSingle"
+				blockStarted = true
+			}
+
+			if blockName == "inTextBlockQuotedSingle" && ! blockStarted {
+				if ! isCharEscaped(charPos, chars) { // an atom can have a ' char in it's content, too
+					blockLastElemDetected__saveCompleteDetectedToken = true
+				} // char is not escaped
+			}
+		}
+
+
+		////////////// for comment detect, blockStarted var is not important,
+		// because the opener '%' and the closer '\n' patterns are different,
+		// the opening or closing situations can be detected easily.
+		// in previous cases, for 'atom', or "string", the opener and closer patterns are same,
+		// so the blockStart var is necessary to know: have we started or closed a block?
+		if is_empty_token_block_name(blockName) {
+			if charTxtNow == "%"{
+				tokenActual = token_empty("tokenComment", tokenActualId)
+				blockName = "inComment"
+			}
+		}
+		if blockName == "inComment" {
+			if charTxtNow == commentLineCloser {
+				blockLastElemDetected__saveCompleteDetectedToken = true
+			}
+		} // comment detect... /////////////////////////////////////////////
+
+
+		if ! is_empty_token_block_name(blockName) { // if we are in a token block, save the current char into the token
 			tokenActual.SourceCodeChars = append(tokenActual.SourceCodeChars, chars[charPos])
 		}
 
-		if blockFinished {
-			inBlock = ""
+		if blockLastElemDetected__saveCompleteDetectedToken {
+			blockName = ""
 			tokens = append(tokens, tokenActual)
 		}
 	}

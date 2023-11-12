@@ -22,10 +22,12 @@ example() ->
     example.
 
 % "double \"quoted\" comment, with a single quoted 'atom'"
-example(1) -> "case 1 \\\" complex string \"";                     % comment in 'example' function
+example(1) -> "case 1 \\\" complex string \" with \n newline";                     % comment in 'example' function
 example(1234567890) -> "case 1234567890";
 example(16#af6bfa23) -> "hexa num";           % hexa based number
 example(12.34) -> 12.34;           % hexa based number
+example(atom_direct) -> atom_direct;
+example('text_block_single_quoted') -> 'text_block_single_quoted_reply with \' escape and \n newline';
 example(_) -> "case others".
 
 add(A, B) ->
