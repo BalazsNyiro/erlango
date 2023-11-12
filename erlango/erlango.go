@@ -1,4 +1,6 @@
 /*
+Erlang - Go implementation.
+
 Copyright (c) 2023, Balazs Nyiro
 All rights reserved.
 
@@ -13,15 +15,8 @@ package erlango
 
 import "fmt"
 
-/*
 
-*/
-
-
-func Erlang_program_exec() {
-
-	prg := new_program_state()
-	prg = cli_argument_detect(prg)
+func Erlang_program_exec(prg ProgramWideStateVariable) {
 
 	sourcesTokensExecutables_list := SourcesTokensExecutables_list{}
 	// step_01_tokens_from_source_code()
@@ -34,5 +29,7 @@ func Erlang_program_exec() {
 
 
 func main() {
-	Erlang_program_exec()
+	prg := new_program_state()
+	prg = cli_argument_detect(prg)  // all arguments are parsed, placed in prg
+	Erlang_program_exec(prg)
 }

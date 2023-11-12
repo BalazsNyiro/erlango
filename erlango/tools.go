@@ -16,6 +16,7 @@ import (
 	"os"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -77,7 +78,16 @@ func str_double_space_remove(txt string) string {
 	return txt
 }
 
-
+func int_from_str(txt string, exitIfError bool, callerFunName string) (int, error) {
+	i, err := strconv.Atoi(txt)
+	if err != nil {
+		LogError(err, callerFunName + " convert string->int problem: " + txt)
+		if exitIfError {
+			panic(err)
+		}
+	}
+	return i, err
+}
 
 
 

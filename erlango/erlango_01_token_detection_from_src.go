@@ -11,6 +11,7 @@ Version 0.2, second rewrite
 
 package erlango
 
+import "fmt"
 
 func TokensDetectFromFile() {
 // read a file
@@ -25,3 +26,8 @@ func TokensDetect(erlSrc []ErlToken) {
 //
 }
 // ############# PARSER ELEMS #############################
+
+func step_01_tokens_from_source_code(sourcesTokensExecutables_list SourcesTokensExecutables_list, fileNamePaths []string) SourcesTokensExecutables_list {
+	fmt.Println("filenames to detect tokens", fileNamePaths)
+	return sourcesTokensExecutables_list
+}

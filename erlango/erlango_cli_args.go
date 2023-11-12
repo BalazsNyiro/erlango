@@ -13,6 +13,7 @@ package erlango
 
 import (
 	"os"
+	"slices"
 )
 
 /*
@@ -26,29 +27,69 @@ Main rule:
 
 	a program flag: where the argument name is defined only, without any values. :-)
 
+	argument parsing is at erlango start, the program can die if a param is incorrect (invalid int value, for example)
 */
-func cli_argument_detect(prg ProgramWideStateVariable) ProgramWideStateVariable {
 
+func cli_argument_detect(prg ProgramWideStateVariable) ProgramWideStateVariable {
 	prg.ArgumentsErlangoCliStart.ArgStr["interpreterName"] = []string{os.Args[0]}
+
+	argumentNamesWithIntegerValues := []string{"--argWithIntValues"}
+
+	prg = prg_cli_argument_append_from_list(prg, os.Args[1:], argumentNamesWithIntegerValues )
+	return prg
+}
+
+func prg_cli_argument_append_from_list(prg ProgramWideStateVariable, argumentElems []string, argumentNamesWithIntegerValues []string) ProgramWideStateVariable {
+	funName := "prg_cli_argument_append_from_list"
 
 	argumentNameLastDetected := ""
 
-	for i := 0; i < len(os.Args); i++ {
+	for i := 0; i < len(argumentElems); i++ {
 
-		arg := os.Args[i]
+		arg := argumentElems[i]
 
 		if arg[:2] == "--" {
+			// set emtpy value set for the argument if the --argName pattern is detected
 			argumentNameLastDetected = arg
-			prg.ArgumentsErlangoCliStart.ArgStr[argumentNameLastDetected] = []string{}
+			if slices.Contains(argumentNamesWithIntegerValues, argumentNameLastDetected) {
+				prg.ArgumentsErlangoCliStart.ArgInt[argumentNameLastDetected] = []int{}
+			} else {
+				prg.ArgumentsErlangoCliStart.ArgStr[argumentNameLastDetected] = []string{}
+			}
 			continue
 		}
 
 		if argumentNameLastDetected != "" {
-			prg.ArgumentsErlangoCliStart.ArgStr[argumentNameLastDetected] =
-				append(prg.ArgumentsErlangoCliStart.ArgStr[argumentNameLastDetected], arg)
+			if slices.Contains(argumentNamesWithIntegerValues, argumentNameLastDetected) {
+				intVal, _ := int_from_str(arg, true, funName)
+				prg.ArgumentsErlangoCliStart.ArgInt[argumentNameLastDetected] =
+					append(prg.ArgumentsErlangoCliStart.ArgInt[argumentNameLastDetected], intVal)
+			} else {
+
+				prg.ArgumentsErlangoCliStart.ArgStr[argumentNameLastDetected] =
+					append(prg.ArgumentsErlangoCliStart.ArgStr[argumentNameLastDetected], arg)
+			}
 			continue
 		}
-
 	}
 	return prg
+}
+
+/*  in program params, filenames can be directly defined to load/start them
+	--filenames src1.erl other/src2.erl
+
+	and because in the future, maybe directory names will be handled, too,
+	and other options to specify the wanted files, this function will collect
+	the file list from arguments:
+*/
+func filenames_erlang_sources_collect_from_cli_params(prg ProgramWideStateVariable) []string {
+	filePathList := []string{}
+
+	filePathListInArgs, ok := prg.ArgumentsErlangoCliStart.ArgStr["--files"]
+	if ok {
+		for _, filePathInArg := range(filePathListInArgs) {
+			filePathList = append(filePathList, filePathInArg)
+		}
+	}
+	return filePathList
 }
