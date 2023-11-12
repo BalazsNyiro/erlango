@@ -217,6 +217,7 @@ func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, 
 
 		if ! is_empty_token_block_name(blockName) { // if we are in a token block, save the current char into the token
 			chars[charPos].TokenId = tokenActual.TokenId
+			chars[charPos].TokenDetected = true
 			tokenActual.SourceCodeChars = append(tokenActual.SourceCodeChars, chars[charPos])
 		}
 
