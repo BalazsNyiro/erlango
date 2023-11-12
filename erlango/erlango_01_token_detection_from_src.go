@@ -83,6 +83,23 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 	parentChannel <- sourceTokensExecutables
 }
 
+func isCharEscaped(posChar int, chars []Char) bool {
+	// char is escaped if there are 'odd' num of escape char before that.
+	escaped := false
+	escapeCharCounter := 0
+
+	posTestedChar := posChar - 1
+	for posTestedChar >= 0 {
+		if chars[posTestedChar].Value == '\\' {
+			escapeCharCounter += 1
+			posTestedChar -= 1
+		} else { // if the char is not a backslash, leave the loop
+			break
+		}
+	}
+	escaped = (escapeCharCounter % 2) == 1 // odd escape chars are before the current char
+	return escaped
+}
 
 /////////////////////////////////////////////////////////////////////////
 func charTxtGet(pos int, chars []Char) string {
@@ -96,6 +113,27 @@ func charTxtGet(pos int, chars []Char) string {
 }
 
 func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, []ErlToken){
+	// the "wrapper" quotes around the string values or 'atoms' are the part of the tokens,
+	// they are necessary to define a text block (single or double qoted texts)
+	// but not part of the value of the token
+
+	/* Erlang accepts newlines in atoms:
+
+		Erlang/OTP 25 [erts-13.1.5] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]
+
+		Eshell V13.1.5  (abort with ^G)
+		1> A = 'atom\n2'.
+		'atom\n2'
+		2> A.
+		'atom\n2'
+		3> A2 = 'atom\\n'.
+		'atom\\n'
+		4>
+
+		discussion: https://erlang.org/pipermail/erlang-questions/2014-February/077922.html
+
+	*/
+
 	fmt.Println("token detext comments, quoted textblocks")
 	inBlock := ""
 
@@ -104,30 +142,28 @@ func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, 
 	for charPos := 0; charPos < len(chars); charPos += 1 {
 		tokenActualId := len(tokens) // len(..) is always represent the next free, unused elem Id in the slice
 
-		//charTxtPrev2 := charTxtGet(charPos-2, chars) // the often used relative chars are collected here
 		//charTxtPrev1 := charTxtGet(charPos-1, chars)
 		charTxtNow := charTxtGet(charPos, chars)
 		//charTxtNext1 := charTxtGet(charPos+1, chars)
-		//charTxtNext2 := charTxtGet(charPos+2, chars)
 
 		blockStarted := false
 		blockFinished := false
 
+		////////////// quoted text detect //////////
 		if charTxtNow == "\""{
 
 			if inBlock == "" {
-
-				tokenActual = ErlToken{
-					TokenType: "tokenTextBlockQuotedDouble",
-					TokenId: tokenActualId,
-					SourceCodeChars: []Char{},
-				}
+				tokenActual = ErlToken{ TokenType: "tokenTextBlockQuotedDouble",
+										TokenId: tokenActualId,
+										SourceCodeChars: []Char{}, }
 				inBlock = "inTextBlockQuotedDouble"
 				blockStarted = true
 			}
 
 			if inBlock == "inTextBlockQuotedDouble" && ! blockStarted {
-				blockFinished = true
+				if ! isCharEscaped(charPos, chars) {
+					blockFinished = true
+				} // char is not escaped
 			}
 		}
 

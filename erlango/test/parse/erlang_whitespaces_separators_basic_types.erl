@@ -22,7 +22,7 @@ example() ->
     example.
 
 % "double \"quoted\" comment, with a single quoted 'atom'"
-example(1) -> "case 1";                     % comment in 'example' function
+example(1) -> "case 1 \\\" complex string \"";                     % comment in 'example' function
 example(1234567890) -> "case 1234567890";
 example(16#af6bfa23) -> "hexa num";           % hexa based number
 example(12.34) -> 12.34;           % hexa based number
