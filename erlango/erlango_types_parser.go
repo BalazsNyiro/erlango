@@ -53,6 +53,24 @@ type ErlToken struct {
 	SourceCodeChars []Char
 }
 
+func (token ErlToken) charPosFirstLast() (int, int) {
+	charPosFirst := -1 // in a source code, 0 is the smallest position, so -1 means: no real position
+	charPosLast := -1
+	if len(token.SourceCodeChars) > 0 {
+		charPosFirst = token.SourceCodeChars[0].PositionInFile
+		charPosLast = token.SourceCodeChars[len(token.SourceCodeChars)-1].PositionInFile
+	}
+	return charPosFirst, charPosLast
+}
+
+func (token ErlToken) stringRepresentation() string {
+	runes := []rune{}
+	for _, charNow := range(token.SourceCodeChars) {
+		runes = append(runes, charNow.Value)
+	}
+	return string(runes)
+}
+
 type Char struct {
 	PositionInFile  int
 	Value      rune
