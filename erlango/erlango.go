@@ -19,7 +19,7 @@ import "fmt"
 func Erlang_program_exec(prg ProgramWideStateVariable) {
 
 	sourcesTokensExecutables_list := SourcesTokensExecutables_list{}
-	// step_01_tokens_from_source_code()
+	// step_01_tokens_from_source_code_of_files()
 	// step_02_executables_from_tokens()
 	// step_03_exec_main()
 	fmt.Print(sourcesTokensExecutables_list)

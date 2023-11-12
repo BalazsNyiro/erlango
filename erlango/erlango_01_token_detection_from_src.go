@@ -11,7 +11,9 @@ Version 0.2, second rewrite
 
 package erlango
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func TokensDetectFromFile() {
 // read a file
@@ -27,7 +29,32 @@ func TokensDetect(erlSrc []ErlToken) {
 }
 // ############# PARSER ELEMS #############################
 
-func step_01_tokens_from_source_code(sourcesTokensExecutables_list SourcesTokensExecutables_list, fileNamePaths []string) SourcesTokensExecutables_list {
+func tokens_in_file(fileName string, parentChannel chan int) {
+	fmt.Println("Tokens from file:", fileName)
+	retCode := 0 // there was no error during token detecton
+
+	// TODO: give back the Tokens, too
+	parentChannel <- retCode
+}
+
+func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_list SourcesTokensExecutables_list, fileNamePaths []string) SourcesTokensExecutables_list {
 	fmt.Println("filenames to detect tokens", fileNamePaths)
+	goRoutineStarted := 0
+	goRoutineFinished := 0
+
+	// 0: detection was fine - bigger than 0: detection had an error
+	returnCodesTokeDetectionFinished := make(chan int)
+
+	for _, fileName := range(fileNamePaths) {
+		go tokens_in_file(fileName, returnCodesTokeDetectionFinished)
+		goRoutineStarted += 1
+	}
+
+	for goRoutineFinished < goRoutineStarted {
+		retCodeMsg := <- returnCodesTokeDetectionFinished
+		fmt.Println("Token detection ret code:", retCodeMsg)
+		goRoutineFinished += 1
+	}
+
 	return sourcesTokensExecutables_list
 }

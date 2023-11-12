@@ -17,12 +17,13 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 	prg := new_program_state()
 	prg = cli_argument_detect(prg)  // all arguments are parsed, placed in prg
 
-	fileName :=  "test/parse/erlang_whitespaces_separators_basic_types.erl"
-	prg = prg_cli_argument_append_from_list(prg, []string{"--files", fileName},  []string{})
+	fileNameBasic :=  "test/parse/erlang_whitespaces_separators_basic_types.erl"
+	fileNameGarden := "test/parse/erlang_language_garden.erl"
+	prg = prg_cli_argument_append_from_list(prg, []string{"--files", fileNameBasic, fileNameGarden},  []string{})
 	// Erlang_program_exec(prg)
 
 
 	fileNamesOfErlangSources := filenames_erlang_sources_collect_from_cli_params(prg)
 	sourcesTokensExecutables_list := SourcesTokensExecutables_list{}
-	sourcesTokensExecutables_list = step_01_tokens_from_source_code(sourcesTokensExecutables_list, fileNamesOfErlangSources)
+	sourcesTokensExecutables_list = step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_list, fileNamesOfErlangSources)
 }
