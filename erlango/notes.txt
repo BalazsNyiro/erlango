@@ -2,3 +2,5 @@
 Erlang language elems:
 // https://www.erlang.org/doc/reference_manual/expressions.html#expression-evaluation
 // https://www.tutorialspoint.com/erlang/erlang_operators.htm
+
+// http://erlang.org/documentation/doc-6.0/doc/reference_manual/data_types.html

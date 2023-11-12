@@ -112,7 +112,7 @@ func charTxtGet(pos int, chars []Char) string {
 	return ret
 }
 
-func token_empty(tokenType string, tokenId int) ErlToken {
+func token_empty_obj(tokenType string, tokenId int) ErlToken {
 	return ErlToken{ TokenType: tokenType, TokenId: tokenId, SourceCodeChars: []Char{}, }
 }
 
@@ -168,7 +168,7 @@ func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, 
 		if charTxtNow == "\""{
 
 			if is_empty_token_block_name(blockName) {
-				tokenActual = token_empty("tokenTextBlockQuotedDouble", tokenActualId)
+				tokenActual = token_empty_obj("tokenTextBlockQuotedDouble", tokenActualId)
 				blockName = "inTextBlockQuotedDouble"
 				blockStarted = true
 			}
@@ -184,7 +184,7 @@ func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, 
 		if charTxtNow == "'"{
 
 			if is_empty_token_block_name(blockName) {
-				tokenActual = token_empty("tokenTextBlockQuotedSingle", tokenActualId)
+				tokenActual = token_empty_obj("tokenTextBlockQuotedSingle", tokenActualId)
 				blockName = "inTextBlockQuotedSingle"
 				blockStarted = true
 			}
@@ -204,7 +204,7 @@ func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, 
 		// so the blockStart var is necessary to know: have we started or closed a block?
 		if is_empty_token_block_name(blockName) {
 			if charTxtNow == "%"{
-				tokenActual = token_empty("tokenComment", tokenActualId)
+				tokenActual = token_empty_obj("tokenComment", tokenActualId)
 				blockName = "inComment"
 			}
 		}
@@ -216,6 +216,7 @@ func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, 
 
 
 		if ! is_empty_token_block_name(blockName) { // if we are in a token block, save the current char into the token
+			chars[charPos].TokenId = tokenActual.TokenId
 			tokenActual.SourceCodeChars = append(tokenActual.SourceCodeChars, chars[charPos])
 		}
 
