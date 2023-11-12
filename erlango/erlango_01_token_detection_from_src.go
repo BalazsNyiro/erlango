@@ -30,14 +30,43 @@ func TokensDetect(erlSrc []ErlToken) {
 // ############# PARSER ELEMS #############################
 
 
-func tokens_in_file(fileName string, parentChannel chan SourceTokensExecutables) {
-	fmt.Println("Tokens from file:", fileName)
-	sourceTokensExecutables := SourceTokensExecutables{}
+func tokens_detect_in_file(filePath string, parentChannel chan SourceTokensExecutables) {
+	fmt.Println("Tokens from file:", filePath)
+	funName := "tokens_detect_in_file"
+
+	runes, errFileReadingRunes := file_read_runes(filePath, funName)
+
+	TokensDetected := []ErlToken{}
+	charsFromErlFile := []Char{}
+	if errFileReadingRunes == nil {
+
+		// ##### step A: read all chars from Erlang source #########
+		for posInFile, runeInFile := range(runes) {
+			fmt.Println("rune in file:", string(runeInFile), runeInFile)
+			charNow := Char{PositionInFile: posInFile, Value: runeInFile, FilePath: filePath}
+			charsFromErlFile = append(charsFromErlFile, charNow)
+		}
+
+		// ##### step B: Tokens detect ########################
+
+	} else {
+		// FIXME: what to do if file_read_runes has a problem?
+	}
+
+
+
+	sourceTokensExecutables := SourceTokensExecutables{
+		PathErlFile: filePath,
+		ModuleVersion: "not-detected-version",
+		CharsFromErlFile: charsFromErlFile,
+		Tokens: TokensDetected,
+	}
 
 	parentChannel <- sourceTokensExecutables
 }
 
 func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_list SourcesTokensExecutables_list, fileNamePaths []string) SourcesTokensExecutables_list {
+	// parallel token detection from erl sources
 	fmt.Println("filenames to detect tokens", fileNamePaths)
 
 	SourceTokensExecutables__list := []SourceTokensExecutables{}
@@ -45,12 +74,12 @@ func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_list Sour
 	returnFromTokenDetection := make(chan SourceTokensExecutables)
 
 	for _, fileName := range(fileNamePaths) {
-		go tokens_in_file(fileName, returnFromTokenDetection)
+		go tokens_detect_in_file(fileName, returnFromTokenDetection)
 	}
 
 	for len(SourceTokensExecutables__list) <  len(fileNamePaths) {
 		sourceTokensExecutables := <- returnFromTokenDetection
-		fmt.Println("Token detection returned structure:", sourceTokensExecutables)
+		// fmt.Println("Token detection returned structure:", sourceTokensExecutables)
 		SourceTokensExecutables__list = append(SourceTokensExecutables__list, sourceTokensExecutables)
 	}
 
