@@ -7,6 +7,19 @@ under the Apache-2 style license found in the
 LICENSE file in the root directory of this source tree.
 
 Version 0.2, second rewrite
+
+
+Token: the smallest block/region of characthers that has his own meaning.
+
+a simple case: 123  is an integer num, and it is one token, because it has one meaning. (if we accept that this is a decimal num)
+
+but  2.3e3 or 16#1f are numbers too - and they have more tokens.
+in case of '2.3e3' the '2', the '.', the '3' and 'e'+'3' has their own meaning,
+and if we interpret this expression, the calculated result give back the real number
+(so this is a num representation, with more tokens: the 'e'+'3' has a math meaning,
+the '2','.',3' has it's own meaning, too)
+
+
 */
 
 package erlango
@@ -14,20 +27,6 @@ package erlango
 import (
 	"fmt"
 )
-
-func TokensDetectFromFile() {
-// read a file
-// return with TokensDetectFromString() result
-}
-
-func TokensDetectFromString() {
-// convert String to ErlTokens
-// return TokensDetect()
-}
-func TokensDetect(erlSrc []ErlToken) {
-//
-}
-// ############# PARSER ELEMS #############################
 
 
 func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_list SourcesTokensExecutables_list, fileNamePaths []string) SourcesTokensExecutables_list {
@@ -83,26 +82,7 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 	parentChannel <- sourceTokensExecutables
 }
 
-func isCharEscaped(posChar int, chars []Char) bool {
-	// char is escaped if there are 'odd' num of escape char before that.
-	escaped := false
-	escapeCharCounter := 0
-
-	posTestedChar := posChar - 1
-	for posTestedChar >= 0 {
-		if chars[posTestedChar].Value == '\\' {
-			escapeCharCounter += 1
-			posTestedChar -= 1
-		} else { // if the char is not a backslash, leave the loop
-			break
-		}
-	}
-	escaped = (escapeCharCounter % 2) == 1 // odd escape chars are before the current char
-	return escaped
-}
-
-/////////////////////////////////////////////////////////////////////////
-func charTxtGet(pos int, chars []Char) string {
+func char_txt_value_get(pos int, chars []Char) string {
 	ret := "" 	// I would like to handle empty values, too, so runes cannot be given back.
 	// empty value means: there is no real character in the wanted position
 	// the position has a real value only if it is in the valid range
@@ -116,117 +96,4 @@ func token_empty_obj(tokenType string, tokenId int) ErlToken {
 	return ErlToken{ TokenType: tokenType, TokenId: tokenId, SourceCodeChars: []Char{}, }
 }
 
-
-func is_empty_token_block_name(blockName string) bool {
-	return blockName == ""
-}
-
-func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, []ErlToken){
-	// the "wrapper" quotes around the string values or 'atoms' are the part of the tokens,
-	// they are necessary to define a text block (single or double qoted texts)
-	// but not part of the value of the token
-
-	/* Erlang accepts newlines in atoms:
-
-		Erlang/OTP 25 [erts-13.1.5] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [jit:ns]
-
-		Eshell V13.1.5  (abort with ^G)
-		1> A = 'atom\n2'.
-		'atom\n2'
-		2> A.
-		'atom\n2'
-		3> A2 = 'atom\\n'.
-		'atom\\n'
-		4>
-
-		discussion: https://erlang.org/pipermail/erlang-questions/2014-February/077922.html
-
-	*/
-
-	fmt.Println("token detext comments, quoted textblocks")
-	blockName := ""
-
-	tokenActual := ErlToken{}
-	commentLineCloser := "\n"
-
-	for charPos := 0; charPos < len(chars); charPos += 1 {
-		tokenActualId := len(tokens) // len(..) is always represent the next free, unused elem Id in the slice
-
-		//charTxtPrev1 := charTxtGet(charPos-1, chars)
-		charTxtNow := charTxtGet(charPos, chars)
-		//charTxtNext1 := charTxtGet(charPos+1, chars)
-
-		// block Start detection is important, when the opener and closer patterns are the same: " or ' chars
-		blockStarted := false
-		blockLastElemDetected__saveCompleteDetectedToken := false
-
-		///////// this section can be refactored to a separated fun.
-		// BUT: that step means high complexity - it is longer, a little repetitive,
-		// plus readable and easier to follow
-
-		////////////// double quoted text detect //////////
-		if charTxtNow == "\""{
-
-			if is_empty_token_block_name(blockName) {
-				tokenActual = token_empty_obj("tokenTextBlockQuotedDouble", tokenActualId)
-				blockName = "inTextBlockQuotedDouble"
-				blockStarted = true
-			}
-
-			if blockName == "inTextBlockQuotedDouble" && ! blockStarted {
-				if ! isCharEscaped(charPos, chars) {
-					blockLastElemDetected__saveCompleteDetectedToken = true
-				} // char is not escaped
-			}
-		}
-
-		////////////// single quoted text detect //////////
-		if charTxtNow == "'"{
-
-			if is_empty_token_block_name(blockName) {
-				tokenActual = token_empty_obj("tokenTextBlockQuotedSingle", tokenActualId)
-				blockName = "inTextBlockQuotedSingle"
-				blockStarted = true
-			}
-
-			if blockName == "inTextBlockQuotedSingle" && ! blockStarted {
-				if ! isCharEscaped(charPos, chars) { // an atom can have a ' char in it's content, too
-					blockLastElemDetected__saveCompleteDetectedToken = true
-				} // char is not escaped
-			}
-		}
-
-
-		////////////// for comment detect, blockStarted var is not important,
-		// because the opener '%' and the closer '\n' patterns are different,
-		// the opening or closing situations can be detected easily.
-		// in previous cases, for 'atom', or "string", the opener and closer patterns are same,
-		// so the blockStart var is necessary to know: have we started or closed a block?
-		if is_empty_token_block_name(blockName) {
-			if charTxtNow == "%"{
-				tokenActual = token_empty_obj("tokenComment", tokenActualId)
-				blockName = "inComment"
-			}
-		}
-		if blockName == "inComment" {
-			if charTxtNow == commentLineCloser {
-				blockLastElemDetected__saveCompleteDetectedToken = true
-			}
-		} // comment detect... /////////////////////////////////////////////
-
-
-		if ! is_empty_token_block_name(blockName) { // if we are in a token block, save the current char into the token
-			chars[charPos].TokenId = tokenActual.TokenId
-			chars[charPos].TokenDetected = true
-			tokenActual.SourceCodeChars = append(tokenActual.SourceCodeChars, chars[charPos])
-		}
-
-		if blockLastElemDetected__saveCompleteDetectedToken {
-			blockName = ""
-			tokens = append(tokens, tokenActual)
-		}
-	}
-
-	return chars, tokens
-}
 /////////////////////////////////////////////////////////////////////////
