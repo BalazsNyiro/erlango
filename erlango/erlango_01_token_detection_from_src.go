@@ -29,7 +29,7 @@ import (
 )
 
 
-func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_list SourcesTokensExecutables_list, fileNamePaths []string) SourcesTokensExecutables_list {
+func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all SourcesTokensExecutables_map, fileNamePaths []string) SourcesTokensExecutables_map {
 	// parallel token detection from erl sources
 	fmt.Println("filenames to detect tokens", fileNamePaths)
 
@@ -39,13 +39,13 @@ func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_list Sour
 		go step_01a_tokens_detect_in_file(fileName, returnFromTokenDetection)
 	}
 
-	for len(sourcesTokensExecutables_list) < len(fileNamePaths) {
+	for len(sourcesTokensExecutables_all) < len(fileNamePaths) {
 		sourceTokensExecutables := <- returnFromTokenDetection
 		// fmt.Println("Token detection returned structure:", sourceTokensExecutables)
-		sourcesTokensExecutables_list = append(sourcesTokensExecutables_list, sourceTokensExecutables)
+		sourcesTokensExecutables_all[sourceTokensExecutables.PathErlFile] = sourceTokensExecutables
 	}
 
-	return sourcesTokensExecutables_list
+	return sourcesTokensExecutables_all
 }
 
 func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTokensExecutables) {

@@ -11,7 +11,7 @@ Version 0.2, second rewrite
 
 package erlango
 
-
+import "fmt"
 
 // ############# PARSER ELEMS #############################
 // use minimal set of types. Don't overcomplicate the parser.
@@ -141,5 +141,12 @@ type SourceTokensExecutables struct {
 	ExecutableFromTokens string // FIXME: This is a pile of executable objects, not a string
 }
 
-type SourcesTokensExecutables_list []SourceTokensExecutables
+type SourcesTokensExecutables_map map[string]SourceTokensExecutables
 
+func (sourceTokensExecutables SourceTokensExecutables) tokens_print()  {
+	print("=== Tokens in a file", sourceTokensExecutables.PathErlFile, "===")
+	for _, token := range(sourceTokensExecutables.Tokens) {
+		tokenPosFirst, tokenPosLast := token.charPosFirstLast()
+		fmt.Println("token:", token.TokenId, token.TokenType, tokenPosFirst, tokenPosLast, token.stringRepresentation() )
+	}
+}

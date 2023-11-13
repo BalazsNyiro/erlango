@@ -25,15 +25,16 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 
 
 	fileNamesOfErlangSources := filenames_erlang_sources_collect_from_cli_params(prg)
-	sourcesTokensExecutables_list := SourcesTokensExecutables_list{}
-	sourcesTokensExecutables_list = step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_list, fileNamesOfErlangSources)
+	sourcesTokensExecutables_all := SourcesTokensExecutables_map{}
+	sourcesTokensExecutables_all = step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all, fileNamesOfErlangSources)
 
-	fmt.Println("TEST, tokens check answer length:", len(sourcesTokensExecutables_list))
-	for _, sourceTokensExecutables_answer := range(sourcesTokensExecutables_list) {
-		fmt.Println("TEST, tokens check in:", sourceTokensExecutables_answer.PathErlFile)
-		for _, token := range(sourceTokensExecutables_answer.Tokens) {
-			tokenPosFirst, tokenPosLast := token.charPosFirstLast()
-			fmt.Println("token:", token.TokenId, token.TokenType, tokenPosFirst, tokenPosLast, token.stringRepresentation() )
-		}
+	fmt.Println("TEST, tokens check answer length:", len(sourcesTokensExecutables_all))
+	for _, sourceTokensExecutables_answer := range(sourcesTokensExecutables_all) {
+		fmt.Println("=== TEST, tokens check in: ===", sourceTokensExecutables_answer.PathErlFile)
 	}
+
+	sourceTokensExecutables__whitespacesSeparatorsBasicFile := sourcesTokensExecutables_all["test/parse/erlang_whitespaces_separators_basic_types.erl"]
+
+	fmt.Println("TEST, tokens commits, textblocks:")
+	sourceTokensExecutables__whitespacesSeparatorsBasicFile.tokens_print()
 }
