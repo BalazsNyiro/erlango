@@ -18,7 +18,7 @@ func is_empty_token_block_name__textBlockDetection(blockName string) bool {
 	return blockName == ""
 }
 
-func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, []ErlToken){
+func token_detect_comments_textblocks(chars []Char, tokens ErlTokens) ([]Char, ErlTokens){
 	// the "wrapper" quotes around the string values or 'atoms' are the part of the tokens,
 	// they are necessary to define a text block (single or double qoted texts)
 	// but not part of the value of the token
@@ -47,7 +47,7 @@ func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, 
 	commentLineCloser := "\n"
 
 	for charPos := 0; charPos < len(chars); charPos += 1 {
-		tokenActualId := len(tokens) // len(..) is always represent the next free, unused elem Id in the slice
+		tokenActualId := len(tokens) // len(..) is always represent the next free, unused elem Id
 
 		//charTxtPrev1 := char_txt_value_get(charPos-1, chars)
 		charTxtNow := char_txt_value_get(charPos, chars)
@@ -120,7 +120,7 @@ func token_detect_comments_textblocks(chars []Char, tokens []ErlToken) ([]Char, 
 
 		if blockLastElemDetected__saveCompleteDetectedToken {
 			blockName = ""
-			tokens = append(tokens, tokenActual)
+			tokens[tokenActual.charPosFirst()] = tokenActual
 		}
 	}
 

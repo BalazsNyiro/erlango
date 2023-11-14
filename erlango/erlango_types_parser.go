@@ -11,7 +11,15 @@ Version 0.2, second rewrite
 
 package erlango
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
+
+type ErlTokens map[int] ErlToken 	// list AND map, same time. the token's first char position is the key,
+									// so later it is easy to add new token, and by nature it is a list, too
+									// and in the tests it is easy to check (if it is not a map in tests it is difficult
+									// to check the result. if it is a map, the token positions can be checked directly
 
 // ############# PARSER ELEMS #############################
 // use minimal set of types. Don't overcomplicate the parser.
@@ -53,7 +61,7 @@ type ErlToken struct {
 	SourceCodeChars []Char
 }
 
-func (token ErlToken) charPosFirstLast() (int, int) {
+func (token ErlToken) charPositionFirstLast() (int, int) {
 	charPosFirst := -1 // in a source code, 0 is the smallest position, so -1 means: no real position
 	charPosLast := -1
 	if len(token.SourceCodeChars) > 0 {
@@ -61,6 +69,15 @@ func (token ErlToken) charPosFirstLast() (int, int) {
 		charPosLast = token.SourceCodeChars[len(token.SourceCodeChars)-1].PositionInFile
 	}
 	return charPosFirst, charPosLast
+}
+
+func (token ErlToken) charPosFirst() int {
+	charPosFirst, _ := token.charPositionFirstLast()
+	return charPosFirst
+}
+func (token ErlToken) charPosLast() int {
+	_, charPosLast := token.charPositionFirstLast()
+	return charPosLast
 }
 
 func (token ErlToken) stringRepresentation() string {
@@ -137,16 +154,36 @@ type SourceTokensExecutables struct {
 
 	PathErlFile          string
 	CharsFromErlFile     []Char
-	Tokens               []ErlToken
+	Tokens               ErlTokens
+
 	ExecutableFromTokens string // FIXME: This is a pile of executable objects, not a string
 }
 
 type SourcesTokensExecutables_map map[string]SourceTokensExecutables
 
 func (sourceTokensExecutables SourceTokensExecutables) tokens_print()  {
-	print("=== Tokens in a file", sourceTokensExecutables.PathErlFile, "===")
-	for _, token := range(sourceTokensExecutables.Tokens) {
-		tokenPosFirst, tokenPosLast := token.charPosFirstLast()
-		fmt.Println("token:", token.TokenId, token.TokenType, tokenPosFirst, tokenPosLast, token.stringRepresentation() )
+	print("=== Tokens in a file", sourceTokensExecutables.PathErlFile, "===\n")
+
+	// TODO: use a generic here
+	keys := make([]int, 0, len(sourceTokensExecutables.Tokens))
+	for k := range sourceTokensExecutables.Tokens {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+
+	for _, key := range keys {
+		token := sourceTokensExecutables.Tokens[key]
+		tokenPosFirst, tokenPosLast := token.charPositionFirstLast()
+		// fmt.Println(key, "token:", token.TokenId, token.TokenType, tokenPosFirst, tokenPosLast, token.stringRepresentation() )
+		// This format can be used in tests, immediatelly
+		stringRepresentation := token.stringRepresentation()
+		if stringRepresentation[0] == '"' {
+			stringRepresentation = "\\" + stringRepresentation
+		}
+		if stringRepresentation[len(stringRepresentation)-1] == '"' {
+			stringRepresentation = stringRepresentation[:len(stringRepresentation)-1] + "\\\""
+		}
+		// TODO: stringrepresentation needs to be escaped " signs?
+		fmt.Printf("{\"%s\", %v, %v, \"%s\"}\n", token.TokenType, tokenPosFirst, tokenPosLast, stringRepresentation)
 	}
 }

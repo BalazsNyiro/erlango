@@ -54,7 +54,7 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 
 	runes, errFileReadingRunes := file_read_runes(filePath, funName)
 
-	tokensDetected := []ErlToken{}
+	tokensDetected := ErlTokens{}
 	charsFromErlFile := []Char{}
 	if errFileReadingRunes == nil {
 

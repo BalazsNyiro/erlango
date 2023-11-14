@@ -13,6 +13,14 @@ import (
 	"testing"
 )
 
+type tokenWanted struct {
+	tokenName     string
+	positionFirst      int
+	positionLast       int
+	textRepresentation string
+}
+type tokensWanted []tokenWanted
+
 func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 
 	prg := new_program_state()
@@ -37,4 +45,42 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 
 	fmt.Println("TEST, tokens commits, textblocks:")
 	sourceTokensExecutables__whitespacesSeparatorsBasicFile.tokens_print()
+
+	wanteds := tokensWanted{
+		{"tokenTextBlockQuotedDouble", 180, 185, "~p~n" },
+		{"tokenComment", 24, 51, "% testfile for basid types, \n"},
+		{"tokenComment", 52, 87, "% whitespaces, commas, dots, colons\n"},
+		{"tokenComment", 88, 124, "% atom, string, integer, float, hexa\n"},
+		{"tokenComment", 138, 168, "% tab used here as indentation\n"},
+		{"tokenTextBlockQuotedDouble", 180, 185, "\"~p~n\""},
+		{"tokenTextBlockQuotedDouble", 213, 218, "\"~p~n\""},
+		{"tokenTextBlockQuotedDouble", 247, 252, "\"~p~n\""},
+		{"tokenTextBlockQuotedDouble", 294, 299, "\"~p~n\""},
+		{"tokenTextBlockQuotedDouble", 335, 340, "\"~p~n\""},
+		{"tokenTextBlockQuotedDouble", 371, 376, "\"~p~n\""},
+		{"tokenTextBlockQuotedDouble", 408, 413, "\"~p~n\""},
+	}
+
+	for _, tokenWanted := range(wanteds) {
+		compare_tokenDetected_tokenWanted( "test basic types", sourceTokensExecutables__whitespacesSeparatorsBasicFile.Tokens, tokenWanted, t)
+
+	}
+	// is this token, from this start->end pos, with this representation, is in the reply?
+}
+func compare_tokenDetected_tokenWanted(callerInfo string, tokensDetected ErlTokens, tokenWanted tokenWanted, t *testing.T) {
+	tokenDetected, tokenWantedIsInDetected:= tokensDetected[tokenWanted.positionFirst]
+
+	if tokenWantedIsInDetected {
+		// theoretically the charPosFirst is always ok here, because the key in map was the same position
+		tokenDetected_charPosFirst, tokenDetected_charPosLast := tokenDetected.charPositionFirstLast()
+		if tokenDetected_charPosFirst != tokenWanted.positionFirst {
+			t.Fatalf("\nErr %s : detected posFirst: %v  is different from wanted posFirst:  %v, error", callerInfo, tokenDetected_charPosFirst, tokenWanted.positionFirst)
+		}
+		if tokenDetected_charPosLast != tokenWanted.positionLast {
+			t.Fatalf("\nErr %s : detected posFirst: %v  is different from wanted posFirst:  %v, error", callerInfo, tokenDetected_charPosFirst, tokenWanted.positionFirst)
+		}
+	} else {
+		t.Fatalf("\nErr %s : wanted tokenPosFirst %v is not in detecteds - error", callerInfo, tokenWanted.positionFirst)
+	}
+
 }
