@@ -91,7 +91,21 @@ func (token ErlToken) stringRepresentation() string {
 type Chars []Char
 
 func (chars Chars) print_with_tokens(tokens ErlTokens) {
+	/*
 
+	to check the tokens, one character wide token signs are used.
+	so the long %%%% means that where you see %, that is a comment
+
+	    token type: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	source    orig: % "double \"quoted\" comment, with a single quoted 'atom'"
+	positionInFile: 01234567890123456789012345678901234567890123456789012345678
+
+	a string example - here the strings and comments are detected only:
+	??????????????"""""""""""""""""""""""""""""""""""""""""""""""??????????????????????%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	example(1) -> "case 1 \\\" complex string \" with \n newline";                     % comment in 'example' function
+	0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234
+
+	*/
 	tokenElems := []rune{}
 	charElems := []rune{}
 	idElems := []rune{}
