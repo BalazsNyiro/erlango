@@ -55,7 +55,7 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 	runes, errFileReadingRunes := file_read_runes(filePath, funName)
 
 	tokensDetected := ErlTokens{}
-	charsFromErlFile := []Char{}
+	charsFromErlFile := Chars{}
 	if errFileReadingRunes == nil {
 
 		// ##### step A: read all chars from Erlang source #########
@@ -82,7 +82,7 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 	parentChannel <- sourceTokensExecutables
 }
 
-func char_txt_value_get(pos int, chars []Char) string {
+func char_txt_value_get(pos int, chars Chars) string {
 	ret := "" 	// I would like to handle empty values, too, so runes cannot be given back.
 	// empty value means: there is no real character in the wanted position
 	// the position has a real value only if it is in the valid range
@@ -93,7 +93,7 @@ func char_txt_value_get(pos int, chars []Char) string {
 }
 
 func token_empty_obj(tokenType string, tokenId int) ErlToken {
-	return ErlToken{ TokenType: tokenType, TokenId: tokenId, SourceCodeChars: []Char{}, }
+	return ErlToken{ TokenType: tokenType, TokenId: tokenId, SourceCodeChars: Chars{}, }
 }
 
 /////////////////////////////////////////////////////////////////////////

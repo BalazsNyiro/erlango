@@ -63,7 +63,6 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 
 	for _, tokenWanted := range(wanteds) {
 		compare_tokenDetected_tokenWanted( "test basic types", sourceTokensExecutables__whitespacesSeparatorsBasicFile.Tokens, tokenWanted, t)
-
 	}
 	// is this token, from this start->end pos, with this representation, is in the reply?
 }

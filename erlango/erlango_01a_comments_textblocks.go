@@ -18,7 +18,7 @@ func is_empty_token_block_name__textBlockDetection(blockName string) bool {
 	return blockName == ""
 }
 
-func token_detect_comments_textblocks(chars []Char, tokens ErlTokens) ([]Char, ErlTokens){
+func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, ErlTokens){
 	// the "wrapper" quotes around the string values or 'atoms' are the part of the tokens,
 	// they are necessary to define a text block (single or double qoted texts)
 	// but not part of the value of the token
@@ -126,7 +126,7 @@ func token_detect_comments_textblocks(chars []Char, tokens ErlTokens) ([]Char, E
 
 	return chars, tokens
 }
-func is_char_escaped_in_text_block(posChar int, chars []Char) bool {
+func is_char_escaped_in_text_block(posChar int, chars Chars) bool {
 	// char is escaped if there are 'odd' num of escape char before that.
 	escaped := false
 	escapeCharCounter := 0

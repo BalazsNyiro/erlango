@@ -58,7 +58,7 @@ type ErlToken struct {
 
 	// one char can have a meaning alone, for example: (
 	// but sometime more than one few char can form a token, for example: '->' which has his own meaning, but represented by 2 chars
-	SourceCodeChars []Char
+	SourceCodeChars Chars
 }
 
 func (token ErlToken) charPositionFirstLast() (int, int) {
@@ -87,6 +87,8 @@ func (token ErlToken) stringRepresentation() string {
 	}
 	return string(runes)
 }
+
+type Chars []Char
 
 type Char struct {
 	PositionInFile  int
@@ -153,7 +155,7 @@ type SourceTokensExecutables struct {
 							// % ERLANGO_MODULE_VERSION your_version_definition
 
 	PathErlFile          string
-	CharsFromErlFile     []Char
+	CharsFromErlFile     Chars
 	Tokens               ErlTokens
 
 	ExecutableFromTokens string // FIXME: This is a pile of executable objects, not a string
