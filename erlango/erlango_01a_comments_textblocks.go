@@ -12,7 +12,10 @@ Version 0.2, second rewrite
 
 package erlango
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func is_empty_token_block_name__textBlockDetection(blockName string) bool {
 	return blockName == ""
@@ -49,9 +52,9 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 	for charPos := 0; charPos < len(chars); charPos += 1 {
 		tokenActualId := len(tokens) // len(..) is always represent the next free, unused elem Id
 
-		//charTxtPrev1 := char_txt_value_get(charPos-1, chars)
+		// charTxtPrev1 := char_txt_value_get(charPos-1, chars)
 		charTxtNow := char_txt_value_get(charPos, chars)
-		//charTxtNext1 := char_txt_value_get(charPos+1, chars)
+		charTxtNext1 := char_txt_value_get(charPos+1, chars)
 
 		// block Start detection is important, when the opener and closer patterns are the same: " or ' chars
 		blockStarted := false
@@ -109,9 +112,66 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 			if charTxtNow == commentLineCloser {
 				blockLastElemDetected__saveCompleteDetectedToken = true
 			}
-		} // comment detect... /////////////////////////////////////////////
+		} // comment detect...
 
 
+
+		//// ABC block detect  ///////////////////////////////////////////////////////////
+		if is_empty_token_block_name__textBlockDetection(blockName) {
+			if strings.Contains(abcFullWith_At, charTxtNow) {
+				tokenActual = token_empty_obj("tokenAbcFullWith_At", tokenActualId)
+				blockName = "inAbcBlock"
+			}
+		}
+		if blockName == "inAbcBlock" {
+			// if the next char is not in abc, then the current one is the closer.
+			if ! strings.Contains(abcFullWith_At, charTxtNext1) {
+				blockLastElemDetected__saveCompleteDetectedToken = true
+			}
+		} // ABC detect
+
+
+
+		///// DIGITS DETECT //////////////////////////////////////////////////////////////
+		if is_empty_token_block_name__textBlockDetection(blockName) {
+			if strings.Contains(abcDigits, charTxtNow) {
+				tokenActual = token_empty_obj("tokenDigits", tokenActualId)
+				blockName = "inDigitsBlock"
+			}
+		}
+		if blockName == "inDigitsBlock" {
+			// if the next char is not in digits, then the current one is the closer.
+			if ! strings.Contains(abcDigits, charTxtNext1) {
+				blockLastElemDetected__saveCompleteDetectedToken = true
+			}
+		} // DIGITS detect
+
+
+		///// OTHER PUNCTUATION DETECT - they are 1 char wide elems in the source code //////////////////////////////////////////////////////////
+		if is_empty_token_block_name__textBlockDetection(blockName) {
+			if strings.Contains(otherPunctuation, charTxtNow) {
+				blockName = "inOtherPunctuationBlock"
+				tokenActual = token_empty_obj("tokenOtherPunctuation", tokenActualId)
+				// because they are 1 char wide elems, the block is closed at the first char
+				blockLastElemDetected__saveCompleteDetectedToken = true
+			}
+		} // OTHER PUNCTUATION DETECT
+
+
+		///// white space  DETECT - they are 1 char wide elems in the source code //////////////////////////////////////////////////////////
+		if is_empty_token_block_name__textBlockDetection(blockName) {
+			if strings.Contains(whiteSpaces, charTxtNow) {
+				blockName = "inWhiteSpaceBlock"
+				tokenActual = token_empty_obj("tokenWhiteSpace", tokenActualId)
+				// because they are 1 char wide elems, the block is closed at the first char
+				blockLastElemDetected__saveCompleteDetectedToken = true
+			}
+		} // whitespace DETECT
+
+
+
+
+		/////////////////////// TOKEN SAVE, CLOSE ////////////////////////////////////////
 		if ! is_empty_token_block_name__textBlockDetection(blockName) { // if we are in a token block, save the current char into the token
 			chars[charPos].TokenId = tokenActual.TokenId
 			chars[charPos].TokenDetected = true

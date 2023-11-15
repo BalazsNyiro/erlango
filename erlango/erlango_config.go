@@ -17,3 +17,25 @@ Version 0.2, second rewrite
 
 package erlango
 
+const abcEngLower = "abcdefghijklmnopqrstuvwxyz"
+const abcEngUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+const abcFullWith_At = "_@" + abcEngLower + abcEngUpper
+
+const abcDigits = "0123456789"
+
+const whiteSpaces = " \t\n\r"
+
+/*These one char wide elems are part of Erlang language,
+they can have more meanings, depends on their position,
+so in token detection's first step they don't have deeper meaning
+
+the other punctuation is coming from : unicode char's Category:
+https://www.compart.com/en/unicode/U+003A
+
+
+? - for conditional match operator:
+The conditional match operator in {ok, A} ?= a() fails to match,
+https://www.erlang.org/doc/reference_manual/expressions.html
+*/
+const otherPunctuation = "=.:,;(){}[]+-*/%<>#!?"

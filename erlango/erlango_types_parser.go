@@ -105,6 +105,13 @@ func (chars Chars) print_with_tokens(tokens ErlTokens) {
 	example(1) -> "case 1 \\\" complex string \" with \n newline";                     % comment in 'example' function
 	0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234
 
+
+	% comments
+	" strings
+	a alphabet
+	v variables
+	8 numbers
+
 	*/
 	tokenElems := []rune{}
 	charElems := []rune{}
@@ -113,7 +120,16 @@ func (chars Chars) print_with_tokens(tokens ErlTokens) {
 	tokenFlags := map[string]rune{
 		"tokenTextBlockQuotedDouble": '"',
 		"tokenComment": '%',
-		"tokenTextBlockQuotedSingle": 'a',  // atom
+		"tokenTextBlockQuotedSingle": '\'',
+		"tokenAbcFullWith_At": 'C',  // abc lower, upper plus atom builder extra chars
+		                             // to avoid mixing it with atoms, C abC is the flag.
+									 // and it stands for character, too ;-)
+									 // it can be an atom, if the first char is uppercase,
+									 // but in first token detection step, only alphabet is checked,
+									 // which has capital letters, too
+		"tokenDigits": '8',
+		"tokenOtherPunctuation": ':',
+		"tokenWhiteSpace": 'w',
 	}
 
 	for _, char := range chars {
