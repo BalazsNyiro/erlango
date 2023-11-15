@@ -67,6 +67,11 @@ func runes_from_str(txt string) []rune {
 	}
 	return runes
 }
+
+func runes_print(runes []rune) {
+	fmt.Println(str_from_runes(runes))
+}
+
 func str_from_runes(runes []rune) string {
 	return string(runes)
 }
@@ -89,6 +94,9 @@ func int_from_str(txt string, exitIfError bool, callerFunName string) (int, erro
 	return i, err
 }
 
+func str_from_int(i int) string {
+	return strconv.Itoa(i)
+}
 
 
 /////////////////////////// DEBUG //////////////////////////////////////////////

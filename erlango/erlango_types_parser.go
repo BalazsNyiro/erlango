@@ -90,12 +90,78 @@ func (token ErlToken) stringRepresentation() string {
 
 type Chars []Char
 
+func (chars Chars) print_with_tokens(tokens ErlTokens) {
+
+	tokenElems := []rune{}
+	charElems := []rune{}
+	idElems := []rune{}
+
+	tokenFlags := map[string]rune{
+		"tokenTextBlockQuotedDouble": '"',
+		"tokenComment": '%',
+		"tokenTextBlockQuotedSingle": 'a',  // atom
+	}
+
+	for _, char := range chars {
+
+		idRune := rune(str_from_int(char.PositionInLine % 10)[0])
+		idElems = append(idElems, idRune)
+
+
+		if char.Value == '\n' {
+			charElems = append(charElems, ' ')
+		} else {
+			charElems = append(charElems, char.Value)
+		}
+
+		tokenFlag := '?'
+
+		// tokens are stored by their position, not by their id.
+		// if a token is detected for the char position, save the last position too, so we can print the whole token range
+		// the token ID is not the best id to find it for chars, because tokens are stored by a position in file, not by id.
+		if char.TokenDetected {
+			tokenDetected, tokenInTheMap := tokens[char.TokenFirstCharPositionInFile]
+			if tokenInTheMap {
+				value, flagDetected := tokenFlags[tokenDetected.TokenType]
+				if flagDetected {
+					tokenFlag = value
+				}
+			}
+		}
+
+
+		tokenElems = append(tokenElems, tokenFlag)
+
+		if char.Value == '\n' {
+			fmt.Println()
+			fmt.Println()
+			runes_print(tokenElems)
+			runes_print(charElems)
+			runes_print(idElems)
+			tokenElems = []rune{}
+			charElems = []rune{}
+			idElems = []rune{}
+		}
+	}
+	fmt.Println()
+	fmt.Println()
+	runes_print(tokenElems)
+	runes_print(charElems)
+	runes_print(idElems)
+}
+
+
 type Char struct {
-	PositionInFile  int
+	PositionInFile  int // Nth char in the whole file
 	Value      rune
 	FilePath string
+
 	TokenDetected bool
 	TokenId int
+	TokenFirstCharPositionInFile int  // the Token's first char's position in file
+
+	LineNum int
+	PositionInLine int  // Nth char in the line
 }
 
 /*

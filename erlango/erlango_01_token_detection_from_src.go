@@ -52,6 +52,8 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 	fmt.Println("Tokens from file:", filePath)
 	funName := "step_01a_tokens_detect_in_file"
 
+	newLineSeparator := '\n'
+
 	runes, errFileReadingRunes := file_read_runes(filePath, funName)
 
 	tokensDetected := ErlTokens{}
@@ -59,10 +61,20 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 	if errFileReadingRunes == nil {
 
 		// ##### step A: read all chars from Erlang source #########
+		lineNum := 0
+		positionInLine := 0
+
 		for posInFile, runeInFile := range(runes) {
 			fmt.Println(posInFile, "rune in file:", string(runeInFile), runeInFile)
-			charNow := Char{PositionInFile: posInFile, Value: runeInFile, FilePath: filePath}
+			charNow := Char{PositionInFile: posInFile, Value: runeInFile, FilePath: filePath, LineNum: lineNum, PositionInLine: positionInLine}
 			charsFromErlFile = append(charsFromErlFile, charNow)
+
+			positionInLine += 1
+
+			if runeInFile == newLineSeparator {
+				lineNum += 1
+				positionInLine = 0
+			}
 		}
 
 		// ##### step B: Tokens detect ########################

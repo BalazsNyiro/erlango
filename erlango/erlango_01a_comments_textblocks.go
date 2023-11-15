@@ -116,6 +116,8 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 			chars[charPos].TokenId = tokenActual.TokenId
 			chars[charPos].TokenDetected = true
 			tokenActual.SourceCodeChars = append(tokenActual.SourceCodeChars, chars[charPos])
+			chars[charPos].TokenFirstCharPositionInFile = tokenActual.SourceCodeChars[0].PositionInFile
+			// we can be sure that minimum one char exists, because 2 lines before there is an append()
 		}
 
 		if blockLastElemDetected__saveCompleteDetectedToken {

@@ -64,6 +64,7 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 	for _, tokenWanted := range(wanteds) {
 		compare_tokenDetected_tokenWanted( "test basic types", sourceTokensExecutables__whitespacesSeparatorsBasicFile.Tokens, tokenWanted, t)
 	}
+	sourceTokensExecutables__whitespacesSeparatorsBasicFile.CharsFromErlFile.print_with_tokens(sourceTokensExecutables__whitespacesSeparatorsBasicFile.Tokens)
 	// is this token, from this start->end pos, with this representation, is in the reply?
 }
 func compare_tokenDetected_tokenWanted(callerInfo string, tokensDetected ErlTokens, tokenWanted tokenWanted, t *testing.T) {
