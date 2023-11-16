@@ -20,9 +20,10 @@ package erlango
 const abcEngLower = "abcdefghijklmnopqrstuvwxyz"
 const abcEngUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-const abcFullWith_At = "_@" + abcEngLower + abcEngUpper
-
 const abcDigits = "0123456789"
+const abcFullWith_At = "_@" + abcEngLower + abcEngUpper
+const abcFullWith_At_numbers= abcFullWith_At + abcDigits
+
 
 const whiteSpaces = " \t\n\r"
 

@@ -116,35 +116,28 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 
 
 
-		//// ABC block detect  ///////////////////////////////////////////////////////////
+		/* you can ask this: why is it good to detect abc letters and numbers together?
+		because numbers can be mixed in the Erlang code often with letters,
+		and later it is easier to analyse one block and decide that is it a number only, or not.
+
+		With other words, if abc+nums are detected together, from this direction
+		it is easier to find numbers only, than to detect the numeric and abc chars separately,
+		and explain the sitation when characters and numbers are mixed in one condition.
+		*/
+		//// ABC + numbers block detect  ///////////////////////////////////////////////////////////
 		if is_empty_token_block_name__textBlockDetection(blockName) {
-			if strings.Contains(abcFullWith_At, charTxtNow) {
-				tokenActual = token_empty_obj("tokenAbcFullWith_At", tokenActualId)
-				blockName = "inAbcBlock"
+			if strings.Contains(abcFullWith_At_numbers, charTxtNow) {
+				tokenActual = token_empty_obj("tokenAbcFullWith_At_numbers", tokenActualId)
+				blockName = "inAbcNumBlock"
 			}
 		}
-		if blockName == "inAbcBlock" {
+		if blockName == "inAbcNumBlock" {
 			// if the next char is not in abc, then the current one is the closer.
-			if ! strings.Contains(abcFullWith_At, charTxtNext1) {
+			if ! strings.Contains(abcFullWith_At_numbers, charTxtNext1) {
 				blockLastElemDetected__saveCompleteDetectedToken = true
 			}
 		} // ABC detect
 
-
-
-		///// DIGITS DETECT //////////////////////////////////////////////////////////////
-		if is_empty_token_block_name__textBlockDetection(blockName) {
-			if strings.Contains(abcDigits, charTxtNow) {
-				tokenActual = token_empty_obj("tokenDigits", tokenActualId)
-				blockName = "inDigitsBlock"
-			}
-		}
-		if blockName == "inDigitsBlock" {
-			// if the next char is not in digits, then the current one is the closer.
-			if ! strings.Contains(abcDigits, charTxtNext1) {
-				blockLastElemDetected__saveCompleteDetectedToken = true
-			}
-		} // DIGITS detect
 
 
 		///// OTHER PUNCTUATION DETECT - they are 1 char wide elems in the source code //////////////////////////////////////////////////////////

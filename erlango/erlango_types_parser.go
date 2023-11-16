@@ -121,13 +121,12 @@ func (chars Chars) print_with_tokens(tokens ErlTokens) {
 		"tokenTextBlockQuotedDouble": '"',
 		"tokenComment": '%',
 		"tokenTextBlockQuotedSingle": '\'',
-		"tokenAbcFullWith_At": 'C',  // abc lower, upper plus atom builder extra chars
+		"tokenAbcFullWith_At_numbers": 'C',  // abc lower, upper plus atom builder extra chars
 		                             // to avoid mixing it with atoms, C abC is the flag.
 									 // and it stands for character, too ;-)
 									 // it can be an atom, if the first char is uppercase,
 									 // but in first token detection step, only alphabet is checked,
 									 // which has capital letters, too
-		"tokenDigits": '8',
 		"tokenOtherPunctuation": ':',
 		"tokenWhiteSpace": 'w',
 	}
