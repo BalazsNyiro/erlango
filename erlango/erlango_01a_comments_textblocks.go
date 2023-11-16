@@ -52,7 +52,8 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 	for charPos := 0; charPos < len(chars); charPos += 1 {
 		tokenActualId := len(tokens) // len(..) is always represent the next free, unused elem Id
 
-		// charTxtPrev1 := char_txt_value_get(charPos-1, chars)
+		charTxtPrev2 := char_txt_value_get(charPos-2, chars)
+		charTxtPrev1 := char_txt_value_get(charPos-1, chars)
 		charTxtNow := char_txt_value_get(charPos, chars)
 		charTxtNext1 := char_txt_value_get(charPos+1, chars)
 
@@ -153,7 +154,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 
 		///// white space  DETECT - they are 1 char wide elems in the source code //////////////////////////////////////////////////////////
 		if is_empty_token_block_name__textBlockDetection(blockName) {
-			if strings.Contains(whiteSpaces, charTxtNow) {
+			if is_whitespace_only(charTxtNow) {
 				blockName = "inWhiteSpaceBlock"
 				tokenActual = token_empty_obj("tokenWhiteSpace", tokenActualId)
 				// because they are 1 char wide elems, the block is closed at the first char
@@ -162,6 +163,17 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		} // whitespace DETECT
 
 
+		// Character literals. Example: $∑
+		if is_empty_token_block_name__textBlockDetection(blockName) {
+			// $A: A is literal, prev is $
+			// $\n \n is literal, prev2 is $, prev1 is escape
+			if charTxtPrev1 == "$" || (charTxtPrev1 == "\\" && charTxtPrev2 == "$")
+				blockName = "inLiteralBlock"
+				tokenActual = token_empty_obj("tokenCharLiteral", tokenActualId)
+				// because they are 1 char wide elems, the block is closed at the first char
+				blockLastElemDetected__saveCompleteDetectedToken = true
+			}
+		}
 
 
 		/////////////////////// TOKEN SAVE, CLOSE ////////////////////////////////////////

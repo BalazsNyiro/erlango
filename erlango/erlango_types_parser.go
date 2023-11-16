@@ -129,6 +129,7 @@ func (chars Chars) print_with_tokens(tokens ErlTokens) {
 									 // which has capital letters, too
 		"tokenOtherPunctuation": ':',
 		"tokenWhiteSpace": 'w',
+		"tokenCharLiteral": 'L',
 	}
 
 	for _, char := range chars {

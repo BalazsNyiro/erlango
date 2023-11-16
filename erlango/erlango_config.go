@@ -17,6 +17,8 @@ Version 0.2, second rewrite
 
 package erlango
 
+import "strings"
+
 const abcEngLower = "abcdefghijklmnopqrstuvwxyz"
 const abcEngUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -24,8 +26,6 @@ const abcDigits = "0123456789"
 const abcFullWith_At = "_@" + abcEngLower + abcEngUpper
 const abcFullWith_At_numbers= abcFullWith_At + abcDigits
 
-
-const whiteSpaces = " \t\n\r"
 
 /*These one char wide elems are part of Erlang language,
 they can have more meanings, depends on their position,
@@ -39,4 +39,9 @@ https://www.compart.com/en/unicode/U+003A
 The conditional match operator in {ok, A} ?= a() fails to match,
 https://www.erlang.org/doc/reference_manual/expressions.html
 */
-const otherPunctuation = "=.:,;(){}[]+-*/%<>#!?"
+const otherPunctuation = "=.:,;(){}[]+-*/%<>#!?|"
+
+func is_whitespace_only(txt string) bool {
+	// if the trimmed string representation is empty, it is a whitespace
+	return strings.TrimSpace(txt) == ""
+}
