@@ -167,7 +167,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		if is_empty_token_block_name__textBlockDetection(blockName) {
 			// $A: A is literal, prev is $
 			// $\n \n is literal, prev2 is $, prev1 is escape
-			if charTxtPrev1 == "$" || (charTxtPrev1 == "\\" && charTxtPrev2 == "$")
+			if charTxtPrev1 == "$" || (charTxtPrev1 == "\\" && charTxtPrev2 == "$") {
 				blockName = "inLiteralBlock"
 				tokenActual = token_empty_obj("tokenCharLiteral", tokenActualId)
 				// because they are 1 char wide elems, the block is closed at the first char

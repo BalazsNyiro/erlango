@@ -14,6 +14,7 @@ package erlango
 import (
 	"fmt"
 	"sort"
+	"strings"
 )
 
 type ErlTokens map[int] ErlToken 	// list AND map, same time. the token's first char position is the key,
@@ -260,7 +261,7 @@ type SourceTokensExecutables struct {
 type SourcesTokensExecutables_map map[string]SourceTokensExecutables
 
 func (sourceTokensExecutables SourceTokensExecutables) tokens_print()  {
-	print("=== Tokens in a file", sourceTokensExecutables.PathErlFile, "===\n")
+	print("=== Tokens in a file: ", sourceTokensExecutables.PathErlFile, "===\n")
 
 	// TODO: use a generic here
 	keys := make([]int, 0, len(sourceTokensExecutables.Tokens))
@@ -281,6 +282,11 @@ func (sourceTokensExecutables SourceTokensExecutables) tokens_print()  {
 		if stringRepresentation[len(stringRepresentation)-1] == '"' {
 			stringRepresentation = stringRepresentation[:len(stringRepresentation)-1] + "\\\""
 		}
+
+		stringRepresentation = strings.Replace(stringRepresentation, "\n", "\\n", 1)
+		stringRepresentation = strings.Replace(stringRepresentation, "\t", "\\t", 1)
+		// don't print real newline or tabs for humans
+
 		// TODO: stringrepresentation needs to be escaped " signs?
 		fmt.Printf("{\"%s\", %v, %v, \"%s\"}\n", token.TokenType, tokenPosFirst, tokenPosLast, stringRepresentation)
 	}
