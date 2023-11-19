@@ -288,6 +288,6 @@ func (sourceTokensExecutables SourceTokensExecutables) tokens_print()  {
 		// don't print real newline or tabs for humans
 
 		// TODO: stringrepresentation needs to be escaped " signs?
-		fmt.Printf("{\"%s\", %v, %v, \"%s\"}\n", token.TokenType, tokenPosFirst, tokenPosLast, stringRepresentation)
+		fmt.Printf("{\"%s\", %v, %v, \"%s\"},\n", token.TokenType, tokenPosFirst, tokenPosLast, stringRepresentation)
 	}
 }
