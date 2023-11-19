@@ -14,7 +14,6 @@ package erlango
 import (
 	"fmt"
 	"sort"
-	"strings"
 )
 
 type ErlTokens map[int] ErlToken 	// list AND map, same time. the token's first char position is the key,
@@ -84,6 +83,40 @@ func (token ErlToken) charPosLast() int {
 func (token ErlToken) stringRepresentation() string {
 	runes := []rune{}
 	for _, charNow := range(token.SourceCodeChars) {
+		runes = append(runes, charNow.Value)
+	}
+	return string(runes)
+}
+
+func (token ErlToken) stringRepresentation_escapedSourceForTests() string {
+	runes := []rune{}
+	for _, charNow := range(token.SourceCodeChars) {
+
+		if charNow.Value =='"' {
+			runes = append(runes, '\\')
+			runes = append(runes, '"')
+			continue
+		}
+
+		if charNow.Value =='\\' {
+			runes = append(runes, '\\')
+			runes = append(runes, '\\')
+			continue
+		}
+
+		if charNow.Value =='\n' {
+			runes = append(runes, '\\')
+			runes = append(runes, 'n')
+			continue
+		}
+
+		if charNow.Value =='\t' {
+			runes = append(runes, '\\')
+			runes = append(runes, 't')
+			continue
+		}
+
+
 		runes = append(runes, charNow.Value)
 	}
 	return string(runes)
@@ -261,6 +294,9 @@ type SourceTokensExecutables struct {
 type SourcesTokensExecutables_map map[string]SourceTokensExecutables
 
 func (sourceTokensExecutables SourceTokensExecutables) tokens_print()  {
+	// mode: testCasePrint
+	// mode: humanReading
+
 	print("=== Tokens in a file: ", sourceTokensExecutables.PathErlFile, "===\n")
 
 	// TODO: use a generic here
@@ -275,17 +311,8 @@ func (sourceTokensExecutables SourceTokensExecutables) tokens_print()  {
 		tokenPosFirst, tokenPosLast := token.charPositionFirstLast()
 		// fmt.Println(key, "token:", token.TokenId, token.TokenType, tokenPosFirst, tokenPosLast, token.stringRepresentation() )
 		// This format can be used in tests, immediatelly
-		stringRepresentation := token.stringRepresentation()
-		if stringRepresentation[0] == '"' {
-			stringRepresentation = "\\" + stringRepresentation
-		}
-		if stringRepresentation[len(stringRepresentation)-1] == '"' {
-			stringRepresentation = stringRepresentation[:len(stringRepresentation)-1] + "\\\""
-		}
+		stringRepresentation := token.stringRepresentation_escapedSourceForTests()
 
-		stringRepresentation = strings.Replace(stringRepresentation, "\n", "\\n", 1)
-		stringRepresentation = strings.Replace(stringRepresentation, "\t", "\\t", 1)
-		// don't print real newline or tabs for humans
 
 		// TODO: stringrepresentation needs to be escaped " signs?
 		fmt.Printf("{\"%s\", %v, %v, \"%s\"},\n", token.TokenType, tokenPosFirst, tokenPosLast, stringRepresentation)
