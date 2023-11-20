@@ -61,6 +61,9 @@ type ErlToken struct {
 	SourceCodeChars Chars
 }
 
+func (token ErlToken) typeIsEmpty() bool {
+	return token.TokenType == ""
+}
 func (token ErlToken) charPositionFirstLast() (int, int) {
 	charPosFirst := -1 // in a source code, 0 is the smallest position, so -1 means: no real position
 	charPosLast := -1

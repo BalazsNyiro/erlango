@@ -17,10 +17,6 @@ import (
 	"strings"
 )
 
-func is_empty_token_block_name__textBlockDetection(blockName string) bool {
-	return blockName == ""
-}
-
 func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, ErlTokens, errorsDetected){
 	// the "wrapper" quotes around the string values or 'atoms' are the part of the tokens,
 	// they are necessary to define a text block (single or double qoted texts)
@@ -45,13 +41,11 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 	errors := errorsDetected{}
 
 	fmt.Println("token detext comments, quoted textblocks")
-	blockName := ""
 
 	tokenActual := ErlToken{}
 	commentLineCloser := "\n"
 
 	for charPos := 0; charPos < len(chars); charPos += 1 {
-		tokenActualId := len(tokens) // len(..) is always represent the next free, unused elem Id
 
 		charTxtPrev2 := char_txt_value_get(charPos-2, chars)
 		charTxtPrev1 := char_txt_value_get(charPos-1, chars)
@@ -69,13 +63,12 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		////////////// double quoted text detect //////////
 		if charTxtNow == "\""{
 
-			if is_empty_token_block_name__textBlockDetection(blockName) {
-				blockName = "inTextBlockQuotedDouble"
-				tokenActual = token_empty_obj("tokenTextBlockQuotedDouble", tokenActualId)
+			if tokenActual.typeIsEmpty() {
+				tokenActual.TokenType = "tokenTextBlockQuotedDouble"
 				blockStarted = true
 			}
 
-			if blockName == "inTextBlockQuotedDouble" && ! blockStarted {
+			if tokenActual.TokenType == "tokenTextBlockQuotedDouble" && ! blockStarted {
 				if ! is_char_escaped_in_text_block(charPos, chars) {
 					blockLastElemDetected__saveCompleteDetectedToken = true
 				} // char is not escaped
@@ -85,13 +78,12 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		////////////// single quoted text detect //////////
 		if charTxtNow == "'"{
 
-			if is_empty_token_block_name__textBlockDetection(blockName) {
-				blockName = "inTextBlockQuotedSingle"
-				tokenActual = token_empty_obj("tokenTextBlockQuotedSingle", tokenActualId)
+			if tokenActual.typeIsEmpty() {
+				tokenActual.TokenType = "tokenTextBlockQuotedSingle"
 				blockStarted = true
 			}
 
-			if blockName == "inTextBlockQuotedSingle" && ! blockStarted {
+			if tokenActual.TokenType == "tokenTextBlockQuotedSingle" && ! blockStarted {
 				if ! is_char_escaped_in_text_block(charPos, chars) { // an atom can have a ' char in it's content, too
 					blockLastElemDetected__saveCompleteDetectedToken = true
 				} // char is not escaped
@@ -104,13 +96,12 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		// the opening or closing situations can be detected easily.
 		// in previous cases, for 'atom', or "string", the opener and closer patterns are same,
 		// so the blockStart var is necessary to know: have we started or closed a block?
-		if is_empty_token_block_name__textBlockDetection(blockName) {
+		if tokenActual.typeIsEmpty() {
 			if charTxtNow == "%"{
-				blockName = "inComment"
-				tokenActual = token_empty_obj("tokenComment", tokenActualId)
+				tokenActual.TokenType = "tokenComment"
 			}
 		}
-		if blockName == "inComment" {
+		if tokenActual.TokenType == "tokenComment" {
 			if charTxtNow == commentLineCloser {
 				blockLastElemDetected__saveCompleteDetectedToken = true
 			}
@@ -127,13 +118,12 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		and explain the sitation when characters and numbers are mixed in one condition.
 		*/
 		//// ABC + numbers block detect  ///////////////////////////////////////////////////////////
-		if is_empty_token_block_name__textBlockDetection(blockName) {
+		if tokenActual.typeIsEmpty() {
 			if strings.Contains(abcFullWith_At_numbers, charTxtNow) {
-				blockName = "inAbcNumBlock"
-				tokenActual = token_empty_obj("tokenAbcFullWith_At_numbers", tokenActualId)
+				tokenActual.TokenType = "tokenAbcFullWith_At_numbers"
 			}
 		}
-		if blockName == "inAbcNumBlock" {
+		if tokenActual.TokenType == "tokenAbcFullWith_At_numbers" {
 			// if the next char is not in abc, then the current one is the closer.
 			if ! strings.Contains(abcFullWith_At_numbers, charTxtNext1) {
 				blockLastElemDetected__saveCompleteDetectedToken = true
@@ -143,10 +133,9 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 
 
 		///// OTHER PUNCTUATION DETECT - they are 1 char wide elems in the source code //////////////////////////////////////////////////////////
-		if is_empty_token_block_name__textBlockDetection(blockName) {
+		if tokenActual.typeIsEmpty() {
 			if strings.Contains(otherPunctuation, charTxtNow) {
-				blockName = "inOtherPunctuationBlock"
-				tokenActual = token_empty_obj("tokenOtherPunctuation", tokenActualId)
+				tokenActual.TokenType = "tokenOtherPunctuation"
 				// because they are 1 char wide elems, the block is closed at the first char
 				blockLastElemDetected__saveCompleteDetectedToken = true
 			}
@@ -154,10 +143,9 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 
 
 		///// white space  DETECT - they are 1 char wide elems in the source code //////////////////////////////////////////////////////////
-		if is_empty_token_block_name__textBlockDetection(blockName) {
+		if tokenActual.typeIsEmpty() {
 			if is_whitespace_only(charTxtNow) {
-				blockName = "inWhiteSpaceBlock"
-				tokenActual = token_empty_obj("tokenWhiteSpace", tokenActualId)
+				tokenActual.TokenType = "tokenWhiteSpace"
 				// because they are 1 char wide elems, the block is closed at the first char
 				blockLastElemDetected__saveCompleteDetectedToken = true
 			}
@@ -165,12 +153,11 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 
 
 		// Character literals. Example: $∑
-		if is_empty_token_block_name__textBlockDetection(blockName) {
+		if tokenActual.typeIsEmpty() {
 			// $A: A is literal, prev is $
 			// $\n \n is literal, prev2 is $, prev1 is escape
 			if charTxtPrev1 == "$" || (charTxtPrev1 == "\\" && charTxtPrev2 == "$") {
-				blockName = "inLiteralBlock"
-				tokenActual = token_empty_obj("tokenCharLiteral", tokenActualId)
+				tokenActual.TokenType = "tokenCharLiteral"
 				// because they are 1 char wide elems, the block is closed at the first char
 				blockLastElemDetected__saveCompleteDetectedToken = true
 			}
@@ -178,11 +165,9 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 
 
 		/////////////////////// TOKEN SAVE, CLOSE ////////////////////////////////////////
-		weAreInABlock := ! is_empty_token_block_name__textBlockDetection(blockName)
+		weAreInTokenDetection := ! tokenActual.typeIsEmpty()
 
-
-
-		if weAreInABlock { // if we are in a token block, save the current char into the token
+		if weAreInTokenDetection { // if we are in a token block, save the current char into the token
 			chars[charPos].TokenId = tokenActual.TokenId
 			chars[charPos].TokenDetected = true
 			tokenActual.SourceCodeChars = append(tokenActual.SourceCodeChars, chars[charPos])
@@ -202,11 +187,12 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		}
 
 		if blockLastElemDetected__saveCompleteDetectedToken {
-			blockName = ""
-			if tokenActual.TokenType != "tokenWhiteSpace" && tokenActual.TokenType != "tokenComment" {
+			//if tokenActual.TokenType != "tokenWhiteSpace" && tokenActual.TokenType != "tokenComment" {
 				// save tokenActual into tokens - skip comments and whitespace tokens
 				tokens[tokenActual.charPosFirst()] = tokenActual
-			}
+			// }
+			tokenActualId := len(tokens) // len(..) is always represent the next free, unused elem Id
+			tokenActual = token_empty_obj("", tokenActualId)
 		}
 	}
 
