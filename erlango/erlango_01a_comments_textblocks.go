@@ -181,10 +181,10 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		}
 
 		if saveCompleteDetectedToken {
-			//if tokenActual.TokenType != "tokenWhiteSpace" && tokenActual.TokenType != "tokenComment" {
+			if tokenActual.TokenType != "tokenWhiteSpace" && tokenActual.TokenType != "tokenComment" {
 				// save tokenActual into tokens - skip comments and whitespace tokens
 				tokens[tokenActual.charPosFirst()] = tokenActual
-			// }
+			}
 			tokenActualId := len(tokens) // len(..) is always represent the next free, unused elem Id
 			tokenActual = token_empty_obj("", tokenActualId)
 		}
