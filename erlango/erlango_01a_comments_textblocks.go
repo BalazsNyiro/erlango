@@ -70,8 +70,8 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		if charTxtNow == "\""{
 
 			if is_empty_token_block_name__textBlockDetection(blockName) {
-				tokenActual = token_empty_obj("tokenTextBlockQuotedDouble", tokenActualId)
 				blockName = "inTextBlockQuotedDouble"
+				tokenActual = token_empty_obj("tokenTextBlockQuotedDouble", tokenActualId)
 				blockStarted = true
 			}
 
@@ -86,8 +86,8 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		if charTxtNow == "'"{
 
 			if is_empty_token_block_name__textBlockDetection(blockName) {
-				tokenActual = token_empty_obj("tokenTextBlockQuotedSingle", tokenActualId)
 				blockName = "inTextBlockQuotedSingle"
+				tokenActual = token_empty_obj("tokenTextBlockQuotedSingle", tokenActualId)
 				blockStarted = true
 			}
 
@@ -106,8 +106,8 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		// so the blockStart var is necessary to know: have we started or closed a block?
 		if is_empty_token_block_name__textBlockDetection(blockName) {
 			if charTxtNow == "%"{
-				tokenActual = token_empty_obj("tokenComment", tokenActualId)
 				blockName = "inComment"
+				tokenActual = token_empty_obj("tokenComment", tokenActualId)
 			}
 		}
 		if blockName == "inComment" {
@@ -129,8 +129,8 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		//// ABC + numbers block detect  ///////////////////////////////////////////////////////////
 		if is_empty_token_block_name__textBlockDetection(blockName) {
 			if strings.Contains(abcFullWith_At_numbers, charTxtNow) {
-				tokenActual = token_empty_obj("tokenAbcFullWith_At_numbers", tokenActualId)
 				blockName = "inAbcNumBlock"
+				tokenActual = token_empty_obj("tokenAbcFullWith_At_numbers", tokenActualId)
 			}
 		}
 		if blockName == "inAbcNumBlock" {
@@ -199,12 +199,14 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 			}
 
 			errors = append(errors, errMsg)
-
 		}
 
 		if blockLastElemDetected__saveCompleteDetectedToken {
 			blockName = ""
-			tokens[tokenActual.charPosFirst()] = tokenActual
+			if tokenActual.TokenType != "tokenWhiteSpace" && tokenActual.TokenType != "tokenComment" {
+				// save tokenActual into tokens - skip comments and whitespace tokens
+				tokens[tokenActual.charPosFirst()] = tokenActual
+			}
 		}
 	}
 

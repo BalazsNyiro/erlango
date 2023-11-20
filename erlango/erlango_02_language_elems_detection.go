@@ -21,9 +21,8 @@ package erlango
 
 https://www.erlang.org/doc/reference_manual/expressions.html
 
-Erlang term:
-	The simplest form of expression is a term, that is an integer, float, atom, string, list, map, or tuple. The return value is the term itself.
-	Term with other words: data types
+Erlang term (data types):
+	- an integer, float, atom, string, list, map, or tuple.
 
 Erlang variables
 	Variables start with an uppercase letter or underscore (_). Variables can contain alphanumeric characters, underscore and @.
@@ -36,6 +35,11 @@ Erlang variables
 	* 1:4: illegal character
 
 Operators:
+	whitespaces are not important in operator detection:
+	1> A = 2+-1.
+	1
+
+
 
 
 == TOKENS ==
