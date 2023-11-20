@@ -52,8 +52,6 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		charTxtNow := char_txt_value_get(charPos, chars)
 		charTxtNext1 := char_txt_value_get(charPos+1, chars)
 
-		// block Start detection is important, when the opener and closer patterns are the same: " or ' chars
-		blockStarted := false
 		blockLastElemDetected__saveCompleteDetectedToken := false
 
 		///////// this section can be refactored to a separated fun.
@@ -65,14 +63,14 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 
 			if tokenActual.typeIsEmpty() {
 				tokenActual.TokenType = "tokenTextBlockQuotedDouble"
-				blockStarted = true
-			}
 
-			if tokenActual.TokenType == "tokenTextBlockQuotedDouble" && ! blockStarted {
-				if ! is_char_escaped_in_text_block(charPos, chars) {
-					blockLastElemDetected__saveCompleteDetectedToken = true
-				} // char is not escaped
-			}
+			} else { // TokenType is set before this " detection:
+				if tokenActual.TokenType == "tokenTextBlockQuotedDouble" {
+					if ! is_char_escaped_in_text_block(charPos, chars) {
+						blockLastElemDetected__saveCompleteDetectedToken = true
+					} // char is not escaped
+				}
+			} // TokenType was not empty
 		}
 
 		////////////// single quoted text detect //////////
@@ -80,27 +78,23 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 
 			if tokenActual.typeIsEmpty() {
 				tokenActual.TokenType = "tokenTextBlockQuotedSingle"
-				blockStarted = true
-			}
 
-			if tokenActual.TokenType == "tokenTextBlockQuotedSingle" && ! blockStarted {
-				if ! is_char_escaped_in_text_block(charPos, chars) { // an atom can have a ' char in it's content, too
-					blockLastElemDetected__saveCompleteDetectedToken = true
-				} // char is not escaped
-			}
+			} else { // TokenType is set before this ' detection:
+				if tokenActual.TokenType == "tokenTextBlockQuotedSingle" {
+					if ! is_char_escaped_in_text_block(charPos, chars) { // an atom can have a ' char in its content, too
+						blockLastElemDetected__saveCompleteDetectedToken = true
+					} // char is not escaped
+				}
+			} // TokenType was not empty
 		}
 
 
-		////////////// for comment detect, blockStarted var is not important,
-		// because the opener '%' and the closer '\n' patterns are different,
-		// the opening or closing situations can be detected easily.
-		// in previous cases, for 'atom', or "string", the opener and closer patterns are same,
-		// so the blockStart var is necessary to know: have we started or closed a block?
 		if tokenActual.typeIsEmpty() {
 			if charTxtNow == "%"{
 				tokenActual.TokenType = "tokenComment"
 			}
 		}
+
 		if tokenActual.TokenType == "tokenComment" {
 			if charTxtNow == commentLineCloser {
 				blockLastElemDetected__saveCompleteDetectedToken = true
