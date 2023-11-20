@@ -1,6 +1,6 @@
 #!/usr/bin/env escript
 
-% testfile for basid types,
+% test file for basic types,
 % whitespaces, commas, dots, colons
 % atom, string, integer, float, hexa
 
