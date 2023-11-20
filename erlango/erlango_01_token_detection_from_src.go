@@ -45,7 +45,7 @@ func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all Sourc
 		sourcesTokensExecutables_all[sourceTokensExecutables.PathErlFile] = sourceTokensExecutables
 	}
 
-	return sourcesTokensExecutables_all
+	return sourcesTokensExecutables_all // it can have errors, too!
 }
 
 func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTokensExecutables) {
@@ -58,6 +58,8 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 
 	tokensDetected := ErlTokens{}
 	charsFromErlFile := Chars{}
+	errors := errorsDetected{}
+
 	if errFileReadingRunes == nil {
 
 		// ##### step A: read all chars from Erlang source #########
@@ -78,7 +80,7 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 		}
 
 		// ##### step B: Tokens detect ########################
-		charsFromErlFile, tokensDetected = token_detect_comments_textblocks(charsFromErlFile, tokensDetected)
+		charsFromErlFile, tokensDetected, errors = token_detect_comments_textblocks(charsFromErlFile, tokensDetected)
 
 	} else {
 		// FIXME: what to do if file_read_runes has a problem?
@@ -89,6 +91,7 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 		ModuleVersion: "not-detected-version",
 		CharsFromErlFile: charsFromErlFile,
 		Tokens: tokensDetected,
+		Errors: errors,
 	}
 
 	parentChannel <- sourceTokensExecutables

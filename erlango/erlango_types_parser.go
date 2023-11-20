@@ -289,6 +289,7 @@ type SourceTokensExecutables struct {
 	Tokens               ErlTokens
 
 	ExecutableFromTokens string // FIXME: This is a pile of executable objects, not a string
+	Errors errorsDetected
 }
 
 type SourcesTokensExecutables_map map[string]SourceTokensExecutables
@@ -317,4 +318,15 @@ func (sourceTokensExecutables SourceTokensExecutables) tokens_print()  {
 		// TODO: stringrepresentation needs to be escaped " signs?
 		fmt.Printf("{\"%s\", %v, %v, \"%s\"},\n", token.TokenType, tokenPosFirst, tokenPosLast, stringRepresentation)
 	}
+}
+
+
+type errorsDetected []errorDetected
+
+type errorDetected struct {
+	filePath string
+	lineNum  int
+	charPosInLine int
+	charPosInFile int
+	errMsg string
 }

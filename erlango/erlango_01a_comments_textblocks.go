@@ -21,7 +21,7 @@ func is_empty_token_block_name__textBlockDetection(blockName string) bool {
 	return blockName == ""
 }
 
-func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, ErlTokens){
+func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, ErlTokens, errorsDetected){
 	// the "wrapper" quotes around the string values or 'atoms' are the part of the tokens,
 	// they are necessary to define a text block (single or double qoted texts)
 	// but not part of the value of the token
@@ -42,6 +42,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 	discussion: https://erlang.org/pipermail/erlang-questions/2014-February/077922.html
 
 	*/
+	errors := errorsDetected{}
 
 	fmt.Println("token detext comments, quoted textblocks")
 	blockName := ""
@@ -177,12 +178,28 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 
 
 		/////////////////////// TOKEN SAVE, CLOSE ////////////////////////////////////////
-		if ! is_empty_token_block_name__textBlockDetection(blockName) { // if we are in a token block, save the current char into the token
+		weAreInABlock := ! is_empty_token_block_name__textBlockDetection(blockName)
+
+
+
+		if weAreInABlock { // if we are in a token block, save the current char into the token
 			chars[charPos].TokenId = tokenActual.TokenId
 			chars[charPos].TokenDetected = true
 			tokenActual.SourceCodeChars = append(tokenActual.SourceCodeChars, chars[charPos])
 			chars[charPos].TokenFirstCharPositionInFile = tokenActual.SourceCodeChars[0].PositionInFile
 			// we can be sure that minimum one char exists, because 2 lines before there is an append()
+		} else {
+			// if we are NOT in a block, that is a problem, a non-recognised character
+			errMsg := errorDetected{
+				filePath: chars[charPos].FilePath,
+				lineNum: chars[charPos].LineNum,
+				charPosInLine: chars[charPos].PositionInLine,
+				charPosInFile: chars[charPos].PositionInFile,
+				errMsg: "Unrecognised char ("+string(chars[charPos].Value)+") in token detection",
+			}
+
+			errors = append(errors, errMsg)
+
 		}
 
 		if blockLastElemDetected__saveCompleteDetectedToken {
@@ -191,7 +208,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		}
 	}
 
-	return chars, tokens
+	return chars, tokens, errors
 }
 func is_char_escaped_in_text_block(posChar int, chars Chars) bool {
 	// char is escaped if there are 'odd' num of escape char before that.

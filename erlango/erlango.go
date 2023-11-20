@@ -20,6 +20,7 @@ func Erlang_program_exec(prg ProgramWideStateVariable) {
 
 	sourcesTokensExecutables_list := SourcesTokensExecutables_map{}
 	// step_01_tokens_from_source_code_of_files()
+	print("FIXME: check and display possible ERRORS after token detection")
 	// step_02_executables_from_tokens()
 	// step_03_exec_main()
 	fmt.Print(sourcesTokensExecutables_list)
