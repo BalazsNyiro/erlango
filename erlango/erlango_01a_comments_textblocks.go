@@ -40,7 +40,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 	*/
 	errors := errorsDetected{}
 
-	fmt.Println("token detext comments, quoted textblocks")
+	fmt.Println("token detest comments, quoted text blocks")
 
 	tokenActual := ErlToken{}
 	commentLineCloser := "\n"
@@ -52,7 +52,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		charTxtNow := char_txt_value_get(charPos, chars)
 		charTxtNext1 := char_txt_value_get(charPos+1, chars)
 
-		blockLastElemDetected__saveCompleteDetectedToken := false
+		saveCompleteDetectedToken := false
 
 		///////// this section can be refactored to a separated fun.
 		// BUT: that step means high complexity - it is longer, a little repetitive,
@@ -67,7 +67,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 			} else { // TokenType is set before this " detection:
 				if tokenActual.TokenType == "tokenTextBlockQuotedDouble" {
 					if ! is_char_escaped_in_text_block(charPos, chars) {
-						blockLastElemDetected__saveCompleteDetectedToken = true
+						saveCompleteDetectedToken = true
 					} // char is not escaped
 				}
 			} // TokenType was not empty
@@ -82,7 +82,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 			} else { // TokenType is set before this ' detection:
 				if tokenActual.TokenType == "tokenTextBlockQuotedSingle" {
 					if ! is_char_escaped_in_text_block(charPos, chars) { // an atom can have a ' char in its content, too
-						blockLastElemDetected__saveCompleteDetectedToken = true
+						saveCompleteDetectedToken = true
 					} // char is not escaped
 				}
 			} // TokenType was not empty
@@ -97,7 +97,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 
 		if tokenActual.TokenType == "tokenComment" {
 			if charTxtNow == commentLineCloser {
-				blockLastElemDetected__saveCompleteDetectedToken = true
+				saveCompleteDetectedToken = true
 			}
 		} // comment detect...
 
@@ -120,7 +120,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 		if tokenActual.TokenType == "tokenAbcFullWith_At_numbers" {
 			// if the next char is not in abc, then the current one is the closer.
 			if ! strings.Contains(abcFullWith_At_numbers, charTxtNext1) {
-				blockLastElemDetected__saveCompleteDetectedToken = true
+				saveCompleteDetectedToken = true
 			}
 		} // ABC detect
 
@@ -131,7 +131,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 			if strings.Contains(otherPunctuation, charTxtNow) {
 				tokenActual.TokenType = "tokenOtherPunctuation"
 				// because they are 1 char wide elems, the block is closed at the first char
-				blockLastElemDetected__saveCompleteDetectedToken = true
+				saveCompleteDetectedToken = true
 			}
 		} // OTHER PUNCTUATION DETECT
 
@@ -141,7 +141,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 			if is_whitespace_only(charTxtNow) {
 				tokenActual.TokenType = "tokenWhiteSpace"
 				// because they are 1 char wide elems, the block is closed at the first char
-				blockLastElemDetected__saveCompleteDetectedToken = true
+				saveCompleteDetectedToken = true
 			}
 		} // whitespace DETECT
 
@@ -153,7 +153,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 			if charTxtPrev1 == "$" || (charTxtPrev1 == "\\" && charTxtPrev2 == "$") {
 				tokenActual.TokenType = "tokenCharLiteral"
 				// because they are 1 char wide elems, the block is closed at the first char
-				blockLastElemDetected__saveCompleteDetectedToken = true
+				saveCompleteDetectedToken = true
 			}
 		}
 
@@ -180,7 +180,7 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 			errors = append(errors, errMsg)
 		}
 
-		if blockLastElemDetected__saveCompleteDetectedToken {
+		if saveCompleteDetectedToken {
 			//if tokenActual.TokenType != "tokenWhiteSpace" && tokenActual.TokenType != "tokenComment" {
 				// save tokenActual into tokens - skip comments and whitespace tokens
 				tokens[tokenActual.charPosFirst()] = tokenActual
