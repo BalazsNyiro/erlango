@@ -11,28 +11,30 @@ Version 0.2, second rewrite
 
 package erlango
 
+// general storage for settings - strings, ints, bools are typical config elems
+type SettingsTable struct {
+	SettingStr map[string][]string
+	SettingInt  map[string][]int
+	SettingBool map[string]bool
+}
+
 
 /* 	very rarely modified, and often read program-wide data structure.
 Stored infos:
 	- erlango command line call parameters (good to know everywhere)
 
+in program start arguments, there can be strings, ints, bools
 */
-type ArgumentsErlangoCliStart struct {
-	ArgStr  map[string][]string
-	ArgInt  map[string][]int
-	ArgBool map[string]bool
-}
-
 type ProgramWideStateVariable struct {
-	ArgumentsErlangoCliStart ArgumentsErlangoCliStart
+	ArgumentsErlangoCliStart SettingsTable
 }
 
 func new_program_state() ProgramWideStateVariable {
 	return ProgramWideStateVariable {
-			ArgumentsErlangoCliStart {
-				ArgStr: map[string][]string{},
-				ArgInt: map[string][]int{},
-				ArgBool: map[string]bool{},
+			SettingsTable{
+				SettingStr:  map[string][]string{},
+				SettingInt:  map[string][]int{},
+				SettingBool: map[string]bool{},
 			},
 	}
 }

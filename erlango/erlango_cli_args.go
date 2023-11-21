@@ -31,7 +31,7 @@ Main rule:
 */
 
 func cli_argument_detect(prg ProgramWideStateVariable) ProgramWideStateVariable {
-	prg.ArgumentsErlangoCliStart.ArgStr["interpreterName"] = []string{os.Args[0]}
+	prg.ArgumentsErlangoCliStart.SettingStr["interpreterName"] = []string{os.Args[0]}
 
 	argumentNamesWithIntegerValues := []string{"--argWithIntValues"}
 
@@ -52,9 +52,9 @@ func prg_cli_argument_append_from_list(prg ProgramWideStateVariable, argumentEle
 			// set emtpy value set for the argument if the --argName pattern is detected
 			argumentNameLastDetected = arg
 			if slices.Contains(argumentNamesWithIntegerValues, argumentNameLastDetected) {
-				prg.ArgumentsErlangoCliStart.ArgInt[argumentNameLastDetected] = []int{}
+				prg.ArgumentsErlangoCliStart.SettingInt[argumentNameLastDetected] = []int{}
 			} else {
-				prg.ArgumentsErlangoCliStart.ArgStr[argumentNameLastDetected] = []string{}
+				prg.ArgumentsErlangoCliStart.SettingStr[argumentNameLastDetected] = []string{}
 			}
 			continue
 		}
@@ -62,12 +62,12 @@ func prg_cli_argument_append_from_list(prg ProgramWideStateVariable, argumentEle
 		if argumentNameLastDetected != "" {
 			if slices.Contains(argumentNamesWithIntegerValues, argumentNameLastDetected) {
 				intVal, _ := int_from_str(arg, true, funName)
-				prg.ArgumentsErlangoCliStart.ArgInt[argumentNameLastDetected] =
-					append(prg.ArgumentsErlangoCliStart.ArgInt[argumentNameLastDetected], intVal)
+				prg.ArgumentsErlangoCliStart.SettingInt[argumentNameLastDetected] =
+					append(prg.ArgumentsErlangoCliStart.SettingInt[argumentNameLastDetected], intVal)
 			} else {
 
-				prg.ArgumentsErlangoCliStart.ArgStr[argumentNameLastDetected] =
-					append(prg.ArgumentsErlangoCliStart.ArgStr[argumentNameLastDetected], arg)
+				prg.ArgumentsErlangoCliStart.SettingStr[argumentNameLastDetected] =
+					append(prg.ArgumentsErlangoCliStart.SettingStr[argumentNameLastDetected], arg)
 			}
 			continue
 		}
@@ -85,7 +85,7 @@ func prg_cli_argument_append_from_list(prg ProgramWideStateVariable, argumentEle
 func filenames_erlang_sources_collect_from_cli_params(prg ProgramWideStateVariable) []string {
 	filePathList := []string{}
 
-	filePathListInArgs, ok := prg.ArgumentsErlangoCliStart.ArgStr["--files"]
+	filePathListInArgs, ok := prg.ArgumentsErlangoCliStart.SettingStr["--files"]
 	if ok {
 		for _, filePathInArg := range(filePathListInArgs) {
 			filePathList = append(filePathList, filePathInArg)

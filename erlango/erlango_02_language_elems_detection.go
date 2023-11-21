@@ -26,7 +26,6 @@ Erlang term (data types):
 
 Erlang variables
 	Variables start with an uppercase letter or underscore (_). Variables can contain alphanumeric characters, underscore and @.
-
 	Variables starting with underscore (_), for example, _Height, are normal variables, not anonymous.
 
 	Special chars are NOT allowed:
@@ -49,6 +48,8 @@ Operators:
 		- 1.2
 		- #Name.Field
 		- . at the end of a function.
+
+
 
 Language elem detection steps:
 
@@ -100,3 +101,39 @@ dot, colon, semicolon:  https://stackoverflow.com/questions/1110601/in-erlang-wh
 
 
 */
+
+// in the code  I would like to use human/readable names, but with int values, because type checking
+// will be the most often used step in code execution
+func ErlangExpressionType(expressionName string) int {
+	expressionTypeTable := map[string]int{
+		"atom": 1,
+		"number" : 2,
+		"string" : 3,
+
+
+		// complex types, start them from 10
+		"list": 10,
+		"tuple": 11,
+		"map": 12,
+
+
+
+		// operators
+		"operatorArithmetic": 20,
+		"operatorTermComparison": 20,
+
+		"operatorList": 21,        //  generate: <- <=   [X*2 || X <- [1,2,3]].
+
+		"operatorDataStruct": 22,  // map: =>
+		"operatorLang":  23,       // block start: ->  (after fun, case, if)
+
+		// others
+		"parentheseGroup": 30,
+	}
+
+	return expressionTypeTable[expressionName]
+}
+
+type ErlangExpressionObj struct {
+	ExpressionType int
+}
