@@ -58,7 +58,7 @@ func step_01_tokens_from_source_code_of_files(
 func step_01_tokens_from_passed_source_codes_without_files(erlSrc string, sourcesTokensExecutables_all SourcesTokensExecutables_map) SourcesTokensExecutables_map {
 	// detect tokens from a passed string src, without file path
 	returnFromTokenDetection := make(chan SourceTokensExecutables)
-	step_01a_tokens_detect(erlSrc, "", returnFromTokenDetection, true)
+	go step_01a_tokens_detect(erlSrc, "", returnFromTokenDetection, true)
 	sourceTokensExecutables := <- returnFromTokenDetection
 	sourcesTokensExecutables_all[sourceTokensExecutables.WhereTheCodeIsStored] = sourceTokensExecutables
 	return sourcesTokensExecutables_all

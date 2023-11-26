@@ -112,31 +112,15 @@ const expression_operator = 30
 // blockStart operator ->  (after fun, case, if)
 
 
-type ErlExpressions map[int] ErlExpression
-
-type ErlExpression struct {
-	/*  This is the heart of the interpreter
-
-		An expression can represent a simple value, or it can have children
-	*/
-	Tokens ErlTokens
-
-	ExpressionType int // expression_atom, expression_num...
-	Children ErlExpressions  // lists, tuples, maps, functions have children
-}
-
-
 // file name passing is important, because maybe the expression detection
 // is running in an old elem, where once the expressions were detected,
 // and now it is re-detected, based on new tokens
-func step_02_expressions_from_tokens(sourcesTokensExecutables_all SourcesTokensExecutables_map, fileNamePathsWhereExpressionsWillBeDetected []string)  SourcesTokensExecutables_map {
-
-	// parallel expression from tokens
-	fmt.Println("filenames to detect expressions", fileNamePathsWhereExpressionsWillBeDetected)
+func step_02_expressions_from_tokens_from_lot_of_sources(sourcesTokensExecutables_all SourcesTokensExecutables_map, fileNamePathsWhereExpressionsWillBeDetected []string)  SourcesTokensExecutables_map {
+	fmt.Println("filenames or sourcePassedInString_notFromFile to detect expressions", fileNamePathsWhereExpressionsWillBeDetected)
 
 	returnFromExpressionDetection := make(chan SourceTokensExecutables)
 	for _, filePath := range(fileNamePathsWhereExpressionsWillBeDetected) {
-		go step_02a_expressions_detect(filePath, returnFromExpressionDetection, sourcesTokensExecutables_all[filePath])
+		go step_02a_expressions_detect_in_one_erlang_source(filePath, returnFromExpressionDetection, sourcesTokensExecutables_all[filePath])
 	}
 
 	// because of the parallel expression detection, it is simpler
@@ -166,17 +150,17 @@ func step_02_expressions_from_tokens(sourcesTokensExecutables_all SourcesTokensE
 	Numbers for example - different num representations:
 
 			- integers: https://www.erlang.org/doc/reference_manual/data_types.html
-				- 1234.
-				- 1_234_567_890.
-				- $A.
-				- 16#1f.
-				- 16#4865_316F_774F_6C64.
-				- 2e-3.
+				- 1234
+				- 1_234_567_890
+				- $A
+				- 16#1f
+				- 16#4865_316F_774F_6C64
+				- 2e-3
 
 			- floats:
-				- 2.3.
-				- 2.3e-3.
-				- 1_234.333_333.
+				- 2.3
+				- 2.3e-3
+				- 1_234.333_333
 
 
 	the integers/strings/atoms are maybe the friendly part of the story,
@@ -210,18 +194,54 @@ func step_02_expressions_from_tokens(sourcesTokensExecutables_all SourcesTokensE
 			- receive
 
 	Because this is the critical part of the whole parsing, I will use general rules to describe and find sections.
-
-
-
-
 */
 
-func step_02a_expressions_detect(filePath string, parentChannel chan SourceTokensExecutables, sourceTokensExecutables SourceTokensExecutables){
+func step_02a_expressions_detect_in_one_erlang_source(filePath string, parentChannel chan SourceTokensExecutables, sourceTokensExecutables SourceTokensExecutables){
 	fmt.Println("Expression detect in file:", filePath)
 
-	for _, tokenPosition := range(sourceTokensExecutables.Tokens.keysListOfPositions()) {
-		token := sourceTokensExecutables.Tokens[tokenPosition]
-		fmt.Println("token", token.charPosFirst(), token.TokenType, token.stringRepresentation())
-	}
+	tokensOrExpressions := tokens_copy_to_tokensOrExpressions(sourceTokensExecutables.Tokens)
+	fmt.Println("tokens OR expressions ", tokensOrExpressions)
+
+
 	parentChannel <- sourceTokensExecutables
 }
+
+
+func tokens_copy_to_tokensOrExpressions(tokens ErlTokens) TokensOrExpressions {
+	/* 	One tokenOrExpression can be both: a token Or an expression.
+		At the beginning, everything is a token - but as the expression detector works,
+		more and more elems will be removed, and replaced by expressions
+	*/
+	tokensOrExpressions	:= TokensOrExpressions{}
+	for _, tokenPosition := range(tokens.keysListOfPositions()) {
+		tokenNow := tokens[tokenPosition]
+		tokensOrExpressions = append(tokensOrExpressions, TokenOrExpression{token: tokenNow, elemType: "token"})
+	}
+	return tokensOrExpressions
+}
+
+type TokensOrExpressions []TokenOrExpression
+type TokenOrExpression struct {
+	// this is a Token OR an Expression storage.
+	// originally everything is a token - then slowly all of them will be replaced with Expressions
+	elemType string  // "token" or "expression"
+	token ErlToken
+	expression ErlExpression
+}
+
+type ErlExpressions map[int] ErlExpression
+type ErlExpression struct {
+	/*  This is the heart of the interpreter */
+
+	Level int
+	/* level 0: the root level of a file, the base namespace.
+		every function is the part of this, as sub-expressions.
+	*/
+
+	Tokens ErlTokens
+
+	ExpressionType int // expression_atom, expression_num...
+	Children ErlExpressions  // lists, tuples, maps, functions have children
+}
+
+

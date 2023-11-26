@@ -288,7 +288,7 @@ type SourceTokensExecutables struct {
 	CharsFromErlFile     Chars
 	Tokens               ErlTokens  // this section is filled by token detection part (step_01_tokens_from_source_code_of_files)
 
-	Expressions ErlExpressions // this section is filled by expression detection (step_02_expressions_from_tokens)
+	Expressions ErlExpressions // this section is filled by expression detection (step_02_expressions_from_tokens_from_lot_of_sources)
 	Errors errorsDetected
 	ErlangSourceWithoutFilePath bool // if this is true, the source was not coming from a file
 }
