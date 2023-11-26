@@ -22,6 +22,22 @@ type ErlTokens map[int] ErlToken 	// list AND map, same time. the token's first 
 									// and in the tests it is easy to check (if it is not a map in tests it is difficult
 									// to check the result. if it is a map, the token positions can be checked directly
 
+
+
+func (tokens ErlTokens) keysListOfPositions() []int {
+	// thank you and respect for the faster implementation than append:
+	// https://stackoverflow.com/questions/21362950/getting-a-slice-of-keys-from-a-map
+	positionKeys := make([]int, len(tokens))
+	i := 0
+	for k := range tokens {
+		positionKeys[i] = k
+		i++
+	}
+	sort.Ints(positionKeys)
+	return positionKeys
+}
+
+
 // ############# PARSER ELEMS #############################
 // use minimal set of types. Don't overcomplicate the parser.
 type ErlToken struct {
@@ -37,6 +53,7 @@ type ErlToken struct {
 	// one char can have a meaning alone, for example: (
 	// but sometime more than one few char can form a token, for example: '->' which has his own meaning, but represented by 2 chars
 	SourceCodeChars Chars
+	TokenIsDetectedAsPartOfExpression bool
 }
 
 func (token ErlToken) typeIsEmpty() bool {

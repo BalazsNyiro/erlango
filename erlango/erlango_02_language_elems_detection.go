@@ -153,8 +153,75 @@ func step_02_expressions_from_tokens(sourcesTokensExecutables_all SourcesTokensE
 	return sourcesTokensExecutables_all // it can have errors, too!
 }
 
-func step_02a_expressions_detect(filePath string, parentChannel chan SourceTokensExecutables, sourceTokensExecutables SourceTokensExecutables){
-	fmt.Println("Executable from file:", filePath)
 
+/* 	Hi anybody who reads this: expression detection was my most fearful part of the interpreter :-)
+
+	an expression can be formed by one token (an atom or a string for example),
+	or by more tokens. The first token position will be used as the expression start position,
+	and as a general ID in the file for the expression
+
+	Why is it tricky?
+
+	because same things can be represented more way.
+	Numbers for example - different num representations:
+
+			- integers: https://www.erlang.org/doc/reference_manual/data_types.html
+				- 1234.
+				- 1_234_567_890.
+				- $A.
+				- 16#1f.
+				- 16#4865_316F_774F_6C64.
+				- 2e-3.
+
+			- floats:
+				- 2.3.
+				- 2.3e-3.
+				- 1_234.333_333.
+
+
+	the integers/strings/atoms are maybe the friendly part of the story,
+	but lists, tuples can be recursive structures, so a list can have tuples which has lists....
+	but the recursive structures has to be finished once.
+
+	First I will focus on recursive structures: lists, tuples, maps
+	(functions can be recursive structures, too :-) because funs can have embedded funs, too
+
+	if a block of tokens are detected as the part of a recursive structure,
+	the tokens are taken and the expression detection are executed in there again.
+
+	with this solution the expressions can be embedded into each other,
+	and the calling structure will be represented by the newly created
+	embedded expression structure.
+
+	Second big problem: because we are in Golang, and expressions are self-recursive structures,
+	I can use one data type to represent every expression.
+
+	// And at the beginning, God created the expressions... :-)
+
+	recursive expressions:
+		- tuple {...}
+		- list  [...]
+		- map  #{...}
+        - parentheses (...)  # a parenthese's content needed to be evaulated as a term at the end
+
+		- block elems:
+			- function
+			- condition (if, case)
+			- receive
+
+	Because this is the critical part of the whole parsing, I will use general rules to describe and find sections.
+	
+
+
+
+*/
+
+func step_02a_expressions_detect(filePath string, parentChannel chan SourceTokensExecutables, sourceTokensExecutables SourceTokensExecutables){
+	fmt.Println("Expression detect in file:", filePath)
+
+	for _, tokenPosition := range(sourceTokensExecutables.Tokens.keysListOfPositions()) {
+		token := sourceTokensExecutables.Tokens[tokenPosition]
+		fmt.Println("token", token.charPosFirst(), token.TokenType, token.stringRepresentation())
+	}
 	parentChannel <- sourceTokensExecutables
 }

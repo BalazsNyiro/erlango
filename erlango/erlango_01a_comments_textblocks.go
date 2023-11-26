@@ -42,7 +42,9 @@ func token_detect_comments_textblocks_alphanums(chars Chars, tokens ErlTokens, v
 
 	fmt.Println("token detest comments, quoted text blocks")
 
-	tokenActual := ErlToken{}
+	tokenActualId := 0
+	tokenActual := token_empty_obj("", tokenActualId)
+
 	commentLineCloser := "\n"
 
 	for charPos := 0; charPos < len(chars); charPos += 1 {
