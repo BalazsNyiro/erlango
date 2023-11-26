@@ -12,8 +12,7 @@ Version 0.2, second rewrite
 
 package erlango
 
-
-
+import "fmt"
 
 /*
 
@@ -21,7 +20,7 @@ package erlango
 
 https://www.erlang.org/doc/reference_manual/expressions.html
 
-Erlang term (data types):
+Erlang term (simple data types):
 	- an integer, float, atom, string, list, map, or tuple.
 
 Erlang variables
@@ -34,11 +33,9 @@ Erlang variables
 	* 1:4: illegal character
 
 Operators:
-	whitespaces are not important in operator detection:
+	whitespaces are not important in operator detection (+ is addition, - is unary operator):
 	1> A = 2+-1.
 	1
-
-
 
 
 == TOKENS ==
@@ -50,8 +47,7 @@ Operators:
 		- . at the end of a function.
 
 
-
-Language elem detection steps:
+== Language elem detection steps: ==
 
  - detect simple terms:
     - integers: https://www.erlang.org/doc/reference_manual/data_types.html
@@ -71,15 +67,14 @@ Language elem detection steps:
 	- atom
 
 	- string
-
- - detect more complex elems
-
 	- bit-string https://www.erlang.org/doc/man/binary.html
-	-
 
+ - detect complex terms: list, map, tuple
 
- - detect complex terms: list, map, tuple,
-
+ - detect complex structures (language elems):
+	- functions
+	- conditions
+	- exceptions
 
 
 
@@ -96,8 +91,6 @@ dot, colon, semicolon:  https://stackoverflow.com/questions/1110601/in-erlang-wh
 == NUMBERS ==
 1> 1_000 * 3.
 3000
-
-
 
 
 */
@@ -119,9 +112,28 @@ const expression_operator = 30
 // blockStart operator ->  (after fun, case, if)
 
 
+type ErlExpressions map[int] ErlExpression
+
+type ErlExpression struct {
+	/*  This is the heart of the interpreter
+
+		An expression can represent a simple value, or it can have children
+	*/
+	Tokens ErlTokens
+
+	ExpressionType int // expression_atom, expression_num...
+	Children ErlExpressions  // lists, tuples, maps, functions have children
+}
 
 
+// file name passing is important, because maybe the expression detection
+// is running in an old elem, where once the expressions were detected,
+// and now it is re-detected, based on new tokens
+func step_02_executables_from_tokens(sourcesTokensExecutables_all SourcesTokensExecutables_map, fileNamePathsWhereExpressionsWillBeDetected []string) {
 
-type ErlangExpressionObj struct {
-	ExpressionType int
+	// parallel expression from tokens
+	fmt.Println("filenames to detect expressions", fileNamePathsWhereExpressionsWillBeDetected)
+
+	// returnFromExpressionDetection := make(chan SourceTokensExecutables)
+
 }

@@ -29,6 +29,7 @@ import (
 )
 
 
+// sourcesTokensExecutables_all can be empty, or it can have existing elements - and maybe only newer ones are added.
 func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all SourcesTokensExecutables_map, fileNamePaths []string, verboseForErlangoInvestigations__useFalseInProdEnv bool) SourcesTokensExecutables_map {
 	// parallel token detection from erl sources
 	fmt.Println("filenames to detect tokens", fileNamePaths)
@@ -39,10 +40,12 @@ func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all Sourc
 		go step_01a_tokens_detect_in_file(fileName, returnFromTokenDetection, verboseForErlangoInvestigations__useFalseInProdEnv)
 	}
 
-	for len(sourcesTokensExecutables_all) < len(fileNamePaths) {
+	numOfReceivedReply := 0
+	for numOfReceivedReply < len(fileNamePaths) {
 		sourceTokensExecutables := <- returnFromTokenDetection
 		// fmt.Println("Token detection returned structure:", sourceTokensExecutables)
 		sourcesTokensExecutables_all[sourceTokensExecutables.PathErlFile] = sourceTokensExecutables
+		numOfReceivedReply += 1
 	}
 
 	return sourcesTokensExecutables_all // it can have errors, too!

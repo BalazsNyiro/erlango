@@ -16,6 +16,7 @@ import (
 	"sort"
 )
 
+
 type ErlTokens map[int] ErlToken 	// list AND map, same time. the token's first char position is the key,
 									// so later it is easy to add new token, and by nature it is a list, too
 									// and in the tests it is easy to check (if it is not a map in tests it is difficult
@@ -268,7 +269,7 @@ type SourceTokensExecutables struct {
 	CharsFromErlFile     Chars
 	Tokens               ErlTokens
 
-	ExecutableFromTokens string // FIXME: This is a pile of executable objects, not a string
+	Expressions ErlExpressions
 	Errors errorsDetected
 }
 

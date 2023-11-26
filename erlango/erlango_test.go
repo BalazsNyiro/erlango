@@ -21,6 +21,26 @@ type tokenWanted struct {
 }
 type tokensWanted []tokenWanted
 
+
+// go test -run Test_expression_detection
+// expressions are in focus here:
+func Test_expression_detection(t *testing.T) {
+	prg := new_program_state(true)
+	prg = cli_argument_detect(prg)  // all arguments are parsed, placed in prg
+
+	fileNameBasic :=  "test/parse/erlang_whitespaces_separators_basic_types.erl"
+	prg = prg_cli_argument_append_from_list(prg, []string{"--files", fileNameBasic},  []string{})
+
+	fileNamesOfErlangSources := filenames_erlang_sources_collect_from_cli_params(prg)
+
+	// sourcesTokensExecutables_all can be empty (like here), or it can have existing elements - in a running system new src can be loaded, next to the existing ones
+	sourcesTokensExecutables_all := SourcesTokensExecutables_map{}
+	sourcesTokensExecutables_all = step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all, fileNamesOfErlangSources, true)
+
+	step_02_executables_from_tokens(sourcesTokensExecutables_all, fileNamesOfErlangSources)
+}
+
+// tokens are in focus here:
 func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 
 	prg := new_program_state(true)
@@ -29,8 +49,6 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 	fileNameBasic :=  "test/parse/erlang_whitespaces_separators_basic_types.erl"
 	fileNameGarden := "test/parse/erlang_language_garden.erl"
 	prg = prg_cli_argument_append_from_list(prg, []string{"--files", fileNameBasic, fileNameGarden},  []string{})
-	// Erlang_program_exec(prg)
-
 
 	fileNamesOfErlangSources := filenames_erlang_sources_collect_from_cli_params(prg)
 	sourcesTokensExecutables_all := SourcesTokensExecutables_map{}
