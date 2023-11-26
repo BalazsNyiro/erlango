@@ -37,7 +37,7 @@ func Test_expression_detection(t *testing.T) {
 	sourcesTokensExecutables_all := SourcesTokensExecutables_map{}
 	sourcesTokensExecutables_all = step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all, fileNamesOfErlangSources, true)
 
-	step_02_executables_from_tokens(sourcesTokensExecutables_all, fileNamesOfErlangSources)
+	step_02_expressions_from_tokens(sourcesTokensExecutables_all, fileNamesOfErlangSources)
 }
 
 // tokens are in focus here:

@@ -267,9 +267,9 @@ type SourceTokensExecutables struct {
 
 	PathErlFile          string
 	CharsFromErlFile     Chars
-	Tokens               ErlTokens
+	Tokens               ErlTokens  // this section is filled by token detection part (step_01_tokens_from_source_code_of_files)
 
-	Expressions ErlExpressions
+	Expressions ErlExpressions // this section is filled by expression detection (step_02_expressions_from_tokens)
 	Errors errorsDetected
 }
 

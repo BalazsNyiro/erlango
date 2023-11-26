@@ -129,11 +129,32 @@ type ErlExpression struct {
 // file name passing is important, because maybe the expression detection
 // is running in an old elem, where once the expressions were detected,
 // and now it is re-detected, based on new tokens
-func step_02_executables_from_tokens(sourcesTokensExecutables_all SourcesTokensExecutables_map, fileNamePathsWhereExpressionsWillBeDetected []string) {
+func step_02_expressions_from_tokens(sourcesTokensExecutables_all SourcesTokensExecutables_map, fileNamePathsWhereExpressionsWillBeDetected []string)  SourcesTokensExecutables_map {
 
 	// parallel expression from tokens
 	fmt.Println("filenames to detect expressions", fileNamePathsWhereExpressionsWillBeDetected)
 
-	// returnFromExpressionDetection := make(chan SourceTokensExecutables)
+	returnFromExpressionDetection := make(chan SourceTokensExecutables)
+	for _, filePath := range(fileNamePathsWhereExpressionsWillBeDetected) {
+		go step_02a_expressions_detect(filePath, returnFromExpressionDetection, sourcesTokensExecutables_all[filePath])
+	}
 
+	// because of the parallel expression detection, it is simpler
+	// if the whole sourceTokensExecutables structure is updated, and I don't use any pointer,
+	// anywhere - that is a risk.
+	// in prod env there are 30-40 or more cores, the parsing cannot be a problem.
+	numOfReceivedReply := 0
+	for numOfReceivedReply < len(fileNamePathsWhereExpressionsWillBeDetected) {
+		sourceTokensExecutables := <- returnFromExpressionDetection
+		sourcesTokensExecutables_all[sourceTokensExecutables.PathErlFile] = sourceTokensExecutables
+		numOfReceivedReply += 1
+	}
+
+	return sourcesTokensExecutables_all // it can have errors, too!
+}
+
+func step_02a_expressions_detect(filePath string, parentChannel chan SourceTokensExecutables, sourceTokensExecutables SourceTokensExecutables){
+	fmt.Println("Executable from file:", filePath)
+
+	parentChannel <- sourceTokensExecutables
 }
