@@ -215,8 +215,10 @@ func (chars Chars) print_with_tokens(tokens ErlTokens) {
 
 type Char struct {
 	PositionInFile  int // Nth char in the whole file
-	Value      rune
-	FilePath string
+	Value                rune
+
+	WhereTheCharIsStored string
+	ErlangSourceWithoutFilePath bool
 
 	TokenDetected bool
 	TokenId int
@@ -282,12 +284,13 @@ type SourceTokensExecutables struct {
 							// in your erl files, you can set it:
 							// % ERLANGO_MODULE_VERSION your_version_definition
 
-	PathErlFile          string
+	WhereTheCodeIsStored string
 	CharsFromErlFile     Chars
 	Tokens               ErlTokens  // this section is filled by token detection part (step_01_tokens_from_source_code_of_files)
 
 	Expressions ErlExpressions // this section is filled by expression detection (step_02_expressions_from_tokens)
 	Errors errorsDetected
+	ErlangSourceWithoutFilePath bool // if this is true, the source was not coming from a file
 }
 
 type SourcesTokensExecutables_map map[string]SourceTokensExecutables
@@ -296,7 +299,7 @@ func (sourceTokensExecutables SourceTokensExecutables) tokens_print()  {
 	// mode: testCasePrint
 	// mode: humanReading
 
-	print("=== Tokens in a file: ", sourceTokensExecutables.PathErlFile, "===\n")
+	print("=== Tokens in a file: ", sourceTokensExecutables.WhereTheCodeIsStored, "===\n")
 
 	// TODO: use a generic here
 	keys := make([]int, 0, len(sourceTokensExecutables.Tokens))

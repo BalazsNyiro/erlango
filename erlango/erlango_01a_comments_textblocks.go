@@ -172,7 +172,7 @@ func token_detect_comments_textblocks_alphanums(chars Chars, tokens ErlTokens, v
 		} else {
 			// if we are NOT in a block, that is a problem, a non-recognised character
 			errMsg := errorDetected{
-				filePath: chars[charPos].FilePath,
+				filePath: chars[charPos].WhereTheCharIsStored,
 				lineNum: chars[charPos].LineNum,
 				charPosInLine: chars[charPos].PositionInLine,
 				charPosInFile: chars[charPos].PositionInFile,

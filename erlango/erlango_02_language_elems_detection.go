@@ -146,7 +146,7 @@ func step_02_expressions_from_tokens(sourcesTokensExecutables_all SourcesTokensE
 	numOfReceivedReply := 0
 	for numOfReceivedReply < len(fileNamePathsWhereExpressionsWillBeDetected) {
 		sourceTokensExecutables := <- returnFromExpressionDetection
-		sourcesTokensExecutables_all[sourceTokensExecutables.PathErlFile] = sourceTokensExecutables
+		sourcesTokensExecutables_all[sourceTokensExecutables.WhereTheCodeIsStored] = sourceTokensExecutables
 		numOfReceivedReply += 1
 	}
 

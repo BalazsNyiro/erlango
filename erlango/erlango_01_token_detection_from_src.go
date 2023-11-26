@@ -30,34 +30,68 @@ import (
 
 
 // sourcesTokensExecutables_all can be empty, or it can have existing elements - and maybe only newer ones are added.
-func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all SourcesTokensExecutables_map, fileNamePaths []string, verboseForErlangoInvestigations__useFalseInProdEnv bool) SourcesTokensExecutables_map {
+func step_01_tokens_from_source_code_of_files(
+		sourcesTokensExecutables_all SourcesTokensExecutables_map,
+		fileNamePaths []string,
+		verboseForErlangoInvestigations__useFalseInProdEnv bool) SourcesTokensExecutables_map {
+
 	// parallel token detection from erl sources
 	fmt.Println("filenames to detect tokens", fileNamePaths)
 
 	returnFromTokenDetection := make(chan SourceTokensExecutables)
 
 	for _, fileName := range(fileNamePaths) {
-		go step_01a_tokens_detect_in_file(fileName, returnFromTokenDetection, verboseForErlangoInvestigations__useFalseInProdEnv)
+		go step_01a_tokens_detect("", fileName, returnFromTokenDetection, verboseForErlangoInvestigations__useFalseInProdEnv)
 	}
 
 	numOfReceivedReply := 0
 	for numOfReceivedReply < len(fileNamePaths) {
 		sourceTokensExecutables := <- returnFromTokenDetection
 		// fmt.Println("Token detection returned structure:", sourceTokensExecutables)
-		sourcesTokensExecutables_all[sourceTokensExecutables.PathErlFile] = sourceTokensExecutables
+		sourcesTokensExecutables_all[sourceTokensExecutables.WhereTheCodeIsStored] = sourceTokensExecutables
 		numOfReceivedReply += 1
 	}
 
 	return sourcesTokensExecutables_all // it can have errors, too!
 }
 
-func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTokensExecutables, verboseForErlangoInvestigations__useFalseInProdEnv bool) {
-	fmt.Println("Tokens from file:", filePath)
-	funName := "step_01a_tokens_detect_in_file"
+func step_01_tokens_from_passed_source_codes_without_files(erlSrc string, sourcesTokensExecutables_all SourcesTokensExecutables_map) SourcesTokensExecutables_map {
+	// detect tokens from a passed string src, without file path
+	returnFromTokenDetection := make(chan SourceTokensExecutables)
+	step_01a_tokens_detect(erlSrc, "", returnFromTokenDetection, true)
+	sourceTokensExecutables := <- returnFromTokenDetection
+	sourcesTokensExecutables_all[sourceTokensExecutables.WhereTheCodeIsStored] = sourceTokensExecutables
+	return sourcesTokensExecutables_all
+}
+
+func step_01a_tokens_detect(erlangSource string, filePath string, parentChannel chan SourceTokensExecutables, verboseForErlangoInvestigations__useFalseInProdEnv bool) {
+	/*
+		if erlangSource is empty, source is read from filePath
+	*/
+	fmt.Println("Tokens detect filePath:", filePath, "passedErlangSourceLength:", len(erlangSource))
+	funName := "step_01a_tokens_detect"
 
 	newLineSeparator := '\n'
 
-	runes, errFileReadingRunes := file_read_runes(filePath, funName)
+	whereCodeIsStored := filePath
+	runes := []rune(erlangSource)
+	var errFileReadingRunes error = nil
+	erlangSourceWithoutFilePath :=  erlangSource != ""
+
+	if erlangSourceWithoutFilePath {
+		// if erlangSource is passed without a filename, the passed source code can be used as ID of himself.
+		// the tokens and expressions are bind to a file where they can be found, but in this situation
+		// the tokens can be connected to the passed nameless source code
+		// filePath has to be unique, because source code blocks are stored based on their source
+
+		// why is it a correct theory? Tokens -> and later Expressions are skeletons only.
+		// when the code is executed with different inputs, the skeleton will be filled with variables and inputs,
+		// so the executed code has the same logic - so same source code will be represented with same
+		// expression structure.
+		whereCodeIsStored = erlangSource
+	} else {
+		runes, errFileReadingRunes = file_read_runes(filePath, funName)
+	}
 
 	tokensDetected := ErlTokens{}
 	charsFromErlFile := Chars{}
@@ -71,7 +105,13 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 
 		for posInFile, runeInFile := range(runes) {
 			fmt.Println(posInFile, "rune in file:", string(runeInFile), runeInFile)
-			charNow := Char{PositionInFile: posInFile, Value: runeInFile, FilePath: filePath, LineNum: lineNum, PositionInLine: positionInLine}
+			charNow := Char{	PositionInFile:       posInFile,
+								Value:                runeInFile,
+								WhereTheCharIsStored: whereCodeIsStored,
+								LineNum:              lineNum,
+								PositionInLine:       positionInLine,
+								ErlangSourceWithoutFilePath: erlangSourceWithoutFilePath,
+			}
 			charsFromErlFile = append(charsFromErlFile, charNow)
 
 			positionInLine += 1
@@ -90,11 +130,12 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 	}
 
 	sourceTokensExecutables := SourceTokensExecutables{
-		PathErlFile: filePath,
-		ModuleVersion: "not-detected-version",
-		CharsFromErlFile: charsFromErlFile,
-		Tokens: tokensDetected,
-		Errors: errors,
+		WhereTheCodeIsStored:        whereCodeIsStored,
+		ModuleVersion:               "not-detected-version",
+		CharsFromErlFile:            charsFromErlFile,
+		Tokens:                      tokensDetected,
+		Errors:                      errors,
+		ErlangSourceWithoutFilePath: erlangSourceWithoutFilePath,
 	}
 
 	parentChannel <- sourceTokensExecutables

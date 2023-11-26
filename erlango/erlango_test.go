@@ -38,7 +38,7 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 
 	fmt.Println("TEST, tokens check answer length:", len(sourcesTokensExecutables_all))
 	for _, sourceTokensExecutables_answer := range(sourcesTokensExecutables_all) {
-		fmt.Println("=== TEST, tokens check in: ===", sourceTokensExecutables_answer.PathErlFile)
+		fmt.Println("=== TEST, tokens check in: ===", sourceTokensExecutables_answer.WhereTheCodeIsStored)
 	}
 
 	sourceTokensExecutables__whitespacesSeparatorsBasicFile := sourcesTokensExecutables_all["test/parse/erlang_whitespaces_separators_basic_types.erl"]
