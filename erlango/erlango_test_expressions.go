@@ -26,11 +26,11 @@ func Test_expression_detection_simple_1(t *testing.T) {
 	*/
 	erlSrc := "A = [1, 2, 3].\n"
 
-	sourcesTokensExecutables_all := Experssion_detection_for_tests(erlSrc)
-	fmt.Println("TODO: test expressions from string", sourcesTokensExecutables_all)
+	expressions := Expression_detection_for_tests(erlSrc)
+	fmt.Println("TODO: test expressions from string", expressions)
 }
 
-func Experssion_detection_for_tests(erlSrc string) SourcesTokensExecutables_map {
+func Expression_detection_for_tests(erlSrc string) ErlExpressions{
 
 	// sourcesTokensExecutables_all can be empty (like here), or it can have existing elements - in a running system new src can be loaded, next to the existing ones
 	sourcesTokensExecutables_all := SourcesTokensExecutables_map{}
@@ -40,6 +40,6 @@ func Experssion_detection_for_tests(erlSrc string) SourcesTokensExecutables_map 
 	fileNamesOfErlangSources := []string{erlSrc} // if a source code doesn't have source file, the identifier is himself
 	step_02_expressions_from_tokens(sourcesTokensExecutables_all, fileNamesOfErlangSources)
 
-	return sourcesTokensExecutables_all
+	return sourcesTokensExecutables_all[erlSrc].Expressions
 }
 
