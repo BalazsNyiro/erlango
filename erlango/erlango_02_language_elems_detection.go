@@ -186,7 +186,7 @@ func step_02_expressions_from_tokens(sourcesTokensExecutables_all SourcesTokensE
 	First I will focus on recursive structures: lists, tuples, maps
 	(functions can be recursive structures, too :-) because funs can have embedded funs, too
 
-	if a block of tokens are detected as the part of a recursive structure,
+	if a block of tokens is detected as the part of a recursive structure,
 	the tokens are taken and the expression detection are executed in there again.
 
 	with this solution the expressions can be embedded into each other,
@@ -198,11 +198,11 @@ func step_02_expressions_from_tokens(sourcesTokensExecutables_all SourcesTokensE
 
 	// And at the beginning, God created the expressions... :-)
 
-	recursive expressions:
+	recursive expressions
 		- tuple {...}
 		- list  [...]
 		- map  #{...}
-        - parentheses (...)  # a parenthese's content needed to be evaulated as a term at the end
+        - parentheses (...)  # a parentheses content needed to be evaluated as a term at the end
 
 		- block elems:
 			- function
@@ -210,7 +210,7 @@ func step_02_expressions_from_tokens(sourcesTokensExecutables_all SourcesTokensE
 			- receive
 
 	Because this is the critical part of the whole parsing, I will use general rules to describe and find sections.
-	
+
 
 
 
