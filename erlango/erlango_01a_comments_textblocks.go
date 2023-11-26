@@ -17,7 +17,7 @@ import (
 	"strings"
 )
 
-func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, ErlTokens, errorsDetected){
+func token_detect_comments_textblocks_alphanums(chars Chars, tokens ErlTokens, verboseForErlangoInvestigations__useFalseInProdEnv bool) ([]Char, ErlTokens, errorsDetected){
 	// the "wrapper" quotes around the string values or 'atoms' are the part of the tokens,
 	// they are necessary to define a text block (single or double qoted texts)
 	// but not part of the value of the token
@@ -182,6 +182,15 @@ func token_detect_comments_textblocks(chars Chars, tokens ErlTokens) ([]Char, Er
 
 		if saveCompleteDetectedToken {
 			if tokenActual.TokenType != "tokenWhiteSpace" && tokenActual.TokenType != "tokenComment" {
+
+				if verboseForErlangoInvestigations__useFalseInProdEnv {
+					// the string representation can be asked with a function,
+					// so this saving is support the Erlango debugging only,
+					// when in a debugger it is easier to follow the saved value.
+					// in production this is not necessary
+					tokenActual.DebugStringRepresentation = tokenActual.stringRepresentation()
+				}
+
 				// save tokenActual into tokens - skip comments and whitespace tokens
 				tokens[tokenActual.charPosFirst()] = tokenActual
 			}

@@ -23,7 +23,7 @@ type tokensWanted []tokenWanted
 
 func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 
-	prg := new_program_state()
+	prg := new_program_state(true)
 	prg = cli_argument_detect(prg)  // all arguments are parsed, placed in prg
 
 	fileNameBasic :=  "test/parse/erlang_whitespaces_separators_basic_types.erl"
@@ -34,7 +34,7 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 
 	fileNamesOfErlangSources := filenames_erlang_sources_collect_from_cli_params(prg)
 	sourcesTokensExecutables_all := SourcesTokensExecutables_map{}
-	sourcesTokensExecutables_all = step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all, fileNamesOfErlangSources)
+	sourcesTokensExecutables_all = step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all, fileNamesOfErlangSources, true)
 
 	fmt.Println("TEST, tokens check answer length:", len(sourcesTokensExecutables_all))
 	for _, sourceTokensExecutables_answer := range(sourcesTokensExecutables_all) {

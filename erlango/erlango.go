@@ -19,7 +19,7 @@ import "fmt"
 func Erlang_program_exec(prg ProgramWideStateVariable) {
 
 	sourcesTokensExecutables_list := SourcesTokensExecutables_map{}
-	// step_01_tokens_from_source_code_of_files()
+	// step_01_tokens_from_source_code_of_files(false, prg["verboseForErlangoInvestigations__useFalseInProdEnv"])
 	print("FIXME: check and display possible ERRORS after token detection")
 	// step_02_executables_from_tokens()
 	// step_03_exec_main()
@@ -30,7 +30,7 @@ func Erlang_program_exec(prg ProgramWideStateVariable) {
 
 
 func main() {
-	prg := new_program_state()
+	prg := new_program_state(false)
 	prg = cli_argument_detect(prg)  // all arguments are parsed, placed in prg
 	Erlang_program_exec(prg)
 }

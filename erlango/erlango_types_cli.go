@@ -29,12 +29,13 @@ type ProgramWideStateVariable struct {
 	ArgumentsErlangoCliStart SettingsTable
 }
 
-func new_program_state() ProgramWideStateVariable {
+// const debbuggerVerboseMode = true
+func new_program_state(verboseForErlangoInvestigations__useFalseInProdEnv bool) ProgramWideStateVariable {
 	return ProgramWideStateVariable {
 			SettingsTable{
 				SettingStr:  map[string][]string{},
 				SettingInt:  map[string][]int{},
-				SettingBool: map[string]bool{},
+				SettingBool: map[string]bool{"verboseForErlangoInvestigations__useFalseInProdEnv": verboseForErlangoInvestigations__useFalseInProdEnv},
 			},
 	}
 }

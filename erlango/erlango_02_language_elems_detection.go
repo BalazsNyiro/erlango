@@ -102,37 +102,25 @@ dot, colon, semicolon:  https://stackoverflow.com/questions/1110601/in-erlang-wh
 
 */
 
-// in the code  I would like to use human/readable names, but with int values, because type checking
-// will be the most often used step in code execution
-func ErlangExpressionType(expressionName string) int {
-	expressionTypeTable := map[string]int{
-		"atom": 1,
-		"number" : 2,
-		"string" : 3,
+/* simple types: 1-10, complex types: 10+ */
+const expression_atom = 1
+const expression_num = 2
+const expression_stringDoubleQuoted = 3
+
+const expression_list = 10
+const expression_tuple = 11
+const expression_map = 12
+
+const expression_parentheseRoundedGroup = 20
+
+const expression_operator = 30
+// list operator: <- <=      [X*2 || X <- [1,2,3]].
+// map operators: =>
+// blockStart operator ->  (after fun, case, if)
 
 
-		// complex types, start them from 10
-		"list": 10,
-		"tuple": 11,
-		"map": 12,
 
 
-
-		// operators
-		"operatorArithmetic": 20,
-		"operatorTermComparison": 20,
-
-		"operatorList": 21,        //  generate: <- <=   [X*2 || X <- [1,2,3]].
-
-		"operatorDataStruct": 22,  // map: =>
-		"operatorLang":  23,       // block start: ->  (after fun, case, if)
-
-		// others
-		"parentheseGroup": 30,
-	}
-
-	return expressionTypeTable[expressionName]
-}
 
 type ErlangExpressionObj struct {
 	ExpressionType int

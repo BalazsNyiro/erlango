@@ -29,14 +29,14 @@ import (
 )
 
 
-func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all SourcesTokensExecutables_map, fileNamePaths []string) SourcesTokensExecutables_map {
+func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all SourcesTokensExecutables_map, fileNamePaths []string, verboseForErlangoInvestigations__useFalseInProdEnv bool) SourcesTokensExecutables_map {
 	// parallel token detection from erl sources
 	fmt.Println("filenames to detect tokens", fileNamePaths)
 
 	returnFromTokenDetection := make(chan SourceTokensExecutables)
 
 	for _, fileName := range(fileNamePaths) {
-		go step_01a_tokens_detect_in_file(fileName, returnFromTokenDetection)
+		go step_01a_tokens_detect_in_file(fileName, returnFromTokenDetection, verboseForErlangoInvestigations__useFalseInProdEnv)
 	}
 
 	for len(sourcesTokensExecutables_all) < len(fileNamePaths) {
@@ -48,7 +48,7 @@ func step_01_tokens_from_source_code_of_files(sourcesTokensExecutables_all Sourc
 	return sourcesTokensExecutables_all // it can have errors, too!
 }
 
-func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTokensExecutables) {
+func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTokensExecutables, verboseForErlangoInvestigations__useFalseInProdEnv bool) {
 	fmt.Println("Tokens from file:", filePath)
 	funName := "step_01a_tokens_detect_in_file"
 
@@ -80,7 +80,7 @@ func step_01a_tokens_detect_in_file(filePath string, parentChannel chan SourceTo
 		}
 
 		// ##### step B: Tokens detect ########################
-		charsFromErlFile, tokensDetected, errors = token_detect_comments_textblocks(charsFromErlFile, tokensDetected)
+		charsFromErlFile, tokensDetected, errors = token_detect_comments_textblocks_alphanums(charsFromErlFile, tokensDetected, verboseForErlangoInvestigations__useFalseInProdEnv)
 
 	} else {
 		// FIXME: what to do if file_read_runes has a problem?

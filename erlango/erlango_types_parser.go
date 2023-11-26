@@ -28,33 +28,10 @@ type ErlToken struct {
 	// don't create a pointer to the prev/next Token.
 	// it is a dangerous error source. Use only a positionId in a collector of ErlTokens
 
-	/* Possible token types:
-	 - notDetectedFromCharacters
-	 - atom
-	 - string
-	 - binaryDoubleOpener      <<
-	 - binaryDoubleCloser      >>
-	 - operatorMathPlusPlus    ++
-	 - operatorMathMinusMinus  --
-	 - operatorBoolEqualDouble ==
-	 - operatorBoolBigger      >
-	 - operatorBoolSmaller     <
-	 - codeBlockStart         ->
-
-	a few sign can have different meanings in different places:
-	a comma can be expression separator, or parameter separator - so it's later decided how is it handled
-	 - langComma ,
-	 - langDot   .
-	 - langColon :
-	 - langBraceRoundOpen   (
-	 - langBraceRoundClose  )
-	 - langBraceSquaredOpen [
-	 - langBraceSqaredClose ]
-	 - langVariableBound    =
-
-	*/
 	TokenType  string
 	TokenId int
+
+	DebugStringRepresentation string // the string representation can be asked with a function, but in the debugger it is easier if it is stored in an attribute
 
 	// one char can have a meaning alone, for example: (
 	// but sometime more than one few char can form a token, for example: '->' which has his own meaning, but represented by 2 chars
