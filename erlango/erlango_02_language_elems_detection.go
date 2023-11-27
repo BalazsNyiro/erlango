@@ -202,22 +202,28 @@ func step_02a_expressions_detect_in_one_erlang_source(filePath string, parentCha
 	tokensOrExpressions := tokens_copy_to_tokensOrExpressions(sourceTokensExecutables.Tokens)
 	fmt.Println("tokens OR expressions ", tokensOrExpressions)
 
+	tokensOrExpressions = expression_detect_from_tokens(tokensOrExpressions, 0)
+
 
 	parentChannel <- sourceTokensExecutables
 }
 
+func expression_detect_from_tokens(tokensOrExpressionsOld TokensOrExpressions, expressionCallstackLevel int) TokensOrExpressions {
+	// we have list of tokens.
+	// select a group of tokens, replace them with an expression,
+	// and the selected tokens are inserted INTO the expression.
+	// from a flat structure an embedded expression structure will be created
 
-func tokens_copy_to_tokensOrExpressions(tokens ErlTokens) TokensOrExpressions {
-	/* 	One tokenOrExpression can be both: a token Or an expression.
-		At the beginning, everything is a token - but as the expression detector works,
-		more and more elems will be removed, and replaced by expressions
-	*/
-	tokensOrExpressions	:= TokensOrExpressions{}
-	for _, tokenPosition := range(tokens.keysListOfPositions()) {
-		tokenNow := tokens[tokenPosition]
-		tokensOrExpressions = append(tokensOrExpressions, TokenOrExpression{token: tokenNow, elemType: "token"})
+	tokensOrExpressionsNew := TokensOrExpressions{}
+
+	for _, tokenOrExpression := range(tokensOrExpressionsOld) {
+		fmt.Println("token expression", tokenOrExpression)
+		//
+		// tokensOrExpressions = append(tokensOrExpressions, TokenOrExpression{token: tokenNow, elemType: "token"})
 	}
-	return tokensOrExpressions
+
+
+	return tokensOrExpressionsNew
 }
 
 type TokensOrExpressions []TokenOrExpression
@@ -227,6 +233,9 @@ type TokenOrExpression struct {
 	elemType string  // "token" or "expression"
 	token ErlToken
 	expression ErlExpression
+}
+func (tokenOrExpression TokenOrExpression) isExpression() bool {
+	return tokenOrExpression.elemType == "expression"
 }
 
 type ErlExpressions map[int] ErlExpression
@@ -245,3 +254,16 @@ type ErlExpression struct {
 }
 
 
+
+func tokens_copy_to_tokensOrExpressions(tokens ErlTokens) TokensOrExpressions {
+	/* 	One tokenOrExpression can be both: a token Or an expression.
+	At the beginning, everything is a token - but as the expression detector works,
+	more and more elems will be removed, and replaced by expressions
+	*/
+	tokensOrExpressions	:= TokensOrExpressions{}
+	for _, tokenPosition := range(tokens.keysListOfPositions()) {
+		tokenNow := tokens[tokenPosition]
+		tokensOrExpressions = append(tokensOrExpressions, TokenOrExpression{token: tokenNow})
+	}
+	return tokensOrExpressions
+}
