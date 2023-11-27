@@ -12,7 +12,10 @@ Version 0.2, second rewrite
 
 package erlango
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 /*
 
@@ -111,16 +114,35 @@ const expression_operator = 30
 // map operators: =>
 // blockStart operator ->  (after fun, case, if)
 
+// reverse conversion: from the code, know, what is the type
+var ExpressionName_from_num map[int]string = map[int]string {
+	expression_atom: "expression_atom",
+	expression_num: "expression_num",
+	expression_stringDoubleQuoted: "expression_stringDoubleQuoted",
+	expression_list: "expression_list",
+	expression_tuple: "expression_tuple",
+	expression_map: "expression_map",
+	expression_parentheseRoundedGroup: "expression_parentheseRoundedGroup",
+	expression_operator:"expression_operator",
+}
 
 // file name passing is important, because maybe the expression detection
 // is running in an old elem, where once the expressions were detected,
 // and now it is re-detected, based on new tokens
-func step_02_expressions_from_tokens_from_lot_of_sources(sourcesTokensExecutables_all SourcesTokensExecutables_map, fileNamePathsWhereExpressionsWillBeDetected []string)  SourcesTokensExecutables_map {
+func step_02_expressions_from_tokens_from_lot_of_sources(
+	sourcesTokensExecutables_all SourcesTokensExecutables_map,
+	fileNamePathsWhereExpressionsWillBeDetected []string,
+	wantedExpressionDetectionTypesCommaSeparated string) SourcesTokensExecutables_map {
 	fmt.Println("filenames or sourcePassedInString_notFromFile to detect expressions", fileNamePathsWhereExpressionsWillBeDetected)
 
 	returnFromExpressionDetection := make(chan SourceTokensExecutables)
 	for _, filePath := range(fileNamePathsWhereExpressionsWillBeDetected) {
-		go step_02a_expressions_detect_in_one_erlang_source(filePath, returnFromExpressionDetection, sourcesTokensExecutables_all[filePath])
+		go step_02a_expressions_detect_in_one_erlang_source(
+			filePath,
+			returnFromExpressionDetection,
+			sourcesTokensExecutables_all[filePath],
+			wantedExpressionDetectionTypesCommaSeparated,
+			)
 	}
 
 	// because of the parallel expression detection, it is simpler
@@ -196,64 +218,77 @@ func step_02_expressions_from_tokens_from_lot_of_sources(sourcesTokensExecutable
 	Because this is the critical part of the whole parsing, I will use general rules to describe and find sections.
 */
 
-func step_02a_expressions_detect_in_one_erlang_source(filePath string, parentChannel chan SourceTokensExecutables, sourceTokensExecutables SourceTokensExecutables){
-	fmt.Println("Expression detect in file:", filePath)
+func step_02a_expressions_detect_in_one_erlang_source(
+	filePath string,
+	parentChannel chan SourceTokensExecutables,
+	sourceTokensExecutables SourceTokensExecutables,
+	wantedExpressionDetectionTypesCommaSeparated string){
+
+	/* Task: prepare tokensOrExperssions structure, then start the detection */
+	fmt.Println("Expression detect:", filePath)
 
 	tokensOrExpressions := tokens_copy_to_tokensOrExpressions(sourceTokensExecutables.Tokens)
-	fmt.Println("tokens OR expressions ", tokensOrExpressions)
+	tokensOrExpressions = expression_detect_all_type_from_tokens(tokensOrExpressions, 0, wantedExpressionDetectionTypesCommaSeparated)
 
-	tokensOrExpressions = expression_detect_from_tokens(tokensOrExpressions, 0)
-
+	// at the end, move back the tokensOrExpressions into simple expression list?
+	fmt.Println("and maybe throw error, if a tokenOrExpression is not converted to be an expression")
+	for _, tokenOrExpression := range(tokensOrExpressions) {
+		if tokenOrExpression.isExpression() {
+			sourceTokensExecutables.Expressions = append(sourceTokensExecutables.Expressions, tokenOrExpression.expression)
+		} else {
+			fmt.Println("ERROR: missing EXPRESSION CONVERSION: a tokenOrExpression is not converted to be an expression")
+			// TODO:
+		}
+	}
 
 	parentChannel <- sourceTokensExecutables
 }
 
-//                                                                              depth of ->
-func expression_detect_from_tokens(tokensOrExpressionsOld TokensOrExpressions, deptOf_dashRightArrow int) TokensOrExpressions {
+const tokenOrExpression_elemTypeExpression = "expression"
+
+func expression_detect_all_type_from_tokens(
+	tokensOrExpressionsOld TokensOrExpressions,
+	deptOf_dashRightArrow int,
+	wantedExpressionDetectionTypesCommaSeparated string,
+	) TokensOrExpressions {
 	// we have list of tokens.
 	// select a group of tokens, replace them with an expression,
 	// and the selected tokens are inserted INTO the expression.
 	// from a flat structure an embedded expression structure will be created
 
-	tokensOrExpressionsNew := TokensOrExpressions{}
-
-	// inDetection := false
-
-
 	// Named function definitions =======================================================
-	/*  https://www.erlang.org/doc/reference_manual/functions.html
-		A function clause consists of a clause head and a clause body, separated by ->.
-		A clause head consists of the function name, an argument list, and an optional guard sequence beginning with the keyword when:
+	/*  https://www.erlang.org/doc/reference_manual/functions.html */
 
+	tokensOrExpressionsNew_01_atomsDetected := expression_detect_atoms(tokensOrExpressionsOld,  deptOf_dashRightArrow, wantedExpressionDetectionTypesCommaSeparated)
 
-		Name(Pattern11,...,Pattern1N) [when GuardSeq1] ->
-	    Body1;
-		...;
+	return tokensOrExpressionsNew_01_atomsDetected
+}
 
-		Name(PatternK1,...,PatternKN) [when GuardSeqK] ->
-	    BodyK.
+////////////////////////////////////////////////////////////////////////////////
 
-		Named function definitions are on the top level
+func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions,  deptOf_dashRightArrow int, wantedExpressionDetectionTypesCommaSeparated string) TokensOrExpressions {
+	if ! (strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "atomsQuoted") ||
+		strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "atomsSimple") ||
+		strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "detectAllExpressions")) {
+		// if atom detection is not a wanted operation, then don't do that
+		return tokensOrExpressionsOld
+	}
 
-		find opening keyword, and closing keyword
-	*/
-
-	elemTypeExpression := "expression"
+	tokensOrExpressionsNew_01_atomsDetected := TokensOrExpressions{}
 
 	// first detect basic types (atom, string, numbers)
 	for _, tokenOrExpression := range(tokensOrExpressionsOld) {
-		fmt.Println("token expression", tokenOrExpression)
+		fmt.Println("detect atoms - token expression", tokenOrExpression)
 
 		if tokenOrExpression.isExpression() {  // if it is a detected expression, there is nothing to do
-			tokensOrExpressionsNew = append(tokensOrExpressionsNew, tokenOrExpression)
+			tokensOrExpressionsNew_01_atomsDetected = append(tokensOrExpressionsNew_01_atomsDetected, tokenOrExpression)
 			continue
 		}
 
-		////////////////////////////////////////
 		isAtom := false
 
 		// 'quoted atom' - honestly the string based type checking is maybe slower here, than the int based in expressions.
-		// The token checking is not a runtime operation, so in this level now it's fine.
+		// The token->expression conversation is not a runtime operation, so in this level now it's fine.
 		if tokenOrExpression.token.TokenType == "tokenTextBlockQuotedSingle" {
 			isAtom = true
 		}
@@ -266,25 +301,21 @@ func expression_detect_from_tokens(tokensOrExpressionsOld TokensOrExpressions, d
 		}
 
 		if isAtom {
-			tokenOrExpression.elemType = elemTypeExpression
+			tokenOrExpression.elemType = tokenOrExpression_elemTypeExpression
 			tokenOrExpression.expression = ErlExpression{
-
 				DepthOfDashRightArrow: deptOf_dashRightArrow,
 				ExpressionType:        expression_atom,
 				SimpleTokenValue:      tokenOrExpression.token,
 			}
-
-
-			tokensOrExpressionsNew = append(tokensOrExpressionsNew, tokenOrExpression)
+			tokensOrExpressionsNew_01_atomsDetected = append(tokensOrExpressionsNew_01_atomsDetected, tokenOrExpression)
 			continue
 		}
-		////////////////////////////////////////
-
 	} // FOR
 
-
-	return tokensOrExpressionsNew
+	return tokensOrExpressionsNew_01_atomsDetected
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 type TokensOrExpressions []TokenOrExpression
 type TokenOrExpression struct {
@@ -298,7 +329,8 @@ func (tokenOrExpression TokenOrExpression) isExpression() bool {
 	return tokenOrExpression.elemType == "expression"
 }
 
-type ErlExpressions map[int] ErlExpression
+
+type ErlExpressions []ErlExpression
 type ErlExpression struct {
 	/*  This is the heart of the interpreter */
 
@@ -315,6 +347,10 @@ type ErlExpression struct {
 	// the token value is stored here
 }
 
+// give back the human representation of type
+func (erlExpression ErlExpression) expressionTypeForHuman() string {
+	return ExpressionName_from_num[erlExpression.ExpressionType]
+}
 
 
 func tokens_copy_to_tokensOrExpressions(tokens ErlTokens) TokensOrExpressions {

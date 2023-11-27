@@ -19,6 +19,8 @@ import (
 // expressions are in focus here:
 func Test_expression_detection_function(t *testing.T) {
 	funName := "Test_expression_detection_function"
+	fmt.Println(funName)
+
 	/* https://www.erlang.org/doc/reference_manual/functions.html */
 
 	erlSrc :=` 	fact(N) when N>0 ->
@@ -27,16 +29,17 @@ func Test_expression_detection_function(t *testing.T) {
 					1.
 			`
 
-
-
-	erlExpressions := Expression_detection_for_tests(erlSrc)
+	erlExpressions := Expression_detection_for_tests(erlSrc, "atomsQuoted,atomsSimple")
 
 	for _, erlExpression := range erlExpressions {
-		fmt.Println("TODO: test expression from string", erlExpression)
+		fmt.Println("DETECTED: test expression from string", erlExpression.expressionTypeForHuman(), erlExpression.SimpleTokenValue.stringRepresentation())
 	}
 
-	t.Fatalf("\nErr repr %s : startPos:%v  detected string representation: %v  is different from wanted representation:  %v, error",
-		funName, "aaa", "bbb", "ccc")
+	typeWanted := expression_atom
+	if erlExpressions[0].ExpressionType !=  typeWanted {
+		// TODO: do test error msg more informative,
+		t.Fatalf("\nError (%s): incorrect expression type: %s, wanted: %v", funName, erlExpressions[0].expressionTypeForHuman(), typeWanted)
+	}
 }
 
 /*
@@ -107,14 +110,14 @@ func compare_expressionDetected_ExpressionWanted(callerInfo string, expressionDe
 
 
 
-func Expression_detection_for_tests(erlSrc string) ErlExpressions{
+func Expression_detection_for_tests(erlSrc string, wantedExpressionDetectionTypesCommaSeparated string) ErlExpressions{
 
 	// sourcesTokensExecutables_all can be empty (like here), or it can have existing elements - in a running system new src can be loaded, next to the existing ones
 	sourcesTokensExecutables_all := SourcesTokensExecutables_map{}
 	sourcesTokensExecutables_all = step_01_tokens_from_passed_source_codes_without_files(erlSrc, sourcesTokensExecutables_all)
 
 	fileNamesOfErlangSources := []string{erlSrc} // if a source code doesn't have source file, the identifier is himself
-	step_02_expressions_from_tokens_from_lot_of_sources(sourcesTokensExecutables_all, fileNamesOfErlangSources)
+	sourcesTokensExecutables_all = step_02_expressions_from_tokens_from_lot_of_sources(sourcesTokensExecutables_all, fileNamesOfErlangSources, wantedExpressionDetectionTypesCommaSeparated )
 
 	fmt.Println("num of expressions:", len(sourcesTokensExecutables_all[erlSrc].Expressions))
 	return sourcesTokensExecutables_all[erlSrc].Expressions
