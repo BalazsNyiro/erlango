@@ -14,6 +14,7 @@ package erlango
 import (
 	"fmt"
 	"sort"
+	"strings"
 )
 
 
@@ -54,6 +55,14 @@ type ErlToken struct {
 	// but sometime more than one few char can form a token, for example: '->' which has his own meaning, but represented by 2 chars
 	SourceCodeChars Chars
 	TokenIsDetectedAsPartOfExpression bool
+}
+
+func (token ErlToken) charFirstRuneVal() rune {
+	return token.SourceCodeChars[0].Value
+}
+
+func (token ErlToken) charFirstRuneValIsSmallCapsAtomStarter() bool {
+	return strings.Contains(abcEngLower, string(token.charFirstRuneVal()))
 }
 
 func (token ErlToken) typeIsEmpty() bool {

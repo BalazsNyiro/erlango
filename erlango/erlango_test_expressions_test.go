@@ -15,15 +15,39 @@ import (
 
 
 
-// go test -run Test_expression_detection_simple_1
+// go test -run Test_expression_detection_function
 // expressions are in focus here:
-func Test_expression_detection_simple_1(t *testing.T) {
-	funName := "Test_expression_detection_simple_1"
-	/*
-	Eshell V13.1.5  (abort with ^G)
-	1> A = [1, 2, 3].
-	[1,2,3]
-	*/
+func Test_expression_detection_function(t *testing.T) {
+	funName := "Test_expression_detection_function"
+	/* https://www.erlang.org/doc/reference_manual/functions.html */
+
+	erlSrc :=` 	fact(N) when N>0 ->
+					N * fact(N-1);
+				fact(0) ->
+					1.
+			`
+
+
+
+	erlExpressions := Expression_detection_for_tests(erlSrc)
+
+	for _, erlExpression := range erlExpressions {
+		fmt.Println("TODO: test expression from string", erlExpression)
+	}
+
+	t.Fatalf("\nErr repr %s : startPos:%v  detected string representation: %v  is different from wanted representation:  %v, error",
+		funName, "aaa", "bbb", "ccc")
+}
+
+/*
+func Test_expression_detection_list(t *testing.T) {
+	funName := "Test_expression_detection_list"
+	//
+		Eshell V13.1.5  (abort with ^G)
+		1> A = [1, 2, 3].
+		[1,2,3]
+	//
+
 	erlSrc := "A = [1, 2, 3].\n"
 
 	erlExpressions := Expression_detection_for_tests(erlSrc)
@@ -35,6 +59,7 @@ func Test_expression_detection_simple_1(t *testing.T) {
 	t.Fatalf("\nErr repr %s : startPos:%v  detected string representation: %v  is different from wanted representation:  %v, error",
 		funName, "aaa", "bbb", "ccc")
 }
+*/
 
 
 

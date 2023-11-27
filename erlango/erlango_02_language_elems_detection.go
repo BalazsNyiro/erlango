@@ -208,7 +208,8 @@ func step_02a_expressions_detect_in_one_erlang_source(filePath string, parentCha
 	parentChannel <- sourceTokensExecutables
 }
 
-func expression_detect_from_tokens(tokensOrExpressionsOld TokensOrExpressions, expressionCallstackLevel int) TokensOrExpressions {
+//                                                                              depth of ->
+func expression_detect_from_tokens(tokensOrExpressionsOld TokensOrExpressions, deptOf_dashRightArrow int) TokensOrExpressions {
 	// we have list of tokens.
 	// select a group of tokens, replace them with an expression,
 	// and the selected tokens are inserted INTO the expression.
@@ -216,11 +217,70 @@ func expression_detect_from_tokens(tokensOrExpressionsOld TokensOrExpressions, e
 
 	tokensOrExpressionsNew := TokensOrExpressions{}
 
+	// inDetection := false
+
+
+	// Named function definitions =======================================================
+	/*  https://www.erlang.org/doc/reference_manual/functions.html
+		A function clause consists of a clause head and a clause body, separated by ->.
+		A clause head consists of the function name, an argument list, and an optional guard sequence beginning with the keyword when:
+
+
+		Name(Pattern11,...,Pattern1N) [when GuardSeq1] ->
+	    Body1;
+		...;
+
+		Name(PatternK1,...,PatternKN) [when GuardSeqK] ->
+	    BodyK.
+
+		Named function definitions are on the top level
+
+		find opening keyword, and closing keyword
+	*/
+
+	elemTypeExpression := "expression"
+
+	// first detect basic types (atom, string, numbers)
 	for _, tokenOrExpression := range(tokensOrExpressionsOld) {
 		fmt.Println("token expression", tokenOrExpression)
-		//
-		// tokensOrExpressions = append(tokensOrExpressions, TokenOrExpression{token: tokenNow, elemType: "token"})
-	}
+
+		if tokenOrExpression.isExpression() {  // if it is a detected expression, there is nothing to do
+			tokensOrExpressionsNew = append(tokensOrExpressionsNew, tokenOrExpression)
+			continue
+		}
+
+		////////////////////////////////////////
+		isAtom := false
+
+		// 'quoted atom' - honestly the string based type checking is maybe slower here, than the int based in expressions.
+		// The token checking is not a runtime operation, so in this level now it's fine.
+		if tokenOrExpression.token.TokenType == "tokenTextBlockQuotedSingle" {
+			isAtom = true
+		}
+
+		// atom
+		if tokenOrExpression.token.TokenType == "tokenAbcFullWith_At_numbers" {
+			if tokenOrExpression.token.charFirstRuneValIsSmallCapsAtomStarter() {
+				isAtom = true
+			}
+		}
+
+		if isAtom {
+			tokenOrExpression.elemType = elemTypeExpression
+			tokenOrExpression.expression = ErlExpression{
+
+				DepthOfDashRightArrow: deptOf_dashRightArrow,
+				ExpressionType:        expression_atom,
+				SimpleTokenValue:      tokenOrExpression.token,
+			}
+
+
+			tokensOrExpressionsNew = append(tokensOrExpressionsNew, tokenOrExpression)
+			continue
+		}
+		////////////////////////////////////////
+
+	} // FOR
 
 
 	return tokensOrExpressionsNew
@@ -242,15 +302,17 @@ type ErlExpressions map[int] ErlExpression
 type ErlExpression struct {
 	/*  This is the heart of the interpreter */
 
-	Level int
+	DepthOfDashRightArrow int
 	/* level 0: the root level of a file, the base namespace.
 		every function is the part of this, as sub-expressions.
 	*/
-
-	Tokens ErlTokens
-
 	ExpressionType int // expression_atom, expression_num...
-	Children ErlExpressions  // lists, tuples, maps, functions have children
+
+	TokensOrExpressions TokensOrExpressions
+
+	SimpleTokenValue ErlToken
+	// if the expression is a simple term, number, atom, string,
+	// the token value is stored here
 }
 
 

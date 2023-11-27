@@ -24,7 +24,8 @@ const abcEngUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 const abcDigits = "0123456789"
 const abcFullWith_At = "_@" + abcEngLower + abcEngUpper
-const abcFullWith_At_numbers= abcFullWith_At + abcDigits
+
+const abcFullWith_At_numbers__atomFormerChars = abcFullWith_At + abcDigits
 
 
 /*These one char wide elems are part of Erlang language,
