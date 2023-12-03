@@ -7,19 +7,6 @@ under the Apache-2 style license found in the
 LICENSE file in the root directory of this source tree.
 
 Version 0.2, second rewrite
-
-
-Token: the smallest block/region of characthers that has his own meaning.
-
-a simple case: 123  is an integer num, and it is one token, because it has one meaning. (if we accept that this is a decimal num)
-
-but  2.3e3 or 16#1f are numbers too - and they have more tokens.
-in case of '2.3e3' the '2', the '.', the '3' and 'e'+'3' has their own meaning,
-and if we interpret this expression, the calculated result give back the real number
-(so this is a num representation, with more tokens: the 'e'+'3' has a math meaning,
-the '2','.',3' has it's own meaning, too)
-
-
 */
 
 package erlango
