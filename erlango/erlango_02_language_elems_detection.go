@@ -232,7 +232,7 @@ func step_02a_expressions_detect_in_one_erlang_source(
 	fmt.Println("Expression detect:", filePath)
 
 	tokensOrExpressions := tokens_copyTo_tokensOrExpressions(sourceTokensExecutables.Tokens)
-	tokensOrExpressions = expressionDetectAllType_from_tokens(tokensOrExpressions, 0, wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressions = expressionDetectAllType_from_tokens(tokensOrExpressions, wantedExpressionDetectionTypesCommaSeparated)
 
 	// at the end, move back the tokensOrExpressions into simple expression list?
 	fmt.Println("and maybe throw error, if a tokenOrExpression is not converted to be an expression")
@@ -241,7 +241,10 @@ func step_02a_expressions_detect_in_one_erlang_source(
 			sourceTokensExecutables.Expressions = append(sourceTokensExecutables.Expressions, tokenOrExpression.expression)
 		} else {
 			fmt.Println("ERROR: missing EXPRESSION CONVERSION: a tokenOrExpression is not converted to be an expression - nonDetected Expresssion inserted")
-			errorExpression := ErlExpression{ExpressionType: expression_nonDetectedFromToken}
+			errorExpression := ErlExpression{
+				ExpressionType: expression_nonDetectedFromToken,
+				SimpleTokenValue: tokenOrExpression.token,
+			}
 			sourceTokensExecutables.Expressions = append(sourceTokensExecutables.Expressions, errorExpression)
 		}
 	}
@@ -253,7 +256,6 @@ const tokenOrExpression_elemTypeExpression = "expression"
 
 func expressionDetectAllType_from_tokens(
 	tokensOrExpressionsOld TokensOrExpressions,
-	deptOf_dashRightArrow int,
 	wantedExpressionDetectionTypesCommaSeparated string,
 	) TokensOrExpressions {
 	// we have list of tokens.
@@ -264,14 +266,14 @@ func expressionDetectAllType_from_tokens(
 	// Named function definitions =======================================================
 	/*  https://www.erlang.org/doc/reference_manual/functions.html */
 
-	tokensOrExpressionsNew_01_atomsDetected := expression_detect_atoms(tokensOrExpressionsOld,  deptOf_dashRightArrow, wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_01_atomsDetected := expression_detect_atoms(tokensOrExpressionsOld, wantedExpressionDetectionTypesCommaSeparated)
 
 	return tokensOrExpressionsNew_01_atomsDetected
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions,  deptOf_dashRightArrow int, wantedExpressionDetectionTypesCommaSeparated string) TokensOrExpressions {
+func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions, wantedExpressionDetectionTypesCommaSeparated string) TokensOrExpressions {
 	if ! (strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "atomsQuoted") ||
 		strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "atomsSimple") ||
 		strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "detectAllExpressions")) {
@@ -308,7 +310,6 @@ func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions,  deptOf
 		if isAtom {
 			tokenOrExpression.elemType = tokenOrExpression_elemTypeExpression
 			tokenOrExpression.expression = ErlExpression{
-				DepthOfDashRightArrow: deptOf_dashRightArrow,
 				ExpressionType:        expression_atom,
 				SimpleTokenValue:      tokenOrExpression.token,
 			}
@@ -342,11 +343,6 @@ func (tokenOrExpression TokenOrExpression) isExpression() bool {
 type ErlExpressions []ErlExpression
 type ErlExpression struct {
 	/*  This is the heart of the interpreter */
-
-	DepthOfDashRightArrow int
-	/* level 0: the root level of a file, the base namespace.
-		every function is the part of this, as sub-expressions.
-	*/
 	ExpressionType int // expression_atom, expression_num... (BOOKMARK-labeled in source code)
 
 	TokensOrExpressions TokensOrExpressions

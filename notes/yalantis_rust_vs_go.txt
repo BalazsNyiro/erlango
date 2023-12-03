@@ -1,4 +1,0 @@
-https://yalantis.com/blog/rust-vs-go-comparison/
-
-Go vs Rust concurrency. For Go, concurrency is a critical area of focus. This language aims at enabling simple and efficient concurrency with the help of goroutines, a lightweight thread managed by the Go runtime. With Rust, concurrency is enabled with the help of the Async/Await paradigm and threading, which suit different use cases. Thus, when it comes to Rust concurrency vs Go concurrency, ensuring efficient concurrency with Go is much simpler because all functions are asynchronous coroutines.
-Source: https://yalantis.com/blog/rust-vs-go-comparison/
