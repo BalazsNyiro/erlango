@@ -252,7 +252,7 @@ func step_02a_expressions_detect_in_one_erlang_source(
 	parentChannel <- sourceTokensExecutables
 }
 
-const tokenOrExpression_elemTypeExpression = "expression"
+const tokenOrExpression_thisIsAnExpression = "expression"
 
 func expressionDetectAllType_from_tokens(
 	tokensOrExpressionsOld TokensOrExpressions,
@@ -267,12 +267,12 @@ func expressionDetectAllType_from_tokens(
 	/*  https://www.erlang.org/doc/reference_manual/functions.html */
 
 	tokensOrExpressionsNew_01_atomsDetected := expression_detect_atoms(tokensOrExpressionsOld, wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_02_numbersDetected := expression_detect_numbers(tokensOrExpressionsNew_01_atomsDetected, wantedExpressionDetectionTypesCommaSeparated)
 
-	return tokensOrExpressionsNew_01_atomsDetected
+	return tokensOrExpressionsNew_02_numbersDetected
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions, wantedExpressionDetectionTypesCommaSeparated string) TokensOrExpressions {
 	if ! (strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "atomsQuoted") ||
 		strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "atomsSimple") ||
@@ -283,7 +283,6 @@ func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions, wantedE
 
 	tokensOrExpressionsNew_01_atomsDetected := TokensOrExpressions{}
 
-	// first detect basic types (atom, string, numbers)
 	for _, tokenOrExpression := range(tokensOrExpressionsOld) {
 		fmt.Println("detect atoms - token expression", tokenOrExpression)
 
@@ -308,7 +307,7 @@ func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions, wantedE
 		}
 
 		if isAtom {
-			tokenOrExpression.elemType = tokenOrExpression_elemTypeExpression
+			tokenOrExpression.elemType = tokenOrExpression_thisIsAnExpression
 			tokenOrExpression.expression = ErlExpression{
 				ExpressionType:        expression_atom,
 				SimpleTokenValue:      tokenOrExpression.token,
@@ -323,6 +322,100 @@ func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions, wantedE
 	} // FOR
 
 	return tokensOrExpressionsNew_01_atomsDetected
+}
+
+func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wantedExpressionDetectionTypesCommaSeparated string) TokensOrExpressions {
+	if ! (strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "numbers") ||
+		strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "detectAllExpressions")) {
+		// if number detection is not a wanted operation, then don't do that
+		return tokensOrExpressionsOld
+	}
+
+	tokensOrExpressionsNew_01_numsDetected := TokensOrExpressions{}
+
+
+	for _, tokenOrExpression := range(tokensOrExpressionsOld) {
+		fmt.Println("detect numbers - token expression", tokenOrExpression)
+
+		if tokenOrExpression.isExpression() {  // if it is a previously detected expression, there is nothing to do
+			tokensOrExpressionsNew_01_numsDetected= append(tokensOrExpressionsNew_01_numsDetected, tokenOrExpression)
+			continue
+		}
+
+
+		isNum := false
+		//// isNum? /////////////////////////////////////
+		// https://www.erlang.org/doc/reference_manual/data_types.html
+
+		/*
+			Number variations - the + or - unary operators are NOT detected here
+			12
+			12_34
+
+
+			$A      1 char after $
+			$\n     2 char after $
+
+			2#101   base#value, integer result
+			16#1f   base#value, characters can be interpreted as num elems (f)
+			16#1F	base#value, CAPITAL chars are interpreted, too
+
+			12.34
+			12_34.56
+			12_34.56_78
+
+			2.3e3
+			2.3e+3
+			2.3e-3
+			2_3.4e+3
+			2_3.4e+3_0   result: 2.34e31
+
+		*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		if tokenOrExpression.token.TokenType == "tokenTextBlockQuotedSingle" {
+			isNum = true
+		}
+
+		if tokenOrExpression.token.TokenType == "tokenAbcFullWith_At_numbers" {
+			if tokenOrExpression.token.charFirstRuneValIsSmallCapsAtomStarter() {
+				isNum = true
+			}
+		}
+
+
+
+
+
+		//// isNum? /////////////////////////////////////
+
+		if isNum {
+			tokenOrExpression.elemType = tokenOrExpression_thisIsAnExpression
+			tokenOrExpression.expression = ErlExpression{
+				ExpressionType:			expression_num,
+				SimpleTokenValue:      tokenOrExpression.token,
+			}
+			// put back tokenOrExpression with modified elemType and expression
+			tokensOrExpressionsNew_01_numsDetected = append(tokensOrExpressionsNew_01_numsDetected, tokenOrExpression)
+
+		} else {  // not an atom - put back the tokenOrExpression without any extra change/modification
+			tokensOrExpressionsNew_01_numsDetected = append(tokensOrExpressionsNew_01_numsDetected, tokenOrExpression)
+		}
+	} // FOR
+
+	return tokensOrExpressionsNew_01_numsDetected
 }
 
 ////////////////////////////////////////////////////////////////////////////////

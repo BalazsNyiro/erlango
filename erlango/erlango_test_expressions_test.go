@@ -29,16 +29,20 @@ func Test_expression_detection_function(t *testing.T) {
 					1.
 			`
 
-	// FIXME: maybe use expressionOrToken all way, to see where you get token and expression
-	erlExpressions := Expression_detection_for_tests(erlSrc, "atomsQuoted,atomsSimple")
+	wantedExpressionDetectionTypes := "atomsQuoted,atomsSimple"  // the test focuses on atoms
+	erlExpressions := Expression_detection_for_tests(erlSrc, wantedExpressionDetectionTypes)
 
 	for _, erlExpression := range erlExpressions {
-		fmt.Println("DETECTED: test expression:", erlExpression.expressionTypeForHuman(), erlExpression.SimpleTokenValue.stringRepresentation())
+		fmt.Printf("DETECTED: test expression: %-34s %6s    %-30s\n",
+			erlExpression.expressionTypeForHuman(),
+			erlExpression.SimpleTokenValue.stringRepresentation(),
+			erlExpression.SimpleTokenValue.TokenType)
 	}
 
 	typeWanted := expression_atom
 	testCheck_isAtom(funName + "_fact", erlExpressions[0], typeWanted, t)
 	testCheck_isAtom(funName + "_when", erlExpressions[4], typeWanted, t)
+	testCheck_isAtom(funName + "_fact", erlExpressions[12], typeWanted, t)
 }
 
 func testCheck_isAtom(testName string, erlExpression ErlExpression, typeWanted int, t *testing.T) {

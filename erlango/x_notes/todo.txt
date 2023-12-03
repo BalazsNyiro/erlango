@@ -41,16 +41,8 @@ Notice that "B=<<1>>" will be interpreted as "B =< <1>>",
 https://en.wikipedia.org/wiki/Erlang_(programming_language)
 
 
-https://www.erlang.org/doc/reference_manual/data_types.html
 
 ################### GOLANG #############################
 math/big package deﬁnes two types: one for arbitrary-length integers
 
 
-############ golang install:
-# golang install: 
-sudo snap install go --classic --channel stable 
-# You might need to install snapd support because this is not installed by default on server installations.
-sudo apt install snapd && sudo reboot
-# you can remove the apt-installed go version, if you want to use snap-installed:
-apt remove gccgo
