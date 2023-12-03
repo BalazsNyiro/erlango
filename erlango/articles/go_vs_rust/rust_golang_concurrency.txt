@@ -1,0 +1,2 @@
+https://blog.boot.dev/rust/concurrency-in-rust-can-it-stack-up-against-gos-goroutines/
+

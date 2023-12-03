@@ -48,10 +48,14 @@ for Erlang developers than there are developers available,
 when it is compared to other languages, the demand for Erlang is a lot less.
 
 ### Go vs Rust
-This is a difficult question. I know that Rust performance is better, and this was a serious hesitation for me - but:
- - Golang is concurrency focused (it was a big plus)
+This is a difficult question. I know that Rust's performance is better, and this was a serious hesitation for me - but:
+ - Golang is concurrency focused (goroutine is sympathetic for me, it was a big plus)
  - The human resource is extremely important. In Golang, the development speed is higher
- - I think the memory management and the compiler will be improved, so I hope Golang will be better with this.
+
+I am not absolutely sure that Golang is the best choice.
+Erlang can run astronomical num of processes, and I have the feeling that goroutines can support it better.
+First I start with Golang. If it fails because of performance, the project will be rewritten in Rust.
+
 
 ## HALL OF FAME
 

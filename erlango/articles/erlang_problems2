@@ -1,0 +1,30 @@
+https://qr.ae/pK5kb1
+
+
+Shivakumar Ramagopal
+ ·
+Follow
+software guyUpdated 6y
+One of the reasons a language becomes widely adopted is that it allows programmers to be highly productive. And for a programmer to become highly productive in a language he/she has to really understand the language's capabilities and know how to use them effectively to solve the problem at hand.
+
+Erlang is a language that is designed ground up for developing massively concurrent, highly-available and fault tolerant (reliable) systems. The developers of Erlang looked at several languages, including Lisp and Prolog, to choose the best language to develop telecommunication applications, and decided that none of the languages at that time was the best fit (in terms of features as well as productivity gains). See
+
+One of my colleagues who was around at the time Erlang was first being used for production systems said that the main factor that distinguished products that successfully used Erlang and those that didn't were due to programmers who really understood Erlang's principles and knew how to to combine its features effectively. And such programmers were only a few.
+
+As User said in his answer and from my own initial experience with Erlang, the syntax is quite unlike what most programmers are used to and is a hurdle to cross. However, that is quickly overcome with about a week's effort and is not that big an issue after that. I think the real reason why Erlang isn't yet adopted to the level C++ or Java is because of lack of understanding on where and how to effectively use it.
+
+Update: 14-Jun-2017
+
+In the last 5–10 years we are seeing a growing interest in functional languages, the actor model and message-passing concurrency. Erlang has always had these features built into its core as part of its design. Erlang has also influenced the actor model in Scala/Akka which has become much more widely adopted than Erlang.
+
+So one does wonder - why did Erlang not become the de-facto choice of language inspite of having all the right features?
+
+Probably due to the JVM and because there’s no company behind Erlang.
+
+Sun throwing its weight behind Java/JVM and engaging the developer community has resulted in two things -
+
+(1) Wide-spread adoption
+
+(2) Maturing of the JVM as a really strong platform and gathering an ecosystem of libraries, tools and languages around it.
+
+Its safe to say that if it weren’t for Sun, developers and companies would not have made the switch from C/C++ to Java. Today the JVM has become the de-facto choice for backend development. Scala, Clojure, Groovy etc have realised this and made the deliberate decision to run on the JVM.

@@ -1,0 +1,22 @@
+https://www.quora.com/Why-isnt-Erlang-a-more-widely-adopted-programming-language
+
+https://qr.ae/pK5kuo
+
+Ulf Wiger
+ ·
+Follow
+Hooked on Erlang since 1992Updated 7y
+Given the large number of programming languages out there (either younger or older than Erlang), it's very hard to come up with any language with a feature list not found in at least some other languages; and if you do, those features are more likely than not to be things you can live without. ;-)
+
+What make Erlang stand out in some domains is that it's an industrial-grade, open source language with a very clear focus, some very cool and academically interesting features and a homogeneous and helpful community.
+
+To break that down:
+
+From the outset, Erlang was never intended as a hobby project or science experiment, but a serious (albeit small-scale) attempt at finding the best available way to build complex, commercial, highly concurrent fault-tolerant systems. While industry does try to do this sort of thing now and then and usually fails, Erlang has been used to build some pretty awesome systems by small teams for some 20 years now.
+While many (not all) languages supporting concurrency do so by utilizing shared memory and threads, Erlang offers processes that are semantically isolated: share-nothing concurrency with asynchronous message passing, which enough experts agree is the way to go on many-core architectures. While Erlang is not unique in this, it's a critical point, since shared-memory concurrency becomes very hard to manage in large systems with complex concurrency patterns. It's very easy to go wrong with complex concurrency, and Erlang builds on a massive experience base, dating back to the first digital phone switches built in the '70s.
+The failure model in Erlang is actually fairly unique. Most languages that add "Erlang-style" concurrency stop short of supporting the process monitoring, cascading exits etc. Akka and Cloud Haskell are two environments that provide similar support (in Haskell, it took some time to get there, since subverting the type system was never an option and it was not a core feature anyway).
+The sequential part of Erlang is a real functional language (not an imperative language with some FP sprinkled on top). While Haskell and ML programmers will miss a powerful type system, they will appreciate that the functional goodness is not easily subverted and pretty consistently applied in all projects. In Akka (both on JVM and .NET) the fact that you can draw on the features of the JVM/.NET ecosystem is both a strength and (in this case) something of a curse.
+Since these things were not added as an afterthought in Erlang, they permeate everything in the Erlang community. Concurrency-oriented programming is not a cool trick in Erlang - it is the core modeling paradigm, much like OO is in Java or the type systems in Haskell and ML.
+The consistency and clear focus help explain why the community is both homogeneous and helpful*: most people using Erlang are in fairly strong agreement about what is the best way to write Erlang code, and what Erlang is good for in the first place. This also means that code reuse is common and OSS components tend to work well together. It's also pretty easy to understand other people's code.
+Lastly, and again, the industrial-grade part. The Erlang/OTP team hasn't missed a deadline in 20 years, and works hard to keep improving while respecting legacy support. While it has happened that new features have broken legacy code (I've been guilty of some), such accidents are rare and quickly amended. In most other environments where Erlang-style features are supported, if you set out to build a commercial product making heavy use of them, you are likely to be one of very few to do so (Akka is an exception).
+* This is not to say that other communities are not helpful, but when you select a language, you should look carefully at what the community is focused on. You will not find the Erlang community to be of much help if your field is graphics or web programming, for example; they may offer supporting cheers, but not likely dig in to help (it's not their field of expertise and their own systems may not even have a GUI). Type system aficionados will find lots of friends in the Haskell community, but will be tolerated by Erlangers as long as they behave ;-). But if your interest is in building scalable, fault-tolerant, concurrent systems, the Erlang community will arguably be the most knowledgeable and helpful you'll find anywhere.

@@ -98,6 +98,9 @@ dot, colon, semicolon:  https://stackoverflow.com/questions/1110601/in-erlang-wh
 
 */
 
+// BOOKMARK expressionTypes
+const expression_nonDetectedFromToken = 0
+
 /* simple types: 1-10, complex types: 10+ */
 const expression_atom = 1
 const expression_num = 2
@@ -116,6 +119,7 @@ const expression_operator = 30
 
 // reverse conversion: from the code, know, what is the type
 var ExpressionName_from_num map[int]string = map[int]string {
+	expression_nonDetectedFromToken: "expression_nonDetectedFromToken",
 	expression_atom: "expression_atom",
 	expression_num: "expression_num",
 	expression_stringDoubleQuoted: "expression_stringDoubleQuoted",
@@ -227,8 +231,8 @@ func step_02a_expressions_detect_in_one_erlang_source(
 	/* Task: prepare tokensOrExperssions structure, then start the detection */
 	fmt.Println("Expression detect:", filePath)
 
-	tokensOrExpressions := tokens_copy_to_tokensOrExpressions(sourceTokensExecutables.Tokens)
-	tokensOrExpressions = expression_detect_all_type_from_tokens(tokensOrExpressions, 0, wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressions := tokens_copyTo_tokensOrExpressions(sourceTokensExecutables.Tokens)
+	tokensOrExpressions = expressionDetectAllType_from_tokens(tokensOrExpressions, 0, wantedExpressionDetectionTypesCommaSeparated)
 
 	// at the end, move back the tokensOrExpressions into simple expression list?
 	fmt.Println("and maybe throw error, if a tokenOrExpression is not converted to be an expression")
@@ -236,8 +240,9 @@ func step_02a_expressions_detect_in_one_erlang_source(
 		if tokenOrExpression.isExpression() {
 			sourceTokensExecutables.Expressions = append(sourceTokensExecutables.Expressions, tokenOrExpression.expression)
 		} else {
-			fmt.Println("ERROR: missing EXPRESSION CONVERSION: a tokenOrExpression is not converted to be an expression")
-			// TODO:
+			fmt.Println("ERROR: missing EXPRESSION CONVERSION: a tokenOrExpression is not converted to be an expression - nonDetected Expresssion inserted")
+			errorExpression := ErlExpression{ExpressionType: expression_nonDetectedFromToken}
+			sourceTokensExecutables.Expressions = append(sourceTokensExecutables.Expressions, errorExpression)
 		}
 	}
 
@@ -246,7 +251,7 @@ func step_02a_expressions_detect_in_one_erlang_source(
 
 const tokenOrExpression_elemTypeExpression = "expression"
 
-func expression_detect_all_type_from_tokens(
+func expressionDetectAllType_from_tokens(
 	tokensOrExpressionsOld TokensOrExpressions,
 	deptOf_dashRightArrow int,
 	wantedExpressionDetectionTypesCommaSeparated string,
@@ -280,7 +285,7 @@ func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions,  deptOf
 	for _, tokenOrExpression := range(tokensOrExpressionsOld) {
 		fmt.Println("detect atoms - token expression", tokenOrExpression)
 
-		if tokenOrExpression.isExpression() {  // if it is a detected expression, there is nothing to do
+		if tokenOrExpression.isExpression() {  // if it is a previously detected expression, there is nothing to do
 			tokensOrExpressionsNew_01_atomsDetected = append(tokensOrExpressionsNew_01_atomsDetected, tokenOrExpression)
 			continue
 		}
@@ -307,8 +312,12 @@ func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions,  deptOf
 				ExpressionType:        expression_atom,
 				SimpleTokenValue:      tokenOrExpression.token,
 			}
+			// put back tokenOrExpression with modified elemType and expression
 			tokensOrExpressionsNew_01_atomsDetected = append(tokensOrExpressionsNew_01_atomsDetected, tokenOrExpression)
-			continue
+
+		} else {  // not an atom - put back the tokenOrExpression without any extra change/modification
+			// I know this is same with the isAtom's last append - but it is more readable to see the two sections
+			tokensOrExpressionsNew_01_atomsDetected = append(tokensOrExpressionsNew_01_atomsDetected, tokenOrExpression)
 		}
 	} // FOR
 
@@ -338,7 +347,7 @@ type ErlExpression struct {
 	/* level 0: the root level of a file, the base namespace.
 		every function is the part of this, as sub-expressions.
 	*/
-	ExpressionType int // expression_atom, expression_num...
+	ExpressionType int // expression_atom, expression_num... (BOOKMARK-labeled in source code)
 
 	TokensOrExpressions TokensOrExpressions
 
@@ -353,7 +362,7 @@ func (erlExpression ErlExpression) expressionTypeForHuman() string {
 }
 
 
-func tokens_copy_to_tokensOrExpressions(tokens ErlTokens) TokensOrExpressions {
+func tokens_copyTo_tokensOrExpressions(tokens ErlTokens) TokensOrExpressions {
 	/* 	One tokenOrExpression can be both: a token Or an expression.
 	At the beginning, everything is a token - but as the expression detector works,
 	more and more elems will be removed, and replaced by expressions
