@@ -181,6 +181,7 @@ func step_02_expressions_from_tokens_from_lot_of_sources(
 				- $A
 				- 16#1f
 				- 16#4865_316F_774F_6C64
+				- 1_6#1f
 				- 2e-3
 
 			- floats:

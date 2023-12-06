@@ -47,6 +47,10 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 	tokensOrExpressionsNew_01_numsDetected := TokensOrExpressions{}
 
 
+	/* Number detection is tricky, because more tokens have to be analysed, same time.*/
+
+		
+
 	for _, tokenOrExpression := range(tokensOrExpressionsOld) {
 		fmt.Println("detect numbers - token expression", tokenOrExpression)
 
@@ -70,8 +74,11 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 			$\n     2 char after $
 
 			2#101   base#value, integer result
+			2#1_01  base#value_with_underscore
 			16#1f   base#value, characters can be interpreted as num elems (f)
 			16#1F	base#value, CAPITAL chars are interpreted, too
+			1_6#1f  base_with_underscore#value
+			1_6#1_f  base_with_underscore#value
 
 			12.34
 			12_34.56
@@ -83,6 +90,88 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 			2_3.4e+3
 			2_3.4e+3_0   result: 2.34e31
 
+			2.0E3   # capital E
+
+			F = 0_13.
+			13
+
+			G = 16#11111111111111111111111111111.
+			5538449982437149470432529417834769
+
+			scientific notation can be mixed with non-decimal numbers:
+			16#1e-4.
+			26
+
+
+
+			_ cannot be the first elem of a number:
+				E = _2_3.
+				* 1:5: variable '_2_3' is unbound
+
+
+			An interesting article: https://erlang.org/pipermail/erlang-questions/2019-March/097474.html
+
+
+
+
+		=== General number detection algorithm: ===
+
+		definitions, that are used in number detection:
+
+		numberDecimalBlock: token, which
+			- contains only 0123456789_
+			- doesn't start with _
+
+
+		numberDecimalBlock_and_letters:
+			- contains only 0123456789_abcdefghijklmnopqrstuvwxyz
+			- doesn't start with _
+
+		numberBlockSeparators:
+			e E . # e+ e- E+ E-
+
+
+		tokenPrev1, tokenPrev2, tokenPrevN:
+			- previous token, previous-previous token...
+
+		tokenNext1, tokenNext2, tokenNextN:
+			- next, next-next...
+
+
+
+
+		=== What is a number? ===
+
+		NUM_SEPARATOR_USAGE == 0
+		integer - simple (123):
+			- tokenPrev1 is not numberBlockSeparator
+			- numberDecimalBlock,
+			- tokenNext1 is not numberBlockSeparator
+
+		NUM_SEPARATOR_USAGE == 1  (there is one separator)
+		float - simple (16.1) or hexa simple (16#1):
+			- tokenPrev1 is not numberBlockSeparator
+			- numberDecimalBlock,
+			- tokenNext1 is numberBlockSeparator
+			- tokenNext2 is numberDecimalBlock
+			- tokenNext3 is not numberBlockSeparator
+
+
+
+		NUM_SEPARATOR_USAGE == 2  (there are two separators)
+		example: 2.3e+3
+		the first separator is '.'   second separator is 'e+'  in this case
+
+		A possible number representation:
+			- tokenPrev1 is not numberBlockSeparator
+			- numberDecimalBlock,
+			- tokenNext1 is numberBlockSeparator
+			- tokenNext2 is numberDecimalBlock_and_letters
+			- tokenNext1 is numberBlockSeparator
+			- tokenNext2 is numberDecimalBlock_and_letters
+
+		something is MAYBE a number if it is matching with these rules.
+		So, these will be parsed, and the numbers detected - or not detected.
 		*/
 
 
@@ -97,7 +186,7 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 
 
-
+	/*
 		if tokenOrExpression.token.TokenType == "tokenTextBlockQuotedSingle" {
 			isNum = true
 		}
@@ -107,6 +196,8 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 				isNum = true
 			}
 		}
+
+	 */
 
 
 
