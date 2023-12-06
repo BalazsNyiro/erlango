@@ -65,6 +65,15 @@ func (token ErlToken) charFirstRuneValIsSmallCapsAtomStarter() bool {
 	return strings.Contains(abcEngLower, string(token.charFirstRuneVal()))
 }
 
+func (token ErlToken) charAllInPassedCharacterSet(characterSetAccepted string) bool {
+	return string_all_chars_in_acceptedCharacterSet(token.stringRepresentation(), characterSetAccepted)
+}
+
+func (token ErlToken) stringRepresentationInPassedStringSet(stringSliceAccepted []string) bool {
+	return string_in_acceptedStrings(token.stringRepresentation(), stringSliceAccepted)
+}
+
+
 func (token ErlToken) typeIsEmpty() bool {
 	return token.TokenType == ""
 }
@@ -196,6 +205,8 @@ func (chars Chars) print_with_tokens(tokens ErlTokens) {
 				value, flagDetected := tokenFlags[tokenDetected.TokenType]
 				if flagDetected {
 					tokenFlag = value
+				} else {
+					fmt.Println("tokenType", tokenDetected.TokenType, "is not in tokenFlags")
 				}
 			}
 		}

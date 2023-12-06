@@ -37,6 +37,7 @@ import (
 	"strings"
 )
 
+
 func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wantedExpressionDetectionTypesCommaSeparated string) TokensOrExpressions {
 	if ! (strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "numbers") ||
 		strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "detectAllExpressions")) {
@@ -44,72 +45,54 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 		return tokensOrExpressionsOld
 	}
 
-	tokensOrExpressionsNew_01_numsDetected := TokensOrExpressions{}
+	/*
+		https://www.erlang.org/doc/reference_manual/data_types.html
+
+		Number variations - the + or - unary operators are NOT detected here
+		12
+		12_34
 
 
-	/* Number detection is tricky, because more tokens have to be analysed, same time.*/
+		$A      1 char after $
+		$\n     2 char after $
 
-		
+		2#101   base#value, integer result
+		2#1_01  base#value_with_underscore
+		16#1f   base#value, characters can be interpreted as num elems (f)
+		16#1F	base#value, CAPITAL chars are interpreted, too
+		1_6#1f  base_with_underscore#value
+		1_6#1_f  base_with_underscore#value
 
-	for _, tokenOrExpression := range(tokensOrExpressionsOld) {
-		fmt.Println("detect numbers - token expression", tokenOrExpression)
+		12.34
+		12_34.56
+		12_34.56_78
 
-		if tokenOrExpression.isExpression() {  // if it is a previously detected expression, there is nothing to do
-			tokensOrExpressionsNew_01_numsDetected= append(tokensOrExpressionsNew_01_numsDetected, tokenOrExpression)
-			continue
-		}
+		2.3e3
+		2.3e+3
+		2.3e-3
+		2_3.4e+3
+		2_3.4e+3_0   result: 2.34e31
 
+		2.0E3   # capital E
 
-		isNum := false
-		//// isNum? /////////////////////////////////////
-		// https://www.erlang.org/doc/reference_manual/data_types.html
+		F = 0_13.
+		13
 
-		/*
-			Number variations - the + or - unary operators are NOT detected here
-			12
-			12_34
+		G = 16#11111111111111111111111111111.
+		5538449982437149470432529417834769
 
-
-			$A      1 char after $
-			$\n     2 char after $
-
-			2#101   base#value, integer result
-			2#1_01  base#value_with_underscore
-			16#1f   base#value, characters can be interpreted as num elems (f)
-			16#1F	base#value, CAPITAL chars are interpreted, too
-			1_6#1f  base_with_underscore#value
-			1_6#1_f  base_with_underscore#value
-
-			12.34
-			12_34.56
-			12_34.56_78
-
-			2.3e3
-			2.3e+3
-			2.3e-3
-			2_3.4e+3
-			2_3.4e+3_0   result: 2.34e31
-
-			2.0E3   # capital E
-
-			F = 0_13.
-			13
-
-			G = 16#11111111111111111111111111111.
-			5538449982437149470432529417834769
-
-			scientific notation can be mixed with non-decimal numbers:
-			16#1e-4.
-			26
+		scientific notation can be mixed with non-decimal numbers:
+		16#1e-4.
+		26
 
 
 
-			_ cannot be the first elem of a number:
-				E = _2_3.
-				* 1:5: variable '_2_3' is unbound
+		_ cannot be the first elem of a number:
+			E = _2_3.
+			* 1:5: variable '_2_3' is unbound
 
 
-			An interesting article: https://erlang.org/pipermail/erlang-questions/2019-March/097474.html
+		An interesting article: https://erlang.org/pipermail/erlang-questions/2019-March/097474.html
 
 
 
@@ -118,12 +101,12 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 		definitions, that are used in number detection:
 
-		numberDecimalBlock: token, which
+		numberBlockDecimal: token, which
 			- contains only 0123456789_
 			- doesn't start with _
 
 
-		numberDecimalBlock_and_letters:
+		numberBlockDecimal_abc_ABC:
 			- contains only 0123456789_abcdefghijklmnopqrstuvwxyz
 			- doesn't start with _
 
@@ -145,15 +128,15 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 		NUM_SEPARATOR_USAGE == 0
 		integer - simple (123):
 			- tokenPrev1 is not numberBlockSeparator
-			- numberDecimalBlock,
+			- numberBlockDecimal,
 			- tokenNext1 is not numberBlockSeparator
 
 		NUM_SEPARATOR_USAGE == 1  (there is one separator)
 		float - simple (16.1) or hexa simple (16#1):
 			- tokenPrev1 is not numberBlockSeparator
-			- numberDecimalBlock,
+			- numberBlockDecimal,
 			- tokenNext1 is numberBlockSeparator
-			- tokenNext2 is numberDecimalBlock
+			- tokenNext2 is numberBlockDecimal
 			- tokenNext3 is not numberBlockSeparator
 
 
@@ -164,28 +147,67 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 		A possible number representation:
 			- tokenPrev1 is not numberBlockSeparator
-			- numberDecimalBlock,
+			- numberBlockDecimal,
 			- tokenNext1 is numberBlockSeparator
-			- tokenNext2 is numberDecimalBlock_and_letters
+			- tokenNext2 is numberBlockDecimal_abc_ABC
 			- tokenNext1 is numberBlockSeparator
-			- tokenNext2 is numberDecimalBlock_and_letters
+			- tokenNext2 is numberBlockDecimal_abc_ABC
 
 		something is MAYBE a number if it is matching with these rules.
 		So, these will be parsed, and the numbers detected - or not detected.
-		*/
+
+	*/
 
 
 
+	/* Number detection is tricky, because more tokens have to be analysed, same time.
+
+	number detection happens in more turn.
+	*/
+
+	NUMBER_BLOCK_SEPARATORS:= []string{".", "#", "e", "E", "e+", "e-", "E+", "E-"}
+	DIGITS_UNDERSCORE := abcDigits + "_"
+	DIGITS_UNDERSCORE_abc_ABC := "0123456789_" + abcEngLower + abcEngUpper
 
 
+	/////////////////////////////////////////////////////////////
+	tokensOrExpressionsNew_blockDetection := TokensOrExpressions{}
+	for _, tokenOrExpression := range(tokensOrExpressionsOld) {
+
+		if tokenOrExpression.isExpression() {  // if it is a previously detected expression, there is nothing to do
+			tokensOrExpressionsNew_blockDetection= append(tokensOrExpressionsNew_blockDetection, tokenOrExpression)
+			continue
+		}
+
+		fmt.Println("detect number blocks in:", tokenOrExpression)
+
+		if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE) {
+			tokenOrExpression.token.TokenType = "token_numberBlockDecimal"
+		} else if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE_abc_ABC) {
+			tokenOrExpression.token.TokenType = "token_numberBlockDecimal_abc_ABC"
+		} else if tokenOrExpression.token.stringRepresentationInPassedStringSet(NUMBER_BLOCK_SEPARATORS) {
+			tokenOrExpression.token.TokenType = "token_numberBlockSeparator"
+		}
+		tokensOrExpressionsNew_blockDetection = append(tokensOrExpressionsNew_blockDetection, tokenOrExpression)
+
+	} // FOR, block detection
 
 
+	/////////////////////////////////////////////////////////////
+	// FIXME: use PREV/NEXT ELEMS to detect numbers
+
+	tokensOrExpressionsNew_01_numsDetected := TokensOrExpressions{}
+	for _, tokenOrExpression := range(tokensOrExpressionsNew_blockDetection) {
+		fmt.Println("detect numbers - token expression", tokenOrExpression)
+
+		if tokenOrExpression.isExpression() {  // if it is a previously detected expression, there is nothing to do
+			tokensOrExpressionsNew_01_numsDetected= append(tokensOrExpressionsNew_01_numsDetected, tokenOrExpression)
+			continue
+		}
 
 
-
-
-
-
+		isNum := false
+		//// isNum? /////////////////////////////////////
 	/*
 		if tokenOrExpression.token.TokenType == "tokenTextBlockQuotedSingle" {
 			isNum = true

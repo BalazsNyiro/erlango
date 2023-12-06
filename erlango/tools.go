@@ -95,7 +95,31 @@ func int_from_str(txt string, exitIfError bool, callerFunName string) (int, erro
 }
 
 func str_from_int(i int) string {
+	// FIXME: strconv.ParseInt would be better?
+	// A := strconv.ParseInt()
 	return strconv.Itoa(i)
+}
+
+func rune_in_acceptedCharacterSet(r rune, characterSetAccepted string) bool {
+	return strings.Contains(characterSetAccepted, string(r))
+}
+
+func string_all_chars_in_acceptedCharacterSet(txt, characterSetAccepted string) bool {
+	for _, runeInTxt := range txt {
+		if ! rune_in_acceptedCharacterSet(runeInTxt, characterSetAccepted) {
+			return false
+		}
+	}
+	return true
+}
+
+func string_in_acceptedStrings(txt string, acceptedStrings []string) bool {
+	for _, acceptedString := range acceptedStrings {
+		if acceptedString == txt {
+			return true
+		}
+	}
+	return false
 }
 
 
