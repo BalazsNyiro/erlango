@@ -165,12 +165,12 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 	number detection happens in more turn.
 	*/
 
-	NUMBER_BLOCK_SEPARATORS:= []string{".", "#", "e", "E", "e+", "e-", "E+", "E-"}
-	DIGITS_UNDERSCORE := abcDigits + "_"
-	DIGITS_UNDERSCORE_abc_ABC := "0123456789_" + abcEngLower + abcEngUpper
+	NUMBER_BLOCK_SEPARATORS := []string{".", "#", "e", "E", "e+", "e-", "E+", "E-"}
+	const DIGITS_UNDERSCORE = digitsDecimal + "_"
+	const DIGITS_UNDERSCORE_abc_ABC = DIGITS_UNDERSCORE + abcEngLower + abcEngUpper
 
 
-	/////////////////////////////////////////////////////////////
+	///////////////////// PREPARE NUM DETECTION WITH BLOCKS ////////////////////////////////////////
 	tokensOrExpressionsNew_blockDetection := TokensOrExpressions{}
 	for _, tokenOrExpression := range(tokensOrExpressionsOld) {
 
@@ -183,10 +183,16 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 		if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE) {
 			tokenOrExpression.token.TokenType = "token_numberBlockDecimal"
+
 		} else if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE_abc_ABC) {
 			tokenOrExpression.token.TokenType = "token_numberBlockDecimal_abc_ABC"
-		} else if tokenOrExpression.token.stringRepresentationInPassedStringSet(NUMBER_BLOCK_SEPARATORS) {
+
+		}
+
+
+		if tokenOrExpression.token.stringRepresentationInPassedStringSet(NUMBER_BLOCK_SEPARATORS) {
 			tokenOrExpression.token.TokenType = "token_numberBlockSeparator"
+
 		}
 		tokensOrExpressionsNew_blockDetection = append(tokensOrExpressionsNew_blockDetection, tokenOrExpression)
 
@@ -213,7 +219,7 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 			isNum = true
 		}
 
-		if tokenOrExpression.token.TokenType == "tokenAbcFullWith_At_numbers" {
+		if tokenOrExpression.token.TokenType == "tokenAbcFullWith_Underscore_At_numbers" {
 			if tokenOrExpression.token.charFirstRuneValIsSmallCapsAtomStarter() {
 				isNum = true
 			}

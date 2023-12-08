@@ -171,7 +171,7 @@ func (chars Chars) print_with_tokens(tokens ErlTokens) {
 		"tokenTextBlockQuotedDouble": '"',
 		"tokenComment": '%',
 		"tokenTextBlockQuotedSingle": '\'',
-		"tokenAbcFullWith_At_numbers": 'C',  // abc lower, upper plus atom builder extra chars
+		"tokenAbcFullWith_Underscore_At_numbers": 'C',  // abc lower, upper plus atom builder extra chars
 		                             // to avoid mixing it with atoms, C abC is the flag.
 									 // and it stands for character, too ;-)
 									 // it can be an atom, if the first char is uppercase,

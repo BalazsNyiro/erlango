@@ -301,7 +301,7 @@ func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions, wantedE
 		}
 
 		// atom
-		if tokenOrExpression.token.TokenType == "tokenAbcFullWith_At_numbers" {
+		if tokenOrExpression.token.TokenType == "tokenAbcFullWith_Underscore_At_numbers" {
 			if tokenOrExpression.token.charFirstRuneValIsSmallCapsAtomStarter() {
 				isAtom = true
 			}

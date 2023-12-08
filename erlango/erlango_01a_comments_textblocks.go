@@ -115,13 +115,13 @@ func token_detect_comments_textblocks_alphanums(chars Chars, tokens ErlTokens, v
 		*/
 		//// ABC + numbers block detect  ///////////////////////////////////////////////////////////
 		if tokenActual.typeIsEmpty() {
-			if strings.Contains(abcFullWith_At_numbers__atomFormerChars, charTxtNow) {
-				tokenActual.TokenType = "tokenAbcFullWith_At_numbers"
+			if strings.Contains(abcFullWith_Underscore_At_numbers__atomFormerChars, charTxtNow) {
+				tokenActual.TokenType = "tokenAbcFullWith_Underscore_At_numbers"
 			}
 		}
-		if tokenActual.TokenType == "tokenAbcFullWith_At_numbers" {
+		if tokenActual.TokenType == "tokenAbcFullWith_Underscore_At_numbers" {
 			// if the next char is not in abc, then the current one is the closer.
-			if ! strings.Contains(abcFullWith_At_numbers__atomFormerChars, charTxtNext1) {
+			if ! strings.Contains(abcFullWith_Underscore_At_numbers__atomFormerChars, charTxtNext1) {
 				saveCompleteDetectedToken = true
 			}
 		} // ABC detect
