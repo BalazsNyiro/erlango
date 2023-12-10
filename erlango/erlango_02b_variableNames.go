@@ -33,7 +33,7 @@ func expression_detect_variable_names(tokensOrExpressionsOld TokensOrExpressions
 
 		isVariableName := false
 
-		if tokenOrExpression.token.TokenType == "tokenAbcFullWith_Underscore_At_numbers" {
+		if tokenOrExpression.token.TokenType == tokenTypeAbcFullWith_Underscore_At_numbers {
 			if tokenOrExpression.token.charFirstRuneValIsVariableStarter() {
 				isVariableName = true
 			}

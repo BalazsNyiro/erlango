@@ -40,6 +40,22 @@ func (tokens ErlTokens) keysListOfPositions() []int {
 
 
 // ############# PARSER ELEMS #############################
+func ErlToken_empty_obj(tokenType string, tokenId int) ErlToken {
+	return ErlToken{ TokenType: tokenType, TokenId: tokenId, SourceCodeChars: Chars{}, TokenIsDetectedAsPartOfExpression: false}
+}
+
+
+
+
+const tokenTypeTextBlockQuotedSingle = "tokenTextBlockQuotedSingle"
+const tokenTypeComment = "tokenComment"
+const tokenTypeTextBlockQuotedDouble = "tokenTextBlockQuotedDouble"
+const tokenTypeAbcFullWith_Underscore_At_numbers = "tokenAbcFullWith_Underscore_At_numbers"
+const tokenTypeOtherPunctuation = "tokenOtherPunctuation"
+const tokenTypeWhiteSpace = "tokenWhiteSpace"
+const tokenTypeCharLiteral = "tokenCharLiteral"
+const tokenTypeNumberBlock = "token_numberBlock"
+
 // use minimal set of types. Don't overcomplicate the parser.
 type ErlToken struct {
 
@@ -47,6 +63,11 @@ type ErlToken struct {
 	// it is a dangerous error source. Use only a positionId in a collector of ErlTokens
 
 	TokenType  string
+	/* possible token types:
+
+	*/
+
+
 	TokenId int
 
 	DebugStringRepresentation string // the string representation can be asked with a function, but in the debugger it is easier if it is stored in an attribute

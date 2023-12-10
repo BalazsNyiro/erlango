@@ -186,10 +186,17 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 		// in numbers _ can be used BUT _ cannot be the first character
 		if tokenOrExpression.token.charFirstRuneVal() != '_' {
+
 			if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE) {
-				tokenOrExpression.token.TokenType = "token_numberBlockDecimal"
+				tokenOrExpression.token.TokenType = tokenTypeNumberBlock // it can be binary, or anything less than 10 based num
+			}
+
+			// atoms and strings were detected previously - so if there are digits+mixed characters, it can be a hexadecimal number block
+			if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE_abc_ABC) {
+				tokenOrExpression.token.TokenType = tokenTypeNumberBlock
 			}
 		}
+
 		tokensOrExpressionsNew_blockDetection = append(tokensOrExpressionsNew_blockDetection, tokenOrExpression)
 
 	} // FOR, block detection
@@ -197,32 +204,47 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 	/////////////////////////////////////////////////////////////
 
-	tokensOrExpressionsNew_01_numsDetected := TokensOrExpressions{}
-	for _, tokenOrExpression := range(tokensOrExpressionsNew_blockDetection) {
-		fmt.Println("detect numbers - token expression", tokenOrExpression)
+	tokensOrExpressionsNew_numsDetected := TokensOrExpressions{}
+	lenTokenOrExpressions :=  len(tokensOrExpressionsNew_blockDetection)
 
-		if tokenOrExpression.isExpression() {  // if it is a previously detected expression, there is nothing to do
-			tokensOrExpressionsNew_01_numsDetected= append(tokensOrExpressionsNew_01_numsDetected, tokenOrExpression)
-			continue
-		}
+	if lenTokenOrExpressions > 0 { // so if there is something to check
 
+		for idTokenOrExpr := 0; idTokenOrExpr < lenTokenOrExpressions; idTokenOrExpr++ {
 
-		isNum := false
+			tokenOrExpression :=  getTokenOrExpression_fromLot(idTokenOrExpr, tokensOrExpressionsNew_blockDetection)
 
-		if isNum {
-			tokenOrExpression.elemType = tokenOrExpression_thisIsAnExpression
-			tokenOrExpression.expression = ErlExpression{
-				ExpressionType:			expression_num,
-				SimpleTokenValue:      tokenOrExpression.token,
+			fmt.Println("detect numbers - token expression", tokenOrExpression)
+
+			if tokenOrExpression.isExpression() {  // if it is a previously detected expression, there is nothing to do
+				tokensOrExpressionsNew_numsDetected= append(tokensOrExpressionsNew_numsDetected, tokenOrExpression)
+				continue
 			}
-			// put back tokenOrExpression with modified elemType and expression
-			tokensOrExpressionsNew_01_numsDetected = append(tokensOrExpressionsNew_01_numsDetected, tokenOrExpression)
 
-		} else {  // not an atom - put back the tokenOrExpression without any extra change/modification
-			tokensOrExpressionsNew_01_numsDetected = append(tokensOrExpressionsNew_01_numsDetected, tokenOrExpression)
-		}
-	} // FOR
+			isNum := false
+			/////////////////////////////////////////////////////////////////////
 
-	return tokensOrExpressionsNew_01_numsDetected
+
+
+
+
+
+			/////////////////////////////////////////////////////////////////////
+			if isNum {
+				tokenOrExpression.elemType = tokenOrExpression_thisIsAnExpression
+				tokenOrExpression.expression = ErlExpression{
+					ExpressionType:			expression_num,
+					SimpleTokenValue:      tokenOrExpression.token,
+				}
+				// put back tokenOrExpression with modified elemType and expression
+				tokensOrExpressionsNew_numsDetected = append(tokensOrExpressionsNew_numsDetected, tokenOrExpression)
+
+			} else {  // not an atom - put back the tokenOrExpression without any extra change/modification
+				tokensOrExpressionsNew_numsDetected = append(tokensOrExpressionsNew_numsDetected, tokenOrExpression)
+			}
+		} // FOR
+
+	} // len > 0
+
+	return tokensOrExpressionsNew_numsDetected
 }
 

@@ -138,8 +138,4 @@ func char_txt_value_get(pos int, chars Chars) string {
 	return ret
 }
 
-func token_empty_obj(tokenType string, tokenId int) ErlToken {
-	return ErlToken{ TokenType: tokenType, TokenId: tokenId, SourceCodeChars: Chars{}, TokenIsDetectedAsPartOfExpression: false}
-}
-
 /////////////////////////////////////////////////////////////////////////

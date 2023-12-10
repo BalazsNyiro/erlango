@@ -65,13 +65,12 @@ func Test_numbers_integers(t *testing.T) {
 				ScientificCapical = 2.0E3,
 				
 
-		HexaCrazyLong = 16#11111111111111111111111111111,
-		HexaCrazyLongDecimalValue = 5538449982437149470432529417834769,
+				HexaCrazyLong = 16#11111111111111111111111111111,
+				HexaCrazyLongDecimalValue = 5538449982437149470432529417834769,
 
 
-
-		CommentEnd1 = "scientific notation can be mixed with non-decimal numbers: (val 26)",
-		ScientificHexa = 16#1e-4.
+				CommentEnd1 = "scientific notation can be mixed with non-decimal numbers: (val 26)",
+				ScientificHexa = 16#1e-4.
 
 
 `

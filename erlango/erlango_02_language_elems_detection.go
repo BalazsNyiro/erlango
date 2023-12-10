@@ -299,12 +299,12 @@ func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions, wantedE
 
 		// 'quoted atom' - honestly the string based type checking is maybe slower here, than the int based in expressions.
 		// The token->expression conversation is not a runtime operation, so in this level now it's fine.
-		if tokenOrExpression.token.TokenType == "tokenTextBlockQuotedSingle" {
+		if tokenOrExpression.token.TokenType == tokenTypeTextBlockQuotedSingle {
 			isAtom = true
 		}
 
 		// atom
-		if tokenOrExpression.token.TokenType == "tokenAbcFullWith_Underscore_At_numbers" {
+		if tokenOrExpression.token.TokenType == tokenTypeAbcFullWith_Underscore_At_numbers {
 			if tokenOrExpression.token.charFirstRuneValIsSmallCapsAtomStarter() {
 				isAtom = true
 			}
@@ -384,4 +384,32 @@ func tokens_copyTo_tokensOrExpressions(tokens ErlTokens) TokensOrExpressions {
 		tokensOrExpressions = append(tokensOrExpressions, TokenOrExpression{token: tokenNow})
 	}
 	return tokensOrExpressions
+}
+
+
+
+///////////////////////////// GENERAL TOKEN GETTER FUNCTIONS //////////////////////
+/*sometime more than one token has to be handled to detect an expression,
+	for example a hexa num 16#ff has a 'digit block', a '#' and 'ff' as the number, represented in hexa.
+
+    so the getter function can return with a tokenOrExpression, OR with an empty tokenOrExpression,
+    if the asked value doesn't exist.
+
+	With other words: in token-> expression detection I often look forward, check the next 4 tokens, for example.
+    But: if there is no more tokens, because I am at the last one, somehow I need to return
+	with an empty object
+*/
+
+func getTokenOrExpression_fromLot(idSelected int, tokensOrExpressions TokensOrExpressions) TokenOrExpression{
+	returnWithNonExistingTokenOrExpression := false
+	lenTokensExpressions := len(tokensOrExpressions)
+
+	if lenTokensExpressions < 1 { returnWithNonExistingTokenOrExpression = true}
+	if idSelected < 0 || idSelected > lenTokensExpressions -1 { returnWithNonExistingTokenOrExpression = true}
+
+
+	if returnWithNonExistingTokenOrExpression {
+	 return TokenOrExpression{elemType: "token", token: ErlToken_empty_obj("", idSelected)}
+	}
+	return tokensOrExpressions[idSelected]
 }
