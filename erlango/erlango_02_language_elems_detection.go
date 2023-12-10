@@ -342,6 +342,17 @@ func (tokenOrExpression TokenOrExpression) isExpression() bool {
 
 
 type ErlExpressions []ErlExpression
+func (erlExpressions ErlExpressions) printAll() {
+	fmt.Println("print All expressions")
+	for _, erlExpression := range erlExpressions {
+		fmt.Printf("DETECTED expression: %-34s %6s    %-30s\n",
+			erlExpression.expressionTypeForHuman(),
+			erlExpression.SimpleTokenValue.stringRepresentation(),
+			erlExpression.SimpleTokenValue.TokenType)
+	}
+}
+
+
 type ErlExpression struct {
 	/*  This is the heart of the interpreter */
 	ExpressionType int // expression_atom, expression_num... (BOOKMARK-labeled in source code)

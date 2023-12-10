@@ -165,7 +165,7 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 	number detection happens in more turn.
 	*/
 
-	NUMBER_BLOCK_SEPARATORS := []string{".", "#", "e", "E", "e+", "e-", "E+", "E-"}
+	// NUMBER_BLOCK_SEPARATORS := []string{".", "#", "e", "E", "e+", "e-", "E+", "E-"}
 	const DIGITS_UNDERSCORE = digitsDecimal + "_"
 	const DIGITS_UNDERSCORE_abc_ABC = DIGITS_UNDERSCORE + abcEngLower + abcEngUpper
 
@@ -184,16 +184,16 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 		if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE) {
 			tokenOrExpression.token.TokenType = "token_numberBlockDecimal"
 
-		} else if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE_abc_ABC) {
-			tokenOrExpression.token.TokenType = "token_numberBlockDecimal_abc_ABC"
+		} else {
+			if tokenOrExpression.token.charFirstRuneVal() != '_' { // the first char cannot be _ in a number
 
+				if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE_abc_ABC) {
+					// tokenOrExpression.token.TokenType = "token_numberBlockDecimal_abc_ABC"
+				}
+			}
 		}
 
 
-		if tokenOrExpression.token.stringRepresentationInPassedStringSet(NUMBER_BLOCK_SEPARATORS) {
-			tokenOrExpression.token.TokenType = "token_numberBlockSeparator"
-
-		}
 		tokensOrExpressionsNew_blockDetection = append(tokensOrExpressionsNew_blockDetection, tokenOrExpression)
 
 	} // FOR, block detection

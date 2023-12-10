@@ -31,13 +31,7 @@ func Test_expression_detection_function(t *testing.T) {
 
 	wantedExpressionDetectionTypes := "atomsQuoted,atomsSimple"  // the test focuses on atoms
 	erlExpressions := Expression_detection_for_tests(erlSrc, wantedExpressionDetectionTypes)
-
-	for _, erlExpression := range erlExpressions {
-		fmt.Printf("DETECTED: test expression: %-34s %6s    %-30s\n",
-			erlExpression.expressionTypeForHuman(),
-			erlExpression.SimpleTokenValue.stringRepresentation(),
-			erlExpression.SimpleTokenValue.TokenType)
-	}
+	erlExpressions.printAll()
 
 	typeWanted := expression_atom
 	testCheck_isAtom(funName + "_fact", erlExpressions[0], typeWanted, t)
@@ -45,12 +39,6 @@ func Test_expression_detection_function(t *testing.T) {
 	testCheck_isAtom(funName + "_fact", erlExpressions[12], typeWanted, t)
 }
 
-func testCheck_isAtom(testName string, erlExpression ErlExpression, typeWanted int, t *testing.T) {
-	if erlExpression.ExpressionType !=  typeWanted {
-		t.Fatalf("\nError (%s): incorrect expression type: %s, wanted: %v", testName, erlExpression.expressionTypeForHuman(), typeWanted)
-	}
-
-}
 
 /*
 func Test_expression_detection_list(t *testing.T) {
@@ -119,17 +107,4 @@ func compare_expressionDetected_ExpressionWanted(callerInfo string, expressionDe
 }
 
 
-
-func Expression_detection_for_tests(erlSrc string, wantedExpressionDetectionTypesCommaSeparated string) ErlExpressions{
-
-	// sourcesTokensExecutables_all can be empty (like here), or it can have existing elements - in a running system new src can be loaded, next to the existing ones
-	sourcesTokensExecutables_all := SourcesTokensExecutables_map{}
-	sourcesTokensExecutables_all = step_01_tokens_from_passed_source_codes_without_files(erlSrc, sourcesTokensExecutables_all)
-
-	fileNamesOfErlangSources := []string{erlSrc} // if a source code doesn't have source file, the identifier is himself
-	sourcesTokensExecutables_all = step_02_expressions_from_tokens_from_lot_of_sources(sourcesTokensExecutables_all, fileNamesOfErlangSources, wantedExpressionDetectionTypesCommaSeparated )
-
-	fmt.Println("num of expressions:", len(sourcesTokensExecutables_all[erlSrc].Expressions))
-	return sourcesTokensExecutables_all[erlSrc].Expressions
-}
 
