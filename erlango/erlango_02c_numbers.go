@@ -182,24 +182,20 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 			continue
 		}
 
-		fmt.Println("detect number blocks in:", tokenOrExpression)
+		fmt.Println("detect DIGITS_UNDERSCORE blocks:", tokenOrExpression)
 
-		if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE) {
-			tokenOrExpression.token.TokenType = "token_numberBlockDecimal"
+		// in numbers _ can be used BUT _ cannot be the first character
+		if tokenOrExpression.token.charFirstRuneVal() != '_' {
+			if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE) {
+				tokenOrExpression.token.TokenType = "token_numberBlockDecimal"
+			}
 		}
-
-		if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE_abc_ABC) {
-			// tokenOrExpression.token.TokenType = "token_numberBlockDecimal_abc_ABC"
-		}
-
-
 		tokensOrExpressionsNew_blockDetection = append(tokensOrExpressionsNew_blockDetection, tokenOrExpression)
 
 	} // FOR, block detection
 
 
 	/////////////////////////////////////////////////////////////
-	// FIXME: use PREV/NEXT ELEMS to detect numbers
 
 	tokensOrExpressionsNew_01_numsDetected := TokensOrExpressions{}
 	for _, tokenOrExpression := range(tokensOrExpressionsNew_blockDetection) {
@@ -212,25 +208,6 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 
 		isNum := false
-		//// isNum? /////////////////////////////////////
-	/*
-		if tokenOrExpression.token.TokenType == "tokenTextBlockQuotedSingle" {
-			isNum = true
-		}
-
-		if tokenOrExpression.token.TokenType == "tokenAbcFullWith_Underscore_At_numbers" {
-			if tokenOrExpression.token.charFirstRuneValIsSmallCapsAtomStarter() {
-				isNum = true
-			}
-		}
-
-	 */
-
-
-
-
-
-		//// isNum? /////////////////////////////////////
 
 		if isNum {
 			tokenOrExpression.elemType = tokenOrExpression_thisIsAnExpression
