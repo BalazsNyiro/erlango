@@ -171,6 +171,9 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 
 	///////////////////// PREPARE NUM DETECTION WITH BLOCKS ////////////////////////////////////////
+	// for number detections, atoms are important, because in some case an atom can be the part of a number.
+	// for example: 16#ff  ff can be an atom, 16 can be a num, # can be an operator, from a special perspective.
+
 	tokensOrExpressionsNew_blockDetection := TokensOrExpressions{}
 	for _, tokenOrExpression := range(tokensOrExpressionsOld) {
 
@@ -183,14 +186,10 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 		if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE) {
 			tokenOrExpression.token.TokenType = "token_numberBlockDecimal"
+		}
 
-		} else {
-			if tokenOrExpression.token.charFirstRuneVal() != '_' { // the first char cannot be _ in a number
-
-				if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE_abc_ABC) {
-					// tokenOrExpression.token.TokenType = "token_numberBlockDecimal_abc_ABC"
-				}
-			}
+		if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE_abc_ABC) {
+			// tokenOrExpression.token.TokenType = "token_numberBlockDecimal_abc_ABC"
 		}
 
 

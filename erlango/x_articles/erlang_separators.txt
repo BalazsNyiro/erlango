@@ -1,0 +1,62 @@
+https://stackoverflow.com/questions/1110601/in-erlang-when-do-i-use-or-or
+
+Period (.)    In modules, the period is used to terminate module attributes and function declarations (a.k.a. 'forms')
+Semicolon (;) The semicolon acts as a clause separator, both for function clauses and expression branches.
+Comma (,)     The comma is an expression separator.
+
+
+
+========================================================================
+https://erlang.org/pipermail/erlang-questions/2007-September/029250.html
+Lone Wolf wrote:
+> Hi.
+> Well guys, I'm struggling with Erlang syntax.
+> Does Erlang has line terminators like C++ or Java?
+
+Not exactly, it has statements terminators (the comma), clause
+terminator (used in pattern matching clauses such as functions, case and
+receive blocks) and it has function definition terminator (the period,
+used to mark the end of the last clause of a function). Oh, and it also
+has keyword terminators for some blocks (case and receive).
+
+> Consider this sinppet:
+> ----------
+> convert_list_to_c([{Name, {f, F}} | Rest]) ->
+>     Converted_City = {Name, {c, (F -32)* 5 / 9}},
+>     [Converted_City | convert_list_to_c(Rest)];
+> ----------
+> Why there is a comma after {Name, {c, (F -32)* 5 / 9}} ?
+>   Another snippet and the same question:
+> ----------
+> format_temps(List_of_cities) ->
+>     Converted_List = convert_list_to_c(List_of_cities),
+>     print_temp(Converted_List).
+> ----------
+>   Another one:
+> ----------
+> foreach(Fun, [First|Rest]) ->
+>     Fun(First),
+>     foreach(Fun, Rest);
+> ----------
+>   How to define blocks? using { } for example ? or by using indentation (aka Python) ?
+> All these snippets are from Erlang docs.
+> Thanks.
+>
+
+a combination of punctuation (the semicolon) and keywords.
+
+In the first snippet, {Name, {c, (F -32)* 5 / 9}} is not a block (it's a
+tuple), the colon indicates the end of the statement `Converted_City =
+{Name, {c, (F -32)* 5 / 9}},`.
+
+The semicolon on the next line indicates the end of the current function
+clause (so there should be another function clause for the same function
+name but a different pattern under it).
+
+In the second snippet, the period at the end of
+`print_temp(Converted_List)` indicates the end of the whole function
+definition (so there should be no other clause under it)
+
+In the third snippet, the semicolon at the end once again indicates the
+end of a function matching clause, so there should be (at least) another
+one under it.

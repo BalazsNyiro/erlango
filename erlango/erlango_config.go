@@ -23,9 +23,9 @@ const abcEngLower = "abcdefghijklmnopqrstuvwxyz"
 const abcEngUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 const digitsDecimal = "0123456789"
-const abcFullWith_At = "_@" + abcEngLower + abcEngUpper
+const abcEngLowerUpper_underscore_at = "_@" + abcEngLower + abcEngUpper
 
-const abcFullWith_Underscore_At_numbers__atomFormerChars = abcFullWith_At + digitsDecimal
+const abcEngLowerUpper_underscore_at_digits_Underscore_At_digits__atomFormerChars = abcEngLowerUpper_underscore_at + digitsDecimal
 
 
 /*These one char wide elems are part of Erlang language,

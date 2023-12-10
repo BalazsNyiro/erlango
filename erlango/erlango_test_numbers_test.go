@@ -19,9 +19,9 @@ func Test_numbers_integers(t *testing.T) {
 	fmt.Println(funName)
 
 
-	erlSrc :=`Atom = 'atom', String = "str", Int = 1, Float = 1.1.`
+	erlSrc :=`VarAtom = atom_value1, VarAtomQuoted='atomQuoted', Str = "str", Int = 1, Float = 1.1, Hexa=16#ab.`
 
-	wantedExpressionDetectionTypes := "atomsQuoted,atomsSimple,numbers"
+	wantedExpressionDetectionTypes := "detectAllExpressions"
 	erlExpressions := Expression_detection_for_tests(erlSrc, wantedExpressionDetectionTypes)
 	erlExpressions.printAll()
 

@@ -105,6 +105,7 @@ const expression_nonDetectedFromToken = 0
 const expression_atom = 1
 const expression_num = 2
 const expression_stringDoubleQuoted = 3
+const expression_variableName = 4
 
 const expression_list = 10
 const expression_tuple = 11
@@ -123,6 +124,7 @@ var ExpressionName_from_num map[int]string = map[int]string {
 	expression_atom: "expression_atom",
 	expression_num: "expression_num",
 	expression_stringDoubleQuoted: "expression_stringDoubleQuoted",
+	expression_variableName: "expression_variableName",
 	expression_list: "expression_list",
 	expression_tuple: "expression_tuple",
 	expression_map: "expression_map",
@@ -268,9 +270,10 @@ func expressionDetectAllType_from_tokens(
 	/*  https://www.erlang.org/doc/reference_manual/functions.html */
 
 	tokensOrExpressionsNew_01_atomsDetected := expression_detect_atoms(tokensOrExpressionsOld, wantedExpressionDetectionTypesCommaSeparated)
-	tokensOrExpressionsNew_02_numbersDetected := expression_detect_numbers(tokensOrExpressionsNew_01_atomsDetected, wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_02_variableNamesDetected := expression_detect_variable_names(tokensOrExpressionsNew_01_atomsDetected, wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_03_numbersDetected := expression_detect_numbers(tokensOrExpressionsNew_02_variableNamesDetected, wantedExpressionDetectionTypesCommaSeparated)
 
-	return tokensOrExpressionsNew_02_numbersDetected
+	return tokensOrExpressionsNew_03_numbersDetected
 }
 
 ////////////////////////////////////////////////////////////////////////////////

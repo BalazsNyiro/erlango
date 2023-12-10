@@ -65,6 +65,10 @@ func (token ErlToken) charFirstRuneValIsSmallCapsAtomStarter() bool {
 	return strings.Contains(abcEngLower, string(token.charFirstRuneVal()))
 }
 
+func (token ErlToken) charFirstRuneValIsVariableStarter() bool {
+	return strings.Contains("_" + abcEngUpper, string(token.charFirstRuneVal()))
+}
+
 func (token ErlToken) charAllInPassedCharacterSet(characterSetAccepted string) bool {
 	return string_all_chars_in_acceptedCharacterSet(token.stringRepresentation(), characterSetAccepted)
 }
