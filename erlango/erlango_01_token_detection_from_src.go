@@ -17,7 +17,7 @@ import (
 
 
 // sourcesTokensExecutables_all can be empty, or it can have existing elements - and maybe only newer ones are added.
-func step_01_tokens_from_source_code_of_files(
+func step_01_tokens_from_source_code_of_files(  // in program plan
 		sourcesTokensExecutables_all SourcesTokensExecutables_map,
 		fileNamePaths []string,
 		verboseForErlangoInvestigations__useFalseInProdEnv bool) SourcesTokensExecutables_map {
@@ -42,7 +42,7 @@ func step_01_tokens_from_source_code_of_files(
 	return sourcesTokensExecutables_all // it can have errors, too!
 }
 
-func step_01_tokens_from_passed_source_codes_without_files(erlSrc string, sourcesTokensExecutables_all SourcesTokensExecutables_map) SourcesTokensExecutables_map {
+func step_01_tokens_from_passed_source_codes_without_files(erlSrc string, sourcesTokensExecutables_all SourcesTokensExecutables_map) SourcesTokensExecutables_map { // in program plan
 	// detect tokens from a passed string src, without file path
 	returnFromTokenDetection := make(chan SourceTokensExecutables)
 	go step_01a_tokens_detect(erlSrc, "", returnFromTokenDetection, true)
@@ -51,7 +51,7 @@ func step_01_tokens_from_passed_source_codes_without_files(erlSrc string, source
 	return sourcesTokensExecutables_all
 }
 
-func step_01a_tokens_detect(erlangSource string, filePath string, parentChannel chan SourceTokensExecutables, verboseForErlangoInvestigations__useFalseInProdEnv bool) {
+func step_01a_tokens_detect(erlangSource string, filePath string, parentChannel chan SourceTokensExecutables, verboseForErlangoInvestigations__useFalseInProdEnv bool) { // in program plan
 	/*
 		if erlangSource is empty, source is read from filePath
 	*/
@@ -126,16 +126,6 @@ func step_01a_tokens_detect(erlangSource string, filePath string, parentChannel 
 	}
 
 	parentChannel <- sourceTokensExecutables
-}
-
-func char_txt_value_get(pos int, chars Chars) string {
-	ret := "" 	// I would like to handle empty values, too, so runes cannot be given back.
-	// empty value means: there is no real character in the wanted position
-	// the position has a real value only if it is in the valid range
-	if pos >= 0 && pos < len(chars) {
-		ret = string(chars[pos].Value)
-	}
-	return ret
 }
 
 /////////////////////////////////////////////////////////////////////////

@@ -17,7 +17,7 @@ import (
 	"strings"
 )
 
-func token_detect_comments_textblocks_alphanums(chars Chars, tokens ErlTokens, verboseForErlangoInvestigations__useFalseInProdEnv bool) ([]Char, ErlTokens, errorsDetected){
+func token_detect_comments_textblocks_alphanums(chars Chars, tokens ErlTokens, verboseForErlangoInvestigations__useFalseInProdEnv bool) ([]Char, ErlTokens, errorsDetected){ // in program plan
 	// the "wrapper" quotes around the string values or 'atoms' are the part of the tokens,
 	// they are necessary to define a text block (single or double qoted texts)
 	// but not part of the value of the token
@@ -49,10 +49,10 @@ func token_detect_comments_textblocks_alphanums(chars Chars, tokens ErlTokens, v
 
 	for charPos := 0; charPos < len(chars); charPos += 1 {
 
-		charTxtPrev2 := char_txt_value_get(charPos-2, chars)
-		charTxtPrev1 := char_txt_value_get(charPos-1, chars)
-		charTxtNow := char_txt_value_get(charPos, chars)
-		charTxtNext1 := char_txt_value_get(charPos+1, chars)
+		charTxtPrev2 := charTxtValueGet_for_tokenDetection(charPos-2, chars)
+		charTxtPrev1 := charTxtValueGet_for_tokenDetection(charPos-1, chars)
+		charTxtNow := charTxtValueGet_for_tokenDetection(charPos, chars)
+		charTxtNext1 := charTxtValueGet_for_tokenDetection(charPos+1, chars)
 
 		saveCompleteDetectedToken := false
 
@@ -68,7 +68,7 @@ func token_detect_comments_textblocks_alphanums(chars Chars, tokens ErlTokens, v
 
 			} else { // TokenType is set before this " detection:
 				if tokenActual.TokenType == tokenTypeTextBlockQuotedDouble {
-					if ! is_char_escaped_in_text_block(charPos, chars) {
+					if ! isCharEscapedInTextBlock__tokenDetectionQuoteds(charPos, chars) {
 						saveCompleteDetectedToken = true
 					} // char is not escaped
 				}
@@ -83,7 +83,7 @@ func token_detect_comments_textblocks_alphanums(chars Chars, tokens ErlTokens, v
 
 			} else { // TokenType is set before this ' detection:
 				if tokenActual.TokenType == tokenTypeTextBlockQuotedSingle {
-					if ! is_char_escaped_in_text_block(charPos, chars) { // an atom can have a ' char in its content, too
+					if ! isCharEscapedInTextBlock__tokenDetectionQuoteds(charPos, chars) { // an atom can have a ' char in its content, too
 						saveCompleteDetectedToken = true
 					} // char is not escaped
 				}
@@ -203,7 +203,7 @@ func token_detect_comments_textblocks_alphanums(chars Chars, tokens ErlTokens, v
 
 	return chars, tokens, errors
 }
-func is_char_escaped_in_text_block(posChar int, chars Chars) bool {
+func isCharEscapedInTextBlock__tokenDetectionQuoteds(posChar int, chars Chars) bool {
 	// char is escaped if there are 'odd' num of escape char before that.
 	escaped := false
 	escapeCharCounter := 0
@@ -219,5 +219,15 @@ func is_char_escaped_in_text_block(posChar int, chars Chars) bool {
 	}
 	escaped = (escapeCharCounter % 2) == 1 // odd escape chars are before the current char
 	return escaped
+}
+
+func charTxtValueGet_for_tokenDetection(pos int, chars Chars) string {  // in program plan
+	ret := "" 	// I would like to handle empty values, too, so runes cannot be given back.
+	// empty value means: there is no real character in the wanted position
+	// the position has a real value only if it is in the valid range
+	if pos >= 0 && pos < len(chars) {
+		ret = string(chars[pos].Value)
+	}
+	return ret
 }
 

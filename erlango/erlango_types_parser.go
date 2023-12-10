@@ -40,7 +40,7 @@ func (tokens ErlTokens) keysListOfPositions() []int {
 
 
 // ############# PARSER ELEMS #############################
-func ErlToken_empty_obj(tokenType string, tokenId int) ErlToken {
+func ErlToken_empty_obj(tokenType string, tokenId int) ErlToken { // in program plan
 	return ErlToken{ TokenType: tokenType, TokenId: tokenId, SourceCodeChars: Chars{}, TokenIsDetectedAsPartOfExpression: false}
 }
 
@@ -55,6 +55,7 @@ const tokenTypeOtherPunctuation = "tokenOtherPunctuation"
 const tokenTypeWhiteSpace = "tokenWhiteSpace"
 const tokenTypeCharLiteral = "tokenCharLiteral"
 const tokenTypeNumberBlock = "token_numberBlock"
+const tokenTypePlaceholderOnlyDontHaveMeaning = "tokenPlaceholderOnlyDontHaveMeaning "
 
 // use minimal set of types. Don't overcomplicate the parser.
 type ErlToken struct {
@@ -99,9 +100,10 @@ func (token ErlToken) stringRepresentationInPassedStringSet(stringSliceAccepted 
 }
 
 
-func (token ErlToken) typeIsEmpty() bool {
+func (token ErlToken) typeIsEmpty() bool { // in program plan
 	return token.TokenType == ""
 }
+
 func (token ErlToken) charPositionFirstLast() (int, int) {
 	charPosFirst := -1 // in a source code, 0 is the smallest position, so -1 means: no real position
 	charPosLast := -1

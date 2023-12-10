@@ -15,8 +15,7 @@ package erlango
 
 import "fmt"
 
-
-func Erlang_program_exec(prg ProgramWideStateVariable) {
+func Erlang_program_exec(prg ProgramWideStateVariable) {  // in program plan
 
 	sourcesTokensExecutables_list := SourcesTokensExecutables_map{}
 	// step_01_tokens_from_source_code_of_files(false, prg["verboseForErlangoInvestigations__useFalseInProdEnv"])
@@ -29,7 +28,7 @@ func Erlang_program_exec(prg ProgramWideStateVariable) {
 }
 
 
-func main() {
+func main() {  // in program plan
 	prg := new_program_state(false)
 	prg = cli_argument_detect(prg)  // all arguments are parsed, placed in prg
 	Erlang_program_exec(prg)

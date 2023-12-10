@@ -409,7 +409,9 @@ func getTokenOrExpression_fromLot(idSelected int, tokensOrExpressions TokensOrEx
 
 
 	if returnWithNonExistingTokenOrExpression {
-	 return TokenOrExpression{elemType: "token", token: ErlToken_empty_obj("", idSelected)}
+	 	return TokenOrExpression{	elemType: "token",
+			 						token: ErlToken_empty_obj(tokenTypePlaceholderOnlyDontHaveMeaning , idSelected),
+		 }
 	}
 	return tokensOrExpressions[idSelected]
 }
