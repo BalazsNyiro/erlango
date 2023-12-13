@@ -234,6 +234,8 @@ func step_02a_expressions_detect_in_one_erlang_source(
 	/* Task: prepare tokensOrExperssions structure, then start the detection */
 	fmt.Println("Expression detect:", filePath)
 
+	// copy: from tokens, create tokensOrExpressions.
+	// this is the place where the tokens are converted to expressions
 	tokensOrExpressions := tokens_copyTo_tokensOrExpressions(sourceTokensExecutables.Tokens)
 	tokensOrExpressions = expressionDetectAllType_from_tokens(tokensOrExpressions, wantedExpressionDetectionTypesCommaSeparated)
 

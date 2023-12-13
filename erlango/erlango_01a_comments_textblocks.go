@@ -17,7 +17,7 @@ import (
 	"strings"
 )
 
-func token_detect_comments_textblocks_alphanums(chars Chars, tokens ErlTokens, verboseForErlangoInvestigations__useFalseInProdEnv bool) ([]Char, ErlTokens, errorsDetected){ // in program plan
+func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars, tokens ErlTokens, verboseForErlangoInvestigations__useFalseInProdEnv bool) ([]Char, ErlTokens, errorsDetected){ // in program plan
 	// the "wrapper" quotes around the string values or 'atoms' are the part of the tokens,
 	// they are necessary to define a text block (single or double qoted texts)
 	// but not part of the value of the token

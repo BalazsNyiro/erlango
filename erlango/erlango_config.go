@@ -39,6 +39,7 @@ https://www.compart.com/en/unicode/U+003A
 ? - for conditional match operator:
 The conditional match operator in {ok, A} ?= a() fails to match,
 https://www.erlang.org/doc/reference_manual/expressions.html
+$ sign is detected separately
 */
 const otherPunctuation = "=.:,;(){}[]+-*/%<>#!?|"
 
