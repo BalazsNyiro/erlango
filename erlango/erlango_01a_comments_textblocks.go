@@ -151,8 +151,14 @@ func token_detect_comments_textblocks_alphanums(chars Chars, tokens ErlTokens, v
 		// Character literals. Example: $∑
 		if tokenActual.typeIsEmpty() {
 			// $A: A is literal, prev is $
+			if charTxtPrev1 == "$" && charTxtNow != "\\" {  // so this is not an escaped char literal, \n for example
+				tokenActual.TokenType = tokenTypeCharLiteral
+				// because they are 1 char wide elems, the block is closed at the first char
+				saveCompleteDetectedToken = true
+			}
+
+			if charTxtPrev2 == "$" && charTxtNow == "\\" {  // escaped literal
 			// $\n \n is literal, prev2 is $, prev1 is escape
-			if charTxtPrev1 == "$" || (charTxtPrev1 == "\\" && charTxtPrev2 == "$") {
 				tokenActual.TokenType = tokenTypeCharLiteral
 				// because they are 1 char wide elems, the block is closed at the first char
 				saveCompleteDetectedToken = true
