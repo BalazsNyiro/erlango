@@ -19,14 +19,13 @@ func Test_numbers_integers(t *testing.T) {
 	fmt.Println(funName)
 
 
-	erlSrc :=`	VarAtom = atom_value1, 
+	erlSrc :=`	VarAtom = atomValue1, 
 				VarAtomQuoted = 'atomQuoted', 
 				Str = "str", 
 				Float = 1.1, 
-				HexaSimple=16#ab,
 
 
-				Comment = "fullNumberTestTable"
+				TestGoal = "fullNumberTestTable"
 
 				IntSimple = 12, 
 				IntSimpleUnderscored = 12_34, 
@@ -42,7 +41,12 @@ func Test_numbers_integers(t *testing.T) {
 
 
 				BaseValueHexaLowerCap = 16#1f,
+				BaseValueHexaLowerCap_ff = 16#ff,
+				Comment1 = "ff can be detected as an atom, in prev steps"
+
 				BaseValueHexaUpperCap = 16#1F,
+				BaseValueHexaUpperCap_FF = 16#FF,
+				Comment2 = "FF can be detected, as a variable name"
 
 		
 
@@ -60,7 +64,9 @@ func Test_numbers_integers(t *testing.T) {
 				ScientificPlus = 2.3e+3,
 				ScientificMinus = 2.3e-3,
 				ScientificUnderscorePlus1 = 2_3.4e+3,
+
 				ScientificUnderscoreEverywherePlus = 2_3.4e+3_0,
+				IllegalFloatError_notValidErlangNumberIfSpaceInserted = "2_3.4e +3_0"
 
 				ScientificCapical = 2.0E3,
 				

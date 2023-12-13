@@ -47,15 +47,18 @@ func ErlToken_empty_obj(tokenType string, tokenId int) ErlToken { // in program 
 
 
 
-const tokenTypeTextBlockQuotedSingle = "tokenTextBlockQuotedSingle"
-const tokenTypeComment = "tokenComment"
-const tokenTypeTextBlockQuotedDouble = "tokenTextBlockQuotedDouble"
-const tokenTypeAbcFullWith_Underscore_At_numbers = "tokenAbcFullWith_Underscore_At_numbers"
-const tokenTypeOtherPunctuation = "tokenOtherPunctuation"
-const tokenTypeWhiteSpace = "tokenWhiteSpace"
-const tokenTypeCharLiteral = "tokenCharLiteral"
-const tokenTypeNumberBlock = "token_numberBlock"
-const tokenTypePlaceholderOnlyDontHaveMeaning = "tokenPlaceholderOnlyDontHaveMeaning "
+const tokenType_TextBlockQuotedSingle = "tokenTextBlockQuotedSingle"
+const tokenType_Comment = "tokenComment"
+const tokenType_TextBlockQuotedDouble = "tokenTextBlockQuotedDouble"
+const tokenType_AbcFullWith_Underscore_At_numbers = "tokenAbcFullWith_Underscore_At_numbers"
+const tokenType_OtherPunctuation = "tokenOtherPunctuation"
+const tokenType_WhiteSpace = "tokenWhiteSpace"
+const tokenType_CharLiteral = "tokenCharLiteral"
+
+const tokenType_DigitsOnlyUnderscore_Block = "token_digitBlock"
+const tokenType_DigitAndAlphabet_Block = "token_digitAndAlphabetBlock"
+
+const tokenType_PlaceholderOnly_DontHaveMeaning = "tokenPlaceholderOnlyDontHaveMeaning "
 
 // use minimal set of types. Don't overcomplicate the parser.
 type ErlToken struct {

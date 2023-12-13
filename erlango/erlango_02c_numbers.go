@@ -163,11 +163,37 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 	/* Number detection is tricky, because more tokens have to be analysed, same time.
 
 	number detection happens in more turn.
+
+	What a fun: the numbers are very close to atoms and strings, as I see it now.
+	and I think number detection is the most complex part of the game.
 	*/
 
 	// NUMBER_BLOCK_SEPARATORS := []string{".", "#", "e", "E", "e+", "e-", "E+", "E-"}
 	const DIGITS_UNDERSCORE = digitsDecimal + "_"
 	const DIGITS_UNDERSCORE_abc_ABC = DIGITS_UNDERSCORE + abcEngLower + abcEngUpper
+
+
+
+	// locally used functions only, for num detection
+	isHashmark := func (tokenOrExpression TokenOrExpression) bool {
+		return tokenOrExpression.token.stringRepresentation() == "#"
+	}
+
+	isDot:= func (tokenOrExpression TokenOrExpression) bool {
+		return tokenOrExpression.token.stringRepresentation() == "."
+	}
+
+	isDigitAndAlphabetBlock := func (tokenOrExpression TokenOrExpression) bool {
+		return tokenOrExpression.token.TokenType == tokenType_DigitAndAlphabet_Block
+	}
+
+	isPlusMinus := func (tokenOrExpression TokenOrExpression) bool {
+		return tokenOrExpression.token.stringRepresentation() == "+"
+	}
+
+
+
+
 
 
 	///////////////////// PREPARE NUM DETECTION WITH BLOCKS ////////////////////////////////////////
@@ -187,19 +213,16 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 		// in numbers _ can be used BUT _ cannot be the first character
 		if tokenOrExpression.token.charFirstRuneVal() != '_' {
 
-			if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE) {
-				tokenOrExpression.token.TokenType = tokenTypeNumberBlock // it can be binary, or anything less than 10 based num
-			}
-
 			// atoms and strings were detected previously - so if there are digits+mixed characters, it can be a hexadecimal number block
 			if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE_abc_ABC) {
-				tokenOrExpression.token.TokenType = tokenTypeNumberBlock
+				tokenOrExpression.token.TokenType = tokenType_DigitAndAlphabet_Block
 			}
 		}
 
 		tokensOrExpressionsNew_blockDetection = append(tokensOrExpressionsNew_blockDetection, tokenOrExpression)
 
 	} // FOR, block detection
+
 
 
 	/////////////////////////////////////////////////////////////
@@ -209,37 +232,76 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 	if lenTokenOrExpressions > 0 { // so if there is something to check
 
-		for idTokenOrExpr := 0; idTokenOrExpr < lenTokenOrExpressions; idTokenOrExpr++ {
+		// for idTokenOrExpr := 0; idTokenOrExpr < lenTokenOrExpressions; idTokenOrExpr++ {
+		idTokenOrExpr := -1
+		for {
 
-			tokenOrExpression :=  getTokenOrExpression_fromLot(idTokenOrExpr, tokensOrExpressionsNew_blockDetection)
+			// because id is manipulated inside the for loop, we can move forward more with 1,
+			// if it is necessary, with more than 1 token processing
+			idTokenOrExpr++
+			if idTokenOrExpr >= lenTokenOrExpressions { break }
 
-			fmt.Println("detect numbers - token expression", tokenOrExpression)
 
-			if tokenOrExpression.isExpression() {  // if it is a previously detected expression, there is nothing to do
-				tokensOrExpressionsNew_numsDetected= append(tokensOrExpressionsNew_numsDetected, tokenOrExpression)
-				continue
-			}
+			tokenOrExpressionActual := getTokenOrExpression_fromLot(idTokenOrExpr,   tokensOrExpressionsNew_blockDetection)
+			tokenOrExpressionNext1  := getTokenOrExpression_fromLot(idTokenOrExpr+1, tokensOrExpressionsNew_blockDetection)
+			tokenOrExpressionNext2  := getTokenOrExpression_fromLot(idTokenOrExpr+2, tokensOrExpressionsNew_blockDetection)
+			tokenOrExpressionNext3  := getTokenOrExpression_fromLot(idTokenOrExpr+3, tokensOrExpressionsNew_blockDetection)
+			tokenOrExpressionNext4  := getTokenOrExpression_fromLot(idTokenOrExpr+3, tokensOrExpressionsNew_blockDetection)
+
+			fmt.Println("detect numbers - token expression  id token", idTokenOrExpr)
+
 
 			isNum := false
 			/////////////////////////////////////////////////////////////////////
 
 
+			/*
+			   vvv digitAndAlphabet
+			      v isDot OR isHashmark
+			       vv digitOrAlphabet (e is incluced in the alphabet)
+			         v plusminus
+			          vvv digitOrAlphabet
+			   2_3.4e+3_0,
+
+			      v isDot OR isHashmark
+			   2_3#4e+3_0,
+
+			 erl shell> 2_3#4e+3_0.
+			            136
+			*/
+
+			if isDigitAndAlphabetBlock(tokenOrExpressionActual) {
+				if isDot(tokenOrExpressionNext1) || isHashmark(tokenOrExpressionNext1) {
+					if isDigitAndAlphabetBlock(tokenOrExpressionNext2) {
+						if isPlusMinus(tokenOrExpressionNext3) {
+							if isDigitAndAlphabetBlock(tokenOrExpressionNext4) {
 
 
+
+								isNum = true
+
+								// TODO: Actual + next 4 elem forms a number!
+
+
+							}
+						}
+					}
+				}
+			}
 
 
 			/////////////////////////////////////////////////////////////////////
 			if isNum {
-				tokenOrExpression.elemType = tokenOrExpression_thisIsAnExpression
-				tokenOrExpression.expression = ErlExpression{
+				tokenOrExpressionActual.elemType = tokenOrExpression_thisIsAnExpression
+				tokenOrExpressionActual.expression = ErlExpression{
 					ExpressionType:			expression_num,
-					SimpleTokenValue:      tokenOrExpression.token,
+					SimpleTokenValue____REMOVE_THIS_IF_YOU_CAN: tokenOrExpression.token,
 				}
 				// put back tokenOrExpression with modified elemType and expression
-				tokensOrExpressionsNew_numsDetected = append(tokensOrExpressionsNew_numsDetected, tokenOrExpression)
+				tokensOrExpressionsNew_numsDetected = append(tokensOrExpressionsNew_numsDetected, tokenOrExpressionActual)
 
 			} else {  // not an atom - put back the tokenOrExpression without any extra change/modification
-				tokensOrExpressionsNew_numsDetected = append(tokensOrExpressionsNew_numsDetected, tokenOrExpression)
+				tokensOrExpressionsNew_numsDetected = append(tokensOrExpressionsNew_numsDetected, tokenOrExpressionActual)
 			}
 		} // FOR
 

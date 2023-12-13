@@ -64,10 +64,10 @@ func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars
 		if charTxtNow == "\""{
 
 			if tokenActual.typeIsEmpty() {
-				tokenActual.TokenType = tokenTypeTextBlockQuotedDouble
+				tokenActual.TokenType = tokenType_TextBlockQuotedDouble
 
 			} else { // TokenType is set before this " detection:
-				if tokenActual.TokenType == tokenTypeTextBlockQuotedDouble {
+				if tokenActual.TokenType == tokenType_TextBlockQuotedDouble {
 					if ! isCharEscapedInTextBlock__tokenDetectionQuoteds(charPos, chars) {
 						saveCompleteDetectedToken = true
 					} // char is not escaped
@@ -79,10 +79,10 @@ func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars
 		if charTxtNow == "'"{
 
 			if tokenActual.typeIsEmpty() {
-				tokenActual.TokenType = tokenTypeTextBlockQuotedSingle
+				tokenActual.TokenType = tokenType_TextBlockQuotedSingle
 
 			} else { // TokenType is set before this ' detection:
-				if tokenActual.TokenType == tokenTypeTextBlockQuotedSingle {
+				if tokenActual.TokenType == tokenType_TextBlockQuotedSingle {
 					if ! isCharEscapedInTextBlock__tokenDetectionQuoteds(charPos, chars) { // an atom can have a ' char in its content, too
 						saveCompleteDetectedToken = true
 					} // char is not escaped
@@ -93,11 +93,11 @@ func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars
 
 		if tokenActual.typeIsEmpty() {
 			if charTxtNow == "%"{
-				tokenActual.TokenType = tokenTypeComment
+				tokenActual.TokenType = tokenType_Comment
 			}
 		}
 
-		if tokenActual.TokenType == tokenTypeComment {
+		if tokenActual.TokenType == tokenType_Comment {
 			if charTxtNow == commentLineCloser {
 				saveCompleteDetectedToken = true
 			}
@@ -116,10 +116,10 @@ func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars
 		//// ABC + numbers block detect  ///////////////////////////////////////////////////////////
 		if tokenActual.typeIsEmpty() {
 			if strings.Contains(abcEngLowerUpper_underscore_at_digits_Underscore_At_digits__atomFormerChars, charTxtNow) {
-				tokenActual.TokenType = tokenTypeAbcFullWith_Underscore_At_numbers
+				tokenActual.TokenType = tokenType_AbcFullWith_Underscore_At_numbers
 			}
 		}
-		if tokenActual.TokenType == tokenTypeAbcFullWith_Underscore_At_numbers {
+		if tokenActual.TokenType == tokenType_AbcFullWith_Underscore_At_numbers {
 			// if the next char is not in abc, then the current one is the closer.
 			if ! strings.Contains(abcEngLowerUpper_underscore_at_digits_Underscore_At_digits__atomFormerChars, charTxtNext1) {
 				saveCompleteDetectedToken = true
@@ -131,7 +131,7 @@ func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars
 		///// OTHER PUNCTUATION DETECT - they are 1 char wide elems in the source code //////////////////////////////////////////////////////////
 		if tokenActual.typeIsEmpty() {
 			if strings.Contains(otherPunctuation, charTxtNow) {
-				tokenActual.TokenType = tokenTypeOtherPunctuation
+				tokenActual.TokenType = tokenType_OtherPunctuation
 				// because they are 1 char wide elems, the block is closed at the first char
 				saveCompleteDetectedToken = true
 			}
@@ -141,7 +141,7 @@ func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars
 		///// white space  DETECT - they are 1 char wide elems in the source code //////////////////////////////////////////////////////////
 		if tokenActual.typeIsEmpty() {
 			if is_whitespace_only(charTxtNow) {
-				tokenActual.TokenType = tokenTypeWhiteSpace
+				tokenActual.TokenType = tokenType_WhiteSpace
 				// because they are 1 char wide elems, the block is closed at the first char
 				saveCompleteDetectedToken = true
 			}
@@ -152,14 +152,14 @@ func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars
 		if tokenActual.typeIsEmpty() {
 			// $A: A is literal, prev is $
 			if charTxtPrev1 == "$" && charTxtNow != "\\" {  // so this is not an escaped char literal, \n for example
-				tokenActual.TokenType = tokenTypeCharLiteral
+				tokenActual.TokenType = tokenType_CharLiteral
 				// because they are 1 char wide elems, the block is closed at the first char
 				saveCompleteDetectedToken = true
 			}
 
 			if charTxtPrev2 == "$" && charTxtNow == "\\" {  // escaped literal
 			// $\n \n is literal, prev2 is $, prev1 is escape
-				tokenActual.TokenType = tokenTypeCharLiteral
+				tokenActual.TokenType = tokenType_CharLiteral
 				// because they are 1 char wide elems, the block is closed at the first char
 				saveCompleteDetectedToken = true
 			}
@@ -189,13 +189,12 @@ func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars
 		}
 
 		if saveCompleteDetectedToken {
-			if tokenActual.TokenType != tokenTypeWhiteSpace && tokenActual.TokenType != tokenTypeComment {
+			if tokenActual.TokenType != tokenType_WhiteSpace && tokenActual.TokenType != tokenType_Comment {
 
 				if verboseForErlangoInvestigations__useFalseInProdEnv {
 					// the string representation can be asked with a function,
-					// so this saving is support the Erlango debugging only,
-					// when in a debugger it is easier to follow the saved value.
-					// in production this is not necessary
+					// so this value supports the Erlango debugging only:
+					// in a debugger it is easier to follow a simple value
 					tokenActual.DebugStringRepresentation = tokenActual.stringRepresentation()
 				}
 

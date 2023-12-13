@@ -33,7 +33,7 @@ func expression_detect_variable_names(tokensOrExpressionsOld TokensOrExpressions
 
 		isVariableName := false
 
-		if tokenOrExpression.token.TokenType == tokenTypeAbcFullWith_Underscore_At_numbers {
+		if tokenOrExpression.token.TokenType == tokenType_AbcFullWith_Underscore_At_numbers {
 			if tokenOrExpression.token.charFirstRuneValIsVariableStarter() {
 				isVariableName = true
 			}
@@ -43,7 +43,7 @@ func expression_detect_variable_names(tokensOrExpressionsOld TokensOrExpressions
 			tokenOrExpression.elemType = tokenOrExpression_thisIsAnExpression
 			tokenOrExpression.expression = ErlExpression{
 				ExpressionType:        expression_variableName,
-				SimpleTokenValue:      tokenOrExpression.token,
+				SimpleTokenValue____REMOVE_THIS_IF_YOU_CAN: tokenOrExpression.token,
 			}
 			// put back tokenOrExpression with modified elemType and expression
 			tokensOrExpressionsNew_variableNamesDetected = append(tokensOrExpressionsNew_variableNamesDetected, tokenOrExpression)
