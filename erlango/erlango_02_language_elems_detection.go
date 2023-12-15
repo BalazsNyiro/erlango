@@ -248,7 +248,9 @@ func step_02a_expressions_detect_in_one_erlang_source(
 			fmt.Println("ERROR: missing EXPRESSION CONVERSION: a tokenOrExpression is not converted to be an expression - nonDetected Expresssion inserted")
 			errorExpression := ErlExpression{
 				ExpressionType: expression_nonDetectedFromToken,
-				SimpleTokenValue____REMOVE_THIS_IF_YOU_CAN: tokenOrExpression.token, // in ERROR, token is not converted
+
+				TokensOrExpressions: TokensOrExpressions{
+					TokenOrExpression{token: tokenOrExpression.token}}, // in ERROR, token is not converted
 			}
 			sourceTokensExecutables.Expressions = append(sourceTokensExecutables.Expressions, errorExpression)
 		}
@@ -316,7 +318,8 @@ func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions, wantedE
 			tokenOrExpression.elemType = tokenOrExpression_thisIsAnExpression
 			tokenOrExpression.expression = ErlExpression{
 				ExpressionType:        expression_atom,
-				SimpleTokenValue____REMOVE_THIS_IF_YOU_CAN: tokenOrExpression.token,
+				TokensOrExpressions: TokensOrExpressions{
+					TokenOrExpression{token: tokenOrExpression.token}},
 			}
 			// put back tokenOrExpression with modified elemType and expression
 			tokensOrExpressionsNew_01_atomsDetected = append(tokensOrExpressionsNew_01_atomsDetected, tokenOrExpression)
@@ -351,14 +354,14 @@ func (erlExpressions ErlExpressions) printAll() {
 	fmt.Println("print All expressions")
 	for _, erlExpression := range erlExpressions {
 
-		fmt.Println("DETECTED 0 erlExpression:", erlExpression)
+		// fmt.Println("DETECTED 0 erlExpression:", erlExpression)
 		representation := ""
 		for _, tokenOrExpression := range(erlExpression.TokensOrExpressions) {
-			representation = representation + fmt.Sprintf("%6s", tokenOrExpression.token.stringRepresentation())
-			representation = representation + fmt.Sprintf("%-30s", tokenOrExpression.token.TokenType)
+			representation = representation + fmt.Sprintf("%6s ", tokenOrExpression.token.stringRepresentation())
+			representation = representation + fmt.Sprintf("%-30s | ", tokenOrExpression.token.TokenType)
 		}
+		// display ErlExpression
 		fmt.Printf("DETECTED 1 expression: %-34s  %s\n", erlExpression.expressionTypeForHuman(), representation)
-		fmt.Println("DETECTED 2 representation:", representation)
 		fmt.Println()
 	}
 }
@@ -369,10 +372,6 @@ type ErlExpression struct {
 	ExpressionType int // expression_atom, expression_num... (BOOKMARK-labeled in source code)
 
 	TokensOrExpressions TokensOrExpressions
-
-	SimpleTokenValue____REMOVE_THIS_IF_YOU_CAN ErlToken
-	// if the expression is a simple term, number, atom, string,
-	// the token value is stored here
 }
 
 // give back the human representation of type

@@ -230,6 +230,7 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 	tokensOrExpressionsNew_numsDetected := TokensOrExpressions{}
 	lenTokenOrExpressions :=  len(tokensOrExpressionsNew_blockDetection)
 
+	numberTokenElems := TokensOrExpressions{ }
 	if lenTokenOrExpressions > 0 { // so if there is something to check
 
 		// for idTokenOrExpr := 0; idTokenOrExpr < lenTokenOrExpressions; idTokenOrExpr++ {
@@ -276,12 +277,15 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 						if isPlusMinus(tokenOrExpressionNext3) {
 							if isDigitAndAlphabetBlock(tokenOrExpressionNext4) {
 
-
-
 								isNum = true
-
-								// TODO: Actual + next 4 elem forms a number!
-
+								numberTokenElems = TokensOrExpressions{
+									// Actual + next 4 elem forms a number!
+									TokenOrExpression{token: tokenOrExpressionActual.token},
+									TokenOrExpression{token: tokenOrExpressionNext1.token},
+									TokenOrExpression{token: tokenOrExpressionNext2.token},
+									TokenOrExpression{token: tokenOrExpressionNext3.token},
+									TokenOrExpression{token: tokenOrExpressionNext4.token},
+								}
 
 							}
 						}
@@ -295,7 +299,7 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 				tokenOrExpressionActual.elemType = tokenOrExpression_thisIsAnExpression
 				tokenOrExpressionActual.expression = ErlExpression{
 					ExpressionType:			expression_num,
-					SimpleTokenValue____REMOVE_THIS_IF_YOU_CAN: tokenOrExpression.token,
+					TokensOrExpressions: numberTokenElems,
 				}
 				// put back tokenOrExpression with modified elemType and expression
 				tokensOrExpressionsNew_numsDetected = append(tokensOrExpressionsNew_numsDetected, tokenOrExpressionActual)
