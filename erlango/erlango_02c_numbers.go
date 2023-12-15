@@ -285,7 +285,7 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 			*/
 
 			// detect only if num was NOT detected in this turn
-			if false && (! isNum) {
+			if (! isNum) {
 				if isDigitAndAlphabetBlock(tokenOrExpressionActual) {
 					if isDot(tokenOrExpressionNext1) || isHashmark(tokenOrExpressionNext1) {
 						if isDigitAndAlphabetBlock(tokenOrExpressionNext2) {
@@ -321,7 +321,7 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 			// 1_6#4e
 			// detect only if num was NOT detected in this turn
-			if false && (! isNum) {
+			if (! isNum) {
 				fmt.Println("hexa try?")
 				if isDigitAndAlphabetBlock(tokenOrExpressionActual) {
 					if isHashmark(tokenOrExpressionNext1) {
@@ -371,6 +371,22 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 			if ! isNum {
 				fmt.Println("float try: NO - num detection ")
 			}
+
+
+			// integers
+			if (! isNum) {
+				fmt.Println("int try: ")
+				if isDigitOnlyBlock(tokenOrExpressionActual) {
+					isNum = true
+					numberTokenElems = TokensOrExpressions{
+						TokenOrExpression{token: tokenOrExpressionActual.token},
+					}
+				}
+			}
+			if ! isNum {
+				fmt.Println("int try: NO - num detection ")
+			}
+
 
 
 			/////////////////////////////////////////////////////////////////////
