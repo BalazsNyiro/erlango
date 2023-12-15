@@ -33,10 +33,9 @@ func Test_expression_detection_function(t *testing.T) {
 	erlExpressions := Expression_detection_for_tests(erlSrc, wantedExpressionDetectionTypes)
 	erlExpressions.printAll()
 
-	typeWanted := expression_atom
-	testCheck_isAtom(funName + "_fact", erlExpressions[0], typeWanted, t)
-	testCheck_isAtom(funName + "_when", erlExpressions[4], typeWanted, t)
-	testCheck_isAtom(funName + "_fact", erlExpressions[12], typeWanted, t)
+	testCheck_isAtomExpression(funName + "_fact", erlExpressions[0], t)
+	testCheck_isAtomExpression(funName + "_when", erlExpressions[4], t)
+	testCheck_isAtomExpression(funName + "_fact", erlExpressions[12], t)
 }
 
 

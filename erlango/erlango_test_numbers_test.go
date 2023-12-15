@@ -13,9 +13,55 @@ import (
 	"testing"
 )
 
+//  go test -v -run Test_numbers_1_int
+func Test_numbers_1_int(t *testing.T) {
+	fmt.Println("THIS IS NOT IMPLEMENTED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+	funName := "Test_numbers_1_int"
+	fmt.Println(funName)
+
+	erlSrc :=`IntSimpleVariableName = 12,`
+
+	wantedExpressionDetectionTypes := "detectAllExpressions"
+	erlExpressions := Expression_detection_for_tests(erlSrc, wantedExpressionDetectionTypes)
+	erlExpressions.printAll()
+
+	testCheck_isNumberExpression(funName, erlExpressions[2], t)
+}
+
+//  go test -v -run Test_numbers_2a_float
+func Test_numbers_2a_float(t *testing.T) {
+	funName := "Test_numbers_2a_float"
+	fmt.Println(funName)
+
+	erlSrc :=` Float = 2_3.4 `
+
+	wantedExpressionDetectionTypes := "detectAllExpressions"
+	erlExpressions := Expression_detection_for_tests(erlSrc, wantedExpressionDetectionTypes)
+	erlExpressions.printAll()
+
+	testCheck_isNumberExpression(funName, erlExpressions[2], t)
+
+}
+
+
+//  go test -v -run Test_numbers_2_ScientificLong
+func Test_numbers_2b_ScientificLong(t *testing.T) {
+	funName := "Test_numbers_2_ScientificLong"
+	fmt.Println(funName)
+
+	erlSrc :=` ScientificUnderscoreEverywherePlus = 2_3.4e+3_0, `
+
+	wantedExpressionDetectionTypes := "detectAllExpressions"
+	erlExpressions := Expression_detection_for_tests(erlSrc, wantedExpressionDetectionTypes)
+	erlExpressions.printAll()
+
+	testCheck_isNumberExpression(funName, erlExpressions[2], t)
+
+}
+
 //  go test -v -run Test_numbers_integers
-func Test_numbers_integers(t *testing.T) {
-	funName := "Test_numbers_integers"
+func Test_numbers_all(t *testing.T) {
+	funName := "Test_numbers_complex"
 	fmt.Println(funName)
 
 

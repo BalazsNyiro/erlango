@@ -180,15 +180,23 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 	}
 
 	isDot:= func (tokenOrExpression TokenOrExpression) bool {
+		fmt.Println("isDot: ", tokenOrExpression.token.stringRepresentation())
 		return tokenOrExpression.token.stringRepresentation() == "."
 	}
 
 	isDigitAndAlphabetBlock := func (tokenOrExpression TokenOrExpression) bool {
-		return tokenOrExpression.token.TokenType == tokenType_DigitAndAlphabet_Block
+		fmt.Println("isDigitAndAlphabetBlock: ", tokenOrExpression.token.stringRepresentation())
+		return tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE_abc_ABC)
+	}
+
+	isDigitOnlyBlock := func (tokenOrExpression TokenOrExpression) bool {
+		fmt.Println("isDigitOnlyBlock: ", tokenOrExpression.token.stringRepresentation())
+		return tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE)
 	}
 
 	isPlusMinus := func (tokenOrExpression TokenOrExpression) bool {
-		return tokenOrExpression.token.stringRepresentation() == "+"
+		fmt.Println("isPlusMinus: ", tokenOrExpression.token.stringRepresentation())
+		return tokenOrExpression.token.stringRepresentation() == "+" || tokenOrExpression.token.stringRepresentation() == "-"
 	}
 
 
@@ -215,7 +223,7 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 			// atoms and strings were detected previously - so if there are digits+mixed characters, it can be a hexadecimal number block
 			if tokenOrExpression.token.charAllInPassedCharacterSet(DIGITS_UNDERSCORE_abc_ABC) {
-				tokenOrExpression.token.TokenType = tokenType_DigitAndAlphabet_Block
+				tokenOrExpression.token.TokenType = tokenType_DigitAndAlphabet_Block__numberDetectionStepInitial
 			}
 		}
 
@@ -233,7 +241,6 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 	numberTokenElems := TokensOrExpressions{ }
 	if lenTokenOrExpressions > 0 { // so if there is something to check
 
-		// for idTokenOrExpr := 0; idTokenOrExpr < lenTokenOrExpressions; idTokenOrExpr++ {
 		idTokenOrExpr := -1
 		for {
 
@@ -247,13 +254,19 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 			tokenOrExpressionNext1  := getTokenOrExpression_fromLot(idTokenOrExpr+1, tokensOrExpressionsNew_blockDetection)
 			tokenOrExpressionNext2  := getTokenOrExpression_fromLot(idTokenOrExpr+2, tokensOrExpressionsNew_blockDetection)
 			tokenOrExpressionNext3  := getTokenOrExpression_fromLot(idTokenOrExpr+3, tokensOrExpressionsNew_blockDetection)
-			tokenOrExpressionNext4  := getTokenOrExpression_fromLot(idTokenOrExpr+3, tokensOrExpressionsNew_blockDetection)
+			tokenOrExpressionNext4  := getTokenOrExpression_fromLot(idTokenOrExpr+4, tokensOrExpressionsNew_blockDetection)
 
 			fmt.Println("detect numbers - token expression  id token", idTokenOrExpr)
 
 
 			isNum := false
 			/////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
 
 
 			/*
@@ -271,11 +284,49 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 			            136
 			*/
 
-			if isDigitAndAlphabetBlock(tokenOrExpressionActual) {
-				if isDot(tokenOrExpressionNext1) || isHashmark(tokenOrExpressionNext1) {
-					if isDigitAndAlphabetBlock(tokenOrExpressionNext2) {
-						if isPlusMinus(tokenOrExpressionNext3) {
-							if isDigitAndAlphabetBlock(tokenOrExpressionNext4) {
+			// detect only if num was NOT detected in this turn
+			if false && (! isNum) {
+				if isDigitAndAlphabetBlock(tokenOrExpressionActual) {
+					if isDot(tokenOrExpressionNext1) || isHashmark(tokenOrExpressionNext1) {
+						if isDigitAndAlphabetBlock(tokenOrExpressionNext2) {
+							if isPlusMinus(tokenOrExpressionNext3) {
+								if isDigitAndAlphabetBlock(tokenOrExpressionNext4) {
+
+									isNum = true
+									numberTokenElems = TokensOrExpressions{
+										// Actual + next 4 elem forms a number!
+										TokenOrExpression{token: tokenOrExpressionActual.token},
+										TokenOrExpression{token: tokenOrExpressionNext1.token},
+										TokenOrExpression{token: tokenOrExpressionNext2.token},
+										TokenOrExpression{token: tokenOrExpressionNext3.token},
+										TokenOrExpression{token: tokenOrExpressionNext4.token},
+									}
+
+									// move the id from Actual => Actual + 4, so for loop will skip the next 4 elems
+									idTokenOrExpr += 4
+								}
+							}
+						}
+					}
+				}
+				if ! isNum {
+					fmt.Println("NO - num detection, 4 elem")
+				}
+			}
+
+
+
+
+
+
+			// 1_6#4e
+			// detect only if num was NOT detected in this turn
+			if false && (! isNum) {
+				fmt.Println("hexa try?")
+				if isDigitAndAlphabetBlock(tokenOrExpressionActual) {
+					if isHashmark(tokenOrExpressionNext1) {
+						if isDigitAndAlphabetBlock(tokenOrExpressionNext2) {
+							if isDigitAndAlphabetBlock(tokenOrExpressionNext3) {
 
 								isNum = true
 								numberTokenElems = TokensOrExpressions{
@@ -284,13 +335,41 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 									TokenOrExpression{token: tokenOrExpressionNext1.token},
 									TokenOrExpression{token: tokenOrExpressionNext2.token},
 									TokenOrExpression{token: tokenOrExpressionNext3.token},
-									TokenOrExpression{token: tokenOrExpressionNext4.token},
 								}
-
+								idTokenOrExpr += 3 // move the id from Actual => Actual + 3
 							}
 						}
 					}
 				}
+				if ! isNum {
+					fmt.Println("hexa try: NO - num detection, like hexa ")
+				}
+			}
+
+
+
+
+
+			// 1_6.4
+			// detect only if num was NOT detected in this turn
+			if (! isNum) {
+				fmt.Println("float try: ")
+				if isDigitOnlyBlock(tokenOrExpressionActual) {
+					if isDot(tokenOrExpressionNext1){
+						if isDigitOnlyBlock(tokenOrExpressionNext2) {
+							isNum = true
+							numberTokenElems = TokensOrExpressions{
+								TokenOrExpression{token: tokenOrExpressionActual.token},
+								TokenOrExpression{token: tokenOrExpressionNext1.token},
+								TokenOrExpression{token: tokenOrExpressionNext2.token},
+							}
+							idTokenOrExpr += 2
+						}
+					}
+				}
+			}
+			if ! isNum {
+				fmt.Println("float try: NO - num detection ")
 			}
 
 

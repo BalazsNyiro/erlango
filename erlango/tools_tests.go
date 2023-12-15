@@ -29,9 +29,14 @@ func Expression_detection_for_tests(erlSrc string, wantedExpressionDetectionType
 	return sourcesTokensExecutables_all[erlSrc].Expressions
 }
 
-func testCheck_isAtom(testName string, erlExpression ErlExpression, typeWanted int, t *testing.T) {
+func testCheck_isAtomExpression(testName string, erlExpression ErlExpression, t *testing.T) {
+	testCheck_compareExpressionWithWantedType(testName, erlExpression, expression_atom, t)
+}
+func testCheck_isNumberExpression(testName string, erlExpression ErlExpression, t *testing.T) {
+	testCheck_compareExpressionWithWantedType(testName, erlExpression, expression_num, t)
+}
+func testCheck_compareExpressionWithWantedType(testName string, erlExpression ErlExpression, typeWanted int, t *testing.T) {
 	if erlExpression.ExpressionType !=  typeWanted {
-		t.Fatalf("\nError (%s): incorrect expression type: %s, wanted: %v", testName, erlExpression.expressionTypeForHuman(), typeWanted)
+		t.Fatalf("\nError (%s): incorrect expression type: %s, wanted type: %v %s", testName, erlExpression.expressionTypeForHuman(), typeWanted, ExpressionName_from_num[typeWanted])
 	}
-
 }

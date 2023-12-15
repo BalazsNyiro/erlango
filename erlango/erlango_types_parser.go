@@ -56,7 +56,7 @@ const tokenType_WhiteSpace = "tokenWhiteSpace"
 const tokenType_CharLiteral = "tokenCharLiteral"
 
 const tokenType_DigitsOnlyUnderscore_Block = "token_digitBlock"
-const tokenType_DigitAndAlphabet_Block = "token_digitAndAlphabetBlock"
+const tokenType_DigitAndAlphabet_Block__numberDetectionStepInitial = "tokenDigitAndAlphabet_Block__numberDetectionStepInitial"
 
 const tokenType_PlaceholderOnly_DontHaveMeaning = "tokenPlaceholderOnlyDontHaveMeaning "
 
