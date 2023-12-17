@@ -32,9 +32,27 @@ func Expression_detection_for_tests(erlSrc string, wantedExpressionDetectionType
 func testCheck_isAtomExpression(testName string, erlExpression ErlExpression, t *testing.T) {
 	testCheck_compareExpressionWithWantedType(testName, erlExpression, expression_atom, t)
 }
+
 func testCheck_isNumberExpression(testName string, erlExpression ErlExpression, t *testing.T) {
 	testCheck_compareExpressionWithWantedType(testName, erlExpression, expression_num, t)
 }
+
+func testCheck_isVariableNameExpression(testName string, erlExpression ErlExpression, t *testing.T) {
+	testCheck_compareExpressionWithWantedType(testName, erlExpression, expression_variableName, t)
+}
+
+// receives list of types and expressions, and compares all expressions with all types
+func testCheck_expressionsListWanted(callerTestFunName string, erlExpressions ErlExpressions, typesWanted []int, t *testing.T) {
+
+	for i, erlExpression := range(erlExpressions) {
+		if i >= len(typesWanted){
+			continue // if the passed typesWanted smaller, check only the available wanted types
+		}
+		expressionTypeWanted := typesWanted[i]
+		testCheck_compareExpressionWithWantedType(callerTestFunName, erlExpression, expressionTypeWanted, t)
+	}
+}
+
 func testCheck_compareExpressionWithWantedType(testName string, erlExpression ErlExpression, typeWanted int, t *testing.T) {
 	if erlExpression.ExpressionType !=  typeWanted {
 		t.Fatalf("\nError (%s): incorrect expression type: %s, wanted type: %v %s", testName, erlExpression.expressionTypeForHuman(), typeWanted, ExpressionName_from_num[typeWanted])
