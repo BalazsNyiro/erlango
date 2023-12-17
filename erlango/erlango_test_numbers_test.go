@@ -140,7 +140,7 @@ func Test_numbers_all(t *testing.T) {
 		expression_variableName, expression_nonDetectedFromToken, expression_atom, expression_nonDetectedFromToken,
 
 		// Str                   =                                "str"                             ,
-		expression_variableName, expression_nonDetectedFromToken, expression_nonDetectedFromToken, expression_nonDetectedFromToken,
+		expression_variableName, expression_nonDetectedFromToken, expression_stringDoubleQuoted, expression_nonDetectedFromToken,
 		// Float = 1.1,
 
 

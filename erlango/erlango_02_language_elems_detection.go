@@ -273,33 +273,34 @@ func expressionDetectAllType_from_tokens(
 	// Named function definitions =======================================================
 	/*  https://www.erlang.org/doc/reference_manual/functions.html */
 
-	tokensOrExpressionsNew_01_atomsDetected := expression_detect_atoms(tokensOrExpressionsOld, wantedExpressionDetectionTypesCommaSeparated)
-	tokensOrExpressionsNew_02_variableNamesDetected := expression_detect_variable_names(tokensOrExpressionsNew_01_atomsDetected, wantedExpressionDetectionTypesCommaSeparated)
-	tokensOrExpressionsNew_03_numbersDetected := expression_detect_numbers(tokensOrExpressionsNew_02_variableNamesDetected, wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_atomsStringsDetected := expression_detect_atoms_strings(tokensOrExpressionsOld, wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_variableNamesDetected := expression_detect_variable_names(tokensOrExpressionsNew_atomsStringsDetected, wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_numbersDetected := expression_detect_numbers(tokensOrExpressionsNew_variableNamesDetected, wantedExpressionDetectionTypesCommaSeparated)
 
-	return tokensOrExpressionsNew_03_numbersDetected
+	return tokensOrExpressionsNew_numbersDetected
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions, wantedExpressionDetectionTypesCommaSeparated string) TokensOrExpressions {
-	if ! (strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "atomsQuoted") ||
-		strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "atomsSimple") ||
+// atoms and strings are very close, only the quotes are different - so they can be detected together
+func expression_detect_atoms_strings(tokensOrExpressionsOld TokensOrExpressions, wantedExpressionDetectionTypesCommaSeparated string) TokensOrExpressions {
+	if ! (strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "atomsAndStrings") ||
 		strings.Contains(wantedExpressionDetectionTypesCommaSeparated, "detectAllExpressions")) {
 		// if atom detection is not a wanted operation, then don't do that
 		return tokensOrExpressionsOld
 	}
 
-	tokensOrExpressionsNew_01_atomsDetected := TokensOrExpressions{}
+	tokensOrExpressionsNew_atomsStringsDetected := TokensOrExpressions{}
 
 	for _, tokenOrExpression := range(tokensOrExpressionsOld) {
 		fmt.Println("detect atoms - token expression", tokenOrExpression)
 
 		if tokenOrExpression.isExpression() {  // if it is a previously detected expression, there is nothing to do
-			tokensOrExpressionsNew_01_atomsDetected = append(tokensOrExpressionsNew_01_atomsDetected, tokenOrExpression)
+			tokensOrExpressionsNew_atomsStringsDetected = append(tokensOrExpressionsNew_atomsStringsDetected, tokenOrExpression)
 			continue
 		}
 
 		isAtom := false
+		isString := false
 
 		// 'quoted atom' - honestly the string based type checking is maybe slower here, than the int based in expressions.
 		// The token->expression conversation is not a runtime operation, so in this level now it's fine.
@@ -314,6 +315,10 @@ func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions, wantedE
 			}
 		}
 
+		if tokenOrExpression.token.TokenType == tokenType_TextBlockQuotedDouble{
+			isString = true
+		}
+
 		if isAtom {
 			tokenOrExpression.elemType = tokenOrExpression_thisIsAnExpression
 			tokenOrExpression.expression = ErlExpression{
@@ -322,15 +327,24 @@ func expression_detect_atoms(tokensOrExpressionsOld TokensOrExpressions, wantedE
 					TokenOrExpression{token: tokenOrExpression.token}},
 			}
 			// put back tokenOrExpression with modified elemType and expression
-			tokensOrExpressionsNew_01_atomsDetected = append(tokensOrExpressionsNew_01_atomsDetected, tokenOrExpression)
+			tokensOrExpressionsNew_atomsStringsDetected = append(tokensOrExpressionsNew_atomsStringsDetected, tokenOrExpression)
 
-		} else {  // not an atom - put back the tokenOrExpression without any extra change/modification
+		} else if isString {
+			tokenOrExpression.elemType = tokenOrExpression_thisIsAnExpression
+			tokenOrExpression.expression = ErlExpression{
+				ExpressionType:			expression_stringDoubleQuoted,
+				TokensOrExpressions: TokensOrExpressions{
+					TokenOrExpression{token: tokenOrExpression.token}},
+			}
+			// put back tokenOrExpression with modified elemType and expression
+			tokensOrExpressionsNew_atomsStringsDetected = append(tokensOrExpressionsNew_atomsStringsDetected, tokenOrExpression)
+		} else {  // not an atom|string - put back the tokenOrExpression without any extra change/modification
 			// I know this is same with the isAtom's last append - but it is more readable to see the two sections
-			tokensOrExpressionsNew_01_atomsDetected = append(tokensOrExpressionsNew_01_atomsDetected, tokenOrExpression)
+			tokensOrExpressionsNew_atomsStringsDetected = append(tokensOrExpressionsNew_atomsStringsDetected, tokenOrExpression)
 		}
 	} // FOR
 
-	return tokensOrExpressionsNew_01_atomsDetected
+	return tokensOrExpressionsNew_atomsStringsDetected
 }
 
 

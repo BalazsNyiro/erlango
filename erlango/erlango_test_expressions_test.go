@@ -29,7 +29,7 @@ func Test_expression_detection_function(t *testing.T) {
 					1.
 			`
 
-	wantedExpressionDetectionTypes := "atomsQuoted,atomsSimple"  // the test focuses on atoms
+	wantedExpressionDetectionTypes := "atomsAndStrings"  // the test focuses on atoms
 	erlExpressions := Expression_detection_for_tests(erlSrc, wantedExpressionDetectionTypes)
 	erlExpressions.printAll()
 
