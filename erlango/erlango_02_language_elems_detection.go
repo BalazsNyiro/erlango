@@ -276,8 +276,9 @@ func expressionDetectAllType_from_tokens(
 	tokensOrExpressionsNew_atomsStringsDetected := expression_detect_atoms_strings(tokensOrExpressionsOld, wantedExpressionDetectionTypesCommaSeparated)
 	tokensOrExpressionsNew_variableNamesDetected := expression_detect_variable_names(tokensOrExpressionsNew_atomsStringsDetected, wantedExpressionDetectionTypesCommaSeparated)
 	tokensOrExpressionsNew_numbersDetected := expression_detect_numbers(tokensOrExpressionsNew_variableNamesDetected, wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_operatorsDetected := expression_detect_operators(tokensOrExpressionsNew_numbersDetected, wantedExpressionDetectionTypesCommaSeparated)
 
-	return tokensOrExpressionsNew_numbersDetected
+	return tokensOrExpressionsNew_operatorsDetected
 }
 
 ////////////////////////////////////////////////////////////////////////////////

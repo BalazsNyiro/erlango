@@ -122,7 +122,19 @@ func Test_numbers_all(t *testing.T) {
 
 
 				CommentEnd1 = "scientific notation can be mixed with non-decimal numbers: (val 26)",
-				ScientificHexa = 16#1e-4.
+				ScientificHexa = 16#1e-4,
+
+
+				CommentOperators = "Operators need a separated test, these are basic situations, only"
+				SumAddInt = 1 + 2,
+				SubAddFloat 3.4 + 5.6,
+                SumAddScientific = 2_3.4e+3_0 + 5_6.7e+8_9,
+
+				Diff = 3 - 2,
+	 			Multiply = 5 * 4
+				Division = 6 / 3
+				
+	
     `
 
 
@@ -134,13 +146,13 @@ func Test_numbers_all(t *testing.T) {
 
 	typesWanted := []int{
 		// VarAtom               =                                atomValue1         ,
-		expression_variableName, expression_nonDetectedFromToken, expression_atom, expression_nonDetectedFromToken,
+		expression_variableName, expression_operator, expression_atom, expression_nonDetectedFromToken,
 
 		// VarAtomQuoted          =                               'atomQuoted'       ,
-		expression_variableName, expression_nonDetectedFromToken, expression_atom, expression_nonDetectedFromToken,
+		expression_variableName, expression_operator, expression_atom, expression_nonDetectedFromToken,
 
 		// Str                   =                                "str"                             ,
-		expression_variableName, expression_nonDetectedFromToken, expression_stringDoubleQuoted, expression_nonDetectedFromToken,
+		expression_variableName, expression_operator, expression_stringDoubleQuoted, expression_nonDetectedFromToken,
 		// Float = 1.1,
 
 
@@ -197,5 +209,5 @@ func Test_numbers_all(t *testing.T) {
 		// CommentEnd1 = "scientific notation can be mixed with non-decimal numbers: (val 26)",
 		// ScientificHexa = 16#1e-4.
 	}
-	testCheck_expressionsListWanted(funName, erlExpressions, typesWanted, t)
+	testCheck_expressions_all_Wanteds(funName, erlExpressions, typesWanted, t)
 }

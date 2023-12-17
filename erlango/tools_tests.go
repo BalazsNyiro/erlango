@@ -42,7 +42,7 @@ func testCheck_isVariableNameExpression(testName string, erlExpression ErlExpres
 }
 
 // receives list of types and expressions, and compares all expressions with all types
-func testCheck_expressionsListWanted(callerTestFunName string, erlExpressions ErlExpressions, typesWanted []int, t *testing.T) {
+func testCheck_expressions_all_Wanteds(callerTestFunName string, erlExpressions ErlExpressions, typesWanted []int, t *testing.T) {
 
 	for i, erlExpression := range(erlExpressions) {
 		if i >= len(typesWanted){

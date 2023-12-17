@@ -363,7 +363,8 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 								TokenOrExpression{token: tokenOrExpressionNext1.token},
 								TokenOrExpression{token: tokenOrExpressionNext2.token},
 							}
-							idTokenOrExpr += 2
+							idTokenOrExpr += 2  // 3-1 = 2, after the Actual,
+							// 2 next token were used, they have to be skipped in next turns
 						}
 					}
 				}
