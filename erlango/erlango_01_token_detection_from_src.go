@@ -117,6 +117,9 @@ func step_01a_tokens_detect(erlangSource string, filePath string, parentChannel 
 		// FIXME: what to do if file_read_runes has a problem?
 	}
 
+	// The most important elems are: Chars|Tokens|Expressions.
+	// From Chars, Tokens (building elements) are detected.
+	// Expressions are empty here, later from Tokens->Expressions are detected
 	sourceTokensExecutables := SourceTokensExecutables{
 		WhereTheCodeIsStored:        whereCodeIsStored,
 		ModuleVersion:               "not-detected-version",
@@ -124,6 +127,7 @@ func step_01a_tokens_detect(erlangSource string, filePath string, parentChannel 
 		Tokens:                      tokensDetected,
 		Errors:                      errors,
 		ErlangSourceWithoutFilePath: erlangSourceWithoutFilePath,
+		Expressions: ErlExpressions{},
 	}
 
 	parentChannel <- sourceTokensExecutables
