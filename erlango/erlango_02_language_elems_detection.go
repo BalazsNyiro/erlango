@@ -111,7 +111,7 @@ const expression_list = 10
 const expression_tuple = 11
 const expression_map = 12
 
-const expression_parentheseRoundedGroup = 20
+const expression_brackets = 20
 
 const expression_operator = 30
 // list operator: <- <=      [X*2 || X <- [1,2,3]].
@@ -121,15 +121,15 @@ const expression_operator = 30
 // reverse conversion: from the code, know, what is the type
 var ExpressionName_from_num map[int]string = map[int]string {
 	expression_nonDetectedFromToken: "expression_nonDetectedFromToken",
-	expression_atom: "expression_atom",
-	expression_num: "expression_num",
-	expression_stringDoubleQuoted: "expression_stringDoubleQuoted",
-	expression_variableName: "expression_variableName",
-	expression_list: "expression_list",
-	expression_tuple: "expression_tuple",
-	expression_map: "expression_map",
-	expression_parentheseRoundedGroup: "expression_parentheseRoundedGroup",
-	expression_operator:"expression_operator",
+	expression_atom:                 "expression_atom",
+	expression_num:                  "expression_num",
+	expression_stringDoubleQuoted:   "expression_stringDoubleQuoted",
+	expression_variableName:         "expression_variableName",
+	expression_list:                 "expression_list",
+	expression_tuple:                "expression_tuple",
+	expression_map:                  "expression_map",
+	expression_brackets:             "expression_brackets",
+	expression_operator:             "expression_operator",
 }
 
 // file name passing is important, because maybe the expression detection
@@ -273,10 +273,11 @@ func expressionDetectAllType_from_tokens(
 	// Named function definitions =======================================================
 	/*  https://www.erlang.org/doc/reference_manual/functions.html */
 
-	tokensOrExpressionsNew_atomsStringsDetected := expression_detect_atoms_strings(tokensOrExpressionsOld, wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_atomsStringsDetected := expression_detect_atoms_strings(tokensOrExpressionsOld,                        wantedExpressionDetectionTypesCommaSeparated)
 	tokensOrExpressionsNew_variableNamesDetected := expression_detect_variable_names(tokensOrExpressionsNew_atomsStringsDetected, wantedExpressionDetectionTypesCommaSeparated)
-	tokensOrExpressionsNew_numbersDetected := expression_detect_numbers(tokensOrExpressionsNew_variableNamesDetected, wantedExpressionDetectionTypesCommaSeparated)
-	tokensOrExpressionsNew_operatorsDetected := expression_detect_operators(tokensOrExpressionsNew_numbersDetected, wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_numbersDetected := expression_detect_numbers(tokensOrExpressionsNew_variableNamesDetected,	          wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_bracketsDetected := expression_detect_operators(tokensOrExpressionsNew_numbersDetected,                wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_operatorsDetected := expression_detect_operators(tokensOrExpressionsNew_bracketsDetected,              wantedExpressionDetectionTypesCommaSeparated)
 
 	return tokensOrExpressionsNew_operatorsDetected
 }

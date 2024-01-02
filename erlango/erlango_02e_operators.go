@@ -33,7 +33,6 @@ func expression_detect_operators(tokensOrExpressionsOld TokensOrExpressions, wan
 
 
 
-
 	# 3 chars long:
 	=:=	Exactly equal to
 	=/=	Exactly not equal to
@@ -300,7 +299,7 @@ func expression_detect_operators(tokensOrExpressionsOld TokensOrExpressions, wan
 				 */
 
 				tokenOrExpressionActual.elemType = tokenOrExpression_thisIsAnExpression
-				tokenOrExpressionActual.expression = ErlExpression{
+				tokenOrExpressionActual.expression = ErlExpression {
 					ExpressionType:			expression_operator,
 					TokensOrExpressions: 	operatorTokenElems,
 				}
