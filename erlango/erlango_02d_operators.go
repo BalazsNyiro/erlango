@@ -26,6 +26,14 @@ func expression_detect_operators(tokensOrExpressionsOld TokensOrExpressions, wan
 	/*
 	https://www.erlang.org/doc/reference_manual/expressions.html
 
+	operators are not expressions, because they don't have their own value,
+	but from another perspective they are expressions,
+	because +1 can be interpreted as plus(1), and this function has a value.
+	So every operator can be used as a function, and from that perspective they are expressions
+
+
+
+
 	# 3 chars long:
 	=:=	Exactly equal to
 	=/=	Exactly not equal to
@@ -262,7 +270,7 @@ func expression_detect_operators(tokensOrExpressionsOld TokensOrExpressions, wan
 					}
 				}
 				if ! isOperator{
-					fmt.Println("NOT 1 chars long operator")
+					fmt.Println("NOT 1 char long operator")
 				}
 			}
 
