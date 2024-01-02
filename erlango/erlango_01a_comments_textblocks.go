@@ -18,6 +18,9 @@ import (
 )
 
 func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars, tokens ErlTokens, verboseForErlangoInvestigations__useFalseInProdEnv bool) ([]Char, ErlTokens, errorsDetected){ // in program plan
+	// chars is updated in this function: the updated chars are given back at the end
+
+
 	// the "wrapper" quotes around the string values or 'atoms' are the part of the tokens,
 	// they are necessary to define a text block (single or double qoted texts)
 	// but not part of the value of the token
@@ -206,8 +209,11 @@ func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars
 		}
 	}
 
+	// chars is updated in this function: the updated chars are given back
 	return chars, tokens, errors
 }
+
+
 func isCharEscapedInTextBlock__tokenDetectionQuoteds(posChar int, chars Chars) bool {
 	// char is escaped if there are 'odd' num of escape char before that.
 	escaped := false

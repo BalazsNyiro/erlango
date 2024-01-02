@@ -110,6 +110,7 @@ func step_01a_tokens_detect(erlangSource string, filePath string, parentChannel 
 		}
 
 		// ##### step B: Tokens detect ########################
+		// charsFromErlFile is updated during token detection
 		charsFromErlFile, tokensDetected, errors = token_detect_comments_textblocks_alphanums_whitespaces_literals(charsFromErlFile, tokensDetected, verboseForErlangoInvestigations__useFalseInProdEnv)
 
 	} else {

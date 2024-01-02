@@ -97,10 +97,28 @@ func expression_detect_operators(tokensOrExpressionsOld TokensOrExpressions, wan
 	*/
 
 
-	/*
 	// locally used functions only, for num detection
 	isHashmark := func (tokenOrExpression TokenOrExpression) bool {
 		return tokenOrExpression.token.stringRepresentation() == "#"
+	}
+
+	isStar := func (tokenOrExpression TokenOrExpression) bool {
+		return tokenOrExpression.token.stringRepresentation() == "*"
+	}
+
+	isPipe := func (tokenOrExpression TokenOrExpression) bool {
+		fmt.Println("isPipe: ", tokenOrExpression.token.stringRepresentation())
+		return tokenOrExpression.token.stringRepresentation() == "|"
+	}
+
+	isPlus := func (tokenOrExpression TokenOrExpression) bool {
+		fmt.Println("isPlus: ", tokenOrExpression.token.stringRepresentation())
+		return tokenOrExpression.token.stringRepresentation() == "+"
+	}
+
+	isMinus := func (tokenOrExpression TokenOrExpression) bool {
+		fmt.Println("isMinus: ", tokenOrExpression.token.stringRepresentation())
+		return tokenOrExpression.token.stringRepresentation() == "-"
 	}
 
 	isLess := func (tokenOrExpression TokenOrExpression) bool {
@@ -113,16 +131,6 @@ func expression_detect_operators(tokensOrExpressionsOld TokensOrExpressions, wan
 		return tokenOrExpression.token.stringRepresentation() == ">"
 	}
 
-	isPlus := func (tokenOrExpression TokenOrExpression) bool {
-		fmt.Println("isPlus: ", tokenOrExpression.token.stringRepresentation())
-		return tokenOrExpression.token.stringRepresentation() == "+"
-	}
-
-	isMinus := func (tokenOrExpression TokenOrExpression) bool {
-		fmt.Println("isMinus: ", tokenOrExpression.token.stringRepresentation())
-		return tokenOrExpression.token.stringRepresentation() == "-"
-	}
-	*/
 	isEqual := func (tokenOrExpression TokenOrExpression) bool {
 		fmt.Println("isEqual: ", tokenOrExpression.token.stringRepresentation())
 		return tokenOrExpression.token.stringRepresentation() == "="
@@ -131,6 +139,11 @@ func expression_detect_operators(tokensOrExpressionsOld TokensOrExpressions, wan
 	isColon := func (tokenOrExpression TokenOrExpression) bool {
 		fmt.Println("isColon: ", tokenOrExpression.token.stringRepresentation())
 		return tokenOrExpression.token.stringRepresentation() == ":"
+	}
+
+	isSlash := func (tokenOrExpression TokenOrExpression) bool {
+		fmt.Println("isSlash: ", tokenOrExpression.token.stringRepresentation())
+		return tokenOrExpression.token.stringRepresentation() == "/"
 	}
 
 
@@ -153,14 +166,11 @@ func expression_detect_operators(tokensOrExpressionsOld TokensOrExpressions, wan
 			tokenOrExpressionNext1  := getTokenOrExpression_fromLot(idTokenOrExpr+1, tokensOrExpressionsOld)
 			tokenOrExpressionNext2  := getTokenOrExpression_fromLot(idTokenOrExpr+2, tokensOrExpressionsOld)
 
-			fmt.Println("detect numbers - token expression  id token", idTokenOrExpr)
-
 			isOperator := false
-			/////////////////////////////////////////////////////////////////////
 
-
-
-
+			// there is a few 3 chars long operators only. This was the original detection pattern,
+			// one detection case for each case
+			/////////// 3 chars long operator //////////////////////////////////////////////////////////
 			if ! isOperator {   //  =:=
 				if isEqual(tokenOrExpressionActual) {
 					if isColon(tokenOrExpressionNext1){
@@ -177,23 +187,88 @@ func expression_detect_operators(tokensOrExpressionsOld TokensOrExpressions, wan
 					}
 				}
 				if ! isOperator{
-					fmt.Println("NO =:= operator detected")
+					fmt.Println("NOT =:= operator")
+				}
+			}
+
+			/////////// 3 chars long operator //////////////////////////////////////////////////////////
+			if ! isOperator {   //  =/=
+				if isEqual(tokenOrExpressionActual) {
+					if isSlash(tokenOrExpressionNext1){
+						if isEqual(tokenOrExpressionNext2) {
+
+							isOperator = true
+							operatorTokenElems = TokensOrExpressions{
+								TokenOrExpression{token: tokenOrExpressionActual.token},
+								TokenOrExpression{token: tokenOrExpressionNext1.token},
+								TokenOrExpression{token: tokenOrExpressionNext2.token},
+							}
+							idTokenOrExpr += 2 // 2 next token were used, they have to be skipped in next turns
+						}
+					}
+				}
+				if ! isOperator{
+					fmt.Println("NOT =/= operator")
 				}
 			}
 
 
+			/////////// 2 chars long operators //////////////////////////////////////////////////////////
+			if ! isOperator {
+				if 	(isEqual(tokenOrExpressionActual)   && isEqual(tokenOrExpressionNext1)    ) || // ==
+					(isEqual(tokenOrExpressionActual)   && isSlash(tokenOrExpressionNext1)    ) || // =/
+					(isEqual(tokenOrExpressionActual)   && isLess(tokenOrExpressionNext1)     ) || // =<
+					(isGreater(tokenOrExpressionActual) && isEqual(tokenOrExpressionNext1)    ) || // >=
+					(isPlus(tokenOrExpressionActual)    && isPlus(tokenOrExpressionNext1)     ) || // ++
+					(isMinus(tokenOrExpressionActual)   && isMinus(tokenOrExpressionNext1)    ) || // --
+					(isPipe(tokenOrExpressionActual)    && isPipe(tokenOrExpressionNext1)     ) || // ||
+					(isLess(tokenOrExpressionActual)    && isMinus(tokenOrExpressionNext1)    ) || // <-
+					(isEqual(tokenOrExpressionActual)   && isGreater(tokenOrExpressionNext1)  ) || // =>
+					(isColon(tokenOrExpressionActual)   && isEqual(tokenOrExpressionNext1)    ) || // :=
+					(isMinus(tokenOrExpressionActual)   && isGreater(tokenOrExpressionNext1)  ) || // ->
+					(isLess(tokenOrExpressionActual)    && isEqual(tokenOrExpressionNext1)    ) {  // <=
 
-			if ! isOperator {    //  =
-				if isEqual(tokenOrExpressionActual) {
+						isOperator = true
+						operatorTokenElems = TokensOrExpressions{
+							TokenOrExpression{token: tokenOrExpressionActual.token},
+							TokenOrExpression{token: tokenOrExpressionNext1.token},
+						}
+						idTokenOrExpr += 1 // next token is used, it has to be skipped in next turns
+				}
+				if ! isOperator{
+					fmt.Println("NOT 2 chars long operator")
+				}
+			}
+
+
+			/////////// 1 char long operators //////////////////////////////////////////////////////////
+			if ! isOperator {
+				if  isColon(tokenOrExpressionActual)    || // :
+					isHashmark(tokenOrExpressionActual)    || // #
+
+					isEqual(tokenOrExpressionActual)    || // =
+
+					isLess(tokenOrExpressionActual)     || // <
+					isGreater(tokenOrExpressionActual)  || // >
+
+					isPlus(tokenOrExpressionActual)     || // +
+					isMinus(tokenOrExpressionActual)    || // -
+					isStar(tokenOrExpressionActual)     || // *
+					isSlash(tokenOrExpressionActual)    {  // /
+
 					isOperator = true
 					operatorTokenElems = TokensOrExpressions{
 						TokenOrExpression{token: tokenOrExpressionActual.token},
 					}
 				}
 				if ! isOperator{
-					fmt.Println("NO = operator detected")
+					fmt.Println("NOT 1 chars long operator")
 				}
 			}
+
+
+
+
 
 
 
@@ -201,7 +276,7 @@ func expression_detect_operators(tokensOrExpressionsOld TokensOrExpressions, wan
 			if isOperator {
 
 				/* an operator is not a real expression, because a + sign doesn't have a value in itself.
-				  the operator and the operandus, together, that is an expression.
+				  the operator and the operands, together, that is an expression.
 
 				 but operators can be translated to functions: 1 + 2 == add(1, 2)
 				 so from this perspective, ADD function can be evaluated, and it can have its own value,
