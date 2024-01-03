@@ -202,8 +202,6 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 
 
 
-
-
 	///////////////////// PREPARE NUM DETECTION WITH BLOCKS ////////////////////////////////////////
 	// for number detections, atoms are important, because in some case an atom can be the part of a number.
 	// for example: 16#ff  ff can be an atom, 16 can be a num, # can be an operator, from a special perspective.
@@ -387,6 +385,24 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 			if ! isNum {
 				fmt.Println("int try: NO - num detection ")
 			}
+
+
+			// char literals
+			if (! isNum) {
+				fmt.Println("char literal try: ")
+				if tokenOrExpressionActual.token.TokenType == tokenType_CharLiteral {
+					isNum = true
+					numberTokenElems = TokensOrExpressions{
+						TokenOrExpression{token: tokenOrExpressionActual.token},
+					}
+				}
+			}
+			if ! isNum {
+				fmt.Println("char literal try: NO - num detection ")
+			}
+
+
+
 
 
 

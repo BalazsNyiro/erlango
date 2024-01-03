@@ -107,6 +107,26 @@ func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars
 		} // comment detect...
 
 
+		// literal detection has to be BEFORE tokenType_AbcFullWith_Underscore_At_numbers
+		// because $A is NOT a variable in the future
+		// Character literals. Example: $∑
+		if tokenActual.typeIsEmpty() {
+			if charTxtNow == "$" {
+				tokenActual.TokenType = tokenType_CharLiteral
+			}
+
+		} else { // type is not empty:
+			if tokenActual.TokenType == tokenType_CharLiteral {
+				if charTxtPrev1 == "$" && charTxtNow != "\\" {  // not an escaped literal, for example: $A, $a
+					saveCompleteDetectedToken = true
+				}
+				if charTxtPrev2 == "$" && charTxtPrev1 == "\\" {  // escaped literal, for example: $\n
+					saveCompleteDetectedToken = true
+				}
+			} // CharLiteralDetectionStarted
+		}
+
+
 
 		/* you can ask this: why is it good to detect abc letters and numbers together?
 		because numbers can be mixed in the Erlang code often with letters,
@@ -151,22 +171,6 @@ func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars
 		} // whitespace DETECT
 
 
-		// Character literals. Example: $∑
-		if tokenActual.typeIsEmpty() {
-			// $A: A is literal, prev is $
-			if charTxtPrev1 == "$" && charTxtNow != "\\" {  // so this is not an escaped char literal, \n for example
-				tokenActual.TokenType = tokenType_CharLiteral
-				// because they are 1 char wide elems, the block is closed at the first char
-				saveCompleteDetectedToken = true
-			}
-
-			if charTxtPrev2 == "$" && charTxtNow == "\\" {  // escaped literal
-			// $\n \n is literal, prev2 is $, prev1 is escape
-				tokenActual.TokenType = tokenType_CharLiteral
-				// because they are 1 char wide elems, the block is closed at the first char
-				saveCompleteDetectedToken = true
-			}
-		}
 
 
 		/////////////////////// TOKEN SAVE, CLOSE ////////////////////////////////////////

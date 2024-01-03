@@ -171,13 +171,15 @@ func Test_numbers_all(t *testing.T) {
 		// IntegerWithUnderscore =                    0_13            .
 		expression_variableName, expression_operator, expression_num, expression_nonDetectedFromToken,
 
-		// DollarChar            =                    $A                  ,
-		//expression_variableName, expression_operator, expression_num, expression_nonDetectedFromToken,
+		// DollarChar            =                    $A              ,
+		expression_variableName, expression_operator, expression_num, expression_nonDetectedFromToken,
 
-		// DollarWithTwoChars = $\n,
+		// DollarWithTwoChars    =                     $\n            ,
+		expression_variableName, expression_operator, expression_num, expression_nonDetectedFromToken,
 
 
-		// BaseValueSimple = 2#101,
+		// BaseValueSimple       =                    2#101           ,
+		expression_variableName, expression_operator, //expression_num, expression_nonDetectedFromToken,
 
 		// BaseValueWithUnderscore = 2#1_01,
 
