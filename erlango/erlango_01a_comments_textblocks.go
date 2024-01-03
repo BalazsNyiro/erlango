@@ -116,7 +116,7 @@ func token_detect_comments_textblocks_alphanums_whitespaces_literals(chars Chars
 		it is easier to find numbers only, than to detect the numeric and abc chars separately,
 		and explain the sitation when characters and numbers are mixed in one condition.
 		*/
-		//// ABC + numbers block detect  ///////////////////////////////////////////////////////////
+		//// ABC @ _  numbers block detect  ///////////////////////////////////////////////////////////
 		if tokenActual.typeIsEmpty() {
 			if strings.Contains(abcEngLowerUpper_underscore_at_digits_Underscore_At_digits__atomFormerChars, charTxtNow) {
 				tokenActual.TokenType = tokenType_AbcFullWith_Underscore_At_numbers

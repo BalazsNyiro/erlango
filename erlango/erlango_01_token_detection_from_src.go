@@ -110,11 +110,13 @@ func step_01a_tokens_detect(erlangSource string, filePath string, parentChannel 
 		}
 
 		// ##### step B: Tokens detect ########################
-		// charsFromErlFile is updated during token detection
+		// charsFromErlFile and tokensDetected are updated during token detection
 		charsFromErlFile, tokensDetected, errors = token_detect_comments_textblocks_alphanums_whitespaces_literals(charsFromErlFile, tokensDetected, verboseForErlangoInvestigations__useFalseInProdEnv)
 
 	} else {
 		// FIXME: what to do if file_read_runes has a problem?
+		// FIXME: create a log directory, and a default log file where errors can be collected
+		// FIXME: logs_errors_file_reading_problems.txt ?
 	}
 
 	// The most important elems are: Chars|Tokens|Expressions.
@@ -127,7 +129,7 @@ func step_01a_tokens_detect(erlangSource string, filePath string, parentChannel 
 		Tokens:                      tokensDetected,
 		Errors:                      errors,
 		ErlangSourceWithoutFilePath: erlangSourceWithoutFilePath,
-		Expressions: ErlExpressions{},
+		Expressions: ErlExpressions{}, // at this point the expressions are not detected, so it is empty
 	}
 
 	parentChannel <- sourceTokensExecutables

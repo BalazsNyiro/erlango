@@ -71,7 +71,7 @@ func Test_numbers_all(t *testing.T) {
 				Float = 1.1, 
 
 
-				TestGoal = "fullNumberTestTable"
+				TestGoal = "fullNumberTestTable",
 
 				IntSimple = 12, 
 				IntSimpleUnderscored = 12_34, 
@@ -148,21 +148,32 @@ func Test_numbers_all(t *testing.T) {
 		// VarAtom               =                                atomValue1         ,
 		expression_variableName, expression_operator, expression_atom, expression_nonDetectedFromToken,
 
-		// VarAtomQuoted          =                               'atomQuoted'       ,
+		// VarAtomQuoted         =                               'atomQuoted'       ,
 		expression_variableName, expression_operator, expression_atom, expression_nonDetectedFromToken,
 
 		// Str                   =                                "str"                             ,
 		expression_variableName, expression_operator, expression_stringDoubleQuoted, expression_nonDetectedFromToken,
-		// Float = 1.1,
 
 
-		// TestGoal = "fullNumberTestTable"
+		// Float                 =                    1.1               ,
+		expression_variableName, expression_operator, expression_num, expression_nonDetectedFromToken,
 
-		// IntSimple = 12,
-		// IntSimpleUnderscored = 12_34,
-		// IntegerWithUnderscore = 0_13.
 
-		// DollarChar = $A,
+		// TestGoal              =                    "fullNumberTestTable"           ,
+		expression_variableName, expression_operator, expression_stringDoubleQuoted, expression_nonDetectedFromToken,
+
+		// IntSimple             =                    12              ,
+		expression_variableName, expression_operator, expression_num, expression_nonDetectedFromToken,
+
+		// IntSimpleUnderscored  =                    12_34           ,
+		expression_variableName, expression_operator, expression_num, expression_nonDetectedFromToken,
+
+		// IntegerWithUnderscore =                    0_13            .
+		expression_variableName, expression_operator, expression_num, expression_nonDetectedFromToken,
+
+		// DollarChar            =                    $A                  ,
+		//expression_variableName, expression_operator, expression_num, expression_nonDetectedFromToken,
+
 		// DollarWithTwoChars = $\n,
 
 

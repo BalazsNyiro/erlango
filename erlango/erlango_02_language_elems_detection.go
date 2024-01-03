@@ -273,11 +273,11 @@ func expressionDetectAllType_from_tokens(
 	// Named function definitions =======================================================
 	/*  https://www.erlang.org/doc/reference_manual/functions.html */
 
-	tokensOrExpressionsNew_atomsStringsDetected := expression_detect_atoms_strings(tokensOrExpressionsOld,                        wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_atomsStringsDetected  := expression_detect_atoms_strings(tokensOrExpressionsOld,                       wantedExpressionDetectionTypesCommaSeparated)
 	tokensOrExpressionsNew_variableNamesDetected := expression_detect_variable_names(tokensOrExpressionsNew_atomsStringsDetected, wantedExpressionDetectionTypesCommaSeparated)
-	tokensOrExpressionsNew_numbersDetected := expression_detect_numbers(tokensOrExpressionsNew_variableNamesDetected,	          wantedExpressionDetectionTypesCommaSeparated)
-	tokensOrExpressionsNew_bracketsDetected := expression_detect_operators(tokensOrExpressionsNew_numbersDetected,                wantedExpressionDetectionTypesCommaSeparated)
-	tokensOrExpressionsNew_operatorsDetected := expression_detect_operators(tokensOrExpressionsNew_bracketsDetected,              wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_numbersDetected       := expression_detect_numbers(tokensOrExpressionsNew_variableNamesDetected,	      wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_bracketsDetected      := expression_detect_brackets(tokensOrExpressionsNew_numbersDetected,            wantedExpressionDetectionTypesCommaSeparated)
+	tokensOrExpressionsNew_operatorsDetected     := expression_detect_operators(tokensOrExpressionsNew_bracketsDetected,          wantedExpressionDetectionTypesCommaSeparated)
 
 	return tokensOrExpressionsNew_operatorsDetected
 }
