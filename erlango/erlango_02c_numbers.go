@@ -324,18 +324,15 @@ func expression_detect_numbers(tokensOrExpressionsOld TokensOrExpressions, wante
 				if isDigitAndAlphabetBlock(tokenOrExpressionActual) {
 					if isHashmark(tokenOrExpressionNext1) {
 						if isDigitAndAlphabetBlock(tokenOrExpressionNext2) {
-							if isDigitAndAlphabetBlock(tokenOrExpressionNext3) {
 
-								isNum = true
-								numberTokenElems = TokensOrExpressions{
-									// Actual + next 4 elem forms a number!
-									TokenOrExpression{token: tokenOrExpressionActual.token},
-									TokenOrExpression{token: tokenOrExpressionNext1.token},
-									TokenOrExpression{token: tokenOrExpressionNext2.token},
-									TokenOrExpression{token: tokenOrExpressionNext3.token},
-								}
-								idTokenOrExpr += 3 // move the id from Actual => Actual + 3
+							isNum = true
+							numberTokenElems = TokensOrExpressions{
+								// Actual + next 2 elem forms a number!
+								TokenOrExpression{token: tokenOrExpressionActual.token},
+								TokenOrExpression{token: tokenOrExpressionNext1.token},
+								TokenOrExpression{token: tokenOrExpressionNext2.token},
 							}
+							idTokenOrExpr += 2
 						}
 					}
 				}

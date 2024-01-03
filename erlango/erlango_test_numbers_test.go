@@ -88,7 +88,7 @@ func Test_numbers_all(t *testing.T) {
 
 				BaseValueHexaLowerCap = 16#1f,
 				BaseValueHexaLowerCap_ff = 16#ff,
-				Comment1 = "ff can be detected as an atom, in prev steps"
+				Comment1 = "ff can be detected as an atom, in prev steps",
 
 				BaseValueHexaUpperCap = 16#1F,
 				BaseValueHexaUpperCap_FF = 16#FF,
@@ -179,20 +179,26 @@ func Test_numbers_all(t *testing.T) {
 
 
 		// BaseValueSimple       =                    2#101           ,
-		expression_variableName, expression_operator, //expression_num, expression_nonDetectedFromToken,
+		expression_variableName, expression_operator, expression_num, expression_nonDetectedFromToken,
 
-		// BaseValueWithUnderscore = 2#1_01,
+		// BaseValueWithUnderscore =                    2#1_01          ,
+		expression_variableName,   expression_operator, expression_num, expression_nonDetectedFromToken,
 
 
-		// BaseValueHexaLowerCap = 16#1f,
-		// BaseValueHexaLowerCap_ff = 16#ff,
-		// Comment1 = "ff can be detected as an atom, in prev steps"
+		// BaseValueHexaLowerCap   =                    16#1f           ,
+		expression_variableName,   expression_operator, expression_num, expression_nonDetectedFromToken,
 
-		// BaseValueHexaUpperCap = 16#1F,
+		// BaseValueHexaLowerCap_ff  =                    16#ff           ,
+		expression_variableName,     expression_operator, expression_num, expression_nonDetectedFromToken,
+
+		// Comment1                  =                    "ff can be detected as an atom, in prev steps"  ,
+		expression_variableName,     expression_operator, expression_stringDoubleQuoted,                  expression_nonDetectedFromToken,
+
+		// BaseValueHexaUpperCap     =                    16#1F           ,
+		expression_variableName,     expression_operator, expression_num, expression_nonDetectedFromToken,
+
 		// BaseValueHexaUpperCap_FF = 16#FF,
 		// Comment2 = "FF can be detected, as a variable name"
-
-
 
 
 
