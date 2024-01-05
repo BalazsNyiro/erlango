@@ -5,24 +5,13 @@ contact: Balazs Nyiro (balazs.nyiro.ca@gmail.com)
 
 ## Roadmap:
 
-### in progress:
-- [] Erlang source parse (raw token detection)                in progress
-- [] Erlang code objects creation from tokens                 (2023 Jun)
+ - interpreter version 1 (2023): It didn't work, it was a total catastrophy
+ - interpreter version 2 (finished 2024 Jan 2) - token detection/Scanner functions have life signs (small success), but the code structure is overcomplicated, not well structured.
+   so I will totally rewrite it. 
 
-### todo
-- [] basic code execution                                     (2023 July)
-- [] Erlang standard lib 1. implementation with version hooks (2023 Aug-Sep)
-    - only the most important internal functions)
+ - interpreter version 3: (2024 Jan 5 -> 2024 March?) A good news :-) based on previous 2, now I see a more organised way to create it, so I will restart it again :-)
+   The lexer/scanner version will be ready in 1-2 month, I hope. So, dear reader: it is coming :-)
 
-- [] Debugger tool building                                   (2023 Oct)
-- [] speed optimization                                       (?)
-- [] documentations, tutorials
-
-- [] Erlang standard lib 2. implementation with version hooks (?) - this is a huge task, I hope
-
-- [] signal sending/receiving with native Erlang instances (2025)
-  (the first signal handling implementation will work with the Go version first)
-  https://www.erlang.org/doc/reference_manual/processes.html#signals
 
 ## Why I write this interpreter?
 I hope if:

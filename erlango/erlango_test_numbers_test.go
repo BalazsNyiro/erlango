@@ -114,7 +114,7 @@ func Test_numbers_all(t *testing.T) {
 				ScientificUnderscoreEverywherePlus = 2_3.4e+3_0,
 				IllegalFloatError_notValidErlangNumberIfSpaceInserted = "2_3.4e +3_0"
 
-				ScientificCapical = 2.0E3,
+				ScientificCapital = 2.0E3,
 				
 
 				HexaCrazyLong = 16#11111111111111111111111111111,
