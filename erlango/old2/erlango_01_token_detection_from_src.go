@@ -9,7 +9,7 @@ LICENSE file in the root directory of this source tree.
 Version 0.2, second rewrite
 */
 
-package erlango
+package old2
 
 import (
 	"fmt"

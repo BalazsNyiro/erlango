@@ -10,7 +10,7 @@ Version 0.2, second rewrite
 
 */
 
-package erlango
+package old2
 
 import (
 	"fmt"

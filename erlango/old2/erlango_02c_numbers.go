@@ -30,7 +30,7 @@ http://erlang.org/documentation/doc-6.0/doc/reference_manual/data_types.html
 
 */
 
-package erlango
+package old2
 
 import (
 	"fmt"

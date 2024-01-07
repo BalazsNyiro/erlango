@@ -8,7 +8,7 @@ LICENSE file in the root directory of this source tree.
 
 */
 
-package erlango
+package old2
 
 import (
 	"fmt"

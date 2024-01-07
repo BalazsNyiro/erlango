@@ -15,7 +15,7 @@ Version 0.2, second rewrite
 
 // TODO: create config file, and parse that
 
-package erlango
+package old2
 
 import "strings"
 
