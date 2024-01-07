@@ -23,5 +23,5 @@ func main() {  // in program plan
 
 	erlSrc := ""
 	tokensTable := tokens.Tokens{}
-	tokens.Tokens_detect_comments_strings_quotedatoms(erlSrc, tokensTable)
+	tokens.Tokens_detect_text_blocks(erlSrc, tokensTable)
 }

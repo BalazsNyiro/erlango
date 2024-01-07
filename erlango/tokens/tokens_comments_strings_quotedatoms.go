@@ -16,17 +16,25 @@ package tokens
 import "fmt"
 
 type Token struct {
-	tokenName          string
+	tokenType string
 
 	// "quoted" string's first " is the tokens' first position!
 	// 'atoms'  fist ' char is the tokens first pos!
 	// so ALL character is included from the src into the token position range
-	positionCharFirst  int
-	positionCharLast   int
+	positionCharFirst int
+	positionCharLast  int
 
 	sourceFile    string
 	charsInErlSrc []rune
 }
+
+
+const tokenType_TextBlockQuotedSingle = "tokenTextBlockQuotedSingle"
+const tokenType_Comment = "tokenComment"
+const tokenType_TextBlockQuotedDouble = "tokenTextBlockQuotedDouble"
+
+
+
 
 /*Tokens represent the Erlang source code - so the int-key is the first char's position in the source code*/
 type Tokens map[int]Token
@@ -50,36 +58,61 @@ type Tokens map[int]Token
 /*
 Receives Erlang source code - return with non-detected source code and detected Tokens.
 */
-func Tokens_detect_comments_strings_quotedatoms(erlSrc string, tokensTable Tokens) (string, Tokens){
-	// commentLineCloser := "\n"
-
-	inActiveDetection := ""
+func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Tokens){
+	endOfLine := '\n'
 
 	tokenNow := Token{}
+	saveToken := false
 
 	for charPos, charRune := range erlSrc {
-		fmt.Println("pos:", charPos, charRune)
-		if charRune == '"' {
 
-			if inActiveDetection == "" {  // if there is NO active detection
-				inActiveDetection = "stringDoubleQuoted"
-				tokenNow = Token{positionCharFirst: charPos}
+
+		fmt.Println("pos:", charPos, charRune)
+
+		if charRune == '"' { // strings ////////////////////////////////////////
+			if tokenNow.tokenType == "" {  // if there is NO active detection
+				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_TextBlockQuotedDouble}
 				continue
 			}
-
-			if inActiveDetection == "stringDoubleQuoted" {
-				inActiveDetection = ""  // close the active string detection
-				tokenNow.positionCharLast = charPos
-				tokenPosStart := tokenNow.positionCharFirst
-				tokensTable[tokenPosStart] = tokenNow
+			if tokenNow.tokenType == tokenType_TextBlockQuotedDouble {
+				saveToken = true
 			}
 		}
 
+		if charRune == '\'' { // quoted atoms /////////////////////////////////
+			if tokenNow.tokenType == "" {  // if there is NO active detection
+				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_TextBlockQuotedSingle}
+				continue
+			}
+			if tokenNow.tokenType == tokenType_TextBlockQuotedSingle{
+				saveToken = true
+			}
+		}
+
+		if charRune == '%' { // comments  /////////////////////////////////////
+			if tokenNow.tokenType == "" { // if there is NO active detection
+				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_Comment}
+				continue
+			}
+		}
+		if charRune == endOfLine && tokenNow.tokenType == tokenType_Comment {
+			saveToken = true
+		}
 
 		/////////////////////////////////////////////////////////////////////
-		if inActiveDetection != "" { // so if there is an active detection
+		if ! saveToken {
+			if tokenNow.tokenType != "" { // so if there is an active detection
 				tokenNow.charsInErlSrc = append(tokenNow.charsInErlSrc, charRune)
+			}
+		}
 
+		if saveToken { // for me, it is better han an 'else' because it is readable
+			tokenNow.positionCharLast = charPos
+			tokensTable[tokenNow.positionCharFirst] = tokenNow
+
+			// restore default values
+			tokenNow = Token{}
+			saveToken = false
 		}
 
 	}

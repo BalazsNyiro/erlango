@@ -29,7 +29,7 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 	`
 	tokensTable := Tokens{}
 
-	erlSrc_commentsStringsAtomsquoted_removed, tokensTableXXX := Tokens_detect_comments_strings_quotedatoms(erlSrc, tokensTable)
+	erlSrc_commentsStringsAtomsquoted_removed, tokensTableXXX := Tokens_detect_text_blocks(erlSrc, tokensTable)
 
 	fmt.Println("erlSrc, without strings, quoted atoms", erlSrc_commentsStringsAtomsquoted_removed)
 
