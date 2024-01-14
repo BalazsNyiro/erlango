@@ -78,20 +78,27 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 	tokensTableUpdated := tokensTable.deepCopy()
 	var erlSrcTokenDetectionsRemoved []rune
 
-	noActiveTokenDetection__typeEmpty := func (token Token) bool {
+	noActiveTokenDetection__tokenTypeIsEmpty := func (token Token) bool {
 		// if the token is emtpy, then there is no active detection
 		return token.emptyType()
 	}
 
 	activeTokenDetection__typeNotEmpty := func (token Token) bool {
 		// if the token is emtpy, then there is no active detection
-		return ! noActiveTokenDetection__typeEmpty(token)
+		return ! noActiveTokenDetection__tokenTypeIsEmpty(token)
 	}
 
 	tokenNow := Token{}
 	event := ""
 
-	for charPos, charRune := range erlSrc {
+	erlSrcRunes := []rune(erlSrc)
+
+	for charPos, charRune := range erlSrcRunes {
+
+		charRuneNext := ' '
+		if charPos < len(erlSrcRunes) -1 {
+			charRuneNext = erlSrcRunes[charPos+1]
+		}
 
 		// closers...................................................................
 		if charRune == '"' && tokenNow.tokenType == tokenType_TextBlockQuotedDouble {
@@ -102,14 +109,14 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 			event = tokenClosingDetected__saveTheToken
 		}
 
-		if charRune == '\n' && tokenNow.tokenType == tokenType_Comment {
-			// the endOfLine cannot be removed from original src
+		if charRuneNext == '\n' && tokenNow.tokenType == tokenType_Comment {
+			// the endOfLine cannot be removed from original src,
+			// comment is finished BEFORE the end of line
 			event = tokenClosingDetected__saveTheToken
 		}
 
-
 		// openers...................................................................
-		if noActiveTokenDetection__typeEmpty(tokenNow) {
+		if noActiveTokenDetection__tokenTypeIsEmpty(tokenNow) {
 
 			if charRune == '"' { // string
 				tokenNow = Token{ positionCharFirst: charPos,
@@ -132,7 +139,6 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 
 
 
-
 		/////////////////////////////////////////////////////////////////////
 		if event == tokenOpeningDetected__tokenNew {
 			// the opening/ending chars are removed from the original src, too
@@ -146,8 +152,10 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 		if event == tokenClosingDetected__saveTheToken {
 			tokenNow.positionCharLast = charPos
 			tokensTableUpdated[tokenNow.positionCharFirst] = tokenNow
-
 			tokenNow = Token{} // restore default values
+
+			// the token closer last char is removed, too, from the original source code
+			erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, ' ')
 			event = ""
 			continue
 		}
@@ -156,12 +164,13 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 		// not opening/closing event:
 		if activeTokenDetection__typeNotEmpty(tokenNow) {
 			// then this is an active detection, between Opening/Closing elems
-			if activeTokenDetection__typeNotEmpty(tokenNow) {
-				tokenNow.charsInErlSrc = append(tokenNow.charsInErlSrc, charRune)
-				// if the current char is part of a token, remove if fromm src:
-				erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, ' ')
-			}
-		} else { // not active token detection, keep the current char in the src:
+			tokenNow.charsInErlSrc = append(tokenNow.charsInErlSrc, charRune)
+			// if the current char is part of a token, remove if fromm src:
+			erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, ' ')
+		}
+
+		if noActiveTokenDetection__tokenTypeIsEmpty(tokenNow) {
+			// active or !active: it is clearer than an else {} block,
 			erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, charRune)
 		}
 
