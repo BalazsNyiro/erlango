@@ -43,11 +43,7 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 
 	for charPos, charRune := range erlSrcRunes {
 
-		charRuneNext := ' '
-		if charPos < len(erlSrcRunes)-1 {
-			charRuneNext = erlSrcRunes[charPos+1]
-		} // at last char, charRuneNext is faked, but that is not important.
-
+		charRuneNext, _ := charRuneNext(charPos, +1, erlSrcRunes)
 
 		// closers.......... (before openers, to avoid tokenType set side effect)....
 		if charRune == '"' && tokenNow.tokenType == tokenType_TextBlockQuotedDouble {

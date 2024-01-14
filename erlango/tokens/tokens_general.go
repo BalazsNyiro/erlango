@@ -64,3 +64,24 @@ func (tokensInMap Tokens) deepCopy() Tokens {
 }
 
 
+// return with the next Nth char (relative to the actual char.
+// charPosRelative == 1 means: the next char
+// charPosRelative == 0 means: the actual char
+// charPosRelative == -1 means: the prev char
+func charRuneNext(charPosActual, charPosRelative int, erlSrcRunes []rune) (rune, bool) {
+	charRuneWanted := ' '  // if the wanted position is not in range, this is the default value
+	wantedCharInSrcRange := false
+
+	charPosCalculated := charPosActual + charPosRelative
+	if charPosCalculated < len(erlSrcRunes) {
+		if charPosCalculated >= 0 {
+
+				wantedCharInSrcRange = true
+				charRuneWanted = erlSrcRunes[charPosCalculated]
+		}
+
+	}
+
+	return charRuneWanted, wantedCharInSrcRange
+}
+
