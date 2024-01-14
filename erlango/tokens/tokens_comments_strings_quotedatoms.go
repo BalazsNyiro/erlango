@@ -72,8 +72,8 @@ Receives Erlang source code - return with non-detected source code and detected 
 */
 func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Tokens){
 
-	tokenClosingDetected__saveTheToken := "tokenClosingDetected__saveTheToken "
-	tokenOpeningDetected__tokenNew := "tokenOpeningDetected__tokenNew "
+	tokenCloserDetected__saveTheToken := "tokenCloserDetected__saveTheToken "
+	tokenOpenerDetected__tokenNew := "tokenOpenerDetected__tokenNew "
 
 	tokensTableUpdated := tokensTable.deepCopy()
 	var erlSrcTokenDetectionsRemoved []rune
@@ -96,23 +96,24 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 	for charPos, charRune := range erlSrcRunes {
 
 		charRuneNext := ' '
-		if charPos < len(erlSrcRunes) -1 {
+		if charPos < len(erlSrcRunes)-1 {
 			charRuneNext = erlSrcRunes[charPos+1]
-		}
+		} // at last char, charRuneNext is faked, but that is not important.
 
-		// closers...................................................................
+
+		// closers.......... (before openers, to avoid tokenType set side effect)....
 		if charRune == '"' && tokenNow.tokenType == tokenType_TextBlockQuotedDouble {
-			event = tokenClosingDetected__saveTheToken
+			event = tokenCloserDetected__saveTheToken
 		}
 
 		if charRune == '\'' && tokenNow.tokenType == tokenType_TextBlockQuotedSingle {
-			event = tokenClosingDetected__saveTheToken
+			event = tokenCloserDetected__saveTheToken
 		}
 
 		if charRuneNext == '\n' && tokenNow.tokenType == tokenType_Comment {
 			// the endOfLine cannot be removed from original src,
 			// comment is finished BEFORE the end of line
-			event = tokenClosingDetected__saveTheToken
+			event = tokenCloserDetected__saveTheToken
 		}
 
 		// openers...................................................................
@@ -121,26 +122,26 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 			if charRune == '"' { // string
 				tokenNow = Token{ positionCharFirst: charPos,
 					              tokenType: tokenType_TextBlockQuotedDouble}
-				event = tokenOpeningDetected__tokenNew
+				event = tokenOpenerDetected__tokenNew
 			}
 
 			if charRune == '\'' { // quoted atom
 				tokenNow = Token{ positionCharFirst: charPos,
 					              tokenType: tokenType_TextBlockQuotedSingle}
-				event = tokenOpeningDetected__tokenNew
+				event = tokenOpenerDetected__tokenNew
 			}
 
 			if charRune == '%' { // comments
 				tokenNow = Token{ positionCharFirst: charPos,
 					              tokenType: tokenType_Comment}
-				event = tokenOpeningDetected__tokenNew
+				event = tokenOpenerDetected__tokenNew
 			}
 		} // not in active token detection
 
 
 
 		/////////////////////////////////////////////////////////////////////
-		if event == tokenOpeningDetected__tokenNew {
+		if event == tokenOpenerDetected__tokenNew {
 			// the opening/ending chars are removed from the original src, too
 			// empty char is added instead of the original one
 			erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, ' ')
@@ -149,7 +150,7 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 		}
 
 		/////////////////////////////////////////////////////////////////////
-		if event == tokenClosingDetected__saveTheToken {
+		if event == tokenCloserDetected__saveTheToken {
 			tokenNow.positionCharLast = charPos
 			tokensTableUpdated[tokenNow.positionCharFirst] = tokenNow
 			tokenNow = Token{} // restore default values
