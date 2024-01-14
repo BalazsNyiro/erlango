@@ -72,21 +72,20 @@ Receives Erlang source code - return with non-detected source code and detected 
 */
 func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Tokens){
 
-	endOfLine := '\n'
 	tokenClosingDetected__saveTheToken := "tokenClosingDetected__saveTheToken "
 	tokenOpeningDetected__tokenNew := "tokenOpeningDetected__tokenNew "
 
 	tokensTableUpdated := tokensTable.deepCopy()
 	var erlSrcTokenDetectionsRemoved []rune
 
-	noActiveTokenDetection := func (token Token) bool {
+	noActiveTokenDetection__typeEmpty := func (token Token) bool {
 		// if the token is emtpy, then there is no active detection
 		return token.emptyType()
 	}
 
-	activeTokenDetection := func (token Token) bool {
+	activeTokenDetection__typeNotEmpty := func (token Token) bool {
 		// if the token is emtpy, then there is no active detection
-		return ! noActiveTokenDetection(token)
+		return ! noActiveTokenDetection__typeEmpty(token)
 	}
 
 	tokenNow := Token{}
@@ -94,34 +93,44 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 
 	for charPos, charRune := range erlSrc {
 
-		if charRune == '"' { // strings ////////////////////////////////////////
-			if noActiveTokenDetection(tokenNow) {
-				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_TextBlockQuotedDouble}
-				event = tokenOpeningDetected__tokenNew
-			} else {
-				event = tokenClosingDetected__saveTheToken
-			}
+		// closers...................................................................
+		if charRune == '"' && tokenNow.tokenType == tokenType_TextBlockQuotedDouble {
+			event = tokenClosingDetected__saveTheToken
 		}
 
-		if charRune == '\'' { // quoted atoms /////////////////////////////////
-			if noActiveTokenDetection(tokenNow) {
-				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_TextBlockQuotedSingle}
-				event = tokenOpeningDetected__tokenNew
-			} else {
-				event = tokenClosingDetected__saveTheToken
-			}
+		if charRune == '\'' && tokenNow.tokenType == tokenType_TextBlockQuotedSingle {
+			event = tokenClosingDetected__saveTheToken
 		}
 
-		if charRune == '%' { // comments  /////////////////////////////////////
-			if noActiveTokenDetection(tokenNow) {
-				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_Comment}
-				event = tokenOpeningDetected__tokenNew
-			}
-		}
-		if charRune == endOfLine && tokenNow.tokenType == tokenType_Comment {
+		if charRune == '\n' && tokenNow.tokenType == tokenType_Comment {
 			// the endOfLine cannot be removed from original src
 			event = tokenClosingDetected__saveTheToken
 		}
+
+
+		// openers...................................................................
+		if noActiveTokenDetection__typeEmpty(tokenNow) {
+
+			if charRune == '"' { // string
+				tokenNow = Token{ positionCharFirst: charPos,
+					              tokenType: tokenType_TextBlockQuotedDouble}
+				event = tokenOpeningDetected__tokenNew
+			}
+
+			if charRune == '\'' { // quoted atom
+				tokenNow = Token{ positionCharFirst: charPos,
+					              tokenType: tokenType_TextBlockQuotedSingle}
+				event = tokenOpeningDetected__tokenNew
+			}
+
+			if charRune == '%' { // comments
+				tokenNow = Token{ positionCharFirst: charPos,
+					              tokenType: tokenType_Comment}
+				event = tokenOpeningDetected__tokenNew
+			}
+		} // not in active token detection
+
+
 
 
 		/////////////////////////////////////////////////////////////////////
@@ -145,9 +154,9 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 
 		/////////////////////////////////////////////////////////////////////
 		// not opening/closing event:
-		if activeTokenDetection(tokenNow) {
+		if activeTokenDetection__typeNotEmpty(tokenNow) {
 			// then this is an active detection, between Opening/Closing elems
-			if activeTokenDetection(tokenNow) {
+			if activeTokenDetection__typeNotEmpty(tokenNow) {
 				tokenNow.charsInErlSrc = append(tokenNow.charsInErlSrc, charRune)
 				// if the current char is part of a token, remove if fromm src:
 				erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, ' ')
