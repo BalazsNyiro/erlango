@@ -149,9 +149,10 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 			// then this is an active detection, between Opening/Closing elems
 			if activeTokenDetection(tokenNow) {
 				tokenNow.charsInErlSrc = append(tokenNow.charsInErlSrc, charRune)
+				// if the current char is part of a token, remove if fromm src:
 				erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, ' ')
 			}
-		} else { // not active token detection
+		} else { // not active token detection, keep the current char in the src:
 			erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, charRune)
 		}
 
