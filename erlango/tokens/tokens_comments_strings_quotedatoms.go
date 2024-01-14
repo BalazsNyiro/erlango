@@ -28,6 +28,10 @@ type Token struct {
 	charsInErlSrc []rune
 }
 
+func (token Token) emptyType() bool {
+	return token.tokenType == ""
+}
+
 
 const tokenType_TextBlockQuotedSingle = "tokenTextBlockQuotedSingle"
 const tokenType_Comment = "tokenComment"
@@ -55,10 +59,24 @@ type Tokens map[int]Token
     has well-defined input state, and output.
 */
 
+func (tokensInMap Tokens) deepCopy() Tokens {
+	tokensTableUpdated := Tokens{}
+	for _, token := range tokensInMap {
+		tokensTableUpdated[token.positionCharFirst] = token
+	}
+	return tokensTableUpdated
+}
+
+
+
 /*
 Receives Erlang source code - return with non-detected source code and detected Tokens.
 */
 func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Tokens){
+
+	tokensTableUpdated := tokensTable.deepCopy()
+	erlSrcUpdated := []rune{}
+
 	endOfLine := '\n'
 
 	tokenNow := Token{}
@@ -70,7 +88,7 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 		fmt.Println("pos:", charPos, charRune)
 
 		if charRune == '"' { // strings ////////////////////////////////////////
-			if tokenNow.tokenType == "" {  // if there is NO active detection
+			if tokenNow.emptyType() {  // if there is NO active detection
 				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_TextBlockQuotedDouble}
 				continue
 			}
@@ -80,7 +98,7 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 		}
 
 		if charRune == '\'' { // quoted atoms /////////////////////////////////
-			if tokenNow.tokenType == "" {  // if there is NO active detection
+			if tokenNow.emptyType() {  // if there is NO active detection
 				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_TextBlockQuotedSingle}
 				continue
 			}
@@ -90,7 +108,7 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 		}
 
 		if charRune == '%' { // comments  /////////////////////////////////////
-			if tokenNow.tokenType == "" { // if there is NO active detection
+			if tokenNow.emptyType() { // if there is NO active detection
 				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_Comment}
 				continue
 			}
@@ -101,14 +119,14 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 
 		/////////////////////////////////////////////////////////////////////
 		if ! saveToken {
-			if tokenNow.tokenType != "" { // so if there is an active detection
+			if ! tokenNow.emptyType() { // so if there is an active detection
 				tokenNow.charsInErlSrc = append(tokenNow.charsInErlSrc, charRune)
 			}
 		}
 
 		if saveToken { // for me, it is better han an 'else' because it is readable
 			tokenNow.positionCharLast = charPos
-			tokensTable[tokenNow.positionCharFirst] = tokenNow
+			tokensTableUpdated[tokenNow.positionCharFirst] = tokenNow
 
 			// restore default values
 			tokenNow = Token{}
@@ -116,5 +134,5 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 		}
 
 	}
-	return erlSrc, tokensTable
+	return erlSrc, tokensTableUpdated
 }

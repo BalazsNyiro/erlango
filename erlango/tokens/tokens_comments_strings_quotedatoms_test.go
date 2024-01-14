@@ -23,18 +23,20 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 
 	erlSrc :=`	
 		VarAtomQuoted = 'atomValue1', 
-		VarStr  = "string"	
-		[A, B, StringValue] = [1, 2, "This is a line with a string"]
+		VarStr  = "string",
+		VarInt = 5,
+		VarFloat = 1.2,
+		[A, B, StringValue] = ['atomAgain', 2, "This is a line with a string"].
 
 	`
 	tokensTable := Tokens{}
 
-	erlSrc_commentsStringsAtomsquoted_removed, tokensTableXXX := Tokens_detect_text_blocks(erlSrc, tokensTable)
+	erlSrc_commentsStringsAtomsquoted_removed, tokensTable_02_textBlocksDetected := Tokens_detect_text_blocks(erlSrc, tokensTable)
 
 	fmt.Println("erlSrc, without strings, quoted atoms", erlSrc_commentsStringsAtomsquoted_removed)
 
 	fmt.Println("tokensTableOriginal:", tokensTable)
-	fmt.Println("tokensTableUpdated:", tokensTableXXX)
+	fmt.Println("tokensTableUpdated:", tokensTable_02_textBlocksDetected)
 
 }
 
