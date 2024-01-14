@@ -72,76 +72,90 @@ Receives Erlang source code - return with non-detected source code and detected 
 */
 func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Tokens){
 
-	tokensTableUpdated := tokensTable.deepCopy()
-	// var erlSrcUpdated []rune
-	var erlSrcClearedPositions []int
-
 	endOfLine := '\n'
+	tokenClosingDetected__saveTheToken := "tokenClosingDetected__saveTheToken "
+	tokenOpeningDetected__tokenNew := "tokenOpeningDetected__tokenNew "
+
+	tokensTableUpdated := tokensTable.deepCopy()
+	var erlSrcTokenDetectionsRemoved []rune
+
+	noActiveTokenDetection := func (token Token) bool {
+		// if the token is emtpy, then there is no active detection
+		return token.emptyType()
+	}
+
+	activeTokenDetection := func (token Token) bool {
+		// if the token is emtpy, then there is no active detection
+		return ! noActiveTokenDetection(token)
+	}
 
 	tokenNow := Token{}
-	saveToken__endingCharDetected := false
-	openingOrEndingCharacter_tokenTypeSetOnly := false
+	event := ""
 
 	for charPos, charRune := range erlSrc {
 
 		if charRune == '"' { // strings ////////////////////////////////////////
-			if tokenNow.emptyType() {  // if there is NO active detection
+			if noActiveTokenDetection(tokenNow) {
 				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_TextBlockQuotedDouble}
-				openingOrEndingCharacter_tokenTypeSetOnly = true
+				event = tokenOpeningDetected__tokenNew
 			} else {
-				saveToken__endingCharDetected = true
+				event = tokenClosingDetected__saveTheToken
 			}
 		}
 
 		if charRune == '\'' { // quoted atoms /////////////////////////////////
-			if tokenNow.emptyType() {  // if there is NO active detection
+			if noActiveTokenDetection(tokenNow) {
 				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_TextBlockQuotedSingle}
-				openingOrEndingCharacter_tokenTypeSetOnly = true
+				event = tokenOpeningDetected__tokenNew
 			} else {
-				saveToken__endingCharDetected = true
+				event = tokenClosingDetected__saveTheToken
 			}
 		}
 
 		if charRune == '%' { // comments  /////////////////////////////////////
-			if tokenNow.emptyType() { // if there is NO active detection
+			if noActiveTokenDetection(tokenNow) {
 				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_Comment}
-				openingOrEndingCharacter_tokenTypeSetOnly = true
+				event = tokenOpeningDetected__tokenNew
 			}
 		}
 		if charRune == endOfLine && tokenNow.tokenType == tokenType_Comment {
 			// the endOfLine cannot be removed from original src
-			saveToken__endingCharDetected = true
+			event = tokenClosingDetected__saveTheToken
 		}
 
+
 		/////////////////////////////////////////////////////////////////////
-		if openingOrEndingCharacter_tokenTypeSetOnly {
+		if event == tokenOpeningDetected__tokenNew {
 			// the opening/ending chars are removed from the original src, too
-			erlSrcClearedPositions = append(erlSrcClearedPositions, charPos)
-			openingOrEndingCharacter_tokenTypeSetOnly = false
+			// empty char is added instead of the original one
+			erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, ' ')
+			event = ""
 			continue
 		}
 
-
-
-
-
 		/////////////////////////////////////////////////////////////////////
-		if !saveToken__endingCharDetected {
-			if ! tokenNow.emptyType() { // so if there is an active detection
-				tokenNow.charsInErlSrc = append(tokenNow.charsInErlSrc, charRune)
-				erlSrcClearedPositions = append(erlSrcClearedPositions, charPos)
-			}
-		}
-
-		if saveToken__endingCharDetected { // for me, it is better han an 'else' because it is readable
+		if event == tokenClosingDetected__saveTheToken {
 			tokenNow.positionCharLast = charPos
 			tokensTableUpdated[tokenNow.positionCharFirst] = tokenNow
 
-			// restore default values
-			tokenNow = Token{}
-			saveToken__endingCharDetected = false
+			tokenNow = Token{} // restore default values
+			event = ""
+			continue
+		}
+
+		/////////////////////////////////////////////////////////////////////
+		// not opening/closing event:
+		if activeTokenDetection(tokenNow) {
+			// then this is an active detection, between Opening/Closing elems
+			if activeTokenDetection(tokenNow) {
+				tokenNow.charsInErlSrc = append(tokenNow.charsInErlSrc, charRune)
+				erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, ' ')
+			}
+		} else { // not active token detection
+			erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, charRune)
 		}
 
 	}
-	return erlSrc, tokensTableUpdated
+
+	return string(erlSrcTokenDetectionsRemoved), tokensTableUpdated
 }
