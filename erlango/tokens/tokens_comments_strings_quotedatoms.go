@@ -13,8 +13,6 @@ Version 0.3, third total rewrite
 
 package tokens
 
-import "fmt"
-
 type Token struct {
 	tokenType string
 
@@ -75,62 +73,73 @@ Receives Erlang source code - return with non-detected source code and detected 
 func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Tokens){
 
 	tokensTableUpdated := tokensTable.deepCopy()
-	erlSrcUpdated := []rune{}
+	// var erlSrcUpdated []rune
+	var erlSrcClearedPositions []int
 
 	endOfLine := '\n'
 
 	tokenNow := Token{}
-	saveToken := false
+	saveToken__endingCharDetected := false
+	openingOrEndingCharacter_tokenTypeSetOnly := false
 
 	for charPos, charRune := range erlSrc {
-
-
-		fmt.Println("pos:", charPos, charRune)
 
 		if charRune == '"' { // strings ////////////////////////////////////////
 			if tokenNow.emptyType() {  // if there is NO active detection
 				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_TextBlockQuotedDouble}
-				continue
-			}
-			if tokenNow.tokenType == tokenType_TextBlockQuotedDouble {
-				saveToken = true
+				openingOrEndingCharacter_tokenTypeSetOnly = true
+			} else {
+				saveToken__endingCharDetected = true
 			}
 		}
 
 		if charRune == '\'' { // quoted atoms /////////////////////////////////
 			if tokenNow.emptyType() {  // if there is NO active detection
 				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_TextBlockQuotedSingle}
-				continue
-			}
-			if tokenNow.tokenType == tokenType_TextBlockQuotedSingle{
-				saveToken = true
+				openingOrEndingCharacter_tokenTypeSetOnly = true
+			} else {
+				saveToken__endingCharDetected = true
 			}
 		}
 
 		if charRune == '%' { // comments  /////////////////////////////////////
 			if tokenNow.emptyType() { // if there is NO active detection
 				tokenNow = Token{positionCharFirst: charPos, tokenType: tokenType_Comment}
-				continue
+				openingOrEndingCharacter_tokenTypeSetOnly = true
 			}
 		}
 		if charRune == endOfLine && tokenNow.tokenType == tokenType_Comment {
-			saveToken = true
+			// the endOfLine cannot be removed from original src
+			saveToken__endingCharDetected = true
 		}
 
 		/////////////////////////////////////////////////////////////////////
-		if ! saveToken {
+		if openingOrEndingCharacter_tokenTypeSetOnly {
+			// the opening/ending chars are removed from the original src, too
+			erlSrcClearedPositions = append(erlSrcClearedPositions, charPos)
+			openingOrEndingCharacter_tokenTypeSetOnly = false
+			continue
+		}
+
+
+
+
+
+		/////////////////////////////////////////////////////////////////////
+		if !saveToken__endingCharDetected {
 			if ! tokenNow.emptyType() { // so if there is an active detection
 				tokenNow.charsInErlSrc = append(tokenNow.charsInErlSrc, charRune)
+				erlSrcClearedPositions = append(erlSrcClearedPositions, charPos)
 			}
 		}
 
-		if saveToken { // for me, it is better han an 'else' because it is readable
+		if saveToken__endingCharDetected { // for me, it is better han an 'else' because it is readable
 			tokenNow.positionCharLast = charPos
 			tokensTableUpdated[tokenNow.positionCharFirst] = tokenNow
 
 			// restore default values
 			tokenNow = Token{}
-			saveToken = false
+			saveToken__endingCharDetected = false
 		}
 
 	}
