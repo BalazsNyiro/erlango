@@ -18,15 +18,28 @@ import (
 	"testing"
 )
 
+func print_string_runes_diff(txt1, txt2 string) {
+	// the length has to be same
+	if len(txt1) != len(txt2) {
+		fmt.Println("different string lengths:", len(txt1), len(txt2))
+	}
+	for pos1, runeVal1 := range txt1{
+		runeVal2 := []rune(txt2)[pos1]
+
+		fmt.Println(pos1, runeVal1, string(runeVal1), "     ", runeVal2, string(runeVal2))
+	}
+}
 
 func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 	testName := "01 simple atomQuoted, string, comment detection"
 
 	tokensTable := Tokens{}
-	erlSrcOrig :=                  `[AtomVal, IntVal1, StringVal, IntVal2] = ['atomQuoted', 2, "txt", 4]. % comment\n%comment2`
-	erlSrcWantedAfterTokenDetect :=`[AtomVal, IntVal1, StringVal, IntVal2] = [            , 2,      , 4].          \n         `
+	erlSrcOrig :=                    `[AtomVal, IntVal1, StringVal, IntVal2] = ['atomQuoted', 2, "txt", 4]. % comment` + "\n%comment2"
+	erlSrcWantedAfterTokenDetect :=  `[AtomVal, IntVal1, StringVal, IntVal2] = [            , 2,      , 4].          ` + "\n         "
 
 	erlSrc_received_after_tokenDetect, tokensTable_02_textBlocksDetected := Tokens_detect_text_blocks(erlSrcOrig, tokensTable)
+	print_string_runes_diff(erlSrcOrig, erlSrc_received_after_tokenDetect)
+
 
 	fmt.Println("erlSrc, without strings, quoted atoms", erlSrc_received_after_tokenDetect)
 
