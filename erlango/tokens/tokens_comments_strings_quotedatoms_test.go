@@ -20,24 +20,27 @@ import (
 
 
 func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
+	testName := "01 simple atomQuoted, string, comment detection"
 
-	erlSrc :=`	
-		VarAtomQuoted = 'atomValue1', 
-		VarStr  = "string",
-		VarInt = 5,
-		VarFloat = 1.2,
-		[A, B, StringValue] = ['atomAgain', 2, "This is a line with a string"].
-
-	`
 	tokensTable := Tokens{}
+	erlSrcOrig :=                  `[AtomVal, IntVal1, StringVal, IntVal2] = ['atomQuoted', 2, "txt", 4]. % comment\n%comment2`
+	erlSrcWantedAfterTokenDetect :=`[AtomVal, IntVal1, StringVal, IntVal2] = [            , 2,      , 4].          \n         `
 
-	erlSrc_commentsStringsAtomsquoted_removed, tokensTable_02_textBlocksDetected := Tokens_detect_text_blocks(erlSrc, tokensTable)
+	erlSrc_received_after_tokenDetect, tokensTable_02_textBlocksDetected := Tokens_detect_text_blocks(erlSrcOrig, tokensTable)
 
-	fmt.Println("erlSrc, without strings, quoted atoms", erlSrc_commentsStringsAtomsquoted_removed)
+	fmt.Println("erlSrc, without strings, quoted atoms", erlSrc_received_after_tokenDetect)
 
 	fmt.Println("tokensTableOriginal:", tokensTable)
 	fmt.Println("tokensTableUpdated:", tokensTable_02_textBlocksDetected)
 
+	compare_strings(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
+
+}
+
+func compare_strings(callerInfo, strWanted, strReceived string, t *testing.T) {
+	if strWanted != strReceived {
+		t.Fatalf("\nErr String difference (%s):\n  wanted -->>%s<<-- ??\nreceived -->>%s<<--\n\n", callerInfo, strWanted, strReceived)
+	}
 }
 
 /*

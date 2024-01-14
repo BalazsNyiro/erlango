@@ -43,7 +43,7 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 
 	for charPos, charRune := range erlSrcRunes {
 
-		charRuneNext, _ := charRuneNext(charPos, +1, erlSrcRunes)
+		charRuneNext1, _ := charRuneNext(charPos, +1, erlSrcRunes)
 
 		// closers.......... (before openers, to avoid tokenType set side effect)....
 		if charRune == '"' && tokenNow.tokenType == tokenType_TextBlockQuotedDouble {
@@ -54,7 +54,7 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 			event = tokenCloserDetected__saveTheToken
 		}
 
-		if charRuneNext == '\n' && tokenNow.tokenType == tokenType_Comment {
+		if charRuneNext1 == '\n' && tokenNow.tokenType == tokenType_Comment {
 			// the endOfLine cannot be removed from original src,
 			// comment is finished BEFORE the end of line
 			event = tokenCloserDetected__saveTheToken
