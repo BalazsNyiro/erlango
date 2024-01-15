@@ -99,8 +99,8 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 			// token  opener/closer has to be removed, too
 			//           |_____|
 			//     txt = "abcde"
-			// BUT: comments doesn't have real closer chars.
-			//   opener /  beforeCloser
+			// BUT: comments don't have real closer chars.
+			//   opener /  beforeCloserNewline
 			//     |________|
 			//     % comment\n
 			// in case of comments, the comment's last char is the last char before the \n.
