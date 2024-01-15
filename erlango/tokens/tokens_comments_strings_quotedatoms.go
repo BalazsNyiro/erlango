@@ -43,8 +43,6 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 
 	for charPos, charRune := range erlSrcRunes {
 
-		charRuneNext1, _ := charRuneNext(charPos, +1, erlSrcRunes)
-
 		// closers.......... (before openers, to avoid tokenType set side effect)....
 		if charRune == '"' && tokenNow.tokenType == tokenType_TextBlockQuotedDouble {
 			event = tokenCloserDetected__saveTheToken
@@ -54,9 +52,7 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 			event = tokenCloserDetected__saveTheToken
 		}
 
-		if charRuneNext1 == '\n' && tokenNow.tokenType == tokenType_Comment {
-			// the endOfLine cannot be removed from original src,
-			// comment is finished BEFORE the end of line
+		if charRune == '\n' && tokenNow.tokenType == tokenType_Comment {
 			event = tokenCloserDetected__saveTheToken
 		}
 
@@ -100,7 +96,23 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 			tokenNow = Token{} // restore default values
 
 			// the token closer last char is removed, too, from the original source code
-			erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, ' ')
+			// token  opener/closer has to be removed, too
+			//           |_____|
+			//     txt = "abcde"
+			// BUT: comments doesn't have real closer chars.
+			//   opener /  beforeCloser
+			//     |________|
+			//     % comment\n
+			// in case of comments, the comment's last char is the last char before the \n.
+			// so \n is used as a closer char, to detect the end of the comment,
+			// but CANNOT be replaced. So if the charRune that we want to replace is a \n, we keep it.
+			if charRune == '\n' {
+				erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, '\n')
+				// newline cannot be replaced
+			} else {
+				erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, ' ')
+			}
+
 			event = ""
 			continue
 		}
