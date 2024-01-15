@@ -30,6 +30,14 @@ func print_string_runes_diff(txt1, txt2 string) {
 	}
 }
 
+func print_tokens(msg string, tokens Tokens) {
+	fmt.Println(msg)
+	for _, token := range tokens {
+		fmt.Println("token print:", token.positionCharFirst, token.tokenType, string(token.charsInErlSrc))
+	}
+}
+
+
 func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 	testName := "01 simple atomQuoted, string, comment detection"
 
@@ -39,6 +47,7 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 
 	erlSrc_received_after_tokenDetect, tokensTable_02_textBlocksDetected := Tokens_detect_text_blocks(erlSrcOrig, tokensTable)
 	print_string_runes_diff(erlSrcOrig, erlSrc_received_after_tokenDetect)
+	print_tokens("tokens table, after comment, atomQuoted, string detect", tokensTable_02_textBlocksDetected)
 
 
 	fmt.Println("erlSrc, without strings, quoted atoms", erlSrc_received_after_tokenDetect)
@@ -47,7 +56,9 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 	fmt.Println("tokensTableUpdated:", tokensTable_02_textBlocksDetected)
 
 	compare_strings(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
-
+	compare_strings(testName, "atomQuoted", tokensTable_02_textBlocksDetected[42].stringRepr(), t)
+	compare_strings(testName, "txt", tokensTable_02_textBlocksDetected[59].stringRepr(), t)
+	compare_strings(testName, " comment", tokensTable_02_textBlocksDetected[70].stringRepr(), t)
 }
 
 func compare_strings(callerInfo, strWanted, strReceived string, t *testing.T) {

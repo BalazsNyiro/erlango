@@ -29,6 +29,9 @@ type Token struct {
 func (token Token) emptyType() bool {
 	return token.tokenType == ""
 }
+func (token Token) stringRepr() string {
+	return string(token.charsInErlSrc)
+}
 
 
 const tokenType_TextBlockQuotedSingle = "tokenTextBlockQuotedSingle"
