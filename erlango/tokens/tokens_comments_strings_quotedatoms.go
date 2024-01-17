@@ -51,9 +51,14 @@ func charsHowManyAreInTheGroup(charPosFirstToTest int, erlSrcRunes []rune, allow
 	return inSetCounter
 }
 
-func isEscapedChar(charPosFirstToTest int, erlSrcRunes []rune, allowedCharsInSet []rune, direction string) bool {
-	escaped := false;
+func isEscapedChar(charPosFirstToTest int, erlSrcRunes []rune) bool {
+	backSlashOnly := []rune("\\")
+	backSlashCounted := charsHowManyAreInTheGroup(charPosFirstToTest, erlSrcRunes, backSlashOnly, "left")
 
+	escaped := true
+	if backSlashCounted % 2 == 0 { // even num of \ means: not escaped
+		escaped = false
+	}
 	return escaped
 }
 
@@ -88,13 +93,13 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 
 		// closers.......... (before openers, to avoid tokenType set side effect)....
 		if charRune == '"' && tokenNow.tokenType == tokenType_TextBlockQuotedDouble {
-			if ! isEscapedChar(charPos-1, erlSrcRunes, []rune{'\\'}, "left") {
+			if ! isEscapedChar(charPos-1, erlSrcRunes) {
 				event = tokenCloserDetected__saveTheToken
 			}
 		}
 
 		if charRune == '\'' && tokenNow.tokenType == tokenType_TextBlockQuotedSingle {
-			if ! isEscapedChar(charPos-1, erlSrcRunes, []rune{'\\'}, "left") {
+			if ! isEscapedChar(charPos-1, erlSrcRunes) {
 				event = tokenCloserDetected__saveTheToken
 			}
 		}

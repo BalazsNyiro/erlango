@@ -100,6 +100,19 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 	compare_strings(testName, " comment", tokensTable_02_textBlocksDetected[70].stringRepr(), t)
 }
 
+func Test_parse_comments_textDoubleQuoted_textSingleQuoted_escaping(t *testing.T) {
+	testName := "02 escaping"
+
+	tokensTable := Tokens{}
+	erlSrcOrig :=                    "Atom='atom\nQuoted\\ escapeAgan: \\\t,  end:\\\\',"
+	//                                           \n is one char in representation
+	erlSrcWantedAfterTokenDetect :=  "Atom=                                      ,"
+
+	erlSrc_received_after_tokenDetect, _ := Tokens_detect_text_blocks(erlSrcOrig, tokensTable)
+
+	compare_strings(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
+}
+
 func compare_strings(callerInfo, strWanted, strReceived string, t *testing.T) {
 	if strWanted != strReceived {
 		t.Fatalf("\nErr String difference (%s):\n  wanted -->>%s<<-- ??\nreceived -->>%s<<--\n\n", callerInfo, strWanted, strReceived)
