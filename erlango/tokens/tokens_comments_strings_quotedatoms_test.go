@@ -38,6 +38,45 @@ func print_tokens(msg string, tokens Tokens) {
 }
 
 
+func Test_charsHowManyAreInTheGroup(t *testing.T) {
+	funName := "Test_charsHowManyAreInTheGroup"
+
+	setNumbers := []rune("0123456789")
+	setAlphabetLow := []rune("abcdefghijklmnopqrstuvwxyz")
+	setAlphabetUp := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	setCommas := []rune(",;")
+
+	//    position:   0123456789ABCDEFG
+	erlSrc := []rune(`ABabcdE123456 ,;:`)
+
+	charsDetectedInGroup_counter := charsHowManyAreInTheGroup(0, erlSrc, setAlphabetLow, "right" )
+	compare_ints(funName + "_test_alphabet_0", charsDetectedInGroup_counter, 0, t)
+
+	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(1, erlSrc, setAlphabetLow, "right" )
+	compare_ints(funName + "_test_alphabet_1", charsDetectedInGroup_counter, 0, t)
+
+	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(2, erlSrc, setAlphabetLow, "right" )
+	compare_ints(funName + "_test_alphabet_2", charsDetectedInGroup_counter, 4, t)
+
+	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(3, erlSrc, setAlphabetLow, "right" )
+	compare_ints(funName + "_test_alphabet_3", charsDetectedInGroup_counter, 3, t)
+
+	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(6, erlSrc, setAlphabetUp, "right" )
+	compare_ints(funName + "_test_alphabet_4", charsDetectedInGroup_counter, 1, t)
+
+	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(12, erlSrc, setNumbers, "left" )
+	compare_ints(funName + "_test_nums_1", charsDetectedInGroup_counter, 6, t)
+
+	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(13, erlSrc, setNumbers, "left" )
+	compare_ints(funName + "_test_nums_2", charsDetectedInGroup_counter, 0, t)
+
+	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(16, erlSrc, setCommas, "left" )
+	compare_ints(funName + "_test_nums_3", charsDetectedInGroup_counter, 0, t)
+
+	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(15, erlSrc, setCommas, "left" )
+	compare_ints(funName + "_test_nums_4", charsDetectedInGroup_counter, 2, t)
+}
+
 func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 	testName := "01 simple atomQuoted, string, comment detection"
 
@@ -64,6 +103,12 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 func compare_strings(callerInfo, strWanted, strReceived string, t *testing.T) {
 	if strWanted != strReceived {
 		t.Fatalf("\nErr String difference (%s):\n  wanted -->>%s<<-- ??\nreceived -->>%s<<--\n\n", callerInfo, strWanted, strReceived)
+	}
+}
+
+func compare_ints(callerInfo string, intWanted, intReceived int, t *testing.T) {
+	if intWanted != intReceived{
+		t.Fatalf("\nErr INT difference (%s):\n  wanted -->>%d<<-- ??\nreceived -->>%d<<--\n\n", callerInfo, intWanted, intReceived)
 	}
 }
 
