@@ -26,6 +26,12 @@ func isEscapedChar(charPosFirstToTest int, erlSrcRunes []rune) bool {
 
 /*
 Receives Erlang source code - return with non-detected source code and detected Tokens.
+
+This is the first and maybe a very special detection steps,
+because for atoms/strings, and for comments, it is relatively
+easy to find opener and closer elems.
+
+I like this process. It was rewritten minimum 4 times; and now, it is good to see this :-)
 */
 func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Tokens){
 
