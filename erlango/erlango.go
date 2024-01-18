@@ -18,10 +18,18 @@ import "erlango.org/erlango/tokens"
 
 func main() {  // in program plan
 
-	/**/
 	fmt.Println("Erlango")
 
 	erlSrc := ""
 	tokensTable := tokens.Tokens{}
-	tokens.Tokens_detect_text_blocks(erlSrc, tokensTable)
+
+
+	erlSrc_cleaned__stringsAtomsCommens_removed, tokensTable_stringsAtomsCommentsAdded :=
+		tokens.Tokens_detect_text_blocks(erlSrc, tokensTable)
+
+	erlSrc_cleaned__numbersRemoved, tokensTAble_numbersAdded :=
+		tokens.Tokens_detect_numbers(erlSrc_cleaned__stringsAtomsCommens_removed, tokensTable_stringsAtomsCommentsAdded)
+
+	fmt.Println("END", erlSrc_cleaned__numbersRemoved, tokensTAble_numbersAdded)
+
 }

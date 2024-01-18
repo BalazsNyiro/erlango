@@ -13,44 +13,6 @@ Version 0.3, third total rewrite
 
 package tokens
 
-import "slices"
-
-/*
-	charPosFirstToTest: the first tested character position in erlSrcRunes
-	allowedCharsInSet: one or more runes: if the actual char is in the set,
-	func detectCharacterSetLength(charPosFirstToTest int, erlSrcRunes []rune, allowedCharsInSet []rune, direction string){
-
-	it tests one Char position.
-		if it is in ghe set, counter++, and step to the next one.
-		if it is not in the set, stop the validation and return with the counter
-
-
-	if the slices.Contains() is too slow, a map can be used instead of the slice
-*/
-
-func charsHowManyAreInTheGroup(charPosFirstToTest int, erlSrcRunes []rune, allowedCharsInSet []rune, direction string) int {
-	inSetCounter := 0
-
-	delta := +1 // direction: right, add +1 in all steps
-	conditionFun := func(position int) bool { return position <= len(erlSrcRunes) - 1 }
-
-	if direction == "left" {
-		delta = -1 // to go left, pos has to be decreased
-		conditionFun = func(position int) bool { return position >= 0}
-	}
-
-	for pos := charPosFirstToTest; conditionFun(pos); pos+=delta {
-		charNow := erlSrcRunes[pos]
-		if slices.Contains(allowedCharsInSet, charNow) {
-			inSetCounter += 1
-		} else { // if the tested position's char is not in the set, leave the validation loop
-			break
-		}
-	}
-
-	return inSetCounter
-}
-
 func isEscapedChar(charPosFirstToTest int, erlSrcRunes []rune) bool {
 	backSlashOnly := []rune("\\")
 	backSlashCounted := charsHowManyAreInTheGroup(charPosFirstToTest, erlSrcRunes, backSlashOnly, "left")
