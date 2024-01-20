@@ -113,6 +113,8 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted_escaping(t *testing.T
 	compare_strings(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
 }
 
+
+////////// GENERAL TEST FUNCTIONS //////////
 func compare_strings(callerInfo, strWanted, strReceived string, t *testing.T) {
 	if strWanted != strReceived {
 		t.Fatalf("\nErr String difference (%s):\n  wanted -->>%s<<-- ??\nreceived -->>%s<<--\n\n", callerInfo, strWanted, strReceived)
@@ -125,29 +127,3 @@ func compare_ints(callerInfo string, intWanted, intReceived int, t *testing.T) {
 	}
 }
 
-/*
-func compare_tokenDetected_tokenWanted(callerInfo string, tokensDetected ErlTokens, tokenWanted tokenWanted, t *testing.T) {
-	tokenDetected, tokenWantedIsInDetected:= tokensDetected[tokenWanted.positionFirst]
-
-	if tokenWantedIsInDetected {
-		// theoretically the charPosFirst is always ok here, because the key in map was the same position
-		tokenDetected_charPosFirst, tokenDetected_charPosLast := tokenDetected.charPositionFirstLast()
-		if tokenDetected_charPosFirst != tokenWanted.positionFirst {
-			t.Fatalf("\nErr First: %s : detected posFirst: %v  is different from wanted posFirst:  %v, error:\n'%s'\n'%s'\n\n",
-				callerInfo, tokenDetected_charPosFirst, tokenWanted.positionFirst, tokenDetected.stringRepresentation(), tokenWanted.textRepresentation)
-		}
-		if tokenDetected_charPosLast != tokenWanted.positionLast {
-			t.Fatalf("\nErr Last: %s : detected posLast: %v  is different from wanted posLast:  %v, error:\n'%s'\n'%s'\n\n",
-				callerInfo, tokenDetected_charPosLast, tokenWanted.positionLast, tokenDetected.stringRepresentation(), tokenWanted.textRepresentation)
-		}
-		if tokenDetected.stringRepresentation() != tokenWanted.textRepresentation {
-			t.Fatalf("\nErr repr %s : startPos:%v  detected string representation: %v  is different from wanted representation:  %v, error",
-				callerInfo, tokenDetected_charPosFirst, tokenDetected.stringRepresentation(), tokenWanted.textRepresentation)
-		}
-	} else {
-		t.Fatalf("\nErr %s : wanted tokenPosFirst %v is not in detecteds - error", callerInfo, tokenWanted.positionFirst)
-	}
-
-}
-
- */
