@@ -35,6 +35,60 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 
 	tokensTableUpdated := tokensTable.deepCopy()
 	var erlSrcTokenDetectionsRemoved []rune
+	///////////////////////////////////////////////////////////////
+	digitsZeroNine := []rune("0123456789")
+	///////////////////////////////////////////////////////////////
 
+
+	erlSrcRunes := []rune(erlSrc)
+	// be careful: charPos can be increased inside the loop!!!!
+	for charPos := 0; charPos < len(erlSrcRunes); charPos++ {
+
+		tokenType := ""
+		detectionCharPosFirst := -1
+		detectionCharPosLast := -1
+		//............................................................................................
+
+
+
+		if tokenType == "" { // simple INT detection
+			detected_num_of_digitsZeroNine := charsHowManyAreInTheGroup(charPos, erlSrcRunes,digitsZeroNine, "right")
+			if detected_num_of_digitsZeroNine > 0 {
+				tokenType = tokenType_Num_digitsZeroNine
+				detectionCharPosFirst = charPos
+				detectionCharPosLast = charPos + detected_num_of_digitsZeroNine - 1
+			}
+		}
+
+
+
+		/////////////// GENERAL TOKEN SAVE SECTION //////////////////////
+		if tokenType != "" { // Token was detected, the type is NOT empty
+
+			tokenNow := Token{ 	positionCharFirst: detectionCharPosFirst,
+								positionCharLast: detectionCharPosLast,
+								tokenType: tokenType}
+
+			// tokenType is set IF there is minimum one char, so this loop is always executed, minimum ONCE
+			for posTokenChar := detectionCharPosFirst; posTokenChar <= detectionCharPosLast; posTokenChar++ { // 0..9 digit block is detected
+				tokenNow.charsInErlSrc = append(tokenNow.charsInErlSrc, erlSrcRunes[posTokenChar])
+				erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, ' ')
+				charPos ++
+			}
+			charPos -- // in the foor loop, one unnecessary Pos increasing happens,
+			// because if one char is detected only, charPos doesn't need to be changed
+
+			tokensTableUpdated[tokenNow.positionCharFirst] = tokenNow
+
+		} else {
+			// there is no token detection - save the rune back into the original src
+			erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, erlSrcRunes[charPos])
+		}
+		/////////////// GENERAL TOKEN SAVE SECTION //////////////////////
+
+
+	} // for charPos
+
+	///////////////////////////////////////////////////////////////
 	return string(erlSrcTokenDetectionsRemoved), tokensTableUpdated
 }

@@ -40,6 +40,7 @@ const tokenType_TextBlockQuotedSingle = "tokenTextBlockQuotedSingle"
 const tokenType_Comment = "tokenComment"
 const tokenType_TextBlockQuotedDouble = "tokenTextBlockQuotedDouble"
 
+const tokenType_Num_digitsZeroNine = "tokenNumDigitsZeroNine"
 
 /* Tokens represent the Erlang source code - so the int-key is the first char's position in the source code */
 type Tokens map[int]Token

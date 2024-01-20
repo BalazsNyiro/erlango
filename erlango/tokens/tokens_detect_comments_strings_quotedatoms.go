@@ -151,7 +151,7 @@ func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Token
 			erlSrcTokenDetectionsRemoved = append(erlSrcTokenDetectionsRemoved, charRune)
 		}
 
-	}
+	} // for charPos...
 
 	return string(erlSrcTokenDetectionsRemoved), tokensTableUpdated
 }
