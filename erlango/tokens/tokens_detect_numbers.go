@@ -41,13 +41,14 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 	///////////////////////////////////////////////////////////////
 	digitsZeroNine := []rune("0123456789")
 	digitsZeroNine_underscore := []rune("0123456789_")
+	digitDot := []rune(".")
+	//# const abcEngLower = "abcdefghijklmnopqrstuvwxyz"
+	//const abcEngUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	//const DIGITS_UNDERSCORE_abc_ABC = DIGITS_UNDERSCORE + abcEngLower + abcEngUpper
 	///////////////////////////////////////////////////////////////
 
 
 
-	//# const abcEngLower = "abcdefghijklmnopqrstuvwxyz"
-	//const abcEngUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	//const DIGITS_UNDERSCORE_abc_ABC = DIGITS_UNDERSCORE + abcEngLower + abcEngUpper
 
 
 
@@ -93,29 +94,48 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 
 
 
+		if tokenType == "" { // float detection (3)
+			fmt.Println("float detections >>" + string(erlSrcRunes[charPos:]) + "<<")
+			/* check possible 4 float variations:
+				12.3_4
+				12.34
+				1_2.34
+				1_2.3_4
 
+			*/
+			detected_num_digit_dot_digitUnderscore           := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitDot, digitsZeroNine, digitsZeroNine_underscore}, "right", "detected_num_digit_dot_digitUnderscore")
+			detected_num_digit_dot_digit                     := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitDot, digitsZeroNine}, "right", "detected_num_digit_dot_digit")
+			detected_num_digitUnderscore_dot_digit           := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitDot, digitsZeroNine}, "right", "detected_num_digitUnderscore_dot_digit")
+			detected_num_digitUnderscore_dot_digitUnderscore := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitDot, digitsZeroNine, digitsZeroNine_underscore}, "right", "detected_num_digitUnderscore_dot_digitUnderscore")
 
+			// fmt.Println("detected_num_digit_dot_digitUnderscore           ", detected_num_digit_dot_digitUnderscore           )
+			// fmt.Println("detected_num_digit_dot_digit                     ", detected_num_digit_dot_digit                     )
+			// fmt.Println("detected_num_digitUnderscore_dot_digit           ", detected_num_digitUnderscore_dot_digit           )
+			// fmt.Println("detected_num_digitUnderscore_dot_digitUnderscore ", detected_num_digitUnderscore_dot_digitUnderscore )
 
+			detectedMax := max(detected_num_digit_dot_digitUnderscore, detected_num_digit_dot_digit, detected_num_digitUnderscore_dot_digit, detected_num_digitUnderscore_dot_digitUnderscore)
 
+			if detectedMax> 0 {
+				tokenType = tokenType_Num_float
+				detectionCharPosFirst = charPos
+				detectionCharPosLast = charPos + detectedMax - 1
+			}
+		}
 
-		if tokenType == "" { // simple INT detection (4a): digit|digit_underscore*
-			fmt.Println("-> simple int detection (4a, 4b) charPos:", charPos, string(erlSrcRunes[charPos]))
-			detected_num_of_digitsZeroNine_underscore := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore}, "right")
-			fmt.Println("detected num of digitsZeroNine_underscore", detected_num_of_digitsZeroNine_underscore)
-
+		if tokenType == "" { // simple INT detection (4a): digit+|digit_underscore* (one or more digits|one ore more digitsAndUnderscore
+			detected_num_of_digitsZeroNine_underscore := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore}, "right", "simple INT 4a detection")
 			if detected_num_of_digitsZeroNine_underscore > 0 {
-				tokenType = tokenType_Num_digitsZeroNine_underscoreMaybeLater
+				tokenType = tokenType_Num_int
 				detectionCharPosFirst = charPos
 				detectionCharPosLast = charPos + detected_num_of_digitsZeroNine_underscore - 1
-				fmt.Println("charPos first/Last", detectionCharPosFirst, detectionCharPosLast)
 			}
 		}
 
 
-		if tokenType == "" { // simple INT detection (4b)
+		if tokenType == "" { // simple INT detection (4b) digit+ (one or more digits)
 			detected_num_of_digitsZeroNine := charsHowManyAreInTheGroup(charPos, erlSrcRunes,digitsZeroNine, "right")
 			if detected_num_of_digitsZeroNine > 0 {
-				tokenType = tokenType_Num_digitsZeroNine
+				tokenType = tokenType_Num_int
 				detectionCharPosFirst = charPos
 				detectionCharPosLast = charPos + detected_num_of_digitsZeroNine - 1
 			}

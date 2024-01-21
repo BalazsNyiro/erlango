@@ -13,7 +13,10 @@ Version 0.3, third total rewrite
 
 package tokens
 
-import "slices"
+import (
+	"fmt"
+	"slices"
+)
 
 type Token struct {
 	tokenType string
@@ -40,10 +43,8 @@ const tokenType_TextBlockQuotedSingle = "tokenTextBlockQuotedSingle"
 const tokenType_Comment = "tokenComment"
 const tokenType_TextBlockQuotedDouble = "tokenTextBlockQuotedDouble"
 
-const tokenType_Num_digitsZeroNine = "tokenNumDigitsZeroNine"
-
-// when the first char is a digit, then later underscores can be between digits
-const tokenType_Num_digitsZeroNine_underscoreMaybeLater = "tokenNumDigitsZeroNine_underscoreMaybeLater"
+const tokenType_Num_int = "tokenTypeNumInt"
+const tokenType_Num_float = "tokenTypeNumInt"
 
 const tokenType_Num_charLiterals = "tokenNumCharLiteral"
 
@@ -79,15 +80,19 @@ func (tokensInMap Tokens) deepCopy() Tokens {
 /*
 	if you pass more character groups, are all of they are matching?
 */
-func charsGroupsAreMatching(charPosFirstToTest int, erlSrcRunes []rune, allowedChars_sets []([]rune), direction string) int {
+func charsGroupsAreMatching(charPosFirstToTest int, erlSrcRunes []rune, allowedCharSets []([]rune), direction string, debugMsg string) int {
 	inSetCounter := 0
-
+	if debugMsg != ""{
+		fmt.Println("====", debugMsg, "====")
+	}
 	charPosToTest := charPosFirstToTest
-	for _, allowedCharsInSet := range allowedChars_sets {
-		countedCharNum := charsHowManyAreInTheGroup(charPosToTest, erlSrcRunes, allowedCharsInSet, direction)
+	for _, allowedCharSet := range allowedCharSets {
+		countedCharNum := charsHowManyAreInTheGroup(charPosToTest, erlSrcRunes, allowedCharSet, direction)
+		// fmt.Println("  counted:", countedCharNum, "  Allowed charset:", string(allowedCharSet))
 		if countedCharNum == 0 {
 			inSetCounter = 0  // if in any set, there is no matching elems, the whole group Matching is unsuccessful
-			continue
+			// fmt.Println("  inSetCounter = 0")
+			break
 		}
 
 		// here the countedCharNum is > 0
