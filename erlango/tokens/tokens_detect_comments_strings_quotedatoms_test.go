@@ -86,7 +86,7 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 
 	erlSrc_received_after_tokenDetect, tokensTable_02_textBlocksDetected := Tokens_detect_text_blocks(erlSrcOrig, tokensTable)
 	print_string_runes_diff(erlSrcOrig, erlSrc_received_after_tokenDetect)
-	print_tokens("tokens table, after comment, atomQuoted, string detect", tokensTable_02_textBlocksDetected)
+	print_tokens("tokens table" + testName, tokensTable_02_textBlocksDetected)
 
 
 	fmt.Println("erlSrc, without strings, quoted atoms", erlSrc_received_after_tokenDetect)

@@ -42,6 +42,11 @@ const tokenType_TextBlockQuotedDouble = "tokenTextBlockQuotedDouble"
 
 const tokenType_Num_digitsZeroNine = "tokenNumDigitsZeroNine"
 
+// when the first char is a digit, then later underscores can be between digits
+const tokenType_Num_digitsZeroNine_underscoreMaybeLater = "tokenNumDigitsZeroNine_underscoreMaybeLater"
+
+const tokenType_Num_charLiterals = "tokenNumCharLiteral"
+
 /* Tokens represent the Erlang source code - so the int-key is the first char's position in the source code */
 type Tokens map[int]Token
 
@@ -67,6 +72,29 @@ func (tokensInMap Tokens) deepCopy() Tokens {
 		tokensTableUpdated[token.positionCharFirst] = token
 	}
 	return tokensTableUpdated
+}
+
+
+
+/*
+	if you pass more character groups, are all of they are matching?
+*/
+func charsGroupsAreMatching(charPosFirstToTest int, erlSrcRunes []rune, allowedChars_sets []([]rune), direction string) int {
+	inSetCounter := 0
+
+	charPosToTest := charPosFirstToTest
+	for _, allowedCharsInSet := range allowedChars_sets {
+		countedCharNum := charsHowManyAreInTheGroup(charPosToTest, erlSrcRunes, allowedCharsInSet, direction)
+		if countedCharNum == 0 {
+			inSetCounter = 0  // if in any set, there is no matching elems, the whole group Matching is unsuccessful
+			continue
+		}
+
+		// here the countedCharNum is > 0
+		inSetCounter += countedCharNum
+		charPosToTest += countedCharNum // the nextTested char position is after the countedCharNum
+	}
+	return inSetCounter
 }
 
 /*
@@ -111,19 +139,17 @@ func charsHowManyAreInTheGroup(charPosFirstToTest int, erlSrcRunes []rune, allow
 // charPosRelative == 0 means: the actual char
 // charPosRelative == -1 means: the prev char
 func charRuneNext(charPosActual, charPosRelative int, erlSrcRunes []rune) (rune, bool) {
-	charRuneWanted := ' '  // if the wanted position is not in range, this is the default value
-	wantedCharInSrcRange := false
+	charRuneWanted := ' '                   // if the wanted position is not in range, this is the default value
+	wantedCharInSrcRunesIndexRange := false // it is possible that the calculated position is outside of the range or runes.
 
 	charPosCalculated := charPosActual + charPosRelative
 	if charPosCalculated < len(erlSrcRunes) {
 		if charPosCalculated >= 0 {
 
-				wantedCharInSrcRange = true
+				wantedCharInSrcRunesIndexRange = true
 				charRuneWanted = erlSrcRunes[charPosCalculated]
 		}
-
 	}
-
-	return charRuneWanted, wantedCharInSrcRange
+	return charRuneWanted, wantedCharInSrcRunesIndexRange
 }
 

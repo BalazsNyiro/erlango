@@ -12,6 +12,9 @@ Version 0.3, third total rewrite
 */
 
 package tokens
+
+import "fmt"
+
 /*
 Receives Erlang source code - return with non-detected source code and detected Tokens.
 
@@ -37,7 +40,17 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 	var erlSrcTokenDetectionsRemoved []rune
 	///////////////////////////////////////////////////////////////
 	digitsZeroNine := []rune("0123456789")
+	digitsZeroNine_underscore := []rune("0123456789_")
 	///////////////////////////////////////////////////////////////
+
+
+
+	//# const abcEngLower = "abcdefghijklmnopqrstuvwxyz"
+	//const abcEngUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	//const DIGITS_UNDERSCORE_abc_ABC = DIGITS_UNDERSCORE + abcEngLower + abcEngUpper
+
+
+
 
 
 	erlSrcRunes := []rune(erlSrc)
@@ -51,7 +64,55 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 
 
 
-		if tokenType == "" { // simple INT detection
+
+
+		/* num representations, from more complicated to simple direction:
+
+		1: 2_3#4e+3_0 - digitAlphabet, dotOrHashmark, digitAndAlphabet, plusMinus, digitAndAlphabet
+
+			   vvv digitAndAlphabet
+			      v isDot OR isHashmark
+			       vv digitOrAlphabet (e is incluced in the alphabet)
+			         v plusminus
+			          vvv digitOrAlphabet
+			   2_3.4e+3_0,
+
+			      v isDot OR isHashmark
+			   2_3#4e+3_0,
+
+			 erl shell> 2_3#4e+3_0.
+			            136
+
+		2: 1_6#4e    - digitAlphabet, hashmark, digitAlphabet    (hexa)
+		3: 1_2.3_4   - digitOnly, dot, digitOnly                 (float)
+		4a: 1_234_5  - digitOnly with underscores                (simple integer)
+		4b: 12345    - digitOnly                                 (simple integer)
+		5: $A        - $ + oneChar, or 2 char if it is escaped   (char literals)
+		*/
+
+
+
+
+
+
+
+
+
+		if tokenType == "" { // simple INT detection (4a): digit|digit_underscore*
+			fmt.Println("-> simple int detection (4a, 4b) charPos:", charPos, string(erlSrcRunes[charPos]))
+			detected_num_of_digitsZeroNine_underscore := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore}, "right")
+			fmt.Println("detected num of digitsZeroNine_underscore", detected_num_of_digitsZeroNine_underscore)
+
+			if detected_num_of_digitsZeroNine_underscore > 0 {
+				tokenType = tokenType_Num_digitsZeroNine_underscoreMaybeLater
+				detectionCharPosFirst = charPos
+				detectionCharPosLast = charPos + detected_num_of_digitsZeroNine_underscore - 1
+				fmt.Println("charPos first/Last", detectionCharPosFirst, detectionCharPosLast)
+			}
+		}
+
+
+		if tokenType == "" { // simple INT detection (4b)
 			detected_num_of_digitsZeroNine := charsHowManyAreInTheGroup(charPos, erlSrcRunes,digitsZeroNine, "right")
 			if detected_num_of_digitsZeroNine > 0 {
 				tokenType = tokenType_Num_digitsZeroNine
@@ -60,6 +121,27 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 			}
 		}
 
+
+
+		if tokenType == "" { // char literals (5)
+			charNow := erlSrcRunes[charPos]
+			charNext1, next1InSrc := charRuneNext(charPos, +1, erlSrcRunes)
+			_,         next2InSrc := charRuneNext(charPos, +2, erlSrcRunes)
+
+			if charNow == '$' {
+				tokenType = tokenType_Num_charLiterals
+				detectionCharPosFirst = charPos
+				detectionCharPosLast = charPos
+
+				if next1InSrc {
+					detectionCharPosLast = charPos + 1
+				}
+
+				if charNext1 == '\\' && next2InSrc { // if the value is escaped, and charNext2 is in the source code, read that, too
+					detectionCharPosLast = charPos + 2
+				}
+			} // $ detected
+		}
 
 
 		/////////////// GENERAL TOKEN SAVE SECTION //////////////////////
