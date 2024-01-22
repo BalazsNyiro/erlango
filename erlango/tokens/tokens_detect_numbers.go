@@ -240,17 +240,24 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 		errMsgForUser += "more than 1 underscore in the number: "+erlSrc+" ;"
 	}
 
-	if strings.HasPrefix(erlSrc, "_"){
-		errMsgForUser += "a number cannot start with _ sign: "+erlSrc+" ;"
+	// 16_#4a  is invalid
+	if strings.Contains(erlSrc, "_#"){
+		errMsgForUser += "invalid non-decimal number: "+erlSrc+" ;"
 	}
-
-	if strings.HasSuffix(erlSrc, "_"){
-		errMsgForUser += "a number cannot end with _ sign: "+erlSrc+" ;"
-	}
-
 	// 16#_4a  is invalid
 	if strings.Contains(erlSrc, "#_"){
 		errMsgForUser += "invalid non-decimal number: "+erlSrc+" ;"
+	}
+
+
+	// _16 is invalid: this is an unbound variable!!! and cannot be detected as a number
+	// if strings.HasPrefix(erlSrc, "_"){
+	// 	errMsgForUser += "a number cannot start with _ sign: "+erlSrc+" ;"
+	// }
+
+	// 16_ is invalid
+	if strings.HasSuffix(erlSrc, "_"){
+		errMsgForUser += "a number cannot end with _ sign: "+erlSrc+" ;"
 	}
 
 	if len(errMsgForUser) > 0 {
@@ -258,4 +265,6 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 	}
 	//////////////////////////////////////
 	return tokenType, errMsgForUser
+
+	fmt.Println("FIXME: later check against tokenType_SyntaxError")
 }
