@@ -13,7 +13,10 @@ Version 0.3, third total rewrite
 
 package tokens
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 /*
 Receives Erlang source code - return with non-detected source code and detected Tokens.
@@ -42,13 +45,19 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 	digitsZeroNine := []rune("0123456789")
 	digitsZeroNine_underscore := []rune("0123456789_")
 	digitDot := []rune(".")
-	//digitHashmark := []rune("#")
+	digitHashmark := []rune("#")
+
+
 	//digitE := []rune("e")
 	//digitPlusMinus := []rune("+-")
 
-	//# const abcEngLower = "abcdefghijklmnopqrstuvwxyz"
-	//const abcEngUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	//const DIGITS_UNDERSCORE_abc_ABC = DIGITS_UNDERSCORE + abcEngLower + abcEngUpper
+	const str_abcEngLower = "abcdefghijklmnopqrstuvwxyz"
+	const str_abcEngUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	const str_digits_abc_ABC = "0123456789" + str_abcEngLower + str_abcEngUpper
+	const str_digits_abc_ABC_underscore = str_digits_abc_ABC + "_"
+
+	digitsZeroNine_abc_ABC := []rune(str_digits_abc_ABC)
+	digitsZeroNine_abc_ABC_underscore := []rune(str_digits_abc_ABC_underscore)
 	///////////////////////////////////////////////////////////////
 
 
@@ -73,22 +82,10 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 
 		/* num representations, from more complicated to simple direction:
 
-		1: 2_3#4e+3_0 - digitAlphabet, dotOrHashmark, digitAndAlphabet, plusMinus, digitAndAlphabet
+		1a: 1_6#4fe+3_0. - digitAlphabet, dotOrHashmark, digitAndAlphabet, plusMinus, digitAndAlphabet
+		1b: 1_6.4e+3_0. - digitAlphabet, dotOrHashmark, digitAndAlphabet, plusMinus, digitAndAlphabet
 
-			   vvv digitAndAlphabet
-			      v isDot OR isHashmark
-			       vv digitOrAlphabet (e is incluced in the alphabet)
-			         v plusminus
-			          vvv digitOrAlphabet
-			   2_3.4e+3_0,
-
-			      v isDot OR isHashmark
-			   2_3#4e+3_0,
-
-			 erl shell> 2_3#4e+3_0.
-			            136
-
-		2: 1_6#4e    - digitAlphabet, hashmark, digitAlphabet    (hexa and nondecimal)
+		2: 1_6#4f    - digitAlphabet, hashmark, digitAlphabet    (hexa and nondecimal)
 		3: 1_2.3_4   - digitOnly, dot, digitOnly                 (float)
 		4a: 1_234_5  - digitOnly with underscores                (simple integer)
 		4b: 12345    - digitOnly                                 (simple integer)
@@ -98,16 +95,16 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 		if tokenType == "" { // hexa and non-decimal detection (2)
 			fmt.Println("hexa/nondecimal detections >>" + string(erlSrcRunes[charPos:]) + "<<")
 			/* check possible variations:
-			A = 16#4e.
-			B = 1_6#4e.
-			C = 1_6#4_e.
-			D = 16#4_e.
+			A = 16#4f.
+			B = 1_6#4f.
+			C = 1_6#4_f.
+			D = 16#4_f.
 			*/
 
-			detected_num_digit_dot_digitUnderscore           := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitDot, digitsZeroNine, digitsZeroNine_underscore}, "right", "detected_num_digit_dot_digitUnderscore")
-			detected_num_digit_dot_digit                     := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitDot, digitsZeroNine}, "right", "detected_num_digit_dot_digit")
-			detected_num_digitUnderscore_dot_digit           := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitDot, digitsZeroNine}, "right", "detected_num_digitUnderscore_dot_digit")
-			detected_num_digitUnderscore_dot_digitUnderscore := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitDot, digitsZeroNine, digitsZeroNine_underscore}, "right", "detected_num_digitUnderscore_dot_digitUnderscore")
+			detected_num_digit_dot_digit                     := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine,                            digitHashmark, digitsZeroNine_abc_ABC                                   }, "right", "detected_num_digitHashmarkDigitAbc")
+			detected_num_digit_dot_digitUnderscore           := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitHashmark, digitsZeroNine_abc_ABC                                   }, "right", "detected_num_digitUnderscoreHashmarkDigitAbc")
+			detected_num_digitUnderscore_dot_digit           := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitHashmark, digitsZeroNine_abc_ABC, digitsZeroNine_abc_ABC_underscore}, "right", "detected_num_digitUnderscoreHashmarkDigitAbcUnderscore")
+			detected_num_digitUnderscore_dot_digitUnderscore := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine,                            digitHashmark, digitsZeroNine_abc_ABC, digitsZeroNine_abc_ABC_underscore}, "right", "detected_num_digitHashmarkDigitAbcUnderscore")
 
 			detectedMax := max(detected_num_digit_dot_digitUnderscore, detected_num_digit_dot_digit, detected_num_digitUnderscore_dot_digit, detected_num_digitUnderscore_dot_digitUnderscore)
 
@@ -116,7 +113,7 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 				detectionCharPosFirst = charPos
 				detectionCharPosLast = charPos + detectedMax - 1
 			}
-		} // float
+		} // hexa/nondecimal
 
 
 
@@ -191,11 +188,16 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 
 
 		/////////////// GENERAL TOKEN SAVE SECTION //////////////////////
+
 		if tokenType != "" { // Token was detected, the type is NOT empty
+
+
+			selectedSrc := string(erlSrcRunes[detectionCharPosFirst:detectionCharPosLast+1])
+			tokenTypeUpdated, msgFromParser := number_token_validation(tokenType, selectedSrc)
 
 			tokenNow := Token{ 	positionCharFirst: detectionCharPosFirst,
 								positionCharLast: detectionCharPosLast,
-								tokenType: tokenType}
+								tokenType: tokenTypeUpdated, msgFromParser: msgFromParser}
 
 			// tokenType is set IF there is minimum one char, so this loop is always executed, minimum ONCE
 			for posTokenChar := detectionCharPosFirst; posTokenChar <= detectionCharPosLast; posTokenChar++ { // 0..9 digit block is detected
@@ -219,4 +221,41 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 
 	///////////////////////////////////////////////////////////////
 	return string(erlSrcTokenDetectionsRemoved), tokensTableUpdated
+}
+
+
+
+/*
+	receives a tokenType and a string representation of the token.
+
+	return with a tokenType and a message:
+		- if the num is valid, then with the original tokenType,
+		- otherwise with a syntax error
+ */
+func number_token_validation(tokenType, erlSrc string) (string, string) {
+
+	errMsgForUser := ""
+	//////////////////////////////////////
+	if strings.Contains(erlSrc, "__"){
+		errMsgForUser += "more than 1 underscore in the number: "+erlSrc+" ;"
+	}
+
+	if strings.HasPrefix(erlSrc, "_"){
+		errMsgForUser += "a number cannot start with _ sign: "+erlSrc+" ;"
+	}
+
+	if strings.HasSuffix(erlSrc, "_"){
+		errMsgForUser += "a number cannot end with _ sign: "+erlSrc+" ;"
+	}
+
+	// 16#_4a  is invalid
+	if strings.Contains(erlSrc, "#_"){
+		errMsgForUser += "invalid non-decimal number: "+erlSrc+" ;"
+	}
+
+	if len(errMsgForUser) > 0 {
+		tokenType = tokenType_SyntaxError
+	}
+	//////////////////////////////////////
+	return tokenType, errMsgForUser
 }

@@ -20,6 +20,7 @@ import (
 
 type Token struct {
 	tokenType string
+	msgFromParser string
 
 	// "quoted" string's first " is the tokens' first position!
 	// 'atoms'  fist ' char is the tokens first pos!
@@ -48,6 +49,7 @@ const tokenType_Num_float = "tokenTypeNumInt"
 const tokenType_Num_maybeNonDecimal = "tokenTypeNumNondecimal"
 
 const tokenType_Num_charLiterals = "tokenNumCharLiteral"
+const tokenType_SyntaxError = "tokenSyntaxError"
 
 /* Tokens represent the Erlang source code - so the int-key is the first char's position in the source code */
 type Tokens map[int]Token
@@ -79,7 +81,9 @@ func (tokensInMap Tokens) deepCopy() Tokens {
 
 
 /*
-	if you pass more character groups, are all of they are matching?
+	if you pass more character groups, all of them has to have minimum 1 elem in the counter!
+	This is elemental. So it is impossible, that one set's counter == 0,
+	because in that situation maybe all of them can have 0, and it matches with everything.
 */
 func charsGroupsAreMatching(charPosFirstToTest int, erlSrcRunes []rune, allowedCharSets []([]rune), direction string, debugMsg string) int {
 	inSetCounter := 0
