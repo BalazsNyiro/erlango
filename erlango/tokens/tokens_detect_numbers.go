@@ -42,6 +42,10 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 	digitsZeroNine := []rune("0123456789")
 	digitsZeroNine_underscore := []rune("0123456789_")
 	digitDot := []rune(".")
+	//digitHashmark := []rune("#")
+	//digitE := []rune("e")
+	//digitPlusMinus := []rune("+-")
+
 	//# const abcEngLower = "abcdefghijklmnopqrstuvwxyz"
 	//const abcEngUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	//const DIGITS_UNDERSCORE_abc_ABC = DIGITS_UNDERSCORE + abcEngLower + abcEngUpper
@@ -84,13 +88,35 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 			 erl shell> 2_3#4e+3_0.
 			            136
 
-		2: 1_6#4e    - digitAlphabet, hashmark, digitAlphabet    (hexa)
+		2: 1_6#4e    - digitAlphabet, hashmark, digitAlphabet    (hexa and nondecimal)
 		3: 1_2.3_4   - digitOnly, dot, digitOnly                 (float)
 		4a: 1_234_5  - digitOnly with underscores                (simple integer)
 		4b: 12345    - digitOnly                                 (simple integer)
 		5: $A        - $ + oneChar, or 2 char if it is escaped   (char literals)
 		*/
 
+		if tokenType == "" { // hexa and non-decimal detection (2)
+			fmt.Println("hexa/nondecimal detections >>" + string(erlSrcRunes[charPos:]) + "<<")
+			/* check possible variations:
+			A = 16#4e.
+			B = 1_6#4e.
+			C = 1_6#4_e.
+			D = 16#4_e.
+			*/
+
+			detected_num_digit_dot_digitUnderscore           := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitDot, digitsZeroNine, digitsZeroNine_underscore}, "right", "detected_num_digit_dot_digitUnderscore")
+			detected_num_digit_dot_digit                     := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitDot, digitsZeroNine}, "right", "detected_num_digit_dot_digit")
+			detected_num_digitUnderscore_dot_digit           := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitDot, digitsZeroNine}, "right", "detected_num_digitUnderscore_dot_digit")
+			detected_num_digitUnderscore_dot_digitUnderscore := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitDot, digitsZeroNine, digitsZeroNine_underscore}, "right", "detected_num_digitUnderscore_dot_digitUnderscore")
+
+			detectedMax := max(detected_num_digit_dot_digitUnderscore, detected_num_digit_dot_digit, detected_num_digitUnderscore_dot_digit, detected_num_digitUnderscore_dot_digitUnderscore)
+
+			if detectedMax> 0 {
+				tokenType = tokenType_Num_maybeNonDecimal
+				detectionCharPosFirst = charPos
+				detectionCharPosLast = charPos + detectedMax - 1
+			}
+		} // float
 
 
 
@@ -120,7 +146,8 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 				detectionCharPosFirst = charPos
 				detectionCharPosLast = charPos + detectedMax - 1
 			}
-		}
+		} // float
+
 
 		if tokenType == "" { // simple INT detection (4a): digit+|digit_underscore* (one or more digits|one ore more digitsAndUnderscore
 			detected_num_of_digitsZeroNine_underscore := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore}, "right", "simple INT 4a detection")
@@ -140,7 +167,6 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 				detectionCharPosLast = charPos + detected_num_of_digitsZeroNine - 1
 			}
 		}
-
 
 
 		if tokenType == "" { // char literals (5)
