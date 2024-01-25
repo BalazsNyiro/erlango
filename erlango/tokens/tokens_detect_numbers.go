@@ -15,6 +15,8 @@ package tokens
 
 import (
 	"fmt"
+	"slices"
+	"strconv"
 	"strings"
 )
 
@@ -236,17 +238,18 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 
 	errMsgForUser := ""
 	//////////////////////////////////////
+	// 16#4__a is invalid
 	if strings.Contains(erlSrc, "__"){
 		errMsgForUser += "more than 1 underscore in the number: "+erlSrc+" ;"
 	}
 
 	// 16_#4a  is invalid
 	if strings.Contains(erlSrc, "_#"){
-		errMsgForUser += "invalid non-decimal number: "+erlSrc+" ;"
+		errMsgForUser += "invalid non-decimal number (underscore/hashmark): "+erlSrc+" ;"
 	}
 	// 16#_4a  is invalid
 	if strings.Contains(erlSrc, "#_"){
-		errMsgForUser += "invalid non-decimal number: "+erlSrc+" ;"
+		errMsgForUser += "invalid non-decimal number (hashmark/underscore): "+erlSrc+" ;"
 	}
 
 
@@ -260,11 +263,47 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 		errMsgForUser += "a number cannot end with _ sign: "+erlSrc+" ;"
 	}
 
+
+
+	/////////////////// # in number:
+	if strings.Contains(erlSrc, "#") {
+		// const ABC_Eng_Upper string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		const ABC_Eng_Lower string = "abcdefghijklmnopqrstuvwxyz"
+		const ABC_Eng_digits string = "0123456789"
+
+		const digitsAll string = ABC_Eng_digits + ABC_Eng_Lower
+
+		elems := strings.Split(erlSrc, "#")
+
+		baseStr := elems[0]
+		numStr := strings.ToLower(elems[1]) // use only lowercase representation
+
+		base , errIntConversation := strconv.Atoi(baseStr)
+		if errIntConversation != nil {
+			errMsgForUser += "incorrect base before # separator: "+erlSrc+" ;"
+
+		} else { // base can be converted to int
+			digitsAllAccepted := []rune(digitsAll[0:base]) // 10 based last accepted: 9, 16 based last accepted: f
+
+			for _, runeDigit := range numStr {
+					if slices.Contains(digitsAllAccepted, runeDigit) {
+						// digit is valid, nothing to do
+					} else {
+						errMsgForUser += "incorrect digit ("+string(runeDigit)+") in num representation, after # separator: "+erlSrc+" ;"
+					} // digit is not accepted
+
+			} // for, runeDigit
+
+		} // else, base converted to int
+
+	} // if
+
+
 	if len(errMsgForUser) > 0 {
 		tokenType = tokenType_SyntaxError
 	}
 	//////////////////////////////////////
+	fmt.Println("FIXME: later check against tokenType_SyntaxError")
 	return tokenType, errMsgForUser
 
-	fmt.Println("FIXME: later check against tokenType_SyntaxError")
 }

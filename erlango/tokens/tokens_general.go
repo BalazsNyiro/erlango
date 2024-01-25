@@ -15,6 +15,7 @@ package tokens
 
 import (
 	"fmt"
+	"os/exec"
 	"slices"
 )
 
@@ -163,3 +164,16 @@ func charRuneNext(charPosActual, charPosRelative int, erlSrcRunes []rune) (rune,
 	return charRuneWanted, wantedCharInSrcRunesIndexRange
 }
 
+func erlBinExec(expression string) (string, error){
+	// erl -noshell -eval 'io:fwrite(\"~p~n\", [2]).' -s erlang halt
+
+	// maybe not: // important: quotes in expression has to be escaped
+	// maybe not: expression = strings.ReplaceAll(expression, "\"", "\\\"")
+
+	cmd := exec.Command("erl", "-noshell", "-eval", "io:fwrite(\"~p~n\", ["+expression+"]).", "-s", "erlang", "halt")
+
+	// The `Output` method executes the command and
+	// collects the output, returning its value
+	out, err := cmd.Output()
+	return string(out), err
+}

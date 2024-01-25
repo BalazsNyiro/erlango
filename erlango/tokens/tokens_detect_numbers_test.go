@@ -104,14 +104,14 @@ func Test_parse_numbers_hexa_nondecimal(t *testing.T) {
 	erlSrcWantedAfterTokenDetect :=  `A, B, C, D =      ,       ,        ,       .`
 
 	erlSrc_received_after_tokenDetect, tokensTable_02_detected := Tokens_detect_numbers(erlSrcOrig, tokensTable)
-	print_string_runes_diff(erlSrcOrig, erlSrc_received_after_tokenDetect)
-	print_tokens("tokens table: " + testName, tokensTable_02_detected)
+	// print_string_runes_diff(erlSrcOrig, erlSrc_received_after_tokenDetect)
+	// print_tokens("tokens table: " + testName, tokensTable_02_detected)
 
 
-	fmt.Println("after hexa/nondecimal detection, erlSrc:", erlSrc_received_after_tokenDetect)
+	// fmt.Println("after hexa/nondecimal detection, erlSrc:", erlSrc_received_after_tokenDetect)
 
-	fmt.Println("tokensTableOriginal:", tokensTable)
-	fmt.Println("tokensTableUpdated:", tokensTable_02_detected)
+	// fmt.Println("tokensTableOriginal:", tokensTable)
+	// fmt.Println("tokensTableUpdated:", tokensTable_02_detected)
 
 	compare_strings(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
 	compare_strings(testName, "16#4f", tokensTable_02_detected[13].stringRepr(), t)
@@ -119,5 +119,7 @@ func Test_parse_numbers_hexa_nondecimal(t *testing.T) {
 	compare_strings(testName, "1_6#4_f", tokensTable_02_detected[28].stringRepr(), t)
 	compare_strings(testName, "16#4_f", tokensTable_02_detected[37].stringRepr(), t)
 
-	fmt.Println(testName, erlSrcWantedAfterTokenDetect, erlSrcOrig, tokensTable)
+	// fmt.Println(testName, erlSrcWantedAfterTokenDetect, erlSrcOrig, tokensTable)
+
+	fmt.Println("FIXME: erlang native hivasok, szamokkal, eredmenyt olvasd vissza")
 }
