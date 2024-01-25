@@ -123,3 +123,23 @@ func Test_parse_numbers_hexa_nondecimal(t *testing.T) {
 
 	fmt.Println("FIXME: erlang native hivasok, szamokkal, eredmenyt olvasd vissza")
 }
+
+func Test_mass_number_detection(t *testing.T) {
+	funName := "Test_mass_number_detection"
+	tokensTable := Tokens{}
+	tokensTable_detected := Tokens{}
+	erlExpression :=  ""
+
+	erlOut := ""
+	var erlErr error
+
+	///////////////////////////////
+	tokensTable = Tokens{}
+	erlExpression = `16#4f`
+	_ , tokensTable_detected = Tokens_detect_numbers(erlExpression, tokensTable)
+	compare_strings(funName + ": " + erlExpression, tokenType_Num_maybeNonDecimal, tokensTable_detected[0].tokenType, t)
+
+	erlOut, erlErr = erlBinExec(erlExpression)
+	fmt.Println("erl bin out:", erlOut, "erl error:", erlErr)
+
+}

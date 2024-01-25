@@ -47,7 +47,7 @@ const tokenType_TextBlockQuotedDouble = "tokenTextBlockQuotedDouble"
 
 const tokenType_Num_int = "tokenTypeNumInt"
 const tokenType_Num_float = "tokenTypeNumInt"
-const tokenType_Num_maybeNonDecimal = "tokenTypeNumNondecimal"
+const tokenType_Num_maybeNonDecimal = "tokenTypeNumMaybeNonDecimal"
 
 const tokenType_Num_charLiterals = "tokenNumCharLiteral"
 const tokenType_SyntaxError = "tokenSyntaxError"
