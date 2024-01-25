@@ -170,6 +170,7 @@ func erlBinExec(expression string) (string, error){
 	// maybe not: // important: quotes in expression has to be escaped
 	// maybe not: expression = strings.ReplaceAll(expression, "\"", "\\\"")
 
+	fmt.Println("EXIT CODE CHECK???")
 	cmd := exec.Command("erl", "-noshell", "-eval", "io:fwrite(\"~p~n\", ["+expression+"]).", "-s", "erlang", "halt")
 
 	// The `Output` method executes the command and
