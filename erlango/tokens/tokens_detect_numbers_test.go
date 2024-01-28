@@ -134,13 +134,33 @@ func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *t
 	// so the cleaned src is not used now.
 	_ = erlSrcTokenRemoved
 
-	erlOut, erlErr := erlBinExec(erlExpression)
-	fmt.Println("erl bin out:", erlOut, "erl error:", erlErr)
+	fmt.Println("\n\nnumTokenDetect:", erlExpression)
+	erlOutDetectedNum, erlErr := erlBinExpressionParse(erlExpression)
+	_ = erlOutDetectedNum
+	//fmt.Println("erl bin out:", erlOut, "erl error:", erlErr)
 
 	compare_strings(funName + ": " + erlExpression, tokenTypeWanted, tokensTable_detected[0].tokenType, t)
+
+	if erlErr != nil { // error happend in erlang binary
+		if tokenTypeWanted == tokenType_SyntaxError {
+			fmt.Println("OK! error detected in erlang binary, and in erlango parser, too")
+			// fmt.Println("erlang error: ", erlErr)
+		} else {
+			t.Fatalf("NUM DETECTION PROBLEM: (%s)   error detected in erlang binary, but not in erlango parser", erlExpression)
+		}
+	}  else {  // erlang binary was able to accept expression
+
+	}
+
+
+
 }
 
 func Test_mass_number_detection(t *testing.T) {
-	tokens_detectNumbers_simpleTest(`16#4f`, tokenType_Num_maybeNonDecimal, t)
-	tokens_detectNumbers_simpleTest(`1_6#4f`, tokenType_Num_maybeNonDecimal, t)
+	tokens_detectNumbers_simpleTest(`16#4f   `, tokenType_Num_maybeNonDecimal, t)
+	tokens_detectNumbers_simpleTest(`1_6#4f  `, tokenType_Num_maybeNonDecimal, t)
+	tokens_detectNumbers_simpleTest(`1_6#4_f `, tokenType_Num_maybeNonDecimal, t)
+
+	tokens_detectNumbers_simpleTest(`1_6_#4_f`, tokenType_SyntaxError, t)
+	tokens_detectNumbers_simpleTest(`1__6#4_f`, tokenType_SyntaxError, t)
 }

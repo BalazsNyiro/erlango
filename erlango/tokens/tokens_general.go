@@ -164,13 +164,20 @@ func charRuneNext(charPosActual, charPosRelative int, erlSrcRunes []rune) (rune,
 	return charRuneWanted, wantedCharInSrcRunesIndexRange
 }
 
-func erlBinExec(expression string) (string, error){
+func erlBinExpressionParse(expression string) (string, error){
+	// if the received expression is valid, it will be printed. if not valid, error happens
+
 	// erl -noshell -eval 'io:fwrite(\"~p~n\", [2]).' -s erlang halt
 
 	// maybe not: // important: quotes in expression has to be escaped
 	// maybe not: expression = strings.ReplaceAll(expression, "\"", "\\\"")
 
-	fmt.Println("EXIT CODE CHECK???")
+	// fmt.Println("EXIT CODE CHECK")
+	// if err is not nil, then something happened:
+	// if erlErr != nil {fmt.Println("erlang error:", erlErr)}
+	// erlang error:  exit status 1
+
+
 	cmd := exec.Command("erl", "-noshell", "-eval", "io:fwrite(\"~p~n\", ["+expression+"]).", "-s", "erlang", "halt")
 
 	// The `Output` method executes the command and

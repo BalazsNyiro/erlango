@@ -310,6 +310,7 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 					if slices.Contains(digitsAllAccepted, runeDigit) {
 						// digit is valid, nothing to do
 					} else {
+						printIfDebug("validation: incorrect digit: " + string(runeDigit))
 						errMsgForUser += "incorrect digit ("+string(runeDigit)+") in num representation, after # separator: "+erlSrc+" ;"
 					} // digit is not accepted
 
