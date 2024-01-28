@@ -20,6 +20,8 @@ import (
 	"strings"
 )
 
+const DebugNumDetection_printDetails bool = true
+
 /*
 Receives Erlang source code - return with non-detected source code and detected Tokens.
 
@@ -109,10 +111,10 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 			digitUnder_hash_digitAbcUnder := charsGroupsAreMatching(charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitHashmark, digitsZeroNine_abc_ABC, digitsZeroNine_abc_ABC_underscore}, "right", "detected_num_digitUnderscoreHashmarkDigitAbcUnderscore")
 			digit______hash_digitAbcUnder := charsGroupsAreMatching(charPos, erlSrcRunes,[]([]rune){digitsZeroNine,                            digitHashmark, digitsZeroNine_abc_ABC, digitsZeroNine_abc_ABC_underscore}, "right", "detected_num_digitHashmarkDigitAbcUnderscore")
 
-			fmt.Println(detection+" 1: digit______hash_digitAbc      ", digit______hash_digitAbc)
-			fmt.Println(detection+" 2: digitUnder_hash_digitAbc      ", digitUnder_hash_digitAbc)
-			fmt.Println(detection+" 3: digitUnder_hash_digitAbcUnder ", digitUnder_hash_digitAbcUnder)
-			fmt.Println(detection+" 4: digit______hash_digitAbcUnder ", digit______hash_digitAbcUnder)
+			printIfDebug(detection+" 1: digit______hash_digitAbc      ", digit______hash_digitAbc)
+			printIfDebug(detection+" 2: digitUnder_hash_digitAbc      ", digitUnder_hash_digitAbc)
+			printIfDebug(detection+" 3: digitUnder_hash_digitAbcUnder ", digitUnder_hash_digitAbcUnder)
+			printIfDebug(detection+" 4: digit______hash_digitAbcUnder ", digit______hash_digitAbcUnder)
 
 			detectedMax := max(digitUnder_hash_digitAbc, digit______hash_digitAbc, digitUnder_hash_digitAbcUnder, digit______hash_digitAbcUnder)
 			fmt.Println(detection+" detectedMax", detectedMax)
@@ -122,12 +124,13 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 				detectionCharPosFirst = charPos
 				detectionCharPosLast = charPos + detectedMax - 1
 			}
+			printIfDebug(detection+" tokenType:", tokenType)
 		} // hexa/nondecimal
 
 
 
 		if tokenType == "" { // float detection (3)
-			fmt.Println("float detections >>" + string(erlSrcRunes[charPos:]) + "<<")
+			printIfDebug("float detections >>" + string(erlSrcRunes[charPos:]) + "<<")
 			/* check possible 4 float variations:
 				12.3_4
 				12.34
@@ -247,15 +250,18 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 	//////////////////////////////////////
 	// 16#4__a is invalid
 	if strings.Contains(erlSrc, "__"){
+		printIfDebug("validation: __")
 		errMsgForUser += "more than 1 underscore in the number: "+erlSrc+" ;"
 	}
 
 	// 16_#4a  is invalid
 	if strings.Contains(erlSrc, "_#"){
+		printIfDebug("validation: _#")
 		errMsgForUser += "invalid non-decimal number (underscore/hashmark): "+erlSrc+" ;"
 	}
 	// 16#_4a  is invalid
 	if strings.Contains(erlSrc, "#_"){
+		printIfDebug("validation: #_")
 		errMsgForUser += "invalid non-decimal number (hashmark/underscore): "+erlSrc+" ;"
 	}
 
@@ -267,6 +273,7 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 
 	// 16_ is invalid
 	if strings.HasSuffix(erlSrc, "_"){
+		printIfDebug("validation: suffix _")
 		errMsgForUser += "a number cannot end with _ sign: "+erlSrc+" ;"
 	}
 
@@ -274,6 +281,9 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 
 	/////////////////// # in number:
 	if strings.Contains(erlSrc, "#") {
+
+		printIfDebug("validation: # in number...")
+
 		// const ABC_Eng_Upper string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		const ABC_Eng_Lower string = "abcdefghijklmnopqrstuvwxyz"
 		const ABC_Eng_digits string = "0123456789"
@@ -284,9 +294,13 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 
 		baseStr := elems[0]
 		numStr := strings.ToLower(elems[1]) // use only lowercase representation
+		// remove _ from base/num - example case: 1_6#4_e.
+		baseStr = numDetect_removeUnderscoreFromString(baseStr)
+		numStr  = numDetect_removeUnderscoreFromString(numStr)
 
 		base , errIntConversation := strconv.Atoi(baseStr)
 		if errIntConversation != nil {
+			printIfDebug("validation: incorrect base before #: " + erlSrc)
 			errMsgForUser += "incorrect base before # separator: "+erlSrc+" ;"
 
 		} else { // base can be converted to int
@@ -313,4 +327,13 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 	fmt.Println("FIXME: later check against tokenType_SyntaxError")
 	return tokenType, errMsgForUser
 
+}
+
+func printIfDebug(a ...any) {
+	if DebugNumDetection_printDetails {
+		fmt.Println(a...)
+	}
+}
+func numDetect_removeUnderscoreFromString(txt string) string {
+	return strings.Replace(txt, "_", "", -1)
 }
