@@ -14,6 +14,7 @@ Version 0.3, third total rewrite
 package tokens
 
 import (
+	"errors"
 	"fmt"
 	"slices"
 	"strconv"
@@ -130,7 +131,9 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 
 
 		if tokenType == "" { // float detection (3)
-			printIfDebug("float detections >>" + string(erlSrcRunes[charPos:]) + "<<")
+			detection := "float detection (3)"
+			printIfDebug(detection + " >>" + string(erlSrcRunes[charPos:]) + "<<")
+
 			/* check possible 4 float variations:
 				12.3_4
 				12.34
@@ -155,30 +158,43 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 				detectionCharPosFirst = charPos
 				detectionCharPosLast = charPos + detectedMax - 1
 			}
+			printIfDebug(detection+" tokenType:", tokenType, "\n")
 		} // float
 
 
 		if tokenType == "" { // simple INT detection (4a): digit+|digit_underscore* (one or more digits|one ore more digitsAndUnderscore
+			detection := "simple INT detection (4a)"
+			printIfDebug(detection + " >>" + string(erlSrcRunes[charPos:]) + "<<")
+
 			detected_num_of_digitsZeroNine_underscore := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore}, "right", "simple INT 4a detection")
 			if detected_num_of_digitsZeroNine_underscore > 0 {
 				tokenType = tokenType_Num_int
 				detectionCharPosFirst = charPos
 				detectionCharPosLast = charPos + detected_num_of_digitsZeroNine_underscore - 1
 			}
+
+			printIfDebug(detection+" tokenType:", tokenType, "\n")
 		}
 
 
 		if tokenType == "" { // simple INT detection (4b) digit+ (one or more digits)
+			detection := "simple INT detection (4b)"
+			printIfDebug(detection + " >>" + string(erlSrcRunes[charPos:]) + "<<")
 			detected_num_of_digitsZeroNine := charsHowManyAreInTheGroup(charPos, erlSrcRunes,digitsZeroNine, "right")
+
 			if detected_num_of_digitsZeroNine > 0 {
 				tokenType = tokenType_Num_int
 				detectionCharPosFirst = charPos
 				detectionCharPosLast = charPos + detected_num_of_digitsZeroNine - 1
 			}
+			printIfDebug(detection+" tokenType:", tokenType, "\n")
 		}
 
 
 		if tokenType == "" { // char literals (5)
+			detection := "char literals (5)"
+			printIfDebug(detection + " >>" + string(erlSrcRunes[charPos:]) + "<<")
+
 			charNow := erlSrcRunes[charPos]
 			charNext1, next1InSrc := charRuneNext(charPos, +1, erlSrcRunes)
 			_,         next2InSrc := charRuneNext(charPos, +2, erlSrcRunes)
@@ -196,6 +212,7 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 					detectionCharPosLast = charPos + 2
 				}
 			} // $ detected
+			printIfDebug(detection+" tokenType:", tokenType, "\n")
 		}
 
 
@@ -278,6 +295,12 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 	}
 
 
+	if len(erlSrc) < 1 {
+		errMsg := "a number token needs minimum 1 char, cannot be empty!"
+		printIfDebug(errMsg)
+		errMsgForUser += errMsg
+	}
+
 
 	/////////////////// # in number:
 	if strings.Contains(erlSrc, "#") {
@@ -325,7 +348,6 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 		tokenType = tokenType_SyntaxError
 	}
 	//////////////////////////////////////
-	fmt.Println("FIXME: later check against tokenType_SyntaxError")
 	return tokenType, errMsgForUser
 
 }
@@ -337,4 +359,101 @@ func printIfDebug(a ...any) {
 }
 func numDetect_removeUnderscoreFromString(txt string) string {
 	return strings.Replace(txt, "_", "", -1)
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// similar erlang lib: https://github.com/mabrek/erlang-decimal
+type erlango_bignum struct {
+	/* example num representation: '12.34'
+		digits: 1234
+		decimalPoint: -2    because 1234 * (10^-2) = 12.34
+
+	   example 2: 1234000
+		digits: 1234
+		decimalPoint: 3     because 1234 * (10^3) = 1234000
+
+		with this representation, integers and floats can be represented too, with the same structure
+	 */
+
+	digits []int
+	exponent int  // where is the ., or how many 0 are after the digits
+}
+
+
+func digit_value(digit rune) (int, error) {
+	valueMap := map[rune]int{
+		'0'	: 0,	'a' : 10,   'A' : 10,
+		'1' : 1,	'b' : 11,   'B' : 11,
+		'2' : 2,	'c' : 12,   'C' : 12,
+		'3' : 3,	'd' : 13,   'D' : 13,
+		'4' : 4,	'e' : 14,   'E' : 14,
+		'5' : 5,	'f' : 15,   'F' : 15,
+		'6' : 6,	'g' : 16,   'G' : 16,
+		'7' : 7,	'h' : 17,   'H' : 17,
+		'8' : 8,	'i' : 18,   'I' : 18,
+		'9' : 9,	'j' : 19,   'J' : 19,
+					'k' : 20,   'K' : 20,
+					'l' : 21,   'L' : 21,
+					'm' : 22,   'M' : 22,
+					'n' : 23,   'N' : 23,
+					'o' : 24,   'O' : 24,
+					'p' : 25,   'P' : 25,
+					'q' : 26,   'Q' : 26,
+					'r' : 27,   'R' : 27,
+					's' : 28,   'S' : 28,
+					't' : 29,   'T' : 29,
+					'u' : 30,   'U' : 30,
+					'v' : 31,   'V' : 31,
+					'w' : 32,   'W' : 32,
+					'x' : 33,   'X' : 33,
+					'y' : 34,   'Y' : 34,
+					'z' : 35,   'Z' : 35,
+	}
+	val, digitInMap := valueMap[digit]
+	if ! digitInMap {
+		return 0, errors.New("digit value is not detected (" + string(digit) + ")")
+	}
+	return val, nil
+}
+
+// if the token is a number, return with a value and and OK
+// if it is NOT a number, return with 0 and error
+func number_value_integerDecimal_pair_detect_from_token(token Token) (erlango_bignum, error)  {
+	valueDetectedFromToken := false
+
+	zero := erlango_bignum{digits: []int{0}, exponent: 0}
+	partInteger := []int{}
+
+	if token.tokenType == tokenType_Num_int {
+		valueDetectedFromToken = true
+
+		// naive number parsing,
+		//  position 210  <- the lastValue = 7*10^0, middle: 1*10^1, firstVal: 2*10^2
+		//  example: 567
+		// the first digit is 5, first pos is 2:
+
+		// the token needs to have minimum 1 char - there is a validation against that
+		for _, digit := range token.charsInErlSrc {
+
+			// rune -> numberValue conversion
+			// values are represented in decimal Num system!!!
+			// so f = 15, a = 10
+			digitVal_inDecimalNumSystem, errorValueDetection := digit_value(digit)
+
+			if errorValueDetection != nil {
+				return zero, errors.New("number value detection error ("+token.stringRepr()+")")
+			} else {
+				partInteger = append(partInteger, digitVal_inDecimalNumSystem)
+			}
+
+		}
+
+	}
+
+	if ! valueDetectedFromToken {
+		return zero, errors.New("number value detection error ("+token.stringRepr()+")")
+	}
+	exponent := 0 // here we set the integer part only now
+	// TODO: later normalize the number here! so (1000, 0) -> (1, 3)!!
+	return erlango_bignum{digits: partInteger, exponent: exponent}, nil
 }
