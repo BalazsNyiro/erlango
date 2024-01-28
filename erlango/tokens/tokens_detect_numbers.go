@@ -95,7 +95,8 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 		*/
 
 		if tokenType == "" { // hexa and non-decimal detection (2)
-			fmt.Println("hexa/nondecimal detections >>" + string(erlSrcRunes[charPos:]) + "<<")
+			detection := "hexa/nondecimal detections"
+			fmt.Println(detection+" >>" + string(erlSrcRunes[charPos:]) + "<<")
 			/* check possible variations:
 			A = 16#4f.
 			B = 1_6#4f.
@@ -103,14 +104,20 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 			D = 16#4_f.
 			*/
 
-			detected_num_digit_dot_digit                     := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine,                            digitHashmark, digitsZeroNine_abc_ABC                                   }, "right", "detected_num_digitHashmarkDigitAbc")
-			detected_num_digit_dot_digitUnderscore           := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitHashmark, digitsZeroNine_abc_ABC                                   }, "right", "detected_num_digitUnderscoreHashmarkDigitAbc")
-			detected_num_digitUnderscore_dot_digit           := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitHashmark, digitsZeroNine_abc_ABC, digitsZeroNine_abc_ABC_underscore}, "right", "detected_num_digitUnderscoreHashmarkDigitAbcUnderscore")
-			detected_num_digitUnderscore_dot_digitUnderscore := charsGroupsAreMatching( charPos, erlSrcRunes,[]([]rune){digitsZeroNine,                            digitHashmark, digitsZeroNine_abc_ABC, digitsZeroNine_abc_ABC_underscore}, "right", "detected_num_digitHashmarkDigitAbcUnderscore")
+			digit______hash_digitAbc      := charsGroupsAreMatching(charPos, erlSrcRunes,[]([]rune){digitsZeroNine,                            digitHashmark, digitsZeroNine_abc_ABC                                   }, "right", "detected_num_digitHashmarkDigitAbc")
+			digitUnder_hash_digitAbc      := charsGroupsAreMatching(charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitHashmark, digitsZeroNine_abc_ABC                                   }, "right", "detected_num_digitUnderscoreHashmarkDigitAbc")
+			digitUnder_hash_digitAbcUnder := charsGroupsAreMatching(charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitHashmark, digitsZeroNine_abc_ABC, digitsZeroNine_abc_ABC_underscore}, "right", "detected_num_digitUnderscoreHashmarkDigitAbcUnderscore")
+			digit______hash_digitAbcUnder := charsGroupsAreMatching(charPos, erlSrcRunes,[]([]rune){digitsZeroNine,                            digitHashmark, digitsZeroNine_abc_ABC, digitsZeroNine_abc_ABC_underscore}, "right", "detected_num_digitHashmarkDigitAbcUnderscore")
 
-			detectedMax := max(detected_num_digit_dot_digitUnderscore, detected_num_digit_dot_digit, detected_num_digitUnderscore_dot_digit, detected_num_digitUnderscore_dot_digitUnderscore)
+			fmt.Println(detection+" 1: digit______hash_digitAbc      ", digit______hash_digitAbc)
+			fmt.Println(detection+" 2: digitUnder_hash_digitAbc      ", digitUnder_hash_digitAbc)
+			fmt.Println(detection+" 3: digitUnder_hash_digitAbcUnder ", digitUnder_hash_digitAbcUnder)
+			fmt.Println(detection+" 4: digit______hash_digitAbcUnder ", digit______hash_digitAbcUnder)
 
-			if detectedMax> 0 {
+			detectedMax := max(digitUnder_hash_digitAbc, digit______hash_digitAbc, digitUnder_hash_digitAbcUnder, digit______hash_digitAbcUnder)
+			fmt.Println(detection+" detectedMax", detectedMax)
+
+			if detectedMax > 0 {
 				tokenType = tokenType_Num_maybeNonDecimal
 				detectionCharPosFirst = charPos
 				detectionCharPosLast = charPos + detectedMax - 1

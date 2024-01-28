@@ -124,22 +124,23 @@ func Test_parse_numbers_hexa_nondecimal(t *testing.T) {
 	fmt.Println("FIXME: erlang native hivasok, szamokkal, eredmenyt olvasd vissza")
 }
 
-func Test_mass_number_detection(t *testing.T) {
-	funName := "Test_mass_number_detection"
+
+// there are preparation steps for testing - this is a wrapper func to simplify tests
+func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *testing.T) {
+	funName := "tokens_detectNumbers_simpleTest"
 	tokensTable := Tokens{}
-	tokensTable_detected := Tokens{}
-	erlExpression :=  ""
+	erlSrcTokenRemoved , tokensTable_detected := Tokens_detect_numbers(erlExpression, tokensTable)
+	// in the tests, the token is checked only now,
+	// so the cleaned src is not used now.
+	_ = erlSrcTokenRemoved
 
-	erlOut := ""
-	var erlErr error
-
-	///////////////////////////////
-	tokensTable = Tokens{}
-	erlExpression = `16#4f`
-	_ , tokensTable_detected = Tokens_detect_numbers(erlExpression, tokensTable)
-	compare_strings(funName + ": " + erlExpression, tokenType_Num_maybeNonDecimal, tokensTable_detected[0].tokenType, t)
-
-	erlOut, erlErr = erlBinExec(erlExpression)
+	erlOut, erlErr := erlBinExec(erlExpression)
 	fmt.Println("erl bin out:", erlOut, "erl error:", erlErr)
 
+	compare_strings(funName + ": " + erlExpression, tokenTypeWanted, tokensTable_detected[0].tokenType, t)
+}
+
+func Test_mass_number_detection(t *testing.T) {
+	tokens_detectNumbers_simpleTest(`16#4f`, tokenType_Num_maybeNonDecimal, t)
+	tokens_detectNumbers_simpleTest(`1_6#4f`, tokenType_Num_maybeNonDecimal, t)
 }
