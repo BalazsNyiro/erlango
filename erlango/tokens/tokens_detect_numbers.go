@@ -362,26 +362,32 @@ func numDetect_removeUnderscoreFromString(txt string) string {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+type digitElemType int8
+type digitList []digitElemType
+
 // similar erlang lib: https://github.com/mabrek/erlang-decimal
-type erlango_bignum struct {
+type erlango_bignum_decimalValue struct {
+	// the bignum is ALWAYS decimal number, with separated digits representation
+
 	/* example num representation: '12.34'
 		digits: 1234
-		decimalPoint: -2    because 1234 * (10^-2) = 12.34
+		exponent: -2    because 1234 * (10^-2) = 12.34
 
 	   example 2: 1234000
 		digits: 1234
-		decimalPoint: 3     because 1234 * (10^3) = 1234000
+		exponent: 3     because 1234 * (10^3) = 1234000
 
 		with this representation, integers and floats can be represented too, with the same structure
 	 */
 
-	digits []int
+	digits digitList  // decimal digits
 	exponent int  // where is the ., or how many 0 are after the digits
+	negative bool // false by default: is the number negative?
 }
 
 
-func digit_value(digit rune) (int, error) {
-	valueMap := map[rune]int{
+func digitRune_decimalValue(digit rune) (digitElemType, error) {
+	valueMap := map[rune]digitElemType{
 		'0'	: 0,	'a' : 10,   'A' : 10,
 		'1' : 1,	'b' : 11,   'B' : 11,
 		'2' : 2,	'c' : 12,   'C' : 12,
@@ -416,44 +422,145 @@ func digit_value(digit rune) (int, error) {
 	return val, nil
 }
 
-// if the token is a number, return with a value and and OK
-// if it is NOT a number, return with 0 and error
-func number_value_integerDecimal_pair_detect_from_token(token Token) (erlango_bignum, error)  {
-	valueDetectedFromToken := false
+func bigNum_add(a, b erlango_bignum_decimalValue) erlango_bignum_decimalValue {
+	// the bignum is ALWAYS decimal number, with separated digits representation
 
-	zero := erlango_bignum{digits: []int{0}, exponent: 0}
-	partInteger := []int{}
+	// add operation can be done ONLY if the exponents are same
+	a, b = bigNum_pair_set_same_exponent(a, b)
 
-	if token.tokenType == tokenType_Num_int {
-		valueDetectedFromToken = true
+	digitsReversed := digitList{}
 
-		// naive number parsing,
-		//  position 210  <- the lastValue = 7*10^0, middle: 1*10^1, firstVal: 2*10^2
-		//  example: 567
-		// the first digit is 5, first pos is 2:
+	var overflow digitElemType = 0
+	position := -1
 
-		// the token needs to have minimum 1 char - there is a validation against that
-		for _, digit := range token.charsInErlSrc {
+	for {
+		position++
 
-			// rune -> numberValue conversion
-			// values are represented in decimal Num system!!!
-			// so f = 15, a = 10
-			digitVal_inDecimalNumSystem, errorValueDetection := digit_value(digit)
+		var valueA digitElemType = 0  // a decimal digit value is between 0-9, so a byte can store that
+		var valueB digitElemType = 0
 
-			if errorValueDetection != nil {
-				return zero, errors.New("number value detection error ("+token.stringRepr()+")")
-			} else {
-				partInteger = append(partInteger, digitVal_inDecimalNumSystem)
-			}
-
+		if position < len(a.digits) {
+			valueA = a.digits[position]
+		}
+		if position < len(b.digits) {
+			valueB = b.digits[position]
 		}
 
+		if valueA == 0 && valueB == 0 && overflow == 0 {
+			break // exit if there is no more thing to do
+		}
+
+		valueSum := valueA + valueB + overflow
+		digitNew := valueSum % 10
+
+		overflow = (valueSum - digitNew) / 10
 	}
 
-	if ! valueDetectedFromToken {
-		return zero, errors.New("number value detection error ("+token.stringRepr()+")")
+	digitsNormalOrder := digitsReversed
+	slices.Reverse(digitsNormalOrder) // inPlace...  same exponent as in parents vvvv
+	summa := erlango_bignum_decimalValue{digits: digitsNormalOrder, exponent: a.exponent}
+	return summa
+}
+
+/* receives 2 numbers. return with 2 numbers, where the exponents are similar*/
+func bigNum_pair_set_same_exponent(a, b erlango_bignum_decimalValue) (erlango_bignum_decimalValue, erlango_bignum_decimalValue) {
+	if a.exponent == b.exponent {
+		return a, b
 	}
-	exponent := 0 // here we set the integer part only now
-	// TODO: later normalize the number here! so (1000, 0) -> (1, 3)!!
-	return erlango_bignum{digits: partInteger, exponent: exponent}, nil
+	numExponentSmaller := a
+	numExponentBigger := b
+
+	if b.exponent < a.exponent {
+		numExponentSmaller = b
+		numExponentBigger = a
+	}
+
+	for numExponentBigger.exponent > numExponentSmaller.exponent {
+		numExponentBigger.exponent--
+		numExponentBigger.digits = append(numExponentBigger.digits, 0)
+	}
+	return a, b
+}
+
+func bigNum_from_digitVal__min0_max35(decimalVal digitElemType) erlango_bignum_decimalValue {
+	// a digit's value is minimum 0, maximum 35. there is no problem with too big integer values
+	digit_2 := decimalVal % 10
+	digit_1 := (decimalVal - digit_2) / 10
+	// simple conversion, NEVER normalize here - normalization can happen at one point only
+	return erlango_bignum_decimalValue{digits: digitList{digit_1, digit_2}, exponent: 0}
+}
+
+
+
+
+/*
+	if decimals are converted to bigNum, that is simple, because the values can be directly loaded
+    into the digits, without any calculation
+
+	The general solution is more complex, TODO: maybe next time
+*/
+func bigNum_from_digits_specialcase_decimalintegergeneral (token Token, numeralSystemType int) (erlango_bignum_decimalValue, error) {
+
+	zeroBignum := erlango_bignum_decimalValue{digits: digitList{0}, exponent: 0}
+
+	digitsReversed := digitList{}
+
+	for pos := 0; pos < len(token.charsInErlSrc); pos++ {
+		digit := token.charsInErlSrc[pos]
+
+		// rune -> numberValue conversion, in range 0-9
+		digitValueDecimalInteger, errorValueDetection := digitRune_decimalValue(digit)
+		if errorValueDetection != nil {
+			return zeroBignum, errors.New("digit (" + string(digit) + ") value detection error in: " + token.stringRepr())
+		}
+		digitsReversed = append(digitsReversed, digitValueDecimalInteger)
+	}
+	digitsNormalOrder := digitsReversed
+	slices.Reverse(digitsNormalOrder)
+	return erlango_bignum_decimalValue{digits: digitsNormalOrder, exponent: 0}, nil
+}
+
+/* analyse all digits, and calculate a decimal based value from a maybe non-decimal input */
+/*
+func bigNum_from_digits_general_any_numsystem (token Token, numeralSystemType int) (erlango_bignum_decimalValue, error) {
+	zeroBignum := erlango_bignum_decimalValue{digits: digitList{0}, exponent: 0}
+	summa := erlango_bignum_decimalValue{digits: digitList{0}, exponent: 0}
+
+	for pos := 0; pos < len(token.charsInErlSrc); pos++ {
+		digit := token.charsInErlSrc[pos]
+
+		// rune -> numberValue conversion - an integer between 0-35
+		digitValueDecimalInteger, errorValueDetection := digitRune_decimalValue(digit)
+		if errorValueDetection != nil {
+			return zeroBignum, errors.New("digit (" + string(digit) + ") value detection error in: " + token.stringRepr())
+		}
+
+		multiply := 1
+		if pos > 0 {
+			multiply = (numeralSystemType^pos)
+		}
+
+		digitVal_in_position := digitValueDecimalInteger * multiply
+
+		summa += digitVal_in_position
+
+	}
+
+
+	return summa, nil
+}
+*/
+
+// if the token is a number, return with a value and and OK
+// if it is NOT a number, return with 0 and error
+func bigNum_from_token(token Token) (erlango_bignum_decimalValue, error)  {
+	zeroBignum := erlango_bignum_decimalValue{digits: digitList{0}, exponent: 0}
+	// the token has minimum 1 char, - there is a validation against that, so the for loops always run
+
+	if token.tokenType == tokenType_Num_int {
+		return bigNum_from_digits_specialcase_decimalintegergeneral(token, 10)
+		// TODO: normalize the number here! so (1000, 0) -> (1, 3)!!
+	} // Num_int detected
+
+	return zeroBignum, errors.New("number value detection error ("+token.stringRepr()+")")
 }
