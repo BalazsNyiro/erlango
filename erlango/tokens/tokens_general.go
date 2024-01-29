@@ -178,10 +178,11 @@ func erlBinExpressionParse(expression string) (string, error){
 	// erlang error:  exit status 1
 
 
-	cmd := exec.Command("erl", "-noshell", "-eval", "io:fwrite(\"~p~n\", ["+expression+"]).", "-s", "erlang", "halt")
+	cmd := exec.Command("erl", "-noshell", "-eval", "io:fwrite(\"~p\", ["+expression+"]).", "-s", "erlang", "halt")
 
 	// The `Output` method executes the command and
 	// collects the output, returning its value
 	out, err := cmd.Output()
+
 	return string(out), err
 }

@@ -15,6 +15,7 @@ package tokens
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 )
 
@@ -134,12 +135,42 @@ func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *t
 	// so the cleaned src is not used now.
 	_ = erlSrcTokenRemoved
 
-	fmt.Println("\n\nnumTokenDetect:", erlExpression)
-	erlOutDetectedNum, erlErr := erlBinExpressionParse(erlExpression)
-	_ = erlOutDetectedNum
-	//fmt.Println("erl bin out:", erlOut, "erl error:", erlErr)
 
+	fmt.Println("\n\nnumTokenDetect:", erlExpression)
 	compare_strings(funName + ": " + erlExpression, tokenTypeWanted, tokensTable_detected[0].tokenType, t)
+
+
+
+
+	//////// compare erlang and bigNum values ///////////////
+	erlOutDetectedNumString, erlErr := erlBinExpressionParse(erlExpression)
+
+	if erlErr == nil {
+		erlOutDetectedNum, errIntConv := strconv.Atoi(erlOutDetectedNumString)
+		if errIntConv != nil {
+			fmt.Println("int conversion problem from erlang shell:", erlOutDetectedNumString, errIntConv)
+
+		} else {
+			print("ERLANG DETECTED NUM:", erlOutDetectedNum)
+
+			bigNum, err := bigNum_from_token(tokensTable_detected[0])
+			bigNum_INT := 0
+			if err != nil {
+				print("problem with bignum conversion: ", err)
+			} else {
+				fmt.Println("bigNum: ", bigNum)
+				bigNum_INT = bigNum_convert_to_INT_for_testcases(bigNum)
+			}
+			fmt.Println("bigNum INT:", bigNum_INT, "erl bin out:", erlOutDetectedNumString, "erl error:", erlErr)
+
+			if bigNum_INT != erlOutDetectedNum {
+				t.Fatalf("ERROR: erlang integer %d <> %d bigNum int", erlOutDetectedNum, bigNum_INT)
+			}
+
+		} // no problem with erlang output's conversion to int
+	} // erl error == nil, compare the num with bigNum
+
+
 
 	if erlErr != nil { // error happend in erlang binary
 		if tokenTypeWanted == tokenType_SyntaxError {
@@ -148,11 +179,7 @@ func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *t
 		} else {
 			t.Fatalf("NUM DETECTION PROBLEM: (%s)   error detected in erlang binary, but not in erlango parser", erlExpression)
 		}
-	}  else {  // erlang binary was able to accept expression
-
-	}
-
-
+	} // erlang error happened
 
 }
 

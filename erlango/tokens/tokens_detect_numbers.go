@@ -456,9 +456,7 @@ func bigNum_add(a, b erlango_bignum_decimalValue) erlango_bignum_decimalValue {
 		overflow = (valueSum - digitNew) / 10
 	}
 
-	digitsNormalOrder := digitsReversed
-	slices.Reverse(digitsNormalOrder) // inPlace...  same exponent as in parents vvvv
-	summa := erlango_bignum_decimalValue{digits: digitsNormalOrder, exponent: a.exponent}
+	summa := erlango_bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
 	return summa
 }
 
@@ -492,6 +490,13 @@ func bigNum_from_digitVal__min0_max35(decimalVal digitElemType) erlango_bignum_d
 
 
 
+func digits_reverse(digits digitList) digitList {
+	digitsReversed := digitList{}
+	for pos := 0; pos < len(digits); pos++ {
+		digitsReversed = append(digitsReversed, digits[pos])
+	}
+	return digitsReversed
+}
 
 /*
 	if decimals are converted to bigNum, that is simple, because the values can be directly loaded
@@ -499,14 +504,14 @@ func bigNum_from_digitVal__min0_max35(decimalVal digitElemType) erlango_bignum_d
 
 	The general solution is more complex, TODO: maybe next time
 */
-func bigNum_from_digits_specialcase_decimalintegergeneral (token Token, numeralSystemType int) (erlango_bignum_decimalValue, error) {
+func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (erlango_bignum_decimalValue, error) {
 
 	zeroBignum := erlango_bignum_decimalValue{digits: digitList{0}, exponent: 0}
 
 	digitsReversed := digitList{}
-
 	for pos := 0; pos < len(token.charsInErlSrc); pos++ {
 		digit := token.charsInErlSrc[pos]
+		fmt.Println("digit[",pos,"] => ", digit, string(digit))
 
 		// rune -> numberValue conversion, in range 0-9
 		digitValueDecimalInteger, errorValueDetection := digitRune_decimalValue(digit)
@@ -515,9 +520,7 @@ func bigNum_from_digits_specialcase_decimalintegergeneral (token Token, numeralS
 		}
 		digitsReversed = append(digitsReversed, digitValueDecimalInteger)
 	}
-	digitsNormalOrder := digitsReversed
-	slices.Reverse(digitsNormalOrder)
-	return erlango_bignum_decimalValue{digits: digitsNormalOrder, exponent: 0}, nil
+	return erlango_bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: 0}, nil
 }
 
 /* analyse all digits, and calculate a decimal based value from a maybe non-decimal input */
@@ -554,13 +557,40 @@ func bigNum_from_digits_general_any_numsystem (token Token, numeralSystemType in
 // if the token is a number, return with a value and and OK
 // if it is NOT a number, return with 0 and error
 func bigNum_from_token(token Token) (erlango_bignum_decimalValue, error)  {
-	zeroBignum := erlango_bignum_decimalValue{digits: digitList{0}, exponent: 0}
 	// the token has minimum 1 char, - there is a validation against that, so the for loops always run
-
 	if token.tokenType == tokenType_Num_int {
-		return bigNum_from_digits_specialcase_decimalintegergeneral(token, 10)
+		return bigNum_from_digits_specialcase_decimalintegergeneral(token)
 		// TODO: normalize the number here! so (1000, 0) -> (1, 3)!!
 	} // Num_int detected
 
+	zeroBignum := erlango_bignum_decimalValue{digits: digitList{0}, exponent: 0}
 	return zeroBignum, errors.New("number value detection error ("+token.stringRepr()+")")
+}
+
+func bigNum_convert_to_INT_for_testcases(bigNum erlango_bignum_decimalValue) int {
+	summa := 0
+	lenDigits := len(bigNum.digits)
+	multiplicator := lenDigits
+
+	for pos := 0; pos < lenDigits; pos++ {
+		fmt.Println()
+
+		// positions: 012
+		//            123: first multiplicator is 2, second is 1, then 0
+		multiplicator -= 1
+		fmt.Println("multiplicator:", multiplicator)
+
+		digitValue := int(bigNum.digits[pos])
+
+		for m:= multiplicator; m>0; m-- {
+			digitValue = digitValue * 10
+		}
+
+		fmt.Println("convert to INT: digit[",pos,"] =>", bigNum.digits[pos], "digitValue:", digitValue)
+		summa += digitValue
+	}
+	if bigNum.negative {
+		summa = -summa
+	}
+	return summa
 }
