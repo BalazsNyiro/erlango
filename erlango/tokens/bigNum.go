@@ -44,6 +44,14 @@ type erlango_bignum_decimalValue struct {
 	negative bool // false by default: is the number negative?
 }
 
+func (bn erlango_bignum_decimalValue) isPositive() bool {
+	return ! (bn.negative)
+}
+
+func (bn erlango_bignum_decimalValue) isNegative() bool {
+	return bn.negative
+}
+
 
 func digitRune_decimalValue(digit rune) (digitElemType, error) {
 	valueMap := map[rune]digitElemType{
@@ -93,4 +101,130 @@ func bigNum_from_digitValue__min0_max35(decimalVal digitElemType) erlango_bignum
 	} else {
 		return erlango_bignum_decimalValue{digits: digitList{digit_2}, exponent: 0}
 	}
+}
+
+func bigNum_add(a, b erlango_bignum_decimalValue) erlango_bignum_decimalValue {
+	if a.isPositive() && b.isNegative() {
+		b.negative = false
+		return bigNum_sub(a, b)
+	}
+	if a.isNegative() && b.isPositive(){
+		a.negative = false
+		return bigNum_sub(b, a)
+	}
+	if a.isNegative() && b.isNegative() {
+		a.negative = false
+		b.negative = false
+		result := bigNum_add_positive_positive(a, b)
+		result.negative = true
+		return result
+	}
+
+	// basic case: a, b are positive
+	return bigNum_add_positive_positive(a, b)
+}
+
+
+func bigNum_sub(a, b erlango_bignum_decimalValue) erlango_bignum_decimalValue {
+	if !a.negative && b.negative {
+		// FIXME: WRONG
+		b.negative = false
+		return bigNum_add(a, b)
+	}
+	if a.negative && !b.negative {
+		a.negative = false
+		result := bigNum_add(a, b)
+		result.negative = true
+		return result
+	}
+	if a.negative && b.negative {
+		a.negative = false
+		b.negative = false
+		result := bigNum_add(a, b)
+		result.negative = true
+		return result
+	}
+
+	// basic case: a, b are positive
+	return bigNum_sub_positive_positive(a, b)
+
+}
+
+
+func bigNum_add_positive_positive(a, b erlango_bignum_decimalValue) erlango_bignum_decimalValue {
+	// the bignum is ALWAYS decimal number, with separated digits representation
+
+	// add operation can be done ONLY if the exponents are same
+	a, b = bigNum_pair_set_same_exponent(a, b)
+
+	digitsReversed := digitList{}
+
+	var overflow digitElemType = 0
+	position := -1
+
+	for {
+		position++
+
+		var valueA digitElemType = 0  // a decimal digit value is between 0-9, so a byte can store that
+		var valueB digitElemType = 0
+
+		if position < len(a.digits) {
+			valueA = a.digits[position]
+		}
+		if position < len(b.digits) {
+			valueB = b.digits[position]
+		}
+
+		if valueA == 0 && valueB == 0 && overflow == 0 {
+			break // exit if there is no more thing to do
+		}
+
+		valueSum := valueA + valueB + overflow
+		digitNew := valueSum % 10
+
+		overflow = (valueSum - digitNew) / 10
+	}
+
+	summa := erlango_bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
+	return summa
+}
+
+
+// FIXME: this is not OK, completely rewrite this:
+func bigNum_sub_positive_positive(a, b erlango_bignum_decimalValue) erlango_bignum_decimalValue {
+	// the bignum is ALWAYS decimal number, with separated digits representation
+
+	// add operation can be done ONLY if the exponents are same
+	a, b = bigNum_pair_set_same_exponent(a, b)
+
+	digitsReversed := digitList{}
+
+	var overflow digitElemType = 0
+	position := -1
+
+	for {
+		position++
+
+		var valueA digitElemType = 0  // a decimal digit value is between 0-9, so a byte can store that
+		var valueB digitElemType = 0
+
+		if position < len(a.digits) {
+			valueA = a.digits[position]
+		}
+		if position < len(b.digits) {
+			valueB = b.digits[position]
+		}
+
+		if valueA == 0 && valueB == 0 && overflow == 0 {
+			break // exit if there is no more thing to do
+		}
+
+		valueSum := valueA + valueB + overflow
+		digitNew := valueSum % 10
+
+		overflow = (valueSum - digitNew) / 10
+	}
+
+	summa := erlango_bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
+	return summa
 }

@@ -356,45 +356,8 @@ func numDetect_removeUnderscoreFromString(txt string) string {
 	return strings.Replace(txt, "_", "", -1)
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////// FROM HERE, move everything into bignum: //////////////////////////////////////////////////////////////////////////////////
 
-func bigNum_add(a, b erlango_bignum_decimalValue) erlango_bignum_decimalValue {
-	// the bignum is ALWAYS decimal number, with separated digits representation
-
-	// add operation can be done ONLY if the exponents are same
-	a, b = bigNum_pair_set_same_exponent(a, b)
-
-	digitsReversed := digitList{}
-
-	var overflow digitElemType = 0
-	position := -1
-
-	for {
-		position++
-
-		var valueA digitElemType = 0  // a decimal digit value is between 0-9, so a byte can store that
-		var valueB digitElemType = 0
-
-		if position < len(a.digits) {
-			valueA = a.digits[position]
-		}
-		if position < len(b.digits) {
-			valueB = b.digits[position]
-		}
-
-		if valueA == 0 && valueB == 0 && overflow == 0 {
-			break // exit if there is no more thing to do
-		}
-
-		valueSum := valueA + valueB + overflow
-		digitNew := valueSum % 10
-
-		overflow = (valueSum - digitNew) / 10
-	}
-
-	summa := erlango_bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
-	return summa
-}
 
 /* receives 2 numbers. return with 2 numbers, where the exponents are similar*/
 func bigNum_pair_set_same_exponent(a, b erlango_bignum_decimalValue) (erlango_bignum_decimalValue, erlango_bignum_decimalValue) {
