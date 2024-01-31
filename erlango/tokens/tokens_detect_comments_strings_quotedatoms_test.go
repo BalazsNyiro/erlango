@@ -41,7 +41,7 @@ func print_tokens(msg string, tokens Tokens) {
 func Test_charsHowManyAreInTheGroup(t *testing.T) {
 	funName := "Test_charsHowManyAreInTheGroup"
 
-	setNumbers := []rune("0123456789")
+	setNumbers := []rune(ABC_Eng_digits)
 	setAlphabetLow := []rune(ABC_Eng_Lower)
 	setAlphabetUp := []rune(ABC_Eng_Upper)
 	setCommas := []rune(",;")

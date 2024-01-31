@@ -47,8 +47,8 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 	tokensTableUpdated := tokensTable.deepCopy()
 	var erlSrcTokenDetectionsRemoved []rune
 	///////////////////////////////////////////////////////////////
-	digitsZeroNine := []rune("0123456789")
-	digitsZeroNine_underscore := []rune("0123456789_")
+	digitsZeroNine := []rune(ABC_Eng_digits)
+	digitsZeroNine_underscore := []rune(ABC_Eng_digits+"_")
 	digitDot := []rune(".")
 	digitHashmark := []rune("#")
 
