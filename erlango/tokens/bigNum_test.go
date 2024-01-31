@@ -21,15 +21,20 @@ import (
 func Test_digitRune_decimalValue(t *testing.T) {
 	testName := "Test_digitRune_decimalValue"
 
-	for valueWanted, runeElem := range ABC_Eng_digits + ABC_Eng_Lower {
-		fmt.Println("decimal value test,", valueWanted, runeElem)
+	test_string := func (txt string) {
+		for valueWanted, runeElem := range txt {
+			fmt.Println("decimal value test,", valueWanted, runeElem)
 
-		valueReceived, err := digitRune_decimalValue(runeElem)
-		if err != nil {
-			t.Fatalf("\nError in %s, err is not nil, rune value detect (%s) value wanted: %d, valueReceived: %d", testName, string(runeElem), valueWanted, valueReceived)
-		}
-		if digitElemType(valueWanted) != valueReceived {
-			t.Fatalf("\nError in %s, rune (%s) value wanted: %d, valueReceived: %d", testName, string(runeElem), valueWanted, valueReceived)
+			valueReceived, err := digitRune_decimalValue(runeElem)
+			if err != nil {
+				t.Fatalf("\nError in %s, err is not nil, rune value detect (%s) value wanted: %d, valueReceived: %d", testName, string(runeElem), valueWanted, valueReceived)
+			}
+			if digitElemType(valueWanted) != valueReceived {
+				t.Fatalf("\nError in %s, rune (%s) value wanted: %d, valueReceived: %d", testName, string(runeElem), valueWanted, valueReceived)
+			}
 		}
 	}
+
+	test_string(ABC_Eng_digits + ABC_Eng_Lower)
+	test_string(ABC_Eng_digits + ABC_Eng_Upper	)
 }
