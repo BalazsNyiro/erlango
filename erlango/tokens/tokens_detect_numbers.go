@@ -56,9 +56,7 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 	//digitE := []rune("e")
 	//digitPlusMinus := []rune("+-")
 
-	const str_abcEngLower = "abcdefghijklmnopqrstuvwxyz"
-	const str_abcEngUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	const str_digits_abc_ABC = "0123456789" + str_abcEngLower + str_abcEngUpper
+	const str_digits_abc_ABC = ABC_Eng_digits + ABC_Eng_Lower + ABC_Eng_Upper
 	const str_digits_abc_ABC_underscore = str_digits_abc_ABC + "_"
 
 	digitsZeroNine_abc_ABC := []rune(str_digits_abc_ABC)
@@ -307,9 +305,6 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 
 		printIfDebug("validation: # in number...")
 
-		// const ABC_Eng_Upper string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		const ABC_Eng_Lower string = "abcdefghijklmnopqrstuvwxyz"
-		const ABC_Eng_digits string = "0123456789"
 
 		const digitsAll string = ABC_Eng_digits + ABC_Eng_Lower
 

@@ -15,6 +15,10 @@ package tokens
 
 import "errors"
 
+const ABC_Eng_Upper string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const ABC_Eng_Lower string = "abcdefghijklmnopqrstuvwxyz"
+const ABC_Eng_digits string = "0123456789"
+
 type digitElemType int8
 type digitList []digitElemType
 
@@ -23,11 +27,11 @@ type erlango_bignum_decimalValue struct {
 	// the bignum is ALWAYS decimal number, with separated digits representation
 
 	/* example num representation: '12.34'
-		digits: 1234
+		digits: [1,2,3,4]
 		exponent: -2    because 1234 * (10^-2) = 12.34
 
 	   example 2: 1234000
-		digits: 1234
+		digits: [1,2,3,4]
 		exponent: 3     because 1234 * (10^3) = 1234000
 
 		with this representation, integers and floats can be represented too, with the same structure

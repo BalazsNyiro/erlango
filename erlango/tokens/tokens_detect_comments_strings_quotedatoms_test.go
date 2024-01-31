@@ -42,8 +42,8 @@ func Test_charsHowManyAreInTheGroup(t *testing.T) {
 	funName := "Test_charsHowManyAreInTheGroup"
 
 	setNumbers := []rune("0123456789")
-	setAlphabetLow := []rune("abcdefghijklmnopqrstuvwxyz")
-	setAlphabetUp := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	setAlphabetLow := []rune(ABC_Eng_Lower)
+	setAlphabetUp := []rune(ABC_Eng_Upper)
 	setCommas := []rune(",;")
 
 	//    position:   0123456789ABCDEFG
