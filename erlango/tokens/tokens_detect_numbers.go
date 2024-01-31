@@ -416,13 +416,6 @@ func bigNum_pair_set_same_exponent(a, b erlango_bignum_decimalValue) (erlango_bi
 	return a, b
 }
 
-func bigNum_from_digitVal__min0_max35(decimalVal digitElemType) erlango_bignum_decimalValue {
-	// a digit's value is minimum 0, maximum 35. there is no problem with too big integer values
-	digit_2 := decimalVal % 10
-	digit_1 := (decimalVal - digit_2) / 10
-	// simple conversion, NEVER normalize here - normalization can happen at one point only
-	return erlango_bignum_decimalValue{digits: digitList{digit_1, digit_2}, exponent: 0}
-}
 
 
 

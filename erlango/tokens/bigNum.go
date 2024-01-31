@@ -23,8 +23,10 @@ type digitElemType int8
 type digitList []digitElemType
 
 // similar erlang lib: https://github.com/mabrek/erlang-decimal
+// general Decimal arithmetic: https://speleotrove.com/decimal/daops.html
+// the precisions is not used in my implementation.
 type erlango_bignum_decimalValue struct {
-	// the bignum is ALWAYS decimal number, with separated digits representation
+	// the bignum is ALWAYS a 10 based number, with separated digits representation
 
 	/* example num representation: '12.34'
 		digits: [1,2,3,4]
@@ -77,4 +79,18 @@ func digitRune_decimalValue(digit rune) (digitElemType, error) {
 		return 0, errors.New("digit value is not detected (" + string(digit) + ")")
 	}
 	return val, nil
+}
+
+
+// this is important when digit values are checked, in non-decimal char processing
+func bigNum_from_digitValue__min0_max35(decimalVal digitElemType) erlango_bignum_decimalValue {
+	// a digit's value is minimum 0, maximum 35. there is no problem with too big integer values
+	digit_2 := decimalVal % 10
+	digit_1 := (decimalVal - digit_2) / 10
+	// simple conversion, NEVER normalize here - normalization can happen at one point only
+	if digit_1 > 0 {
+		return erlango_bignum_decimalValue{digits: digitList{digit_1, digit_2}, exponent: 0}
+	} else {
+		return erlango_bignum_decimalValue{digits: digitList{digit_2}, exponent: 0}
+	}
 }

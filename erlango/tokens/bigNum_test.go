@@ -18,6 +18,8 @@ import (
 	"testing"
 )
 
+
+// the digits and char values has to be correct
 func Test_digitRune_decimalValue(t *testing.T) {
 	testName := "Test_digitRune_decimalValue"
 
@@ -36,5 +38,28 @@ func Test_digitRune_decimalValue(t *testing.T) {
 	}
 
 	test_string(ABC_Eng_digits + ABC_Eng_Lower)
-	test_string(ABC_Eng_digits + ABC_Eng_Upper	)
+	test_string(ABC_Eng_digits + ABC_Eng_Upper)
+}
+
+
+func Test_bigNum_from_digitVal__min0_max35(t *testing.T) {
+	testName := "Test_bigNum_from_digitVal__min0_max35"
+
+	for numToConvert := 0; numToConvert <=35; numToConvert++ {
+		bigNumReceived := bigNum_from_digitValue__min0_max35(digitElemType(numToConvert))
+
+		valueReceived := -1
+		if len(bigNumReceived.digits) == 1 {
+			valueReceived = int(bigNumReceived.digits[0])
+		}
+		if len(bigNumReceived.digits) == 2 {
+			valueReceived = int(bigNumReceived.digits[0]*10)
+			valueReceived += int(bigNumReceived.digits[1])
+		}
+
+		if valueReceived != numToConvert {
+			t.Fatalf("\nError in numToConvert conversion to bigNum %s value wanted: %d, valueReceived: %d", testName, numToConvert, valueReceived)
+		}
+	}
+
 }
