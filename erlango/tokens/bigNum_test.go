@@ -25,9 +25,9 @@ func Test_digitRune_decimalValue(t *testing.T) {
 
 	test_string := func (txt string) {
 		for valueWanted, runeElem := range txt {
-			fmt.Println("decimal value test,", valueWanted, runeElem)
-
 			valueReceived, err := digitRune_decimalValue(runeElem)
+			fmt.Println("decimal value test,", string(runeElem), valueWanted, valueReceived)
+
 			if err != nil {
 				t.Fatalf("\nError in %s, err is not nil, rune value detect (%s) value wanted: %d, valueReceived: %d", testName, string(runeElem), valueWanted, valueReceived)
 			}
@@ -60,6 +60,25 @@ func Test_bigNum_from_digitVal__min0_max35(t *testing.T) {
 		if valueReceived != numToConvert {
 			t.Fatalf("\nError in numToConvert conversion to bigNum %s value wanted: %d, valueReceived: %d", testName, numToConvert, valueReceived)
 		}
+	}
+
+}
+
+//  go test -v -run  Test_bignum_add_positive_positive
+func Test_bignum_add_positive_positive(t *testing.T) {
+	testName := "Test_bignum_add_positive_positive"
+
+	bnA := bigNum_from_int(3)
+	bnB := bigNum_from_int(5)
+	bnResult := bigNum_operator_add(bnA, bnB)
+
+	compare_bigNum_int(testName+"_3_5", 8, bnResult, t)
+}
+
+func compare_bigNum_int(testName string, wantedNum int, bn erlango_bignum_decimalValue, t *testing.T) {
+	received := bigNum_convert_to_INT_for_testcases(bn)
+	if received != wantedNum {
+		t.Fatalf("\nError in %s wanted: %d, result: %d", testName, wantedNum, received)
 	}
 
 }

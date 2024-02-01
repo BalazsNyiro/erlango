@@ -359,25 +359,6 @@ func numDetect_removeUnderscoreFromString(txt string) string {
 //////////////////////////// FROM HERE, move everything into bignum: //////////////////////////////////////////////////////////////////////////////////
 
 
-/* receives 2 numbers. return with 2 numbers, where the exponents are similar*/
-func bigNum_pair_set_same_exponent(a, b erlango_bignum_decimalValue) (erlango_bignum_decimalValue, erlango_bignum_decimalValue) {
-	if a.exponent == b.exponent {
-		return a, b
-	}
-	numExponentSmaller := a
-	numExponentBigger := b
-
-	if b.exponent < a.exponent {
-		numExponentSmaller = b
-		numExponentBigger = a
-	}
-
-	for numExponentBigger.exponent > numExponentSmaller.exponent {
-		numExponentBigger.exponent--
-		numExponentBigger.digits = append(numExponentBigger.digits, 0)
-	}
-	return a, b
-}
 
 
 
@@ -459,30 +440,3 @@ func bigNum_from_token(token Token) (erlango_bignum_decimalValue, error)  {
 	return zeroBignum, errors.New("number value detection error ("+token.stringRepr()+")")
 }
 
-func bigNum_convert_to_INT_for_testcases(bigNum erlango_bignum_decimalValue) int {
-	summa := 0
-	lenDigits := len(bigNum.digits)
-	multiplicator := lenDigits
-
-	for pos := 0; pos < lenDigits; pos++ {
-		fmt.Println()
-
-		// positions: 012
-		//            123: first multiplicator is 2, second is 1, then 0
-		multiplicator -= 1
-		fmt.Println("multiplicator:", multiplicator)
-
-		digitValue := int(bigNum.digits[pos])
-
-		for m:= multiplicator; m>0; m-- {
-			digitValue = digitValue * 10
-		}
-
-		fmt.Println("convert to INT: digit[",pos,"] =>", bigNum.digits[pos], "digitValue:", digitValue)
-		summa += digitValue
-	}
-	if bigNum.negative {
-		summa = -summa
-	}
-	return summa
-}
