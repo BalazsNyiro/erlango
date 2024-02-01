@@ -110,6 +110,9 @@ func (a bignum_decimalValue) isEqual(b bignum_decimalValue) bool {
 			reflect.DeepEqual(a.digits, b.digits)
 }
 
+
+
+// Tested, from operator_test func
 func bigNum_from_int(i int) bignum_decimalValue {
 	negative := false
 	if i < 0 {
@@ -118,6 +121,7 @@ func bigNum_from_int(i int) bignum_decimalValue {
 	}
 	digits := digitList{}
 
+	// copy all digits one by one,
 	for _, charElem := range strconv.Itoa(i) {
 		digitVal, err := digitRune_decimalValue(charElem)
 		if err != nil {
@@ -250,92 +254,13 @@ func bigNum_pair_set_same_exponent(a, b bignum_decimalValue) (bignum_decimalValu
 	return a, b
 }
 
-
-//////////// TESTED /////////////////
-func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
-	// the bignum is ALWAYS decimal number, with separated digits representation
-
-	// add operation can be done ONLY if the exponents are same
-	a.print("internal a1")
-	b.print("internal b1")
-	a, b = bigNum_pair_set_same_exponent(a, b)
-	a.print("internal a2")
-	b.print("internal b2")
-
+func digits_reverse(digits digitList) digitList {
 	digitsReversed := digitList{}
-
-	var overflow digitElemType = 0
-	positionA_lastDigit := len(a.digits) - 1
-	positionB_lastDigit := len(b.digits) - 1
-
-	positionDelta := -1
-	for {
-		positionDelta++
-		posA := positionA_lastDigit + positionDelta
-		posB := positionB_lastDigit + positionDelta
-
-		var valueA digitElemType = 0  // a decimal digit value is between 0-9, so a byte can store that
-		var valueB digitElemType = 0
-
-		if posA < len(a.digits) {
-			valueA = a.digits[posA]
-		}
-		if posB < len(b.digits) {
-			valueB = b.digits[posB]
-		}
-		// fmt.Println("internal add A, pos pos >>> a:", valueA, "  b:",valueB, "overflow:", overflow)
-
-		if valueA == 0 && valueB == 0 && overflow == 0 {
-			break // exit if there is no more thing to do
-		}
-
-		valueSum := valueA + valueB + overflow
-		digitNew := valueSum % 10
-		digitsReversed = append(digitsReversed, digitNew)
-		// fmt.Println("internal add B, pos pos >>> valueSum:", valueSum, "   digitNew:", digitNew)
-
-		overflow = (valueSum - digitNew) / 10
+	for pos := len(digits)-1; pos >=0; pos-- {
+		digitsReversed = append(digitsReversed, digits[pos])
 	}
-
-	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
-	return summa
+	return digitsReversed
 }
-
-func bigNum_zero() bignum_decimalValue {
-	return bignum_decimalValue{digits: digitList{0}, exponent: 0, negative: false}
-}
-
-
-
-// used in tests
-func bigNum_convert_to_INT_for_testcases(bigNum bignum_decimalValue) int {
-	summa := 0
-	lenDigits := len(bigNum.digits)
-	multiplicator := lenDigits
-
-	for pos := 0; pos < lenDigits; pos++ {
-		fmt.Println()
-
-		// positions: 012
-		//            123: first multiplicator is 2, second is 1, then 0
-		multiplicator -= 1
-		fmt.Println("multiplicator:", multiplicator)
-
-		digitValue := int(bigNum.digits[pos])
-
-		for m:= multiplicator; m>0; m-- {
-			digitValue = digitValue * 10
-		}
-
-		fmt.Println("convert to INT: digit[",pos,"] =>", bigNum.digits[pos], "digitValue:", digitValue)
-		summa += digitValue
-	}
-	if bigNum.negative {
-		summa = -summa
-	}
-	return summa
-}
-
 
 // FIXME: this is not OK, completely rewrite this:
 func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
@@ -375,3 +300,97 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
 	return summa
 }
+
+
+//////////// TESTED /////////////////
+func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
+	// the bignum is ALWAYS decimal number, with separated digits representation
+
+	// add operation can be done ONLY if the exponents are same
+	a.print("internal a1")
+	b.print("internal b1")
+	a, b = bigNum_pair_set_same_exponent(a, b)
+	a.print("internal a2")
+	b.print("internal b2")
+
+	digitsReversed := digitList{}
+
+	var overflow digitElemType = 0
+	positionA_lastDigit := len(a.digits) - 1
+	positionB_lastDigit := len(b.digits) - 1
+
+	positionDelta := -1
+	for {
+		positionDelta++ // posA, posB are going from the last (biggest) index to 0 index with -Delta
+		posA := positionA_lastDigit - positionDelta
+		posB := positionB_lastDigit - positionDelta
+		fmt.Println("internal posA", posA)
+		fmt.Println("internal posB",   posB)
+
+		var valueDigitA digitElemType = 0 // a decimal digit value is between 0-9, so a byte can store that
+		var valueDigitB digitElemType = 0
+
+		if posA >= 0 {
+			valueDigitA = a.digits[posA]
+		}
+		if posB >= 0 {
+			valueDigitB = b.digits[posB]
+		}
+		fmt.Println("internal add before, pos pos >>> a:", valueDigitA, "  b:", valueDigitB, "overflow:", overflow)
+
+		// the reading started from the highest indexes to index 0, which is the first digit.
+		// if both position is before the first digit, process can be stopped
+		if posA < 0 && posB < 0 && overflow == 0 {
+			break
+		}
+
+		valueSum := valueDigitA + valueDigitB + overflow
+		digitNew := valueSum % 10
+		digitsReversed = append(digitsReversed, digitNew)
+		fmt.Println("internal add  after, pos pos >>> valueSum:", valueSum, "   digitNew:", digitNew)
+
+		overflow = (valueSum - digitNew) / 10
+	}
+
+	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
+	summa.print("summa, after add pos pos")
+	return summa
+}
+
+// default fun, accepted as TESTED
+func bigNum_zero() bignum_decimalValue {
+	return bignum_decimalValue{digits: digitList{0}, exponent: 0, negative: false}
+}
+
+
+
+// TESTED!!!
+func bigNum_convert_to_INT_for_testcases(bigNum bignum_decimalValue) int {
+	summa := 0
+	lenDigits := len(bigNum.digits)
+	multiplicator := lenDigits
+
+	for pos := 0; pos < lenDigits; pos++ {
+		fmt.Println()
+
+		// positions: 012
+		//            123: first multiplicator is 2, second is 1, then 0
+		multiplicator -= 1
+		fmt.Println("multiplicator:", multiplicator)
+
+		digitValue := int(bigNum.digits[pos])
+
+		for m:= multiplicator; m>0; m-- {
+			digitValue = digitValue * 10
+		}
+
+		fmt.Println("convert to INT: digit[",pos,"] =>", bigNum.digits[pos], "digitValue:", digitValue)
+		summa += digitValue
+	}
+	if bigNum.negative {
+		summa = -summa
+	}
+	return summa
+}
+
+

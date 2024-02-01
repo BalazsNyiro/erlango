@@ -68,6 +68,10 @@ func Test_bigNum_from_digitVal__min0_max35(t *testing.T) {
 func Test_bignum_add_positive_positive(t *testing.T) {
 	operator_test("add", 3, 5, t)
 	operator_test("add", 0, 9, t)
+	operator_test("add", 10, 1, t)
+	operator_test("add", 19, 1, t)
+	operator_test("add", 99, 1, t)
+	operator_test("add", 333, 4444, t)
 }
 
 func operator_test(math_operator string, a, b int, t *testing.T) {
@@ -90,12 +94,20 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 	testName := fmt.Sprintf("math_operator_test__%s__%d_%d", math_operator, a, b)
 	compare_bigNum_int(testName, intResult, bnResult, t)
 
+	// and one more test, for  bigNum_convert_to_INT_for_testcases
+	compare_int_int(testName, bigNum_convert_to_INT_for_testcases(bnResult), intResult, t)
+
 }
 
 func compare_bigNum_int(testName string, wantedNum int, bn bignum_decimalValue, t *testing.T) {
 	received := bigNum_convert_to_INT_for_testcases(bn)
 	if received != wantedNum {
-		t.Fatalf("\nError in %s wanted: %d, result: %d", testName, wantedNum, received)
+		t.Fatalf("\nError in %s wanted: %d, received: %d", testName, wantedNum, received)
+	}
+}
+func compare_int_int(testName string, wantedNum int, received int, t *testing.T) {
+	if received != wantedNum {
+		t.Fatalf("\nError in %s wanted: %d, received: %d", testName, wantedNum, received)
 	}
 
 }

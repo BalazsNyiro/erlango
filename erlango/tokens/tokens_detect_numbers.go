@@ -363,14 +363,6 @@ func numDetect_removeUnderscoreFromString(txt string) string {
 
 
 
-func digits_reverse(digits digitList) digitList {
-	digitsReversed := digitList{}
-	for pos := 0; pos < len(digits); pos++ {
-		digitsReversed = append(digitsReversed, digits[pos])
-	}
-	return digitsReversed
-}
-
 /*
 	if decimals are converted to bigNum, that is simple, because the values can be directly loaded
     into the digits, without any calculation
