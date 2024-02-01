@@ -66,16 +66,33 @@ func Test_bigNum_from_digitVal__min0_max35(t *testing.T) {
 
 //  go test -v -run  Test_bignum_add_positive_positive
 func Test_bignum_add_positive_positive(t *testing.T) {
-	testName := "Test_bignum_add_positive_positive"
-
-	bnA := bigNum_from_int(3)
-	bnB := bigNum_from_int(5)
-	bnResult := bigNum_operator_add(bnA, bnB)
-
-	compare_bigNum_int(testName+"_3_5", 8, bnResult, t)
+	operator_test("add", 3, 5, t)
+	operator_test("add", 0, 9, t)
 }
 
-func compare_bigNum_int(testName string, wantedNum int, bn erlango_bignum_decimalValue, t *testing.T) {
+func operator_test(math_operator string, a, b int, t *testing.T) {
+	bnA := bigNum_from_int(a)
+	bnB := bigNum_from_int(b)
+
+	intResult := 0
+	bnResult := bigNum_zero()
+
+	if math_operator == "add" {
+		intResult = a + b
+		bnResult = bigNum_operator_add(bnA, bnB)
+	}
+
+	if math_operator == "sub" {
+		intResult = a - b
+		bnResult = bigNum_operator_sub(bnA, bnB)
+	}
+
+	testName := fmt.Sprintf("math_operator_test__%s__%d_%d", math_operator, a, b)
+	compare_bigNum_int(testName, intResult, bnResult, t)
+
+}
+
+func compare_bigNum_int(testName string, wantedNum int, bn bignum_decimalValue, t *testing.T) {
 	received := bigNum_convert_to_INT_for_testcases(bn)
 	if received != wantedNum {
 		t.Fatalf("\nError in %s wanted: %d, result: %d", testName, wantedNum, received)

@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 )
 
 const ABC_Eng_Upper string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -32,7 +33,7 @@ type digitList []digitElemType
 // similar erlang lib: https://github.com/mabrek/erlang-decimal
 // general Decimal arithmetic: https://speleotrove.com/decimal/daops.html
 // the precisions is not used in my implementation.
-type erlango_bignum_decimalValue struct {
+type bignum_decimalValue struct {
 	// the bignum is ALWAYS a 10 based number, with separated digits representation
 
 	/* example num representation: '12.34'
@@ -51,15 +52,15 @@ type erlango_bignum_decimalValue struct {
 	negative bool // false by default: is the number negative?
 }
 
-func (bn erlango_bignum_decimalValue) isPositive() bool {
+func (bn bignum_decimalValue) isPositive() bool {
 	return ! (bn.negative)
 }
 
-func (bn erlango_bignum_decimalValue) isNegative() bool {
+func (bn bignum_decimalValue) isNegative() bool {
 	return bn.negative
 }
 
-func (bn erlango_bignum_decimalValue) print(msg string) {
+func (bn bignum_decimalValue) print(msg string) {
 	sign := "+"
 	if bn.negative {
 		sign = "-"
@@ -70,7 +71,7 @@ func (bn erlango_bignum_decimalValue) print(msg string) {
 
 // collect all useful digits, plus the num of extra zeros at the end.
 // with this, it is easy to compare two numbers
-func (bn erlango_bignum_decimalValue) normalisedForm() erlango_bignum_decimalValue {
+func (bn bignum_decimalValue) normalisedForm() bignum_decimalValue {
 	allDigits := digitList{}
 	zeroCounter := bn.exponent
 
@@ -94,11 +95,11 @@ func (bn erlango_bignum_decimalValue) normalisedForm() erlango_bignum_decimalVal
 	}
 
 	// I don't trust in pointers. So don't override original values, create a new, normalised form
-	return erlango_bignum_decimalValue{digits: allDigits, exponent: zeroCounter, negative: bn.negative}
+	return bignum_decimalValue{digits: allDigits, exponent: zeroCounter, negative: bn.negative}
 }
 
 
-func (a erlango_bignum_decimalValue) isEqual(b erlango_bignum_decimalValue) bool {
+func (a bignum_decimalValue) isEqual(b bignum_decimalValue) bool {
 	a_normalised := a.normalisedForm()
 	b_normalised := b.normalisedForm()
 
@@ -109,14 +110,23 @@ func (a erlango_bignum_decimalValue) isEqual(b erlango_bignum_decimalValue) bool
 			reflect.DeepEqual(a.digits, b.digits)
 }
 
-func bigNum_from_int(i int) erlango_bignum_decimalValue {
-	digitsReversed := digitList{}
-	for i > 1 {
-		digitVal := digitElemType(i % 10)
-		digitsReversed = append(digitsReversed, digitVal)
-		i = i / 10
+func bigNum_from_int(i int) bignum_decimalValue {
+	negative := false
+	if i < 0 {
+		negative = true
+		i = -i  // use only the absolute value
 	}
-	return erlango_bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: 0, negative: i<0}
+	digits := digitList{}
+
+	for _, charElem := range strconv.Itoa(i) {
+		digitVal, err := digitRune_decimalValue(charElem)
+		if err != nil {
+			fmt.Println("Error, character "+string(charElem)+" doesn't have decimal value")
+		} else {
+			digits = append(digits, digitVal)
+		}
+	}
+	return bignum_decimalValue{digits: digits, exponent: 0, negative: negative}
 }
 
 
@@ -160,19 +170,19 @@ func digitRune_decimalValue(digit rune) (digitElemType, error) {
 
 
 // this is important when digit values are checked, in non-decimal char processing
-func bigNum_from_digitValue__min0_max35(decimalVal digitElemType) erlango_bignum_decimalValue {
+func bigNum_from_digitValue__min0_max35(decimalVal digitElemType) bignum_decimalValue {
 	// a digit's value is minimum 0, maximum 35. there is no problem with too big integer values
 	digit_2 := decimalVal % 10
 	digit_1 := (decimalVal - digit_2) / 10
 	// simple conversion, NEVER normalize here - normalization can happen at one point only
 	if digit_1 > 0 {
-		return erlango_bignum_decimalValue{digits: digitList{digit_1, digit_2}, exponent: 0}
+		return bignum_decimalValue{digits: digitList{digit_1, digit_2}, exponent: 0}
 	} else {
-		return erlango_bignum_decimalValue{digits: digitList{digit_2}, exponent: 0, negative: false}
+		return bignum_decimalValue{digits: digitList{digit_2}, exponent: 0, negative: false}
 	}
 }
 
-func bigNum_operator_add(a, b erlango_bignum_decimalValue) erlango_bignum_decimalValue {
+func bigNum_operator_add(a, b bignum_decimalValue) bignum_decimalValue {
 	if a.isPositive() && b.isNegative() {
 		b.negative = false
 		return bigNum_operator_sub(a, b)
@@ -194,7 +204,7 @@ func bigNum_operator_add(a, b erlango_bignum_decimalValue) erlango_bignum_decima
 }
 
 
-func bigNum_operator_sub(a, b erlango_bignum_decimalValue) erlango_bignum_decimalValue {
+func bigNum_operator_sub(a, b bignum_decimalValue) bignum_decimalValue {
 	if a.isPositive() && b.isNegative() {
 		// FIXME: WRONG
 		b.negative = false
@@ -221,7 +231,7 @@ func bigNum_operator_sub(a, b erlango_bignum_decimalValue) erlango_bignum_decima
 
 
 /* receives 2 numbers. return with 2 numbers, where the exponents are similar*/
-func bigNum_pair_set_same_exponent(a, b erlango_bignum_decimalValue) (erlango_bignum_decimalValue, erlango_bignum_decimalValue) {
+func bigNum_pair_set_same_exponent(a, b bignum_decimalValue) (bignum_decimalValue, bignum_decimalValue) {
 	if a.exponent == b.exponent {
 		return a, b
 	}
@@ -242,13 +252,15 @@ func bigNum_pair_set_same_exponent(a, b erlango_bignum_decimalValue) (erlango_bi
 
 
 //////////// TESTED /////////////////
-func internal_used_only__bigNum_add_positive_positive(a, b erlango_bignum_decimalValue) erlango_bignum_decimalValue {
+func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
 	// the bignum is ALWAYS decimal number, with separated digits representation
 
 	// add operation can be done ONLY if the exponents are same
+	a.print("internal a1")
+	b.print("internal b1")
 	a, b = bigNum_pair_set_same_exponent(a, b)
-	// a.print("internal a")
-	// b.print("internal b")
+	a.print("internal a2")
+	b.print("internal b2")
 
 	digitsReversed := digitList{}
 
@@ -285,12 +297,18 @@ func internal_used_only__bigNum_add_positive_positive(a, b erlango_bignum_decima
 		overflow = (valueSum - digitNew) / 10
 	}
 
-	summa := erlango_bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
+	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
 	return summa
 }
 
+func bigNum_zero() bignum_decimalValue {
+	return bignum_decimalValue{digits: digitList{0}, exponent: 0, negative: false}
+}
+
+
+
 // used in tests
-func bigNum_convert_to_INT_for_testcases(bigNum erlango_bignum_decimalValue) int {
+func bigNum_convert_to_INT_for_testcases(bigNum bignum_decimalValue) int {
 	summa := 0
 	lenDigits := len(bigNum.digits)
 	multiplicator := lenDigits
@@ -320,7 +338,7 @@ func bigNum_convert_to_INT_for_testcases(bigNum erlango_bignum_decimalValue) int
 
 
 // FIXME: this is not OK, completely rewrite this:
-func internal_used_only__bigNum_sub_positive_positive(a, b erlango_bignum_decimalValue) erlango_bignum_decimalValue {
+func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
 	// the bignum is ALWAYS decimal number, with separated digits representation
 
 	// add operation can be done ONLY if the exponents are same
@@ -354,6 +372,6 @@ func internal_used_only__bigNum_sub_positive_positive(a, b erlango_bignum_decima
 		overflow = (valueSum - digitNew) / 10
 	}
 
-	summa := erlango_bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
+	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
 	return summa
 }

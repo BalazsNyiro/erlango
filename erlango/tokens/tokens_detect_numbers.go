@@ -377,9 +377,7 @@ func digits_reverse(digits digitList) digitList {
 
 	The general solution is more complex, TODO: maybe next time
 */
-func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (erlango_bignum_decimalValue, error) {
-
-	zeroBignum := erlango_bignum_decimalValue{digits: digitList{0}, exponent: 0}
+func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (bignum_decimalValue, error) {
 
 	digitsReversed := digitList{}
 	for pos := 0; pos < len(token.charsInErlSrc); pos++ {
@@ -389,18 +387,17 @@ func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (erlango
 		// rune -> numberValue conversion, in range 0-9
 		digitValueDecimalInteger, errorValueDetection := digitRune_decimalValue(digit)
 		if errorValueDetection != nil {
-			return zeroBignum, errors.New("digit (" + string(digit) + ") value detection error in: " + token.stringRepr())
+			return bigNum_zero(), errors.New("digit (" + string(digit) + ") value detection error in: " + token.stringRepr())
 		}
 		digitsReversed = append(digitsReversed, digitValueDecimalInteger)
 	}
-	return erlango_bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: 0}, nil
+	return bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: 0}, nil
 }
 
 /* analyse all digits, and calculate a decimal based value from a maybe non-decimal input */
 /*
-func bigNum_from_digits_general_any_numsystem (token Token, numeralSystemType int) (erlango_bignum_decimalValue, error) {
-	zeroBignum := erlango_bignum_decimalValue{digits: digitList{0}, exponent: 0}
-	summa := erlango_bignum_decimalValue{digits: digitList{0}, exponent: 0}
+func bigNum_from_digits_general_any_numsystem (token Token, numeralSystemType int) (bignum_decimalValue, error) {
+	summa := bigNum_zero()
 
 	for pos := 0; pos < len(token.charsInErlSrc); pos++ {
 		digit := token.charsInErlSrc[pos]
@@ -408,7 +405,7 @@ func bigNum_from_digits_general_any_numsystem (token Token, numeralSystemType in
 		// rune -> numberValue conversion - an integer between 0-35
 		digitValueDecimalInteger, errorValueDetection := digitRune_decimalValue(digit)
 		if errorValueDetection != nil {
-			return zeroBignum, errors.New("digit (" + string(digit) + ") value detection error in: " + token.stringRepr())
+			return bigNum_zero(), errors.New("digit (" + string(digit) + ") value detection error in: " + token.stringRepr())
 		}
 
 		multiply := 1
@@ -429,14 +426,13 @@ func bigNum_from_digits_general_any_numsystem (token Token, numeralSystemType in
 
 // if the token is a number, return with a value and and OK
 // if it is NOT a number, return with 0 and error
-func bigNum_from_token(token Token) (erlango_bignum_decimalValue, error)  {
+func bigNum_from_token(token Token) (bignum_decimalValue, error)  {
 	// the token has minimum 1 char, - there is a validation against that, so the for loops always run
 	if token.tokenType == tokenType_Num_int {
 		return bigNum_from_digits_specialcase_decimalintegergeneral(token)
 		// TODO: normalize the number here! so (1000, 0) -> (1, 3)!!
 	} // Num_int detected
 
-	zeroBignum := erlango_bignum_decimalValue{digits: digitList{0}, exponent: 0}
-	return zeroBignum, errors.New("number value detection error ("+token.stringRepr()+")")
+	return bigNum_zero(), errors.New("number value detection error ("+token.stringRepr()+")")
 }
 
