@@ -47,6 +47,11 @@ type bignum_decimalValue struct {
 		with this representation, integers and floats can be represented too, with the same structure
 	*/
 
+	// http://www.math.u-szeged.hu/tagok/kurusa/_site/index.php/hu/blogs/maths-blog/98-hun-eng-mat-glos
+	// https://www.collinsdictionary.com/word-lists/mathematics-mathematical-terms
+	// https://hu.speaklanguages.com/angol/sz%C3%B3szedet/alakzatok-%C3%A9s-matematikai-kifejez%C3%A9sek
+
+	/* index0 is always the first digit, indexLast is the less powerful digit  */
 	digits digitList  // decimal digits
 	exponent int  // where is the ., or how many 0 are after the digits
 	negative bool // false by default: is the number negative?
@@ -376,7 +381,7 @@ func bigNum_convert_to_INT_for_testcases(bigNum bignum_decimalValue) int {
 		// positions: 012
 		//            123: first multiplicator is 2, second is 1, then 0
 		multiplicator -= 1
-		fmt.Println("multiplicator:", multiplicator)
+		// fmt.Println("multiplicator:", multiplicator)
 
 		digitValue := int(bigNum.digits[pos])
 
@@ -384,7 +389,7 @@ func bigNum_convert_to_INT_for_testcases(bigNum bignum_decimalValue) int {
 			digitValue = digitValue * 10
 		}
 
-		fmt.Println("convert to INT: digit[",pos,"] =>", bigNum.digits[pos], "digitValue:", digitValue)
+		// fmt.Println("convert to INT: digit[",pos,"] =>", bigNum.digits[pos], "digitValue:", digitValue)
 		summa += digitValue
 	}
 	if bigNum.negative {

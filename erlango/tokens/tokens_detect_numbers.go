@@ -371,7 +371,7 @@ func numDetect_removeUnderscoreFromString(txt string) string {
 */
 func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (bignum_decimalValue, error) {
 
-	digitsReversed := digitList{}
+	digits := digitList{}
 	for pos := 0; pos < len(token.charsInErlSrc); pos++ {
 		digit := token.charsInErlSrc[pos]
 		fmt.Println("digit[",pos,"] => ", digit, string(digit))
@@ -381,9 +381,9 @@ func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (bignum_
 		if errorValueDetection != nil {
 			return bigNum_zero(), errors.New("digit (" + string(digit) + ") value detection error in: " + token.stringRepr())
 		}
-		digitsReversed = append(digitsReversed, digitValueDecimalInteger)
+		digits = append(digits, digitValueDecimalInteger)
 	}
-	return bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: 0}, nil
+	return bignum_decimalValue{digits: digits, exponent: 0}, nil
 }
 
 /* analyse all digits, and calculate a decimal based value from a maybe non-decimal input */

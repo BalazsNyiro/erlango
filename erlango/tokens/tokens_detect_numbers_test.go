@@ -151,12 +151,12 @@ func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *t
 			fmt.Println("int conversion problem from erlang shell:", erlOutDetectedNumString, errIntConv)
 
 		} else {
-			print("ERLANG DETECTED NUM:", erlOutDetectedNum)
+			fmt.Println("ERLANG DETECTED NUM:", erlOutDetectedNum)
 
 			bigNum, err := bigNum_from_token(tokensTable_detected[0])
 			bigNum_INT := 0
 			if err != nil {
-				print("problem with bignum conversion: ", err)
+				fmt.Println("problem with bignum conversion: ", err)
 			} else {
 				fmt.Println("bigNum: ", bigNum)
 				bigNum_INT = bigNum_convert_to_INT_for_testcases(bigNum)
