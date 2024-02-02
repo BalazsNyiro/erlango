@@ -20,16 +20,39 @@ import (
 )
 
 
+//  go test -v -run  Test_isEqual
+func Test_isEqual(t *testing.T) {
+	testName := "Test_isEqual"
+
+	bn1 := bignum_decimalValue{digits: digitList{1,2,0,3,0,0}, exponent: 1, negative: false}
+	bn2 := bignum_decimalValue{digits: digitList{1,2,0,3,0}, exponent: 2, negative: false}
+	bn3 := bignum_decimalValue{digits: digitList{1,2,0,3}, exponent: 3, negative: false}
+
+	compare_bool_bool(testName, true, bn1.isEqual(bn2), t)
+	compare_bool_bool(testName, true, bn1.isEqual(bn3), t)
+}
+
 //  go test -v -run   Test_normaliseExponent_endingZerosRemove
 func Test_normaliseExponent_endingZerosRemove(t *testing.T) {
 	testName := "Test_normaliseExponent_endingZerosRemove"
-	bn := bignum_decimalValue{digits: digitList{1,2,0,3,0,0}, exponent: 1, negative: false}
-	bnNormalised := bn.normalisedForm_endingZerosRemoveIntoExponent()
 
+	// leading unsignificant 0 will be removed, too
+	bn := bignum_decimalValue{digits: digitList{0,1,2,0,3,0,0}, exponent: 1, negative: false}
+	bnNormalised := bn.normalisedForm_endingZerosIntoExponent()
 	digitsWantedAfterReverse := digitList{1,2,0,3}
 
 	compare_digits_digits(testName, digitsWantedAfterReverse, bnNormalised.digits, t)
 	compare_int_int(testName, 3, bnNormalised.exponent, t)
+
+}
+
+func Test_digitsCleaning_leadingZerosRemoval(t *testing.T) {
+	testName := "Test_digitsCleaning_leadingZerosRemoval"
+	// leading unsignificant 0 will be removed, too
+	digits := digitList{0,0,0,1,2,0,3,0,0}
+	digitsLeadingZerosRemoved := digitsCleaning_leadingZerosRemoval(digits)
+	digitsWanted := digitList{1,2,0,3,0,0}
+	compare_digits_digits(testName, digitsLeadingZerosRemoved, digitsWanted, t)
 }
 
 
@@ -122,7 +145,7 @@ func Test_digits_reverse(t *testing.T) {
 	four := digitElemType(4)
 
 	digits := digitList{four, three, two, one}
-	digitsReversed := digits_reverse(digits)
+	digitsReversed := digitsReverse(digits)
 
 	digitsWantedAfterReverse := digitList{one, two, three, four}
 

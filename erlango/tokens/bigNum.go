@@ -109,10 +109,10 @@ func (bn bignum_decimalValue) duplicate() bignum_decimalValue {
 // collect all useful digits, plus the num of extra zeros at the end.
 // with this, it is easy to compare two numbers
 // TESTED
-func (bn bignum_decimalValue) normalisedForm_endingZerosRemoveIntoExponent() bignum_decimalValue {
-	allDigits := digitList{}
+func (bn bignum_decimalValue) normalisedForm_endingZerosIntoExponent() bignum_decimalValue {
+	allDigitsReversed := digitList{}
 	zeroCounter := bn.exponent
-	// fmt.Println("zeroCounter:", zeroCounter)
+	// fmt.Println("	zeroCounter:", zeroCounter)
 
 	lastNonZeroDetected := false
 	// check the numbers from the last to the first direction
@@ -130,24 +130,47 @@ func (bn bignum_decimalValue) normalisedForm_endingZerosRemoveIntoExponent() big
 		// the last 2 chars are 0.
 		// when 3 is detected, the last non-zero, from there, collect all valueable digit
 		if lastNonZeroDetected {
-			allDigits = append(allDigits, digit)
+			allDigitsReversed = append(allDigitsReversed, digit)
 		}
 	}
 
+	allDigits := digitsReverse(allDigitsReversed) // reverse back the order to normal
+
+	// don't store prefix possible emtpy zeros, that doesn't have value
+	// for example: digitList{0,1,2,0,3,0,0}
+	/*
+	allDigitsNoLeadingZeros := digitList{}
+	copyEverything := false
+
+	for _, digit := range allDigits {
+		if digit != digitElemType(0) { // from the first non-zero char, copy everything
+			copyEverything = true
+		}
+		if copyEverything {
+			allDigitsNoLeadingZeros = append(allDigitsNoLeadingZeros, digit)
+		}
+	}
+
+	 */
+
+	allDigitsNoLeadingZeros := digitsCleaning_leadingZerosRemoval(allDigits)
+
+
 	// I don't trust in pointers. So don't override original values, create a new, normalised form
-	return bignum_decimalValue{digits: digits_reverse(allDigits), exponent: zeroCounter, negative: bn.negative}
+	return bignum_decimalValue{digits: allDigitsNoLeadingZeros, exponent: zeroCounter, negative: bn.negative}
 }
 
 
-func (a bignum_decimalValue) isEqual(b bignum_decimalValue) bool {
-	a_normalised := a.normalisedForm_endingZerosRemoveIntoExponent()
-	b_normalised := b.normalisedForm_endingZerosRemoveIntoExponent()
+
+func (bn bignum_decimalValue) isEqual(other bignum_decimalValue) bool {
+	bigNum_normalised := bn.normalisedForm_endingZerosIntoExponent()
+	other__normalised := other.normalisedForm_endingZerosIntoExponent()
 
 	// deeply equal: https://stackoverflow.com/questions/15311969/checking-the-equality-of-two-slices
 
-	return 	(a_normalised.exponent == b_normalised.exponent) &&
-			(a_normalised.negative == b_normalised.negative) &&
-			reflect.DeepEqual(a.digits, b.digits)
+	return 	(bigNum_normalised.exponent == other__normalised.exponent) &&
+			(bigNum_normalised.negative == other__normalised.negative) &&
+			reflect.DeepEqual(bigNum_normalised.digits, other__normalised.digits)
 }
 
 
@@ -365,7 +388,7 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 		// fmt.Println("sub 4 pos/pos valueDiff:", valueDiff)
 	}
 
-	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent, negative: negativeResult}
+	summa := bignum_decimalValue{digits: digitsReverse(digitsReversed), exponent: a.exponent, negative: negativeResult}
 	fmt.Println("sub 5 positive positive summa: ", summa)
 	return summa
 }
@@ -449,7 +472,7 @@ func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) 
 		overflow = (valueSum - digitNew) / 10
 	}
 
-	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
+	summa := bignum_decimalValue{digits: digitsReverse(digitsReversed), exponent: a.exponent}
 	// summa.print("summa, after add pos pos")
 	return summa
 }
@@ -493,7 +516,7 @@ func bigNum_convert_to_INT_for_testcases(bigNum bignum_decimalValue) int {
 
 
 // tested
-func digits_reverse(digits digitList) digitList {
+func digitsReverse(digits digitList) digitList {
 	digitsReversed := digitList{}
 	for pos := len(digits)-1; pos >=0; pos-- {
 		digitsReversed = append(digitsReversed, digits[pos])
@@ -501,3 +524,20 @@ func digits_reverse(digits digitList) digitList {
 	return digitsReversed
 }
 
+// Tested from  Test_normaliseExponent_endingZerosRemove
+func digitsCleaning_leadingZerosRemoval(digits digitList) digitList {
+	// don't store prefix possible emtpy zeros, that doesn't have value
+	// for example: digitList{0,1,2,0,3,0,0}
+	allDigitsNoLeadingZeros := digitList{}
+	copyEverything := false
+
+	for _, digit := range digits {
+		if digit != digitElemType(0) { // from the first non-zero char, copy everything
+			copyEverything = true
+		}
+		if copyEverything {
+			allDigitsNoLeadingZeros = append(allDigitsNoLeadingZeros, digit)
+		}
+	}
+	return allDigitsNoLeadingZeros
+}
