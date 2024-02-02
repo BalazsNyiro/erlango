@@ -81,6 +81,25 @@ func Test_digits_reverse(t *testing.T) {
 	compare_digits_digits(testName, digitsWantedAfterReverse, digitsReversed, t)
 }
 
+//  go test -v -run   Test_bigNum_pair_set_same_exponent
+func Test_bigNum_pair_set_same_exponent(t *testing.T) {
+	testName := "Test_bigNum_pair_set_same_exponent"
+
+	a := bignum_decimalValue{digits: digitList{4,0}, exponent: 3, negative: false}
+	b := bignum_decimalValue{digits: digitList{1,2,3,0,0}, exponent: -1, negative: false}
+
+	fmt.Printf("Test 1, address a %p\n", &a)
+	fmt.Printf("Test 1, address a.digits[0] %p\n", &(a.digits[0]))
+	aUpdated, bUpdated := bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)
+
+	compare_ints(testName, aUpdated.exponent, bUpdated.exponent, t)
+	aUpdatedWanted := bignum_decimalValue{digits: digitList{4,0,0,0,0,0}, exponent: -1, negative: false}
+
+	compare_digits_digits(testName, aUpdatedWanted.digits, aUpdated.digits, t)
+}
+
+
+
 
 //  go test -v -run  Test_bignum_add_positive_positive
 func Test_bignum_add_positive_positive(t *testing.T) {

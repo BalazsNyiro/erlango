@@ -73,6 +73,17 @@ func (bn bignum_decimalValue) print(msg string) {
 	fmt.Println(msg, sign, bn.digits, bn.exponent)
 }
 
+func (bn bignum_decimalValue) duplicate() bignum_decimalValue {
+	// goal: duplicate the values of the original struct, without any accidental pointer usage
+	// with other words: if something is changed in the original, it cannnot be reflected in the duplication
+
+	digitsNew := digitList{}
+	for _, digit := range bn.digits {
+		digitsNew = append(digitsNew, digit)  // re-build digit list,
+	}
+
+	return bignum_decimalValue{digits: digitsNew, exponent: bn.exponent, negative: bn.negative}
+}
 
 // collect all useful digits, plus the num of extra zeros at the end.
 // with this, it is easy to compare two numbers
@@ -239,32 +250,13 @@ func bigNum_operator_sub(a, b bignum_decimalValue) bignum_decimalValue {
 }
 
 
-/* receives 2 numbers. return with 2 numbers, where the exponents are similar*/
-func bigNum_pair_set_same_exponent(a, b bignum_decimalValue) (bignum_decimalValue, bignum_decimalValue) {
-	if a.exponent == b.exponent {
-		return a, b
-	}
-	numExponentSmaller := a
-	numExponentBigger := b
-
-	if b.exponent < a.exponent {
-		numExponentSmaller = b
-		numExponentBigger = a
-	}
-
-	for numExponentBigger.exponent > numExponentSmaller.exponent {
-		numExponentBigger.exponent--
-		numExponentBigger.digits = append(numExponentBigger.digits, 0)
-	}
-	return a, b
-}
 
 // FIXME: this is not OK, completely rewrite this:
 func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
 	// the bignum is ALWAYS decimal number, with separated digits representation
 
 	// add operation can be done ONLY if the exponents are same
-	a, b = bigNum_pair_set_same_exponent(a, b)
+	a, b = bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)
 
 	digitsReversed := digitList{}
 
@@ -300,13 +292,55 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 
 
 //////////// TESTED /////////////////
+/* receives 2 numbers. return with 2 numbers, where the exponents are similar*/
+func bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b bignum_decimalValue) (bignum_decimalValue, bignum_decimalValue) {
+	if a.exponent == b.exponent {
+		return a, b
+	}
+	orderFlipped := false
+	numExponentSmaller := a.duplicate()
+	numExponentBigger := b.duplicate()
+
+	// addresses tested from  Test_bigNum_pair_set_same_exponent
+	// fmt.Printf("bignum decrease, address a %p\n", &a) // address a points to a different mem area
+	// fmt.Printf("bignum decrease, address b %p\n", &b)
+	// fmt.Printf("bignum decrease, address a.digits[0] %p\n", &(a.digits[0])) // but this is same address with the caller
+	// fmt.Printf("bignum decrease, address b.digits[0] %p\n", &(b.digits[0]))
+
+
+	// fmt.Println("setExponent, common, smaller0:", numExponentSmaller)
+	// fmt.Println("setExponent, common, bigger 0:",  numExponentBigger)
+
+	if numExponentBigger.exponent < numExponentSmaller.exponent {
+		// fmt.Println("exponent b < a, replace them")
+		orderFlipped = true
+		numExponentSmaller, numExponentBigger = numExponentBigger, numExponentSmaller
+	}
+	// fmt.Println("setExponent, common, smaller1:", numExponentSmaller)
+	// fmt.Println("setExponent, common, bigger 1:", numExponentBigger)
+
+	for numExponentBigger.exponent > numExponentSmaller.exponent {
+		// fmt.Println("for loop, bigger digits:", numExponentBigger.digits, "   exponent:", numExponentBigger.exponent)
+		numExponentBigger.exponent--
+		numExponentBigger.digits = append(numExponentBigger.digits, 0)
+	}
+	// fmt.Println("setExponent, common, smaller, end:", numExponentSmaller)
+	// fmt.Println("setExponent, common, bigger , end:", numExponentBigger)
+
+	if orderFlipped {
+		return numExponentBigger, numExponentSmaller
+	}
+	return numExponentSmaller, numExponentBigger
+}
+
+
 func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
 	// the bignum is ALWAYS decimal number, with separated digits representation
 
 	// add operation can be done ONLY if the exponents are same
 	a.print("internal a1")
 	b.print("internal b1")
-	a, b = bigNum_pair_set_same_exponent(a, b)
+	a, b = bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)
 	a.print("internal a2")
 	b.print("internal b2")
 
@@ -353,6 +387,7 @@ func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) 
 	summa.print("summa, after add pos pos")
 	return summa
 }
+
 
 // return with a fix value
 func bigNum_zero() bignum_decimalValue {
