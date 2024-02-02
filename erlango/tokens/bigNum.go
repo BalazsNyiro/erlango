@@ -335,20 +335,14 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 	digitsReversed := digitList{}
 
 	var overflow = digitElemType(0)
-	position := -1
+	positionFromBack := -1
 
 	for {
-		position++
+		positionFromBack++
 
-		var valueA digitElemType = 0
-		var valueB digitElemType = 0
+		_, valueA := a.digitValueInPosition(positionFromBack)
+		_, valueB := b.digitValueInPosition(positionFromBack)
 
-		if position < len(a.digits) {
-			valueA = a.digits[position]
-		}
-		if position < len(b.digits) {
-			valueB = b.digits[position]
-		}
 		valueA = valueA - overflow
 		overflow = 0 // because overflow's value was calculated into valueA
 
@@ -364,11 +358,6 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 		valueDiff := valueA - valueB
 		digitsReversed = append(digitsReversed, valueDiff)
 		// fmt.Println("sub 3 pos/pos valueDiff:", valueDiff)
-
-		// safety exit
-		if position > 5{
-			break
-		}
 	}
 
 	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent, negative: negativeResult}

@@ -134,29 +134,40 @@ func Test_bigNum_pair_set_same_exponent(t *testing.T) {
 
 
 
-//  go test -v -run  Test_bignum_sub_positive_positive
-func Test_bignum_sub(t *testing.T) {
-	operator_test("sub", 5, 2, t)
-	operator_test("sub", 11, 2, t)
-	operator_test("sub", 0, 2, t)
+//  go test -v -run  Test_bignum_operators
+func Test_bignum_operators(t *testing.T) {
 
+	for _, op := range []string{"sub", "add"} {
+		// zero, negative
+		operator_test(op,  0, -2, t)
+		operator_test(op, -2 , 0, t)
 
-	operator_test("sub", 0, -2, t)
-	operator_test("sub", -2, 0, t)
-	operator_test("sub", -2, +2, t)
-	operator_test("sub", +2, -2, t)
+		// zero, positive
+		operator_test(op,  0,  2, t)
+		operator_test(op,  2 , 0, t)
 
-	operator_test("sub", -2, -3, t)
+		// negative, positive
+		operator_test(op, -2, +2, t)
+		operator_test(op, +2, -2, t)
+
+		// negative, negative
+		operator_test(op, -2, -3, t)
+		operator_test(op, +2, +3, t)
+
+		// positive, positive
+		operator_test(op, 3, 5, t)
+		operator_test(op, 0, 9, t)
+		operator_test(op, 10, 1, t)
+		operator_test(op, 19, 1, t)
+		operator_test(op, 99, 1, t)
+		operator_test(op, 333, 4444, t)
+	}
 }
 
-//  go test -v -run  Test_bignum_add_positive_positive
-func Test_bignum_add(t *testing.T) {
-	operator_test("add", 3, 5, t)
-	operator_test("add", 0, 9, t)
-	operator_test("add", 10, 1, t)
-	operator_test("add", 19, 1, t)
-	operator_test("add", 99, 1, t)
-	operator_test("add", 333, 4444, t)
+// if something is wrong, debug it here:
+//  go test -v -run  Test_bignum_debug
+func Test_bignum_debug(t *testing.T) {
+	operator_test("sub", 10, 1, t)
 }
 
 
