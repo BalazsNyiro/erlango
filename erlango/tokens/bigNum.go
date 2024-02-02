@@ -340,8 +340,6 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 
 	for {
 		positionFromBack++
-		// fmt.Println("sub 0 positions from back:", positionFromBack)
-
 		posA, valueA := a.digitValueInPosition(positionFromBack)
 		posB, valueB := b.digitValueInPosition(positionFromBack)
 
@@ -349,9 +347,10 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 		overflow = 0 // because overflow's value was calculated into valueA
 		// fmt.Println("sub 1 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
 
-		if posA < 0 && posB < 0 && overflow == 0 {
+		if posA < 0 && posB < 0 {
 			break // exit if there is no more thing to do
 		}
+
 		// fmt.Println("sub 2 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
 		if valueA < valueB {
 			valueA += 10
@@ -416,17 +415,17 @@ func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) 
 	// the bignum is ALWAYS decimal number, with separated digits representation
 
 	// add operation can be done ONLY if the exponents are same
-	// a.print("internal a1")
-	// b.print("internal b1")
 	a, b = bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)
-	// a.print("internal a2")
-	// b.print("internal b2")
+	if a.negative || b.negative {
+		// this case is not possible, if this fun is not called directly
+		fmt.Println("Error, only positive numbers are accepted:", a, b)
+	}
 
 	digitsReversed := digitList{}
 
 	var overflow digitElemType = 0
-
 	positionFromBack := -1
+
 	for {
 		positionFromBack++ // posA, posB are going from the last (biggest) index to 0 index with -Delta
 		posA, valueDigitA := a.digitValueInPosition(positionFromBack)
