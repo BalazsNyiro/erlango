@@ -135,17 +135,22 @@ func Test_bigNum_pair_set_same_exponent(t *testing.T) {
 
 
 //  go test -v -run  Test_bignum_sub_positive_positive
-func Test_bignum_sub_positive_positive(t *testing.T) {
-	/*
+func Test_bignum_sub(t *testing.T) {
 	operator_test("sub", 5, 2, t)
 	operator_test("sub", 11, 2, t)
 	operator_test("sub", 0, 2, t)
 
-	 */
+
+	operator_test("sub", 0, -2, t)
+	operator_test("sub", -2, 0, t)
+	operator_test("sub", -2, +2, t)
+	operator_test("sub", +2, -2, t)
+
+	operator_test("sub", -2, -3, t)
 }
 
 //  go test -v -run  Test_bignum_add_positive_positive
-func Test_bignum_add_positive_positive(t *testing.T) {
+func Test_bignum_add(t *testing.T) {
 	operator_test("add", 3, 5, t)
 	operator_test("add", 0, 9, t)
 	operator_test("add", 10, 1, t)

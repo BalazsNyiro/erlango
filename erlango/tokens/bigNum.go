@@ -294,7 +294,6 @@ func bigNum_operator_add(a, b bignum_decimalValue) bignum_decimalValue {
 
 func bigNum_operator_sub(a, b bignum_decimalValue) bignum_decimalValue {
 	if a.isPositive() && b.isNegative() {
-		// FIXME: WRONG
 		b.negative = false
 		return bigNum_operator_add(a, b)
 	}
@@ -305,14 +304,12 @@ func bigNum_operator_sub(a, b bignum_decimalValue) bignum_decimalValue {
 		return result
 	}
 	if a.isNegative() && b.isNegative(){
-		a.negative = false
+		// negative - negative = negative + positive = positive + negative, handled in ADD
 		b.negative = false
-		result := bigNum_operator_add(a, b)
-		result.negative = true
-		return result
+		return bigNum_operator_add(a, b)
 	}
 
-	fmt.Println("basic sub case, pos/pos", a, b)
+	// fmt.Println("basic sub case, positive/positive", a, b)
 	return internal_used_only__bigNum_sub_positive_positive(a, b)
 }
 
@@ -321,6 +318,20 @@ func bigNum_operator_sub(a, b bignum_decimalValue) bignum_decimalValue {
 func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
 
 	a, b = bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)
+
+	if a.negative || b.negative {
+		// this case is not possible, if this fun is not called directly
+		fmt.Println("Error, only positive numbers are accepted:", a, b)
+	}
+
+	// the algorithm works if a > b. so swap them, if not.
+	// the difference is same between the two numbers, only the sign is different
+	negativeResult := false
+	if ! b.isLessThan(a) {
+		a, b = b, a
+		negativeResult = true
+	}
+
 	digitsReversed := digitList{}
 
 	var overflow = digitElemType(0)
@@ -344,15 +355,15 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 		if valueA == 0 && valueB == 0 && overflow == 0 {
 			break // exit if there is no more thing to do
 		}
-		fmt.Println("sub 1 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
+		// fmt.Println("sub 1 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
 		if valueA < valueB {
 			valueA += 10
 			overflow +=1
 		}
-		fmt.Println("sub 2 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
+		// fmt.Println("sub 2 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
 		valueDiff := valueA - valueB
 		digitsReversed = append(digitsReversed, valueDiff)
-		fmt.Println("sub 3 pos/pos valueDiff:", valueDiff)
+		// fmt.Println("sub 3 pos/pos valueDiff:", valueDiff)
 
 		// safety exit
 		if position > 5{
@@ -360,7 +371,7 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 		}
 	}
 
-	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
+	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent, negative: negativeResult}
 	return summa
 }
 
@@ -407,16 +418,16 @@ func bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b bignum_decimalValue
 	return numExponentSmaller, numExponentBigger
 }
 
-
+// TESTED
 func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
 	// the bignum is ALWAYS decimal number, with separated digits representation
 
 	// add operation can be done ONLY if the exponents are same
-	a.print("internal a1")
-	b.print("internal b1")
+	// a.print("internal a1")
+	// b.print("internal b1")
 	a, b = bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)
-	a.print("internal a2")
-	b.print("internal b2")
+	// a.print("internal a2")
+	// b.print("internal b2")
 
 	digitsReversed := digitList{}
 
@@ -427,7 +438,7 @@ func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) 
 		positionFromBack++ // posA, posB are going from the last (biggest) index to 0 index with -Delta
 		posA, valueDigitA := a.digitValueInPosition(positionFromBack)
 		posB, valueDigitB := b.digitValueInPosition(positionFromBack)
-		fmt.Println("internal add before, pos pos >>> a:", valueDigitA, "  b:", valueDigitB, "overflow:", overflow)
+		// fmt.Println("internal add before, pos pos >>> a:", valueDigitA, "  b:", valueDigitB, "overflow:", overflow)
 
 		// the reading started from the highest indexes to index 0, which is the first digit.
 		// if both position is before the first digit, process can be stopped
@@ -438,13 +449,13 @@ func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) 
 		valueSum := valueDigitA + valueDigitB + overflow
 		digitNew := valueSum % 10
 		digitsReversed = append(digitsReversed, digitNew)
-		fmt.Println("internal add  after, pos pos >>> valueSum:", valueSum, "   digitNew:", digitNew)
+		// fmt.Println("internal add  after, pos pos >>> valueSum:", valueSum, "   digitNew:", digitNew)
 
 		overflow = (valueSum - digitNew) / 10
 	}
 
 	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
-	summa.print("summa, after add pos pos")
+	// summa.print("summa, after add pos pos")
 	return summa
 }
 
