@@ -270,6 +270,8 @@ func bigNum_from_digitValue__min0_max35(decimalVal digitElemType) bignum_decimal
 	}
 }
 
+
+//////////// TESTED /////////////////
 func bigNum_operator_add(a, b bignum_decimalValue) bignum_decimalValue {
 	if a.isPositive() && b.isNegative() {
 		b.negative = false
@@ -292,6 +294,7 @@ func bigNum_operator_add(a, b bignum_decimalValue) bignum_decimalValue {
 }
 
 
+//////////// TESTED /////////////////
 func bigNum_operator_sub(a, b bignum_decimalValue) bignum_decimalValue {
 	if a.isPositive() && b.isNegative() {
 		b.negative = false
@@ -315,6 +318,7 @@ func bigNum_operator_sub(a, b bignum_decimalValue) bignum_decimalValue {
 
 
 // https://www.youtube.com/watch?v=-pPXFvVxlng
+//////////// TESTED /////////////////
 func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
 
 	a, b = bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)

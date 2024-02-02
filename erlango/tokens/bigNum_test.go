@@ -168,9 +168,9 @@ func Test_bignum_operators(t *testing.T) {
 		operator_test(op,-908, 105, t)
 	}
 
-	// RANDOM MATH TESTS!! /////////////////////////////////////////
+	// RANDOM MATH TESTS against all operations /////////////////////////////////////////
 	sign := +1
-	limit := 1000
+	limit := 2000
 	for a := -limit; a < limit; a++ {
 
 		if rand.Intn(limit) % 2 == 1 {
