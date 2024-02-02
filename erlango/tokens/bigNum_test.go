@@ -64,6 +64,24 @@ func Test_bigNum_from_digitVal__min0_max35(t *testing.T) {
 
 }
 
+//  go test -v -run   Test_digits_reverse
+func Test_digits_reverse(t *testing.T) {
+	testName := "Test_digits_reverse"
+
+	one := digitElemType(1)
+	two := digitElemType(2)
+	three := digitElemType(3)
+	four := digitElemType(4)
+
+	digits := digitList{four, three, two, one}
+	digitsReversed := digits_reverse(digits)
+
+	digitsWantedAfterReverse := digitList{one, two, three, four}
+
+	compare_digits_digits(testName, digitsWantedAfterReverse, digitsReversed, t)
+}
+
+
 //  go test -v -run  Test_bignum_add_positive_positive
 func Test_bignum_add_positive_positive(t *testing.T) {
 	operator_test("add", 3, 5, t)
@@ -73,6 +91,7 @@ func Test_bignum_add_positive_positive(t *testing.T) {
 	operator_test("add", 99, 1, t)
 	operator_test("add", 333, 4444, t)
 }
+
 
 func operator_test(math_operator string, a, b int, t *testing.T) {
 	bnA := bigNum_from_int(a)
@@ -99,15 +118,32 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 
 }
 
+
+
 func compare_bigNum_int(testName string, wantedNum int, bn bignum_decimalValue, t *testing.T) {
 	received := bigNum_convert_to_INT_for_testcases(bn)
 	if received != wantedNum {
 		t.Fatalf("\nError in %s wanted: %d, received: %d", testName, wantedNum, received)
 	}
 }
+
 func compare_int_int(testName string, wantedNum int, received int, t *testing.T) {
 	if received != wantedNum {
 		t.Fatalf("\nError in %s wanted: %d, received: %d", testName, wantedNum, received)
 	}
+}
 
+func compare_digitElem_digitElem(testName string, wanted digitElemType, received digitElemType, t *testing.T) {
+	if received != wanted {
+		t.Fatalf("\nError in %s wanted: %d, received: %d", testName, wanted, received)
+	}
+}
+
+func compare_digits_digits(testName string, wanted digitList, received digitList, t *testing.T) {
+	if len(received) != len(wanted) {
+		t.Fatalf("\nError, different LENGTH in digit list comparison %s wanted: %d, received: %d", testName, wanted, received)
+	}
+	for id, _ := range received {
+		compare_digitElem_digitElem(testName, wanted[id], received[id], t)
+	}
 }

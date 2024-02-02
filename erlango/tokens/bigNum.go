@@ -259,14 +259,6 @@ func bigNum_pair_set_same_exponent(a, b bignum_decimalValue) (bignum_decimalValu
 	return a, b
 }
 
-func digits_reverse(digits digitList) digitList {
-	digitsReversed := digitList{}
-	for pos := len(digits)-1; pos >=0; pos-- {
-		digitsReversed = append(digitsReversed, digits[pos])
-	}
-	return digitsReversed
-}
-
 // FIXME: this is not OK, completely rewrite this:
 func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
 	// the bignum is ALWAYS decimal number, with separated digits representation
@@ -362,7 +354,7 @@ func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) 
 	return summa
 }
 
-// default fun, accepted as TESTED
+// return with a fix value
 func bigNum_zero() bignum_decimalValue {
 	return bignum_decimalValue{digits: digitList{0}, exponent: 0, negative: false}
 }
@@ -398,4 +390,13 @@ func bigNum_convert_to_INT_for_testcases(bigNum bignum_decimalValue) int {
 	return summa
 }
 
+
+// tested
+func digits_reverse(digits digitList) digitList {
+	digitsReversed := digitList{}
+	for pos := len(digits)-1; pos >=0; pos-- {
+		digitsReversed = append(digitsReversed, digits[pos])
+	}
+	return digitsReversed
+}
 
