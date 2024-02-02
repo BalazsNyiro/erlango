@@ -15,6 +15,7 @@ package tokens
 
 import (
 	"fmt"
+	"math/rand"
 	"testing"
 )
 
@@ -161,7 +162,28 @@ func Test_bignum_operators(t *testing.T) {
 		operator_test(op, 19, 1, t)
 		operator_test(op, 99, 1, t)
 		operator_test(op, 333, 4444, t)
+
+		// I saw problems with these in random tests:
+		operator_test(op,-908, 105, t)
 	}
+
+	// RANDOM MATH TESTS!! /////////////////////////////////////////
+	sign := +1
+	for a := -1000; a < 1000; a++ {
+
+		if rand.Intn(1000) % 2 == 1 {
+			sign = -1
+		} else {
+			sign = +1
+		}
+
+		b := sign * rand.Intn(1000)
+
+		for _, op := range []string{"sub", "add"} {
+			operator_test(op, a, b, t)
+		}
+	}
+
 }
 
 // if something is wrong, debug it here:

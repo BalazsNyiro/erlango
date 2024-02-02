@@ -318,19 +318,20 @@ func bigNum_operator_sub(a, b bignum_decimalValue) bignum_decimalValue {
 func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
 
 	a, b = bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)
-
+	fmt.Println("A, bignum sub positive positive: ", a, b)
 	if a.negative || b.negative {
 		// this case is not possible, if this fun is not called directly
 		fmt.Println("Error, only positive numbers are accepted:", a, b)
 	}
 
-	// the algorithm works if a > b. so swap them, if not.
+	// the algorithm works if a >= b. so swap them, if not.
 	// the difference is same between the two numbers, only the sign is different
 	negativeResult := false
 	if ! b.isLessThan(a) {
 		a, b = b, a
 		negativeResult = true
 	}
+	fmt.Println("b, bignum sub positive positive: ", a, b)
 
 	digitsReversed := digitList{}
 
@@ -339,28 +340,31 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 
 	for {
 		positionFromBack++
+		// fmt.Println("sub 0 positions from back:", positionFromBack)
 
-		_, valueA := a.digitValueInPosition(positionFromBack)
-		_, valueB := b.digitValueInPosition(positionFromBack)
+		posA, valueA := a.digitValueInPosition(positionFromBack)
+		posB, valueB := b.digitValueInPosition(positionFromBack)
 
 		valueA = valueA - overflow
 		overflow = 0 // because overflow's value was calculated into valueA
+		// fmt.Println("sub 1 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
 
-		if valueA == 0 && valueB == 0 && overflow == 0 {
+		if posA < 0 && posB < 0 && overflow == 0 {
 			break // exit if there is no more thing to do
 		}
-		// fmt.Println("sub 1 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
+		// fmt.Println("sub 2 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
 		if valueA < valueB {
 			valueA += 10
 			overflow +=1
 		}
-		// fmt.Println("sub 2 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
+		// fmt.Println("sub 3 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
 		valueDiff := valueA - valueB
 		digitsReversed = append(digitsReversed, valueDiff)
-		// fmt.Println("sub 3 pos/pos valueDiff:", valueDiff)
+		// fmt.Println("sub 4 pos/pos valueDiff:", valueDiff)
 	}
 
 	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent, negative: negativeResult}
+	fmt.Println("sub 5 positive positive summa: ", summa)
 	return summa
 }
 
