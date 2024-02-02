@@ -76,14 +76,15 @@ func (bn bignum_decimalValue) print(msg string) {
 
 // if the position is not in the digit, the value is 0.
 // posFromBack: 0 is the last digit, -1 is the second from back
-func (bn bignum_decimalValue) digitValueInPosition(posFromBack int) digitElemType {
+func (bn bignum_decimalValue) digitValueInPosition(posFromBack int) (int, digitElemType) {
 	positionLast := len(bn.digits) - 1
-	pos := positionLast - posFromBack
+	posAbsolute := positionLast - posFromBack
 	var value digitElemType = 0
-	if pos >= 0 { // so if the digit is in the number...
-		value = bn.digits[pos]
+	if posAbsolute >= 0 && posAbsolute <= positionLast { // so if the digit is in the number...
+		value = bn.digits[posAbsolute]
 	}
-	return value
+	return posAbsolute, value // give back the real absoule pos of the digit, and the value
+							  // (if it is less than 0, then non-real digit was read)
 }
 
 func (bn bignum_decimalValue) duplicate() bignum_decimalValue {
@@ -418,26 +419,12 @@ func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) 
 	digitsReversed := digitList{}
 
 	var overflow digitElemType = 0
-	positionA_lastDigit := len(a.digits) - 1
-	positionB_lastDigit := len(b.digits) - 1
 
-	positionDelta := -1
+	positionFromBack := -1
 	for {
-		positionDelta++ // posA, posB are going from the last (biggest) index to 0 index with -Delta
-		posA := positionA_lastDigit - positionDelta
-		posB := positionB_lastDigit - positionDelta
-		fmt.Println("internal posA", posA)
-		fmt.Println("internal posB",   posB)
-
-		var valueDigitA digitElemType = 0 // a decimal digit value is between 0-9, so a byte can store that
-		var valueDigitB digitElemType = 0
-
-		if posA >= 0 {
-			valueDigitA = a.digits[posA]
-		}
-		if posB >= 0 {
-			valueDigitB = b.digits[posB]
-		}
+		positionFromBack++ // posA, posB are going from the last (biggest) index to 0 index with -Delta
+		posA, valueDigitA := a.digitValueInPosition(positionFromBack)
+		posB, valueDigitB := b.digitValueInPosition(positionFromBack)
 		fmt.Println("internal add before, pos pos >>> a:", valueDigitA, "  b:", valueDigitB, "overflow:", overflow)
 
 		// the reading started from the highest indexes to index 0, which is the first digit.
