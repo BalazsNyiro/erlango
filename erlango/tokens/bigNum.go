@@ -78,25 +78,29 @@ func (bn bignum_decimalValue) digitsIndexLast() int {
 	//                 id:  0 1 2
 	// if we have 3 digits: 1,2,3
 	// then the last id is 2 (the index of the last elem)
+	// if digits is empty, retval is -1
 	return len(bn.digits)-1
 }
 
 // if the position is not in the digit, the value is 0.
-// posFromBack: 0 is the last digit, -1 is the second from back
-func (bn bignum_decimalValue) digitValueInPosition(posFromBack int) (int, digitElemType) {
+// posFromBack: 0 is the last digit, 1 is the second from back, 2 is the third from back
+// so here there is no negative position usage
+// this is indexing, from the END, not from the start, as we use normal indexing
+// the perspective is changed only: indexing from right->left direction
+func (bn bignum_decimalValue) digitValueInPositionFromBack(posFromBack int) (int, digitElemType) {
 	positionLast := bn.digitsIndexLast()
 	posAbsolute := positionLast - posFromBack
 	var value digitElemType = 0
 	if posAbsolute >= 0 && posAbsolute <= positionLast { // so if the digit is in the number...
 		value = bn.digits[posAbsolute]
 	}
-	return posAbsolute, value // give back the real absoule pos of the digit, and the value
+	return posAbsolute, value // give back the real absolute pos of the digit, and the value
 							  // (if it is less than 0, then non-real digit was read)
 }
 
 func (bn bignum_decimalValue) duplicate() bignum_decimalValue {
 	// goal: duplicate the values of the original struct, without any accidental pointer usage
-	// with other words: if something is changed in the original, it cannnot be reflected in the duplication
+	// with other words: if something is changed in the original, it cannot be reflected in the duplication
 
 	digitsNew := digitList{}
 	for _, digit := range bn.digits {
@@ -135,33 +139,14 @@ func (bn bignum_decimalValue) normalisedForm_endingZerosIntoExponent() bignum_de
 	}
 
 	allDigits := digitsReverse(allDigitsReversed) // reverse back the order to normal
-
-	// don't store prefix possible emtpy zeros, that doesn't have value
-	// for example: digitList{0,1,2,0,3,0,0}
-	/*
-	allDigitsNoLeadingZeros := digitList{}
-	copyEverything := false
-
-	for _, digit := range allDigits {
-		if digit != digitElemType(0) { // from the first non-zero char, copy everything
-			copyEverything = true
-		}
-		if copyEverything {
-			allDigitsNoLeadingZeros = append(allDigitsNoLeadingZeros, digit)
-		}
-	}
-
-	 */
-
 	allDigitsNoLeadingZeros := digitsCleaning_leadingZerosRemoval(allDigits)
-
 
 	// I don't trust in pointers. So don't override original values, create a new, normalised form
 	return bignum_decimalValue{digits: allDigitsNoLeadingZeros, exponent: zeroCounter, negative: bn.negative}
 }
 
 
-
+// TESTED
 func (bn bignum_decimalValue) isEqual(other bignum_decimalValue) bool {
 	bigNum_normalised := bn.normalisedForm_endingZerosIntoExponent()
 	other__normalised := other.normalisedForm_endingZerosIntoExponent()
@@ -189,13 +174,16 @@ func (bn bignum_decimalValue) isLessThan(other bignum_decimalValue) bool {
 	//
 	bignumNew, other_New := bigNum_pair_setSameExponent_decreaseBiggerExponent(bn, other)
 
-	// select the highest value place in the numbers
+	// select the highest value place in the numbers: the first digit, with relative positions from BACK!
+	// with other words: from back, which is the longest index num to go forward?
+	//                   the last index num is totally the num that you need to use
+	//                   to reach the first elem from the back, so this is correct:
 	positionFromBack__highestPlace := max(bignumNew.digitsIndexLast(), other_New.digitsIndexLast())
 
 	bnAbsoluteValueIsLess := false
 	for positionFromBack__highestPlace >=0 {
-		_, valueDigitBignum := bignumNew.digitValueInPosition(positionFromBack__highestPlace)
-		_, valueDigitOther_ := other_New.digitValueInPosition(positionFromBack__highestPlace)
+		_, valueDigitBignum := bignumNew.digitValueInPositionFromBack(positionFromBack__highestPlace)
+		_, valueDigitOther_ := other_New.digitValueInPositionFromBack(positionFromBack__highestPlace)
 
 		if valueDigitBignum < valueDigitOther_{
 			bnAbsoluteValueIsLess = true
@@ -366,8 +354,8 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 
 	for {
 		positionFromBack++
-		posA, valueA := a.digitValueInPosition(positionFromBack)
-		posB, valueB := b.digitValueInPosition(positionFromBack)
+		posA, valueA := a.digitValueInPositionFromBack(positionFromBack)
+		posB, valueB := b.digitValueInPositionFromBack(positionFromBack)
 
 		valueA = valueA - overflow
 		overflow = 0 // because overflow's value was calculated into valueA
@@ -454,8 +442,8 @@ func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) 
 
 	for {
 		positionFromBack++ // posA, posB are going from the last (biggest) index to 0 index with -Delta
-		posA, valueDigitA := a.digitValueInPosition(positionFromBack)
-		posB, valueDigitB := b.digitValueInPosition(positionFromBack)
+		posA, valueDigitA := a.digitValueInPositionFromBack(positionFromBack)
+		posB, valueDigitB := b.digitValueInPositionFromBack(positionFromBack)
 		// fmt.Println("internal add before, pos pos >>> a:", valueDigitA, "  b:", valueDigitB, "overflow:", overflow)
 
 		// the reading started from the highest indexes to index 0, which is the first digit.
