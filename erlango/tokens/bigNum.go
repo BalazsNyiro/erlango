@@ -147,6 +147,8 @@ func (a bignum_decimalValue) isEqual(b bignum_decimalValue) bool {
 			reflect.DeepEqual(a.digits, b.digits)
 }
 
+
+// TESTED: Test__isLessThan
 func (bn bignum_decimalValue) isLessThan(other bignum_decimalValue) bool {
 	if bn.isNegative() && other.isPositive() {
 		return true
@@ -190,7 +192,12 @@ func (bn bignum_decimalValue) isLessThan(other bignum_decimalValue) bool {
 
 
 // Tested, from operator_test func
-func bigNum_from_int(i int) bignum_decimalValue {
+// give back the original int, and the bignum too -
+// in automata tests it can be important to know, what was the original integer
+// simple implementation: exponent is not modified
+func bigNum_from_int(i int) (int, bignum_decimalValue) {
+	iOrig := i
+
 	negative := false
 	if i < 0 {
 		negative = true
@@ -207,7 +214,7 @@ func bigNum_from_int(i int) bignum_decimalValue {
 			digits = append(digits, digitVal)
 		}
 	}
-	return bignum_decimalValue{digits: digits, exponent: 0, negative: negative}
+	return iOrig, bignum_decimalValue{digits: digits, exponent: 0, negative: negative}
 }
 
 

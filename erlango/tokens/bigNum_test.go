@@ -64,6 +64,40 @@ func Test_bigNum_from_digitVal__min0_max35(t *testing.T) {
 
 }
 
+//  go test -v -run   Test_isLessThan
+func Test_isLessThan(t *testing.T) {
+
+	lessTest := func(a, b int) {
+		aInt, bignumA := bigNum_from_int(a)
+		bInt, bignumB := bigNum_from_int(b)
+		aLessThanOther := bignumA.isLessThan(bignumB)
+		testName := fmt.Sprintf("Test_isLessThan %d %d", a, b)
+		compare_bool_bool(testName, aInt < bInt, aLessThanOther, t)
+	}
+
+	lessTest(8,13)
+	lessTest(13,8)
+
+	lessTest(0,0)
+
+	lessTest(0,1)
+	lessTest(1,0)
+	lessTest(0,-1)
+	lessTest(-1,0)
+
+
+	lessTest(-5,-8)
+	lessTest(-8,-5)
+
+	lessTest(-5,+5)
+	lessTest(+5,-5)
+}
+
+
+
+
+
+
 //  go test -v -run   Test_digits_reverse
 func Test_digits_reverse(t *testing.T) {
 	testName := "Test_digits_reverse"
@@ -122,8 +156,8 @@ func Test_bignum_add_positive_positive(t *testing.T) {
 
 
 func operator_test(math_operator string, a, b int, t *testing.T) {
-	bnA := bigNum_from_int(a)
-	bnB := bigNum_from_int(b)
+	_, bnA := bigNum_from_int(a)
+	_, bnB := bigNum_from_int(b)
 
 	intResult := 0
 	bnResult := bigNum_zero()
@@ -150,28 +184,31 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 
 func compare_bigNum_int(testName string, wantedNum int, bn bignum_decimalValue, t *testing.T) {
 	received := bigNum_convert_to_INT_for_testcases(bn)
-	if received != wantedNum {
-		t.Fatalf("\nError in %s wanted: %d, received: %d", testName, wantedNum, received)
-	}
+	compare_int_int(testName, wantedNum, received, t)
 }
 
 func compare_int_int(testName string, wantedNum int, received int, t *testing.T) {
-	if received != wantedNum {
+	if wantedNum != received {
 		t.Fatalf("\nError in %s wanted: %d, received: %d", testName, wantedNum, received)
 	}
 }
 
 func compare_digitElem_digitElem(testName string, wanted digitElemType, received digitElemType, t *testing.T) {
-	if received != wanted {
+	if wanted != received {
 		t.Fatalf("\nError in %s wanted: %d, received: %d", testName, wanted, received)
 	}
 }
 
 func compare_digits_digits(testName string, wanted digitList, received digitList, t *testing.T) {
-	if len(received) != len(wanted) {
+	if len(wanted) != len(received) {
 		t.Fatalf("\nError, different LENGTH in digit list comparison %s wanted: %d, received: %d", testName, wanted, received)
 	}
 	for id, _ := range received {
 		compare_digitElem_digitElem(testName, wanted[id], received[id], t)
+	}
+}
+func compare_bool_bool(testName string, wanted bool, received bool, t *testing.T) {
+	if wanted != received {
+		t.Fatalf("\nError, different bool comparison %s wanted: %t, received: %t", testName, wanted, received)
 	}
 }
