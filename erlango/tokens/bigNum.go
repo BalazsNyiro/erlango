@@ -195,9 +195,7 @@ func (bn bignum_decimalValue) isLessThan(other bignum_decimalValue) bool {
 // give back the original int, and the bignum too -
 // in automata tests it can be important to know, what was the original integer
 // simple implementation: exponent is not modified
-func bigNum_from_int(i int) (int, bignum_decimalValue) {
-	iOrig := i
-
+func bigNum_from_int(i int) bignum_decimalValue {
 	negative := false
 	if i < 0 {
 		negative = true
@@ -214,12 +212,12 @@ func bigNum_from_int(i int) (int, bignum_decimalValue) {
 			digits = append(digits, digitVal)
 		}
 	}
-	return iOrig, bignum_decimalValue{digits: digits, exponent: 0, negative: negative}
+	return bignum_decimalValue{digits: digits, exponent: 0, negative: negative}
 }
 
 
 
-
+// TESTED
 func digitRune_decimalValue(digit rune) (digitElemType, error) {
 	valueMap := map[rune]digitElemType{
 		'0'	: 0,	'a' : 10,   'A' : 10,
@@ -256,7 +254,7 @@ func digitRune_decimalValue(digit rune) (digitElemType, error) {
 	return val, nil
 }
 
-
+// TODO: check this later: is is used in hexa nums, or not? if not, delete this
 // this is important when digit values are checked, in non-decimal char processing
 func bigNum_from_digitValue__min0_max35(decimalVal digitElemType) bignum_decimalValue {
 	// a digit's value is minimum 0, maximum 35. there is no problem with too big integer values

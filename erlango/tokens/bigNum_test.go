@@ -69,11 +69,11 @@ func Test_bigNum_from_digitVal__min0_max35(t *testing.T) {
 func Test_isLessThan(t *testing.T) {
 
 	lessTest := func(a, b int) {
-		aInt, bignumA := bigNum_from_int(a)
-		bInt, bignumB := bigNum_from_int(b)
+		bignumA := bigNum_from_int(a)
+		bignumB := bigNum_from_int(b)
 		aLessThanOther := bignumA.isLessThan(bignumB)
 		testName := fmt.Sprintf("Test_isLessThan %d %d", a, b)
-		compare_bool_bool(testName, aInt < bInt, aLessThanOther, t)
+		compare_bool_bool(testName, a<b, aLessThanOther, t)
 	}
 
 	lessTest(8,13)
@@ -196,8 +196,8 @@ func Test_bignum_debug(t *testing.T) {
 
 
 func operator_test(math_operator string, a, b int, t *testing.T) {
-	_, bnA := bigNum_from_int(a)
-	_, bnB := bigNum_from_int(b)
+	bnA := bigNum_from_int(a)
+	bnB := bigNum_from_int(b)
 
 	intResult := 0
 	bnResult := bigNum_zero()
