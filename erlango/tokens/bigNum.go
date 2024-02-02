@@ -73,11 +73,18 @@ func (bn bignum_decimalValue) print(msg string) {
 	fmt.Println(msg, sign, bn.digits, bn.exponent)
 }
 
+// first digit position is 0. what is the last digit id?
+func (bn bignum_decimalValue) digitsIndexLast() int {
+	//                 id:  0 1 2
+	// if we have 3 digits: 1,2,3
+	// then the last id is 2 (the index of the last elem)
+	return len(bn.digits)-1
+}
 
 // if the position is not in the digit, the value is 0.
 // posFromBack: 0 is the last digit, -1 is the second from back
 func (bn bignum_decimalValue) digitValueInPosition(posFromBack int) (int, digitElemType) {
-	positionLast := len(bn.digits) - 1
+	positionLast := bn.digitsIndexLast()
 	posAbsolute := positionLast - posFromBack
 	var value digitElemType = 0
 	if posAbsolute >= 0 && posAbsolute <= positionLast { // so if the digit is in the number...
@@ -151,45 +158,33 @@ func (bn bignum_decimalValue) isLessThan(other bignum_decimalValue) bool {
 		return false
 	}
 
-	return false  // FIXME THIS
-	/*
+	//
+	bignumNew, other_New := bigNum_pair_setSameExponent_decreaseBiggerExponent(bn, other)
 
-	aNew, bNew := bigNum_pair_setSameExponent_decreaseBiggerExponent(bn, other)
+	// select the highest value place in the numbers
+	positionFromBack__highestPlace := max(bignumNew.digitsIndexLast(), other_New.digitsIndexLast())
 
-	var overflow = digitElemType(0)
-	position := -1
+	bnAbsoluteValueIsLess := false
+	for positionFromBack__highestPlace >=0 {
+		_, valueDigitBignum := bignumNew.digitValueInPosition(positionFromBack__highestPlace)
+		_, valueDigitOther_ := other_New.digitValueInPosition(positionFromBack__highestPlace)
 
-	for {
-		position++
-
-		var valueA digitElemType = 0
-		var valueB digitElemType = 0
-
-		if position < len(aNew.digits) {
-			valueA = aNew.digits[position]
-		}
-		if position < len(b.digits) {
-			valueB = b.digits[position]
-		}
-		valueA = valueA - overflow
-		overflow = 0 // because overflow's value was calculated into valueA
-
-		if valueA == 0 && valueB == 0 && overflow == 0 {
-			break // exit if there is no more thing to do
-		}
-		fmt.Println("sub 1 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
-		if valueA < valueB {
-			valueA += 10
-			overflow +=1
-		}
-		valueDiff := valueA - valueB
-
-		// safety exit
-		if position > 5{
+		if valueDigitBignum < valueDigitOther_{
+			bnAbsoluteValueIsLess = true
 			break
 		}
+		if valueDigitBignum > valueDigitOther_{
+			bnAbsoluteValueIsLess = false
+			break
+		}
+		positionFromBack__highestPlace--
 	}
-	*/
+
+	if bn.isPositive() && other.isPositive() {
+		return bnAbsoluteValueIsLess
+	}
+	// bn.isNegative(),	other.isNegative() case:
+	return ! bnAbsoluteValueIsLess
 }
 
 
