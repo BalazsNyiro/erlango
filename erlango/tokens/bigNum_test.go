@@ -137,8 +137,9 @@ func Test_bigNum_pair_set_same_exponent(t *testing.T) {
 
 //  go test -v -run  Test_bignum_operators
 func Test_bignum_operators(t *testing.T) {
+	operations := []string{"sub", "add"}
 
-	for _, op := range []string{"sub", "add"} {
+	for _, op := range operations {
 		// zero, negative
 		operator_test(op,  0, -2, t)
 		operator_test(op, -2 , 0, t)
@@ -169,17 +170,18 @@ func Test_bignum_operators(t *testing.T) {
 
 	// RANDOM MATH TESTS!! /////////////////////////////////////////
 	sign := +1
-	for a := -1000; a < 1000; a++ {
+	limit := 1000
+	for a := -limit; a < limit; a++ {
 
-		if rand.Intn(1000) % 2 == 1 {
+		if rand.Intn(limit) % 2 == 1 {
 			sign = -1
 		} else {
 			sign = +1
 		}
 
-		b := sign * rand.Intn(1000)
+		b := sign * rand.Intn(limit)
 
-		for _, op := range []string{"sub", "add"} {
+		for _, op := range operations {
 			operator_test(op, a, b, t)
 		}
 	}
