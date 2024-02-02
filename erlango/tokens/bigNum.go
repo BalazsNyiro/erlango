@@ -73,6 +73,19 @@ func (bn bignum_decimalValue) print(msg string) {
 	fmt.Println(msg, sign, bn.digits, bn.exponent)
 }
 
+
+// if the position is not in the digit, the value is 0.
+// posFromBack: 0 is the last digit, -1 is the second from back
+func (bn bignum_decimalValue) digitValueInPosition(posFromBack int) digitElemType {
+	positionLast := len(bn.digits) - 1
+	pos := positionLast - posFromBack
+	var value digitElemType = 0
+	if pos >= 0 { // so if the digit is in the number...
+		value = bn.digits[pos]
+	}
+	return value
+}
+
 func (bn bignum_decimalValue) duplicate() bignum_decimalValue {
 	// goal: duplicate the values of the original struct, without any accidental pointer usage
 	// with other words: if something is changed in the original, it cannnot be reflected in the duplication
@@ -124,6 +137,58 @@ func (a bignum_decimalValue) isEqual(b bignum_decimalValue) bool {
 	return 	(a_normalised.exponent == b_normalised.exponent) &&
 			(a_normalised.negative == b_normalised.negative) &&
 			reflect.DeepEqual(a.digits, b.digits)
+}
+
+func (bn bignum_decimalValue) isLessThan(other bignum_decimalValue) bool {
+	if bn.isNegative() && other.isPositive() {
+		return true
+	}
+	if bn.isPositive() && other.isNegative(){
+		return false
+	}
+	if bn.isEqual(other) {
+		return false
+	}
+
+	return false  // FIXME THIS
+	/*
+
+	aNew, bNew := bigNum_pair_setSameExponent_decreaseBiggerExponent(bn, other)
+
+	var overflow = digitElemType(0)
+	position := -1
+
+	for {
+		position++
+
+		var valueA digitElemType = 0
+		var valueB digitElemType = 0
+
+		if position < len(aNew.digits) {
+			valueA = aNew.digits[position]
+		}
+		if position < len(b.digits) {
+			valueB = b.digits[position]
+		}
+		valueA = valueA - overflow
+		overflow = 0 // because overflow's value was calculated into valueA
+
+		if valueA == 0 && valueB == 0 && overflow == 0 {
+			break // exit if there is no more thing to do
+		}
+		fmt.Println("sub 1 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
+		if valueA < valueB {
+			valueA += 10
+			overflow +=1
+		}
+		valueDiff := valueA - valueB
+
+		// safety exit
+		if position > 5{
+			break
+		}
+	}
+	*/
 }
 
 
@@ -244,29 +309,24 @@ func bigNum_operator_sub(a, b bignum_decimalValue) bignum_decimalValue {
 		return result
 	}
 
-	// basic case: a, b are positive
+	fmt.Println("basic sub case, pos/pos", a, b)
 	return internal_used_only__bigNum_sub_positive_positive(a, b)
-
 }
 
 
-
-// FIXME: this is not OK, completely rewrite this:
+// https://www.youtube.com/watch?v=-pPXFvVxlng
 func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
-	// the bignum is ALWAYS decimal number, with separated digits representation
 
-	// add operation can be done ONLY if the exponents are same
 	a, b = bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)
-
 	digitsReversed := digitList{}
 
-	var overflow digitElemType = 0
+	var overflow = digitElemType(0)
 	position := -1
 
 	for {
 		position++
 
-		var valueA digitElemType = 0  // a decimal digit value is between 0-9, so a byte can store that
+		var valueA digitElemType = 0
 		var valueB digitElemType = 0
 
 		if position < len(a.digits) {
@@ -275,15 +335,26 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 		if position < len(b.digits) {
 			valueB = b.digits[position]
 		}
+		valueA = valueA - overflow
+		overflow = 0 // because overflow's value was calculated into valueA
 
 		if valueA == 0 && valueB == 0 && overflow == 0 {
 			break // exit if there is no more thing to do
 		}
+		fmt.Println("sub 1 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
+		if valueA < valueB {
+			valueA += 10
+			overflow +=1
+		}
+		fmt.Println("sub 2 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
+		valueDiff := valueA - valueB
+		digitsReversed = append(digitsReversed, valueDiff)
+		fmt.Println("sub 3 pos/pos valueDiff:", valueDiff)
 
-		valueSum := valueA + valueB + overflow
-		digitNew := valueSum % 10
-
-		overflow = (valueSum - digitNew) / 10
+		// safety exit
+		if position > 5{
+			break
+		}
 	}
 
 	summa := bignum_decimalValue{digits: digits_reverse(digitsReversed), exponent: a.exponent}
