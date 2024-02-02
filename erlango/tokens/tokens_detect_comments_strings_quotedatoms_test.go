@@ -50,31 +50,31 @@ func Test_charsHowManyAreInTheGroup(t *testing.T) {
 	erlSrc := []rune(`ABabcdE123456 ,;:`)
 
 	charsDetectedInGroup_counter := charsHowManyAreInTheGroup(0, erlSrc, setAlphabetLow, "right" )
-	compare_ints(funName + "_test_alphabet_0", charsDetectedInGroup_counter, 0, t)
+	compare_int_int(funName + "_test_alphabet_0", charsDetectedInGroup_counter, 0, t)
 
 	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(1, erlSrc, setAlphabetLow, "right" )
-	compare_ints(funName + "_test_alphabet_1", charsDetectedInGroup_counter, 0, t)
+	compare_int_int(funName + "_test_alphabet_1", charsDetectedInGroup_counter, 0, t)
 
 	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(2, erlSrc, setAlphabetLow, "right" )
-	compare_ints(funName + "_test_alphabet_2", charsDetectedInGroup_counter, 4, t)
+	compare_int_int(funName + "_test_alphabet_2", charsDetectedInGroup_counter, 4, t)
 
 	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(3, erlSrc, setAlphabetLow, "right" )
-	compare_ints(funName + "_test_alphabet_3", charsDetectedInGroup_counter, 3, t)
+	compare_int_int(funName + "_test_alphabet_3", charsDetectedInGroup_counter, 3, t)
 
 	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(6, erlSrc, setAlphabetUp, "right" )
-	compare_ints(funName + "_test_alphabet_4", charsDetectedInGroup_counter, 1, t)
+	compare_int_int(funName + "_test_alphabet_4", charsDetectedInGroup_counter, 1, t)
 
 	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(12, erlSrc, setNumbers, "left" )
-	compare_ints(funName + "_test_nums_1", charsDetectedInGroup_counter, 6, t)
+	compare_int_int(funName + "_test_nums_1", charsDetectedInGroup_counter, 6, t)
 
 	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(13, erlSrc, setNumbers, "left" )
-	compare_ints(funName + "_test_nums_2", charsDetectedInGroup_counter, 0, t)
+	compare_int_int(funName + "_test_nums_2", charsDetectedInGroup_counter, 0, t)
 
 	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(16, erlSrc, setCommas, "left" )
-	compare_ints(funName + "_test_nums_3", charsDetectedInGroup_counter, 0, t)
+	compare_int_int(funName + "_test_nums_3", charsDetectedInGroup_counter, 0, t)
 
 	charsDetectedInGroup_counter = charsHowManyAreInTheGroup(15, erlSrc, setCommas, "left" )
-	compare_ints(funName + "_test_nums_4", charsDetectedInGroup_counter, 2, t)
+	compare_int_int(funName + "_test_nums_4", charsDetectedInGroup_counter, 2, t)
 }
 
 func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
@@ -121,9 +121,4 @@ func compare_strings(callerInfo, strWanted, strReceived string, t *testing.T) {
 	}
 }
 
-func compare_ints(callerInfo string, intWanted, intReceived int, t *testing.T) {
-	if intWanted != intReceived{
-		t.Fatalf("\nErr INT difference (%s):\n  wanted -->>%d<<-- ??\nreceived -->>%d<<--\n\n", callerInfo, intWanted, intReceived)
-	}
-}
 

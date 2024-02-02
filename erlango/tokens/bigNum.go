@@ -108,14 +108,16 @@ func (bn bignum_decimalValue) duplicate() bignum_decimalValue {
 
 // collect all useful digits, plus the num of extra zeros at the end.
 // with this, it is easy to compare two numbers
-func (bn bignum_decimalValue) normalisedForm() bignum_decimalValue {
+// TESTED
+func (bn bignum_decimalValue) normalisedForm_endingZerosRemoveIntoExponent() bignum_decimalValue {
 	allDigits := digitList{}
 	zeroCounter := bn.exponent
+	// fmt.Println("zeroCounter:", zeroCounter)
 
 	lastNonZeroDetected := false
 	// check the numbers from the last to the first direction
-	for i := len(allDigits) -1; i>=0; i-- {
-		digit := allDigits[i]
+	for i := bn.digitsIndexLast(); i>=0; i-- {
+		digit := bn.digits[i]
 		if ! lastNonZeroDetected {
 			if digit == 0 {
 				zeroCounter++
@@ -123,6 +125,7 @@ func (bn bignum_decimalValue) normalisedForm() bignum_decimalValue {
 				lastNonZeroDetected = true
 			}
 		}
+		// fmt.Println("normalise: pos", i, "  digit:", digit, "   lastNonZeroDetected:", lastNonZeroDetected, "  zeroCounter:", zeroCounter, "   allDigits:", allDigits)
 		// example num: 120300
 		// the last 2 chars are 0.
 		// when 3 is detected, the last non-zero, from there, collect all valueable digit
@@ -132,13 +135,13 @@ func (bn bignum_decimalValue) normalisedForm() bignum_decimalValue {
 	}
 
 	// I don't trust in pointers. So don't override original values, create a new, normalised form
-	return bignum_decimalValue{digits: allDigits, exponent: zeroCounter, negative: bn.negative}
+	return bignum_decimalValue{digits: digits_reverse(allDigits), exponent: zeroCounter, negative: bn.negative}
 }
 
 
 func (a bignum_decimalValue) isEqual(b bignum_decimalValue) bool {
-	a_normalised := a.normalisedForm()
-	b_normalised := b.normalisedForm()
+	a_normalised := a.normalisedForm_endingZerosRemoveIntoExponent()
+	b_normalised := b.normalisedForm_endingZerosRemoveIntoExponent()
 
 	// deeply equal: https://stackoverflow.com/questions/15311969/checking-the-equality-of-two-slices
 
@@ -192,8 +195,6 @@ func (bn bignum_decimalValue) isLessThan(other bignum_decimalValue) bool {
 
 
 // Tested, from operator_test func
-// give back the original int, and the bignum too -
-// in automata tests it can be important to know, what was the original integer
 // simple implementation: exponent is not modified
 func bigNum_from_int(i int) bignum_decimalValue {
 	negative := false

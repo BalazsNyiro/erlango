@@ -20,6 +20,19 @@ import (
 )
 
 
+//  go test -v -run   Test_normaliseExponent_endingZerosRemove
+func Test_normaliseExponent_endingZerosRemove(t *testing.T) {
+	testName := "Test_normaliseExponent_endingZerosRemove"
+	bn := bignum_decimalValue{digits: digitList{1,2,0,3,0,0}, exponent: 1, negative: false}
+	bnNormalised := bn.normalisedForm_endingZerosRemoveIntoExponent()
+
+	digitsWantedAfterReverse := digitList{1,2,0,3}
+
+	compare_digits_digits(testName, digitsWantedAfterReverse, bnNormalised.digits, t)
+	compare_int_int(testName, 3, bnNormalised.exponent, t)
+}
+
+
 // the digits and char values has to be correct
 func Test_digitRune_decimalValue(t *testing.T) {
 	testName := "Test_digitRune_decimalValue"
@@ -127,7 +140,7 @@ func Test_bigNum_pair_set_same_exponent(t *testing.T) {
 	fmt.Printf("Test 1, address a.digits[0] %p\n", &(a.digits[0]))
 	aUpdated, bUpdated := bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)
 
-	compare_ints(testName, aUpdated.exponent, bUpdated.exponent, t)
+	compare_int_int(testName, aUpdated.exponent, bUpdated.exponent, t)
 	aUpdatedWanted := bignum_decimalValue{digits: digitList{4,0,0,0,0,0}, exponent: -1, negative: false}
 
 	compare_digits_digits(testName, aUpdatedWanted.digits, aUpdated.digits, t)
