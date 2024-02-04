@@ -227,10 +227,36 @@ func Test_bignum_operators(t *testing.T) {
 // if something is wrong, debug it here:
 //  go test -v -run  Test_bignum_debug
 func Test_bignum_debug(t *testing.T) {
-	// operator_test("sub", 10, 1, t)
-	// operator_test("mul", 34, 12, t)
-	operator_test("mul", 12, 345, t)
-	// operator_test("mul", 999, 99, t)
+	op := "mul"
+	// operator_test(op, 34, 12, t)
+	operator_test(op, 10, 1, t)
+	/*
+	operator_test(op, 12, 345, t)
+	operator_test(op,  0, -2, t)
+	operator_test(op, -2 , 0, t)
+
+	// zero, positive
+	operator_test(op,  0,  2, t)
+	operator_test(op,  2 , 0, t)
+
+	// negative, positive
+	operator_test(op, -2, +2, t)
+	operator_test(op, +2, -2, t)
+
+	// negative, negative
+	operator_test(op, -2, -3, t)
+	operator_test(op, +2, +3, t)
+
+	// positive, positive
+	operator_test(op, 3, 5, t)
+	operator_test(op, 0, 9, t)
+	operator_test(op, 10, 1, t)
+	operator_test(op, 19, 1, t)
+	operator_test(op, 99, 1, t)
+	operator_test(op, 333, 4444, t)
+
+	 */
+	operator_test(op, 999, 99, t)
 }
 
 
@@ -258,10 +284,10 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 
 
 	testName := fmt.Sprintf("math_operator_test__%s__%d_%d", math_operator, a, b)
-	compare_bigNum_int(testName, intResult, bnResult, t)
+	compare_bigNum_int(testName+"__compareBigNumInt", intResult, bnResult, t)
 
 	// and one more test, for  bigNum_convert_to_INT_for_testcases
-	compare_int_int(testName, bigNum_convert_to_INT_for_testcases(bnResult), intResult, t)
+	compare_int_int(testName+"__compareIntInt", bigNum_convert_to_INT_for_testcases(bnResult), intResult, t)
 
 }
 

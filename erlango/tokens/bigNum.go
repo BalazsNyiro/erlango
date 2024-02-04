@@ -279,6 +279,19 @@ func bigNum_convert_to_INT_for_testcases(bigNum bignum_decimalValue) int {
 	if bigNum.negative {
 		summa = -summa
 	}
+
+	// add extra 0 numbers, if exponent > 0:
+	for bigNum.exponent > 0 {
+		summa = summa*10
+		bigNum.exponent -= 1
+	}
+
+	// float->int conversion, be careful, maybe important digits are lost from the end, this is a to INT conversion!!!
+	for bigNum.exponent < 0 {
+		summa = summa/10
+		bigNum.exponent += 1
+	}
+
 	return summa
 }
 
@@ -492,7 +505,8 @@ func digitsCleaning_leadingZerosRemoval(digits digitList) digitList {
 func internal_used_only__bigNum_mul_positive_positive(bigNum, multiply bignum_decimalValue) bignum_decimalValue {
 	bigNum = bigNum.normalisedForm_endingZerosIntoExponent()
 	multiply = multiply.normalisedForm_endingZerosIntoExponent()
-
+	fmt.Println("  bigNum:", bigNum)
+	fmt.Println("multiply:", multiply)
 	result := bigNum_zero()
 	/*
 	Algorithm demo:
@@ -552,7 +566,8 @@ func internal_used_only__bigNum_mul_positive_positive(bigNum, multiply bignum_de
 			fmt.Print("\n\n\n")
 			fmt.Println("         multiplyDigit:", digitMul)
 			fmt.Println("         bnPosFromBack:", bnPositionFromBack)
-			fmt.Println("          bnValueDigit:", bnValueDigit)
+			fmt.Println("         bnPosAbs     :", bnPosAbs)
+			fmt.Println("         bnValueDigit :", bnValueDigit)
 
 			if bnPosAbs < 0 && overflow == 0 {
 				break
@@ -584,6 +599,10 @@ func internal_used_only__bigNum_mul_positive_positive(bigNum, multiply bignum_de
 		fmt.Println("result:", result)
 	} // for, idxMul
 
+	// the 10^exponent values has to be added to the number:
+	fmt.Println("result, before exponent update:", result)
+	result.exponent += bigNum.exponent + multiply.exponent
+	fmt.Println("result, after  exponent update:", result)
 	return result
 }
 
