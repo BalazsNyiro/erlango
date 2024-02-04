@@ -505,8 +505,8 @@ func digitsCleaning_leadingZerosRemoval(digits digitList) digitList {
 func internal_used_only__bigNum_mul_positive_positive(bigNum, multiply bignum_decimalValue) bignum_decimalValue {
 	bigNum = bigNum.normalisedForm_endingZerosIntoExponent()
 	multiply = multiply.normalisedForm_endingZerosIntoExponent()
-	fmt.Println("  bigNum:", bigNum)
-	fmt.Println("multiply:", multiply)
+	// fmt.Println("  bigNum:", bigNum)
+	// fmt.Println("multiply:", multiply)
 	result := bigNum_zero()
 	/*
 	Algorithm demo:
@@ -546,15 +546,8 @@ func internal_used_only__bigNum_mul_positive_positive(bigNum, multiply bignum_de
 
 
 
-
-
-
-
-
-
-
-
-		///// CONCENTRATE ON ONE OPERATION HERE
+		////////////////////////////////////////////
+		///// CONCENTRATE ON ONE OPERATION HERE  ///
 		digitsReversed := digitList{}
 		var overflow digitElemType = 0
 		bnPositionFromBack := -1
@@ -563,11 +556,11 @@ func internal_used_only__bigNum_mul_positive_positive(bigNum, multiply bignum_de
 		for {
 			bnPositionFromBack++ // positions are checked from the last (higher) index to 0 index with -Delta
 			bnPosAbs, bnValueDigit := bigNum.digitValueInPositionFromBack(bnPositionFromBack)
-			fmt.Print("\n\n\n")
-			fmt.Println("         multiplyDigit:", digitMul)
-			fmt.Println("         bnPosFromBack:", bnPositionFromBack)
-			fmt.Println("         bnPosAbs     :", bnPosAbs)
-			fmt.Println("         bnValueDigit :", bnValueDigit)
+			// fmt.Print("\n\n\n")
+			// fmt.Println("         multiplyDigit:", digitMul)
+			// fmt.Println("         bnPosFromBack:", bnPositionFromBack)
+			// fmt.Println("         bnPosAbs     :", bnPosAbs)
+			// fmt.Println("         bnValueDigit :", bnValueDigit)
 
 			if bnPosAbs < 0 && overflow == 0 {
 				break
@@ -579,30 +572,29 @@ func internal_used_only__bigNum_mul_positive_positive(bigNum, multiply bignum_de
 
 			overflow = (valueAfterMultiply - digitNew) / 10
 
-			fmt.Println("bnValue After multiply:", valueAfterMultiply)
-			fmt.Println("              digitNew:", digitNew)
-			fmt.Println("              overflow:", overflow)
-		} ///// CONCENTRATE ON ONE OPERATION HERE
+			// fmt.Println("bnValue After multiply:", valueAfterMultiply)
+			// fmt.Println("              digitNew:", digitNew)
+			// fmt.Println("              overflow:", overflow)
+		} ///// CONCENTRATE ON ONE OPERATION HERE //
+		////////////////////////////////////////////
 
 
 		digitsActualResult := digitsReverse(digitsReversed)
-		fmt.Println("END1 digitsActualResult:", digitsActualResult)
-		fmt.Println("END1 extra zero counter:", extraZeroCounter_becauseOfDigitPosition)
+		// fmt.Println("END1 digitsActualResult:", digitsActualResult)
+		// fmt.Println("END1 extra zero counter:", extraZeroCounter_becauseOfDigitPosition)
 
 		extraZerosFromPlace := digits_series_simple_generate(extraZeroCounter_becauseOfDigitPosition, 0)
 		digitsActualResult = append(digitsActualResult, extraZerosFromPlace...)
-		fmt.Println("END2 digitsActualResult:", digitsActualResult)
+		// fmt.Println("END2 digitsActualResult:", digitsActualResult)
 
 		resultOfActualStep := bigNum_create_from_digits__positiveZeroExponent(digitsActualResult)
 
 		result = bigNum_operator_add(result, resultOfActualStep)
-		fmt.Println("result:", result)
+		// fmt.Println("result updated:", result)
 	} // for, idxMul
 
 	// the 10^exponent values has to be added to the number:
-	fmt.Println("result, before exponent update:", result)
 	result.exponent += bigNum.exponent + multiply.exponent
-	fmt.Println("result, after  exponent update:", result)
 	return result
 }
 
