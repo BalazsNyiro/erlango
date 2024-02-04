@@ -227,7 +227,8 @@ func Test_bignum_operators(t *testing.T) {
 // if something is wrong, debug it here:
 //  go test -v -run  Test_bignum_debug
 func Test_bignum_debug(t *testing.T) {
-	operator_test("sub", 10, 1, t)
+	// operator_test("sub", 10, 1, t)
+	operator_test("mul", 10, 1, t)
 }
 
 
@@ -247,6 +248,12 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 		intResult = a - b
 		bnResult = bigNum_operator_sub(bnA, bnB)
 	}
+
+	if math_operator == "mul" {
+		intResult = a * b
+		bnResult = bigNum_operator_mul(bnA, bnB)
+	}
+
 
 	testName := fmt.Sprintf("math_operator_test__%s__%d_%d", math_operator, a, b)
 	compare_bigNum_int(testName, intResult, bnResult, t)

@@ -280,6 +280,30 @@ func bigNum_from_digitValue__min0_max35(decimalVal digitElemType) bignum_decimal
 	}
 }
 
+func bigNum_operator_mul(a, b bignum_decimalValue) bignum_decimalValue {
+	if a.isPositive() && b.isNegative() {
+		b.negative = false
+		result := internal_used_only__bigNum_mul_positive_positive(a, b)
+		result.negative = true
+		return result
+	}
+	if a.isNegative() && b.isPositive(){
+		a.negative = false
+		result := internal_used_only__bigNum_mul_positive_positive(a, b)
+		result.negative = true
+		return result
+	}
+	if a.isNegative() && b.isNegative() {
+		a.negative = false
+		b.negative = false
+		result := internal_used_only__bigNum_mul_positive_positive(a, b)
+		return result
+	}
+
+	// basic case: a, b are positive
+	return internal_used_only__bigNum_mul_positive_positive(a, b)
+}
+
 
 //////////// TESTED /////////////////
 func bigNum_operator_add(a, b bignum_decimalValue) bignum_decimalValue {
@@ -441,6 +465,7 @@ func internal_used_only__bigNum_mul_positive_positive(bn, multiply bignum_decima
 	bn = bn.normalisedForm_endingZerosIntoExponent()
 	multiply = multiply.normalisedForm_endingZerosIntoExponent()
 
+	result := bigNum_zero()
 	/*
 	Algorithm demo:
 	345 * 12
@@ -465,12 +490,14 @@ func internal_used_only__bigNum_mul_positive_positive(bn, multiply bignum_decima
 	for idxMul := multiply.digitsIndexLast(); idxMul >=0; idxMul-- {
 		digitMul := multiply.digits[idxMul]
 
+		// use the actual digit of MultiplyNum, do the calculation:
 		for idxBn := bn.digitsIndexLast(); idxBn >=0; idxBn-- {
 			digitBn := bn.digits[idxBn]
 
 			fmt.Println("digitBn:", digitBn, "   digitMul:", digitMul)
 		}
 	}
+	return result
 }
 
 
