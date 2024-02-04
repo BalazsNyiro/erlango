@@ -228,6 +228,7 @@ func Test_bignum_operators(t *testing.T) {
 //  go test -v -run  Test_bignum_debug
 func Test_bignum_debug(t *testing.T) {
 	// operator_test("sub", 10, 1, t)
+	// operator_test("mul", 34, 12, t)
 	operator_test("mul", 10, 1, t)
 }
 

@@ -280,28 +280,29 @@ func bigNum_from_digitValue__min0_max35(decimalVal digitElemType) bignum_decimal
 	}
 }
 
-func bigNum_operator_mul(a, b bignum_decimalValue) bignum_decimalValue {
-	if a.isPositive() && b.isNegative() {
-		b.negative = false
-		result := internal_used_only__bigNum_mul_positive_positive(a, b)
+func bigNum_operator_mul(bigNum, mul bignum_decimalValue) bignum_decimalValue {
+	fmt.Println("bigNum operator mul, bigNum:", bigNum, "  mul:", mul)
+	if bigNum.isPositive() && mul.isNegative() {
+		mul.negative = false
+		result := internal_used_only__bigNum_mul_positive_positive(bigNum, mul)
 		result.negative = true
 		return result
 	}
-	if a.isNegative() && b.isPositive(){
-		a.negative = false
-		result := internal_used_only__bigNum_mul_positive_positive(a, b)
+	if bigNum.isNegative() && mul.isPositive(){
+		bigNum.negative = false
+		result := internal_used_only__bigNum_mul_positive_positive(bigNum, mul)
 		result.negative = true
 		return result
 	}
-	if a.isNegative() && b.isNegative() {
-		a.negative = false
-		b.negative = false
-		result := internal_used_only__bigNum_mul_positive_positive(a, b)
+	if bigNum.isNegative() && mul.isNegative() {
+		bigNum.negative = false
+		mul.negative = false
+		result := internal_used_only__bigNum_mul_positive_positive(bigNum, mul)
 		return result
 	}
 
-	// basic case: a, b are positive
-	return internal_used_only__bigNum_mul_positive_positive(a, b)
+	// basic case: bigNum, mul are positive
+	return internal_used_only__bigNum_mul_positive_positive(bigNum, mul)
 }
 
 
@@ -461,8 +462,8 @@ func digitsCleaning_leadingZerosRemoval(digits digitList) digitList {
 }
 
 /////////////////// MULTIPLY //////////////
-func internal_used_only__bigNum_mul_positive_positive(bn, multiply bignum_decimalValue) bignum_decimalValue {
-	bn = bn.normalisedForm_endingZerosIntoExponent()
+func internal_used_only__bigNum_mul_positive_positive(bigNum, multiply bignum_decimalValue) bignum_decimalValue {
+	bigNum = bigNum.normalisedForm_endingZerosIntoExponent()
 	multiply = multiply.normalisedForm_endingZerosIntoExponent()
 
 	result := bigNum_zero()
@@ -487,14 +488,15 @@ func internal_used_only__bigNum_mul_positive_positive(bn, multiply bignum_decima
 	*/
 
 
-	for idxMul := multiply.digitsIndexLast(); idxMul >=0; idxMul-- {
+	for idxMul := multiply.digitsIndexLast(); idxMul>=0; idxMul-- {
 		digitMul := multiply.digits[idxMul]
+		fmt.Println("1. idxMul level   digitMul:", digitMul)
 
 		// use the actual digit of MultiplyNum, do the calculation:
-		for idxBn := bn.digitsIndexLast(); idxBn >=0; idxBn-- {
-			digitBn := bn.digits[idxBn]
+		for idxBn := bigNum.digitsIndexLast(); idxBn>=0; idxBn-- {
+			digitBn := bigNum.digits[idxBn]
 
-			fmt.Println("digitBn:", digitBn, "   digitMul:", digitMul)
+			fmt.Println("2. digitBn:  ", digitBn, "  digitMul:", digitMul)
 		}
 	}
 	return result
