@@ -587,8 +587,8 @@ func internal_used_only__bigNum_mul_positive_positive(bigNum, multiply bignum_de
 		digitsActualResult = append(digitsActualResult, extraZerosFromPlace...)
 		// fmt.Println("END2 digitsActualResult:", digitsActualResult)
 
+		// as the bigNum*digitMul are calculated, the actual step's result has to be accumulated
 		resultOfActualStep := bigNum_create_from_digits__positiveZeroExponent(digitsActualResult)
-
 		result = bigNum_operator_add(result, resultOfActualStep)
 		// fmt.Println("result updated:", result)
 	} // for, idxMul

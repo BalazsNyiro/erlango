@@ -36,7 +36,7 @@ func Test_isEqual(t *testing.T) {
 func Test_normaliseExponent_endingZerosRemove(t *testing.T) {
 	testName := "Test_normaliseExponent_endingZerosRemove"
 
-	// leading unsignificant 0 will be removed, too
+	// leading insignificant 0 will be removed, too
 	bn := bignum_decimalValue{digits: digitList{0,1,2,0,3,0,0}, exponent: 1, negative: false}
 	bnNormalised := bn.normalisedForm_endingZerosIntoExponent()
 	digitsWantedAfterReverse := digitList{1,2,0,3}
@@ -48,7 +48,7 @@ func Test_normaliseExponent_endingZerosRemove(t *testing.T) {
 
 func Test_digitsCleaning_leadingZerosRemoval(t *testing.T) {
 	testName := "Test_digitsCleaning_leadingZerosRemoval"
-	// leading unsignificant 0 will be removed, too
+	// leading insignificant 0 will be removed, too
 	digits := digitList{0,0,0,1,2,0,3,0,0}
 	digitsLeadingZerosRemoved := digitsCleaning_leadingZerosRemoval(digits)
 	digitsWanted := digitList{1,2,0,3,0,0}
@@ -105,9 +105,9 @@ func Test_bigNum_from_digitVal__min0_max35(t *testing.T) {
 func Test_isLessThan(t *testing.T) {
 
 	lessTest := func(a, b int) {
-		bignumA := bigNum_create_from_int(a)
-		bignumB := bigNum_create_from_int(b)
-		aLessThanOther := bignumA.isLessThan(bignumB)
+		bigNumA := bigNum_create_from_int(a)
+		bigNumB := bigNum_create_from_int(b)
+		aLessThanOther := bigNumA.isLessThan(bigNumB)
 		testName := fmt.Sprintf("Test_isLessThan %d %d", a, b)
 		compare_bool_bool(testName, a<b, aLessThanOther, t)
 	}
@@ -171,9 +171,9 @@ func Test_bigNum_pair_set_same_exponent(t *testing.T) {
 
 
 
-//  go test -v -run  Test_bignum_operators
-func Test_bignum_operators(t *testing.T) {
-	operations := []string{"sub", "add"}
+//  go test -v -run  Test_bigNum_operators
+func Test_bigNum_operators(t *testing.T) {
+	operations := []string{"sub", "add", "mul"}
 
 	for _, op := range operations {
 		// zero, negative
@@ -198,6 +198,8 @@ func Test_bignum_operators(t *testing.T) {
 		operator_test(op, 10, 1, t)
 		operator_test(op, 19, 1, t)
 		operator_test(op, 99, 1, t)
+		operator_test(op, 999, 99,   t)
+		operator_test(op, 100,  1,   t)  // exponent has to be handled, too
 		operator_test(op, 333, 4444, t)
 
 		// I saw problems with these in random tests:
@@ -225,37 +227,11 @@ func Test_bignum_operators(t *testing.T) {
 }
 
 // if something is wrong, debug it here:
-//  go test -v -run  Test_bignum_debug
-func Test_bignum_debug(t *testing.T) {
+//  go test -v -run  Test_bigNum_debug
+func Test_bigNum_debug(t *testing.T) {
 	op := "mul"
 	// operator_test(op, 34, 12, t)
 	operator_test(op, 10, 1, t)
-	/*
-	operator_test(op, 12, 345, t)
-	operator_test(op,  0, -2, t)
-	operator_test(op, -2 , 0, t)
-
-	// zero, positive
-	operator_test(op,  0,  2, t)
-	operator_test(op,  2 , 0, t)
-
-	// negative, positive
-	operator_test(op, -2, +2, t)
-	operator_test(op, +2, -2, t)
-
-	// negative, negative
-	operator_test(op, -2, -3, t)
-	operator_test(op, +2, +3, t)
-
-	// positive, positive
-	operator_test(op, 3, 5, t)
-	operator_test(op, 0, 9, t)
-	operator_test(op, 10, 1, t)
-	operator_test(op, 19, 1, t)
-	operator_test(op, 99, 1, t)
-	operator_test(op, 333, 4444, t)
-
-	 */
 	operator_test(op, 999, 99, t)
 }
 
