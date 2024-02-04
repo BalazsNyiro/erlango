@@ -421,7 +421,8 @@ func bigNum_from_digits_general_any_numsystem (token Token, numeralSystemType in
 func bigNum_from_token(token Token) (bignum_decimalValue, error)  {
 	// the token has minimum 1 char, - there is a validation against that, so the for loops always run
 	if token.tokenType == tokenType_Num_int {
-		return bigNum_from_digits_specialcase_decimalintegergeneral(token)
+		num, err := bigNum_from_digits_specialcase_decimalintegergeneral(token)
+		return num.normalisedForm_endingZerosIntoExponent(), err
 		// TODO: normalize the number here! so (1000, 0) -> (1, 3)!!
 	} // Num_int detected
 
