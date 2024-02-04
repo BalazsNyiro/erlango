@@ -352,6 +352,8 @@ func printIfDebug(a ...any) {
 		fmt.Println(a...)
 	}
 }
+
+
 func numDetect_removeUnderscoreFromString(txt string) string {
 	return strings.Replace(txt, "_", "", -1)
 }

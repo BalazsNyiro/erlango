@@ -83,7 +83,7 @@ func Test_bigNum_from_digitVal__min0_max35(t *testing.T) {
 	testName := "Test_bigNum_from_digitVal__min0_max35"
 
 	for numToConvert := 0; numToConvert <=35; numToConvert++ {
-		bigNumReceived := bigNum_from_digitValue__min0_max35(digitElemType(numToConvert))
+		bigNumReceived := bigNum_create_from_digitValue__min0_max35(digitElemType(numToConvert))
 
 		valueReceived := -1
 		if len(bigNumReceived.digits) == 1 {
@@ -105,8 +105,8 @@ func Test_bigNum_from_digitVal__min0_max35(t *testing.T) {
 func Test_isLessThan(t *testing.T) {
 
 	lessTest := func(a, b int) {
-		bignumA := bigNum_from_int(a)
-		bignumB := bigNum_from_int(b)
+		bignumA := bigNum_create_from_int(a)
+		bignumB := bigNum_create_from_int(b)
 		aLessThanOther := bignumA.isLessThan(bignumB)
 		testName := fmt.Sprintf("Test_isLessThan %d %d", a, b)
 		compare_bool_bool(testName, a<b, aLessThanOther, t)
@@ -161,7 +161,7 @@ func Test_bigNum_pair_set_same_exponent(t *testing.T) {
 
 	fmt.Printf("Test 1, address a %p\n", &a)
 	fmt.Printf("Test 1, address a.digits[0] %p\n", &(a.digits[0]))
-	aUpdated, bUpdated := bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)
+	aUpdated, bUpdated := bigNum_exponentsSetSame_decreaseBiggerExponent(a, b)
 
 	compare_int_int(testName, aUpdated.exponent, bUpdated.exponent, t)
 	aUpdatedWanted := bignum_decimalValue{digits: digitList{4,0,0,0,0,0}, exponent: -1, negative: false}
@@ -229,13 +229,14 @@ func Test_bignum_operators(t *testing.T) {
 func Test_bignum_debug(t *testing.T) {
 	// operator_test("sub", 10, 1, t)
 	// operator_test("mul", 34, 12, t)
-	operator_test("mul", 10, 1, t)
+	operator_test("mul", 12, 345, t)
+	// operator_test("mul", 999, 99, t)
 }
 
 
 func operator_test(math_operator string, a, b int, t *testing.T) {
-	bnA := bigNum_from_int(a)
-	bnB := bigNum_from_int(b)
+	bnA := bigNum_create_from_int(a)
+	bnB := bigNum_create_from_int(b)
 
 	intResult := 0
 	bnResult := bigNum_zero()

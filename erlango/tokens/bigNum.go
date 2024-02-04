@@ -172,7 +172,7 @@ func (bn bignum_decimalValue) isLessThan(other bignum_decimalValue) bool {
 	}
 
 	//
-	bignumNew, other_New := bigNum_pair_setSameExponent_decreaseBiggerExponent(bn, other)
+	bignumNew, other_New := bigNum_exponentsSetSame_decreaseBiggerExponent(bn, other)
 
 	// select the highest value place in the numbers: the first digit, with relative positions from BACK!
 	// with other words: from back, which is the longest index num to go forward?
@@ -204,10 +204,35 @@ func (bn bignum_decimalValue) isLessThan(other bignum_decimalValue) bool {
 }
 
 
+// TODO: check this later: is is used in hexa nums, or not? if not, delete this
+// this is important when digit values are checked, in non-decimal char processing
+func bigNum_create_from_digitValue__min0_max35(decimalVal digitElemType) bignum_decimalValue {
+	// a digit's value is minimum 0, maximum 35. there is no problem with too big integer values
+	digit_2 := decimalVal % 10
+	digit_1 := (decimalVal - digit_2) / 10
+	// simple conversion, NEVER normalize here - normalization can happen at one point only
+	if digit_1 > 0 {
+		return bignum_decimalValue{digits: digitList{digit_1, digit_2}, exponent: 0}
+	} else {
+		return bignum_decimalValue{digits: digitList{digit_2}, exponent: 0, negative: false}
+	}
+}
+
+
+/// used in multiply
+func bigNum_create_from_digits__positiveZeroExponent(digits digitList) bignum_decimalValue {
+	return bigNum_create_from_digits(digits, false, 0)
+}
+
+func bigNum_create_from_digits(digits digitList, negative bool, exponent int) bignum_decimalValue {
+	return bignum_decimalValue{digits: digits, negative: negative, exponent: exponent}
+}
+
 
 // Tested, from operator_test func
 // simple implementation: exponent is not modified
-func bigNum_from_int(i int) bignum_decimalValue {
+// integer conversion to bigNum
+func bigNum_create_from_int(i int) bignum_decimalValue {
 	negative := false
 	if i < 0 {
 		negative = true
@@ -228,57 +253,37 @@ func bigNum_from_int(i int) bignum_decimalValue {
 }
 
 
+// TESTED!!!
+func bigNum_convert_to_INT_for_testcases(bigNum bignum_decimalValue) int {
+	summa := 0
+	lenDigits := len(bigNum.digits)
+	multiplicator := lenDigits
 
-// TESTED
-func digitRune_decimalValue(digit rune) (digitElemType, error) {
-	valueMap := map[rune]digitElemType{
-		'0'	: 0,	'a' : 10,   'A' : 10,
-		'1' : 1,	'b' : 11,   'B' : 11,
-		'2' : 2,	'c' : 12,   'C' : 12,
-		'3' : 3,	'd' : 13,   'D' : 13,
-		'4' : 4,	'e' : 14,   'E' : 14,
-		'5' : 5,	'f' : 15,   'F' : 15,
-		'6' : 6,	'g' : 16,   'G' : 16,
-		'7' : 7,	'h' : 17,   'H' : 17,
-		'8' : 8,	'i' : 18,   'I' : 18,
-		'9' : 9,	'j' : 19,   'J' : 19,
-		'k' : 20,   'K' : 20,
-		'l' : 21,   'L' : 21,
-		'm' : 22,   'M' : 22,
-		'n' : 23,   'N' : 23,
-		'o' : 24,   'O' : 24,
-		'p' : 25,   'P' : 25,
-		'q' : 26,   'Q' : 26,
-		'r' : 27,   'R' : 27,
-		's' : 28,   'S' : 28,
-		't' : 29,   'T' : 29,
-		'u' : 30,   'U' : 30,
-		'v' : 31,   'V' : 31,
-		'w' : 32,   'W' : 32,
-		'x' : 33,   'X' : 33,
-		'y' : 34,   'Y' : 34,
-		'z' : 35,   'Z' : 35,
+	for pos := 0; pos < lenDigits; pos++ {
+		fmt.Println()
+
+		// positions: 012
+		//            123: first multiplicator is 2, second is 1, then 0
+		multiplicator -= 1
+		// fmt.Println("multiplicator:", multiplicator)
+
+		digitValue := int(bigNum.digits[pos])
+
+		for m:= multiplicator; m>0; m-- {
+			digitValue = digitValue * 10
+		}
+
+		// fmt.Println("convert to INT: digit[",pos,"] =>", bigNum.digits[pos], "digitValue:", digitValue)
+		summa += digitValue
 	}
-	val, digitInMap := valueMap[digit]
-	if ! digitInMap {
-		return 0, errors.New("digit value is not detected (" + string(digit) + ")")
+	if bigNum.negative {
+		summa = -summa
 	}
-	return val, nil
+	return summa
 }
 
-// TODO: check this later: is is used in hexa nums, or not? if not, delete this
-// this is important when digit values are checked, in non-decimal char processing
-func bigNum_from_digitValue__min0_max35(decimalVal digitElemType) bignum_decimalValue {
-	// a digit's value is minimum 0, maximum 35. there is no problem with too big integer values
-	digit_2 := decimalVal % 10
-	digit_1 := (decimalVal - digit_2) / 10
-	// simple conversion, NEVER normalize here - normalization can happen at one point only
-	if digit_1 > 0 {
-		return bignum_decimalValue{digits: digitList{digit_1, digit_2}, exponent: 0}
-	} else {
-		return bignum_decimalValue{digits: digitList{digit_2}, exponent: 0, negative: false}
-	}
-}
+
+
 
 func bigNum_operator_mul(bigNum, mul bignum_decimalValue) bignum_decimalValue {
 	fmt.Println("bigNum operator mul, bigNum:", bigNum, "  mul:", mul)
@@ -356,7 +361,7 @@ func bigNum_operator_sub(a, b bignum_decimalValue) bignum_decimalValue {
 
 //////////// TESTED /////////////////
 /* receives 2 numbers. return with 2 numbers, where the exponents are similar*/
-func bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b bignum_decimalValue) (bignum_decimalValue, bignum_decimalValue) {
+func bigNum_exponentsSetSame_decreaseBiggerExponent(a, b bignum_decimalValue) (bignum_decimalValue, bignum_decimalValue) {
 	if a.exponent == b.exponent {
 		return a, b
 	}
@@ -404,34 +409,6 @@ func bigNum_zero() bignum_decimalValue {
 }
 
 
-// TESTED!!!
-func bigNum_convert_to_INT_for_testcases(bigNum bignum_decimalValue) int {
-	summa := 0
-	lenDigits := len(bigNum.digits)
-	multiplicator := lenDigits
-
-	for pos := 0; pos < lenDigits; pos++ {
-		fmt.Println()
-
-		// positions: 012
-		//            123: first multiplicator is 2, second is 1, then 0
-		multiplicator -= 1
-		// fmt.Println("multiplicator:", multiplicator)
-
-		digitValue := int(bigNum.digits[pos])
-
-		for m:= multiplicator; m>0; m-- {
-			digitValue = digitValue * 10
-		}
-
-		// fmt.Println("convert to INT: digit[",pos,"] =>", bigNum.digits[pos], "digitValue:", digitValue)
-		summa += digitValue
-	}
-	if bigNum.negative {
-		summa = -summa
-	}
-	return summa
-}
 
 
 // tested
@@ -442,6 +419,56 @@ func digitsReverse(digits digitList) digitList {
 	}
 	return digitsReversed
 }
+
+// TESTED
+func digitRune_decimalValue(digit rune) (digitElemType, error) {
+	valueMap := map[rune]digitElemType{
+		'0'	: 0,	'a' : 10,   'A' : 10,
+		'1' : 1,	'b' : 11,   'B' : 11,
+		'2' : 2,	'c' : 12,   'C' : 12,
+		'3' : 3,	'd' : 13,   'D' : 13,
+		'4' : 4,	'e' : 14,   'E' : 14,
+		'5' : 5,	'f' : 15,   'F' : 15,
+		'6' : 6,	'g' : 16,   'G' : 16,
+		'7' : 7,	'h' : 17,   'H' : 17,
+		'8' : 8,	'i' : 18,   'I' : 18,
+		'9' : 9,	'j' : 19,   'J' : 19,
+		'k' : 20,   'K' : 20,
+		'l' : 21,   'L' : 21,
+		'm' : 22,   'M' : 22,
+		'n' : 23,   'N' : 23,
+		'o' : 24,   'O' : 24,
+		'p' : 25,   'P' : 25,
+		'q' : 26,   'Q' : 26,
+		'r' : 27,   'R' : 27,
+		's' : 28,   'S' : 28,
+		't' : 29,   'T' : 29,
+		'u' : 30,   'U' : 30,
+		'v' : 31,   'V' : 31,
+		'w' : 32,   'W' : 32,
+		'x' : 33,   'X' : 33,
+		'y' : 34,   'Y' : 34,
+		'z' : 35,   'Z' : 35,
+	}
+	val, digitInMap := valueMap[digit]
+	if ! digitInMap {
+		return 0, errors.New("digit value is not detected (" + string(digit) + ")")
+	}
+	return val, nil
+}
+
+// example: generate five zeros, this: [0, 0, 0, 0, 0]
+//          repeat: 5, digitNum: 0
+func digits_series_simple_generate(repeat int, digitNum digitElemType) digitList {
+	// repeat >= 0
+	result := digitList{}
+	for i:=0; i<repeat; i++ {
+		result = append(result, digitNum)
+	}
+	return result
+}
+
+
 
 // Tested from  Test_normaliseExponent_endingZerosRemove
 func digitsCleaning_leadingZerosRemoval(digits digitList) digitList {
@@ -487,18 +514,76 @@ func internal_used_only__bigNum_mul_positive_positive(bigNum, multiply bignum_de
 
 	*/
 
+	extraZeroCounter_becauseOfDigitPosition := -1
 
+	// Dear reader: here is a gift for you:
+	// https://open.spotify.com/track/34BArHFcgaf7nXm487HJqf?si=f60d0393137c4fb7
+	// a really good music, if you want to manage math operations...
+	// Mari Samuelsen: Sequence(Four) for Solo Violin
 	for idxMul := multiply.digitsIndexLast(); idxMul>=0; idxMul-- {
+
 		digitMul := multiply.digits[idxMul]
-		fmt.Println("1. idxMul level   digitMul:", digitMul)
+		/* if you do 12*345
+		- first  mul digit is 5, decimalValueRange:   1
+		- first  mul digit is 4, decimalValueRange:  10
+		- second mul digit is 3, decimalValueRange: 100
+		*/
+		extraZeroCounter_becauseOfDigitPosition++ // 0,1,2,3
+
+
+
+
+
+
+
+
+
+
+
+		///// CONCENTRATE ON ONE OPERATION HERE
+		digitsReversed := digitList{}
+		var overflow digitElemType = 0
+		bnPositionFromBack := -1
 
 		// use the actual digit of MultiplyNum, do the calculation:
-		for idxBn := bigNum.digitsIndexLast(); idxBn>=0; idxBn-- {
-			digitBn := bigNum.digits[idxBn]
+		for {
+			bnPositionFromBack++ // positions are checked from the last (higher) index to 0 index with -Delta
+			bnPosAbs, bnValueDigit := bigNum.digitValueInPositionFromBack(bnPositionFromBack)
+			fmt.Print("\n\n\n")
+			fmt.Println("         multiplyDigit:", digitMul)
+			fmt.Println("         bnPosFromBack:", bnPositionFromBack)
+			fmt.Println("          bnValueDigit:", bnValueDigit)
 
-			fmt.Println("2. digitBn:  ", digitBn, "  digitMul:", digitMul)
-		}
-	}
+			if bnPosAbs < 0 && overflow == 0 {
+				break
+			}
+
+			valueAfterMultiply := bnValueDigit * digitMul + overflow
+			digitNew := valueAfterMultiply % 10
+			digitsReversed = append(digitsReversed, digitNew)
+
+			overflow = (valueAfterMultiply - digitNew) / 10
+
+			fmt.Println("bnValue After multiply:", valueAfterMultiply)
+			fmt.Println("              digitNew:", digitNew)
+			fmt.Println("              overflow:", overflow)
+		} ///// CONCENTRATE ON ONE OPERATION HERE
+
+
+		digitsActualResult := digitsReverse(digitsReversed)
+		fmt.Println("END1 digitsActualResult:", digitsActualResult)
+		fmt.Println("END1 extra zero counter:", extraZeroCounter_becauseOfDigitPosition)
+
+		extraZerosFromPlace := digits_series_simple_generate(extraZeroCounter_becauseOfDigitPosition, 0)
+		digitsActualResult = append(digitsActualResult, extraZerosFromPlace...)
+		fmt.Println("END2 digitsActualResult:", digitsActualResult)
+
+		resultOfActualStep := bigNum_create_from_digits__positiveZeroExponent(digitsActualResult)
+
+		result = bigNum_operator_add(result, resultOfActualStep)
+		fmt.Println("result:", result)
+	} // for, idxMul
+
 	return result
 }
 
@@ -514,7 +599,7 @@ func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) 
 	// the bignum is ALWAYS decimal number, with separated digits representation
 
 	// add operation can be done ONLY if the exponents are same
-	a, b = bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)
+	a, b = bigNum_exponentsSetSame_decreaseBiggerExponent(a, b)
 	if a.negative || b.negative {
 		// this case is not possible, if this fun is not called directly
 		fmt.Println("Error, only positive numbers are accepted:", a, b)
@@ -555,7 +640,7 @@ func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) 
 /////////// SUB////////// TESTED /////////////////
 func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
 
-	a, b = bigNum_pair_setSameExponent_decreaseBiggerExponent(a, b)
+	a, b = bigNum_exponentsSetSame_decreaseBiggerExponent(a, b)
 	fmt.Println("A, bignum sub positive positive: ", a, b)
 	if a.negative || b.negative {
 		// this case is not possible, if this fun is not called directly
