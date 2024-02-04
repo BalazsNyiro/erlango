@@ -67,7 +67,7 @@ func (bn bignum_decimalValue) isNegative() bool {
 
 func (bn bignum_decimalValue) print(msg string) {
 	sign := "+"
-	if bn.negative {
+	if bn.isNegative() {
 		sign = "-"
 	}
 	fmt.Println(msg, sign, bn.digits, bn.exponent)
@@ -178,13 +178,28 @@ func (bn bignum_decimalValue) isLessThan(other bignum_decimalValue) bool {
 	// with other words: from back, which is the longest index num to go forward?
 	//                   the last index num is totally the num that you need to use
 	//                   to reach the first elem from the back, so this is correct:
-	positionFromBack__highestPlace := max(bignumNew.digitsIndexLast(), other_New.digitsIndexLast())
+	positionFromBack__firstDigitPositionFromBackViewPoint := max(bignumNew.digitsIndexLast(), other_New.digitsIndexLast())
+	/*
+                     01234   <- digit indexes
+	   example, bn = 45678   last digit's index is 4, so: bn.digits[4] == 8
+	     other =       123
+
+	here we select the greater index, because from the back, that is a pointer to the first char:
+
+
+	reversed indexes:43210 <----   from the back position, the first digit index is 4, too.
+					 45678
+	                 00123
+	*/
 
 	bnAbsoluteValueIsLess := false
-	for positionFromBack__highestPlace >=0 {
-		_, valueDigitBignum := bignumNew.digitValueInPositionFromBack(positionFromBack__highestPlace)
-		_, valueDigitOther_ := other_New.digitValueInPositionFromBack(positionFromBack__highestPlace)
+	for positionFromBack__firstDigitPositionFromBackViewPoint >=0 {
 
+		// Select the first character, with relative index from the last char:
+		_, valueDigitBignum := bignumNew.digitValueInPositionFromBack(positionFromBack__firstDigitPositionFromBackViewPoint)
+		_, valueDigitOther_ := other_New.digitValueInPositionFromBack(positionFromBack__firstDigitPositionFromBackViewPoint)
+
+		// if the highest place's digit is different, it is easy to decide, which num is less
 		if valueDigitBignum < valueDigitOther_{
 			bnAbsoluteValueIsLess = true
 			break
@@ -193,7 +208,7 @@ func (bn bignum_decimalValue) isLessThan(other bignum_decimalValue) bool {
 			bnAbsoluteValueIsLess = false
 			break
 		}
-		positionFromBack__highestPlace--
+		positionFromBack__firstDigitPositionFromBackViewPoint--
 	}
 
 	if bn.isPositive() && other.isPositive() {
@@ -501,7 +516,9 @@ func digitsCleaning_leadingZerosRemoval(digits digitList) digitList {
 	return allDigitsNoLeadingZeros
 }
 
+
 /////////////////// MULTIPLY //////////////
+// TESTED
 func internal_used_only__bigNum_mul_positive_positive(bigNum, multiply bignum_decimalValue) bignum_decimalValue {
 	bigNum = bigNum.normalisedForm_endingZerosIntoExponent()
 	multiply = multiply.normalisedForm_endingZerosIntoExponent()
@@ -596,7 +613,7 @@ func internal_used_only__bigNum_mul_positive_positive(bigNum, multiply bignum_de
 	// the 10^exponent values has to be added to the number:
 	result.exponent += bigNum.exponent + multiply.exponent
 	return result
-}
+} // end of multiply
 
 
 ///////////////// DIVISION ///////////////
@@ -700,3 +717,10 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 	fmt.Println("sub 5 positive positive summa: ", summa)
 	return summa
 }
+
+
+/////////////// DIVISION ///////////////
+// https://www.youtube.com/watch?v=yLknFrMrdAM&pp=ygUGb3N6dGFz
+// algorithm: https://www.youtube.com/watch?v=p8KSnecgfHs
+
+
