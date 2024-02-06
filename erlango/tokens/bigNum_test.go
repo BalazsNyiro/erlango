@@ -19,6 +19,42 @@ import (
 	"testing"
 )
 
+//////////////////////////////////////////////////////////////////
+
+//  go test -v -run   Test_internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers
+func Test_internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(t *testing.T) {
+	testName := "Test_internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers"
+
+	bn63 := bigNum_create_from_int(63)
+	bn3 := bigNum_create_from_int(3)
+
+	bnResultQuotient, bnResultRemainder, _ := internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(bn63, bn3)
+	compare_bigNum_int(testName, 21, bnResultQuotient, t)
+	compare_bigNum_int(testName, 0, bnResultRemainder, t)
+
+
+
+	bn145 := bigNum_create_from_int(145)
+	bn12 := bigNum_create_from_int(12)
+
+	bnResultQuotient, bnResultRemainder, _ = internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(bn145, bn12)
+	compare_bigNum_int(testName, 12, bnResultQuotient, t)
+	compare_bigNum_int(testName, 1, bnResultRemainder, t)
+
+
+
+	_, _, err := internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(bn145, bigNum_zero())
+	compare_bool_bool(testName, true, err != nil, t)
+
+
+	bnResultQuotient, bnResultRemainder, _ := internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(bn3, bn63)
+	compare_bigNum_int(testName, 0, bnResultQuotient, t)
+	compare_bigNum_int(testName, 63, bnResultRemainder, t)
+}
+
+
+
+//////////////////////////////////////////////////////////////////
 
 //  go test -v -run  Test_isEqual
 func Test_isEqual(t *testing.T) {

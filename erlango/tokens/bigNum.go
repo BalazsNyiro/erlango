@@ -58,7 +58,7 @@ type bignum_decimalValue struct {
 }
 
 func (bn bignum_decimalValue) isPositive() bool {
-	return ! (bn.negative)
+	return ! bn.negative
 }
 
 func (bn bignum_decimalValue) isNegative() bool {
@@ -436,6 +436,10 @@ func bigNum_zero() bignum_decimalValue {
 	return bignum_decimalValue{digits: digitList{0}, exponent: 0, negative: false}
 }
 
+func bigNum_one() bignum_decimalValue {
+	return bignum_decimalValue{digits: digitList{1}, exponent: 0, negative: false}
+}
+
 
 
 
@@ -724,3 +728,34 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 // algorithm: https://www.youtube.com/watch?v=p8KSnecgfHs
 
 
+/* the normal division operation needs a naive func that can tell 10:2, 86:23 -
+so a division operator, that can work with relatively small numbers, or
+when the ratio between the numbers is not too big, for example: 1536:93
+with other words: when with a few, naive addition, the result can be calculated.
+
+in this case: 1234567891122333: 36, in this case this algorithm is not effective, because it is slow.
+So use it only if you can calculate the result in a few step
+*/
+func internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(bigNum, divisor bignum_decimalValue) (quotient, remainder bignum_decimalValue, err error)  {
+	// the function is planned to work with positive bigNum and divisor ONLY.
+
+	quotient = bigNum_zero()
+	remainder = bigNum
+	err = nil
+
+	if divisor.isEqual(bigNum_zero()) {
+		err = errors.New("zero division")
+		return quotient, remainder, err
+	}
+
+	for {
+		fmt.Println("quotient:", quotient, " remainder:", remainder,  "divisor:", divisor)
+		if remainder.isLessThan(divisor) {
+			break
+		}
+		quotient = bigNum_operator_add(quotient, bigNum_one())
+		remainder = bigNum_operator_sub(remainder, divisor)
+	}
+
+	return quotient, remainder, err
+}
