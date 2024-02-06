@@ -12,14 +12,25 @@ contact: Balazs Nyiro (balazs.nyiro.ca@gmail.com)
  - interpreter version 3: (2024 Jan 5 -> 2024 March?) A good news :-) based on previous 2, now I see a more organised way to create it, so I will restart it again :-)
    The lexer/scanner version will be ready in 1-2 month, I hope. So, dear reader: it is coming :-)
 
+## Planned features:
+ - multiple module version handling (not only 2 versions),
+ - different module versions can be combined as deployment sets
+ - a really good debugger
+ - code editor with interpreter support (code analysis)
+
+ - big dreams (I am not sure is it possible or not, but I will try):
+   - interpreter cluster: like in Kafka, have more than one code replica, and if a node dies, the next can continue execution
+   - complete interpreter replacement in a running system
+   - node rotation support (you can kill one ore more node from a cluster, and after restart it attach again and continue code execution) 
 
 ## Why I write this interpreter?
-I hope if:
-- Go functions can be used natively from Erlang and vica-versa,
-- the interpreter is quicker than the native Erlang version
-- the debugger is far more useful
+Honestly, when I arrived into Canada, I tried to find Erlang jobs,
+and I saw only 2 in the whole continent. And 2000+ Golang, and more Python positions.
+So I quickly decided to learn Go - and what can be better than a hobby project?
+And because I wanted to pratice Erlang, too, an Erlang interpreter seemed to be a perfect candidate to be a better Go programmer.
 
-then this language can have a feature.
+Go grandmasters: this is a hobby project, to learn Go - so please comment everything and help me to do it better. 
+
 
 These two comments were the last drops in my glass.
 
