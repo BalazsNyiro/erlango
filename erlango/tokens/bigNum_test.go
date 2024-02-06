@@ -47,9 +47,9 @@ func Test_internal_used_only_bigNum_div_positivePositive__for_relative_small_num
 	compare_bool_bool(testName, true, err != nil, t)
 
 
-	bnResultQuotient, bnResultRemainder, _ := internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(bn3, bn63)
+	bnResultQuotient, bnResultRemainder, _ = internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(bn3, bn63)
 	compare_bigNum_int(testName, 0, bnResultQuotient, t)
-	compare_bigNum_int(testName, 63, bnResultRemainder, t)
+	compare_bigNum_int(testName, 3, bnResultRemainder, t)
 }
 
 
