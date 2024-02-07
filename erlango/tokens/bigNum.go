@@ -82,6 +82,17 @@ func (bn bignum_decimalValue) digitsIndexLast() int {
 	return len(bn.digits)-1
 }
 
+func (bn bignum_decimalValue) digitsExport() digitList{
+	// export a bigNum's digits into a new data structure
+	// I want a separated list of digits, not connected to the original num
+	digits := digitList{}
+	for _, digit := range digits{
+		digits = append(digits, digit)
+	}
+	return digits
+}
+
+
 // if the position is not in the digit, the value is 0.
 // posFromBack: 0 is the last digit, 1 is the second from back, 2 is the third from back
 // so here there is no negative position usage
@@ -110,8 +121,31 @@ func (bn bignum_decimalValue) duplicate() bignum_decimalValue {
 	return bignum_decimalValue{digits: digitsNew, exponent: bn.exponent, negative: bn.negative}
 }
 
+
+//set the exponent to zero, and load the ending zeros back into the digits
+// the returned value is a Copy, not the original number
+func (bn bignum_decimalValue) normalisedForm_exponentZerosIntoDigits() bignum_decimalValue {
+	// if the exponent > 0, load back the 0 digits into the num
+
+	digits := bn.digitsExport()
+	exponent := bn.exponent
+
+	if exponent <= 0 {
+		return bignum_decimalValue{digits: digits, exponent: exponent, negative: bn.negative}
+	}
+
+	for exponent > 0 {
+		digits = append(digits, 0)
+		exponent--
+	}
+
+	return bignum_decimalValue{digits: digits, exponent: 0, negative: bn.negative}
+}
+
+
 // collect all useful digits, plus the num of extra zeros at the end.
 // with this, it is easy to compare two numbers
+// normalisedForm means: the number digits and exponents are re-organised, by a method.
 // TESTED
 func (bn bignum_decimalValue) normalisedForm_endingZerosIntoExponent() bignum_decimalValue {
 	allDigitsReversed := digitList{}
@@ -724,8 +758,6 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 
 
 /////////////// DIVISION ///////////////
-// https://www.youtube.com/watch?v=yLknFrMrdAM&pp=ygUGb3N6dGFz
-// algorithm: https://www.youtube.com/watch?v=p8KSnecgfHs
 
 
 /* the normal division operation needs a naive func that can tell 10:2, 86:23 -
@@ -738,6 +770,7 @@ So use it only if you can calculate the result in a few step
 */
 func internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(bigNum, divisor bignum_decimalValue) (quotient, remainder bignum_decimalValue, err error)  {
 	// the function is planned to work with positive bigNum and divisor ONLY.
+	// and with relative small ratio between bigNum and divisor, because this is a naive (but stable :-) solution
 
 	quotient = bigNum_zero()
 	remainder = bigNum
@@ -745,7 +778,7 @@ func internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(
 
 	if divisor.isEqual(bigNum_zero()) {
 		err = errors.New("zero division")
-		return quotient, remainder, err
+		return bigNum_zero(), remainder, err
 	}
 
 	for {
@@ -758,4 +791,66 @@ func internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(
 	}
 
 	return quotient, remainder, err
+}
+
+
+/*
+ https://www.youtube.com/watch?v=yLknFrMrdAM&pp=ygUGb3N6dGFz
+ algorithm: https://www.youtube.com/watch?v=p8KSnecgfHs
+
+this is not a naive implementation - but in a few step, with small numbers, I need to use the
+small_nubmer focused func
+*/
+func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divisor bignum_decimalValue) (quotient, remainder bignum_decimalValue, err error) {
+
+	bigNum = bigNum.normalisedForm_exponentZerosIntoDigits()
+	divisor = divisor.normalisedForm_exponentZerosIntoDigits()
+
+	quotientDigits:= digitList{}
+	remainder = bigNum
+	err = nil
+
+	if divisor.isEqual(bigNum_zero()) {
+		err = errors.New("zero division")
+		return bigNum_zero(), remainder, err
+	} ///////////////////////////////////////////
+
+	digitsToAnalyseOneByOne := bigNum.digitsExport()
+
+	/* algorithm example:
+	            vv
+	            9815:65 = 1
+          step1:33
+	*/
+
+	digitsTmp := digitList{}
+	// index:
+	for len(digitsToAnalyseOneByOne) > 0 {
+		// relocate one digit from the orig digit list into the temporary value (first 98) where we do the first division
+		digitsTmp = append(digitsTmp, digitsToAnalyseOneByOne[0])
+		digitsToAnalyseOneByOne = digitsToAnalyseOneByOne[1:]
+
+		numTmp := bignum_decimalValue{digits: digitsTmp, exponent: 0, negative: false}
+
+		if numTmp.isLessThan(divisor) {
+			continue
+		} else {
+
+			// 98:65 step -> calculate a SubQuotient and subRemainder
+			subQuotient, subRemainder, subErr := internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(numTmp, divisor)
+
+			if subErr != nil {
+				return bigNum_zero(), subRemainder, subErr
+			}
+
+			quotientDigits = append(quotientDigits, subQuotient.digitsExport()...)
+			digitsTmp = subRemainder.digitsExport()
+		}
+	}
+
+	// the value in digitsTmp is less than divisor, so after the for loop, this is the remainder
+	remainder = bignum_decimalValue{digits: digitsTmp, exponent: 0, negative: false}
+
+	/////////////////////////////////////////////
+	return quotient.normalisedForm_endingZerosIntoExponent(), remainder.normalisedForm_endingZerosIntoExponent(), err
 }
