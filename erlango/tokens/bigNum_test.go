@@ -223,7 +223,7 @@ func Test_bigNum_pair_set_same_exponent(t *testing.T) {
 
 //  go test -v -run  Test_bigNum_operators
 func Test_bigNum_operators(t *testing.T) {
-	operations := []string{"sub", "add", "mul"}
+	operations := []string{"sub", "add", "mul", "div"}
 
 	for _, op := range operations {
 		// zero, negative
@@ -352,6 +352,8 @@ func Test_sub_with_leading_zeros(t *testing.T) {
 
 
 func operator_test(math_operator string, a, b int, t *testing.T) {
+	testName := fmt.Sprintf("math_operator_test__%s__%d_%d", math_operator, a, b)
+
 	bnA := bigNum_create_from_int(a)
 	bnB := bigNum_create_from_int(b)
 
@@ -373,8 +375,28 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 		bnResult = bigNum_operator_mul(bnA, bnB)
 	}
 
+	if math_operator == "div" {
 
-	testName := fmt.Sprintf("math_operator_test__%s__%d_%d", math_operator, a, b)
+		quotient, remainder, err := bigNum_operator_div(bnA, bnB)
+		intA := bigNum_convert_to_INT_for_testcases(bnA)
+		intB := bigNum_convert_to_INT_for_testcases(bnB)
+
+		if intB == 0 {
+			// don't divide with 0!
+			compare_bool_bool(testName+"__div_zeroError", err != nil, true, t)
+			return // no more operation, with 0 division
+		} else {
+			intResult = a * b
+
+			intQuotient := intA / intB
+			intRemainder := intA % intB
+
+			compare_bigNum_int(testName, intQuotient, quotient, t)
+			compare_bigNum_int(testName, intRemainder, remainder, t)
+		}
+	}
+
+
 	compare_bigNum_int(testName+"__compareBigNumInt", intResult, bnResult, t)
 
 	// and one more test, for  bigNum_convert_to_INT_for_testcases

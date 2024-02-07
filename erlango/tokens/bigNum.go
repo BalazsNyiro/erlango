@@ -418,6 +418,63 @@ func bigNum_operator_sub(a, b bignum_decimalValue) bignum_decimalValue {
 	return internal_used_only__bigNum_sub_positive_positive(a, b)
 }
 
+//////////// TESTED /////////////////
+func bigNum_operator_div(a, b bignum_decimalValue) (bignum_decimalValue, bignum_decimalValue, error) {
+	if a.isPositive() && b.isNegative() {
+		/*
+		9> 9 / -7.
+		-1.2857142857142858
+		10> 9 div -7.
+		-1
+		11> 9 rem -7.
+		2
+
+		*/
+
+		b.negative = false
+		quotient, remainder, err := internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(a, b)
+		quotient.negative = true
+		remainder.negative = false
+		return quotient, remainder, err
+
+	}
+	if a.isNegative() && b.isPositive() {
+		/*
+		6> -9 / 7.
+		-1.2857142857142858
+		7> -9 div 7.
+		-1
+		8> -9 rem 7.
+		-2
+
+		*/
+		a.negative = false
+		quotient, remainder, err := internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(a, b)
+		quotient.negative = true
+		remainder.negative = true
+		return quotient, remainder, err
+	}
+
+	if a.isNegative() && b.isNegative(){
+		/*
+		3> -9 / -7.
+		1.2857142857142858
+		4> -9 div -7.
+		1
+		5> -9 rem -7.
+		-2
+
+		*/
+		a.negative = false
+		b.negative = false
+		quotient, remainder, err := internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(a, b)
+		remainder.negative = true
+		return quotient, remainder, err
+	}
+
+	return internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(a, b)
+}
+
 
 
 
@@ -847,17 +904,17 @@ func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divis
 		// relocate one digit from the orig digit list into the temporary value (first 98) where we do the first division
 		digitsTmp = append(digitsTmp, digitsToAnalyseOneByOne[0])
 		digitsToAnalyseOneByOne = digitsToAnalyseOneByOne[1:]
-		fmt.Println("A, tmp:", digitsTmp, " <- ", digitsToAnalyseOneByOne, "  quotientDigits", quotientDigits)
+		// fmt.Println("A, tmp:", digitsTmp, " <- ", digitsToAnalyseOneByOne, "  quotientDigits", quotientDigits)
 
 		numTmp := bignum_decimalValue{digits: digitsTmp, exponent: 0, negative: false}
 
 		if numTmp.isLessThan(divisor) {
 			continue
 		} else {
-			fmt.Println("Temporary num ", numTmp.digits, ">= than divisor", divisor.digits)
+			// fmt.Println("Temporary num ", numTmp.digits, ">= than divisor", divisor.digits)
 			// 98:65 step -> calculate a SubQuotient and subRemainder
 			subQuotient, subRemainder, subErr := internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(numTmp, divisor)
-			fmt.Println("subQuotient:", subQuotient, "  subRemainder:", subRemainder)
+			// fmt.Println("subQuotient:", subQuotient, "  subRemainder:", subRemainder)
 
 			if subErr != nil {
 				return bigNum_zero(), subRemainder, subErr
