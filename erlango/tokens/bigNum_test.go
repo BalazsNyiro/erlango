@@ -28,11 +28,23 @@ func Test_internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(t *testi
 
 	bn9815 := bigNum_create_from_int(9815)
 	bn65 := bigNum_create_from_int(65)
-
 	bnResultQuotient, bnResultRemainder, _ := internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bn9815, bn65)
-	compare_bigNum_int(testName, 151, bnResultQuotient, t)
-	compare_bigNum_int(testName, 0, bnResultRemainder, t)
+	compare_int_bigNum(testName, 151, bnResultQuotient, t)
+	compare_int_bigNum(testName, 0, bnResultRemainder, t)
 
+
+	bigNum := bigNum_create_from_int(60)
+	bnDivisor := bigNum_create_from_int(65)
+	bnResultQuotient, bnResultRemainder, _ = internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, bnDivisor)
+	compare_int_bigNum(testName, 0, bnResultQuotient, t)
+	compare_int_bigNum(testName, 60, bnResultRemainder, t)
+
+
+	bigNum = bigNum_create_from_int(9817)
+	bnDivisor = bigNum_create_from_int(65)
+	bnResultQuotient, bnResultRemainder, _ = internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, bnDivisor)
+	compare_int_bigNum(testName, 151, bnResultQuotient, t)
+	compare_int_bigNum(testName, 2, bnResultRemainder, t)
 }
 
 //  go test -v -run   Test_internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers
@@ -43,8 +55,8 @@ func Test_internal_used_only_bigNum_div_positivePositive__for_relative_small_num
 	bn3 := bigNum_create_from_int(3)
 
 	bnResultQuotient, bnResultRemainder, _ := internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(bn63, bn3)
-	compare_bigNum_int(testName, 21, bnResultQuotient, t)
-	compare_bigNum_int(testName, 0, bnResultRemainder, t)
+	compare_int_bigNum(testName, 21, bnResultQuotient, t)
+	compare_int_bigNum(testName, 0, bnResultRemainder, t)
 
 
 
@@ -52,8 +64,8 @@ func Test_internal_used_only_bigNum_div_positivePositive__for_relative_small_num
 	bn12 := bigNum_create_from_int(12)
 
 	bnResultQuotient, bnResultRemainder, _ = internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(bn145, bn12)
-	compare_bigNum_int(testName, 12, bnResultQuotient, t)
-	compare_bigNum_int(testName, 1, bnResultRemainder, t)
+	compare_int_bigNum(testName, 12, bnResultQuotient, t)
+	compare_int_bigNum(testName, 1, bnResultRemainder, t)
 
 
 
@@ -62,8 +74,8 @@ func Test_internal_used_only_bigNum_div_positivePositive__for_relative_small_num
 
 
 	bnResultQuotient, bnResultRemainder, _ = internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(bn3, bn63)
-	compare_bigNum_int(testName, 0, bnResultQuotient, t)
-	compare_bigNum_int(testName, 3, bnResultRemainder, t)
+	compare_int_bigNum(testName, 0, bnResultQuotient, t)
+	compare_int_bigNum(testName, 3, bnResultRemainder, t)
 }
 
 
@@ -96,12 +108,18 @@ func Test_normaliseExponent_endingZerosRemove(t *testing.T) {
 
 }
 
+//  go test -v -run Test_digitsCleaning_leadingZerosRemoval
 func Test_digitsCleaning_leadingZerosRemoval(t *testing.T) {
 	testName := "Test_digitsCleaning_leadingZerosRemoval"
 	// leading insignificant 0 will be removed, too
 	digits := digitList{0,0,0,1,2,0,3,0,0}
 	digitsLeadingZerosRemoved := digitsCleaning_leadingZerosRemoval(digits)
 	digitsWanted := digitList{1,2,0,3,0,0}
+	compare_digits_digits(testName, digitsLeadingZerosRemoved, digitsWanted, t)
+
+	digits = digitList{0,0,0}
+	digitsLeadingZerosRemoved = digitsCleaning_leadingZerosRemoval(digits)
+	digitsWanted = digitList{0} // minimum one zero has to be stay there
 	compare_digits_digits(testName, digitsLeadingZerosRemoved, digitsWanted, t)
 }
 
@@ -386,18 +404,19 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 			compare_bool_bool(testName+"__div_zeroError", err != nil, true, t)
 			return // no more operation, with 0 division
 		} else {
-			intResult = a * b
 
+			// in case of DIV operation, we do different tests here:
 			intQuotient := intA / intB
 			intRemainder := intA % intB
 
-			compare_bigNum_int(testName, intQuotient, quotient, t)
-			compare_bigNum_int(testName, intRemainder, remainder, t)
+			compare_int_bigNum(testName, intQuotient, quotient, t)
+			compare_int_bigNum(testName, intRemainder, remainder, t)
+			return
 		}
 	}
 
 
-	compare_bigNum_int(testName+"__compareBigNumInt", intResult, bnResult, t)
+	compare_int_bigNum(testName+"__compareBigNumInt", intResult, bnResult, t)
 
 	// and one more test, for  bigNum_convert_to_INT_for_testcases
 	compare_int_int(testName+"__compareIntInt", bigNum_convert_to_INT_for_testcases(bnResult), intResult, t)
@@ -406,7 +425,7 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 
 
 
-func compare_bigNum_int(testName string, wantedNum int, bn bignum_decimalValue, t *testing.T) {
+func compare_int_bigNum(testName string, wantedNum int, bn bignum_decimalValue, t *testing.T) {
 	received := bigNum_convert_to_INT_for_testcases(bn)
 	compare_int_int(testName, wantedNum, received, t)
 }

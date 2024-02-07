@@ -838,7 +838,9 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 /* the normal division operation needs a naive func that can tell 10:2, 86:23 -
 so a division operator, that can work with relatively small numbers, or
 when the ratio between the numbers is not too big, for example: 1536:93
-with other words: when with a few, naive addition, the result can be calculated.
+with other words:
+	- when with a few, naive addition, the result can be calculated.
+	- when the result can be calculated in max 10-20 steps, that would be the ideal
 
 in this case: 1234567891122333: 36, in this case this algorithm is not effective, because it is slow.
 So use it only if you can calculate the result in a few step
