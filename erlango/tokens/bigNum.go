@@ -877,6 +877,8 @@ func internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(
 
 this is not a naive implementation - but in a few step, with small numbers, I need to use the
 small_nubmer focused func
+
+// https://golangbyexample.com/remainder-modulus-go-golang/
 */
 func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divisor bignum_decimalValue) (quotient, remainder bignum_decimalValue, err error) {
 
@@ -894,10 +896,14 @@ func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divis
 
 	digitsToAnalyseOneByOne := bigNum.digitsExport()
 
-	/* algorithm example:
+	/* algorithm example: take the first X chars, and if it is bigger than divisor,
 	            vv
-	            9815:65 = 1
-          step1:33
+	            9815:65 =
+          step1:33   ---> 1
+	      step2:331  --->  5
+	      step3:  65 --->   1
+
+		result: 9815:65 = 151, remainder=0
 	*/
 
 	digitsTmp := digitList{}
