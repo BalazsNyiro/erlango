@@ -86,7 +86,7 @@ func (bn bignum_decimalValue) digitsExport() digitList{
 	// export a bigNum's digits into a new data structure
 	// I want a separated list of digits, not connected to the original num
 	digits := digitList{}
-	for _, digit := range digits{
+	for _, digit := range bn.digits{
 		digits = append(digits, digit)
 	}
 	return digits
@@ -551,6 +551,10 @@ func digitsCleaning_leadingZerosRemoval(digits digitList) digitList {
 			allDigitsNoLeadingZeros = append(allDigitsNoLeadingZeros, digit)
 		}
 	}
+
+	if len(allDigitsNoLeadingZeros) == 0 {        // so if there are totally no digits here:
+		allDigitsNoLeadingZeros = digitList{0}   // minimum one zero has to be there, without digits there is no number
+	}
 	return allDigitsNoLeadingZeros
 }
 
@@ -707,7 +711,7 @@ func internal_used_only__bigNum_add_positive_positive(a, b bignum_decimalValue) 
 func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) bignum_decimalValue {
 
 	a, b = bigNum_exponentsSetSame_decreaseBiggerExponent(a, b)
-	fmt.Println("A, bignum sub positive positive: ", a, b)
+	// fmt.Println("A, bignum sub positive positive: ", a, b)
 	if a.negative || b.negative {
 		// this case is not possible, if this fun is not called directly
 		fmt.Println("Error, only positive numbers are accepted:", a, b)
@@ -720,7 +724,7 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 		a, b = b, a
 		negativeResult = true
 	}
-	fmt.Println("b, bignum sub positive positive: ", a, b)
+	// fmt.Println("b, bignum sub positive positive: ", a, b)
 
 	digitsReversed := digitList{}
 
@@ -734,25 +738,39 @@ func internal_used_only__bigNum_sub_positive_positive(a, b bignum_decimalValue) 
 
 		valueA = valueA - overflow
 		overflow = 0 // because overflow's value was calculated into valueA
-		// fmt.Println("sub 1 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
+		// fmt.Println("sub 1  pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
 
 		if posA < 0 && posB < 0 {
 			break // exit if there is no more thing to do
 		}
 
-		// fmt.Println("sub 2 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
+		// fmt.Println("sub 2a pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
 		if valueA < valueB {
+			// fmt.Println("sub 2b valueA", valueA, " < ", valueB, "valueB")
 			valueA += 10
 			overflow +=1
 		}
-		// fmt.Println("sub 3 pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
+		// fmt.Println("sub 3  pos/pos valueA:", valueA, "  valueB", valueB, "overflow:", overflow)
 		valueDiff := valueA - valueB
 		digitsReversed = append(digitsReversed, valueDiff)
-		// fmt.Println("sub 4 pos/pos valueDiff:", valueDiff)
+		// fmt.Println("sub 4  pos/pos valueDiff:", valueDiff, "APPENDED")
 	}
 
-	summa := bignum_decimalValue{digits: digitsReverse(digitsReversed), exponent: a.exponent, negative: negativeResult}
-	fmt.Println("sub 5 positive positive summa: ", summa)
+	/* during a subtraction, it is normal if leading zeros are inserted:
+		71
+	   -65
+	    06 is the result, with the algorithm, because 7-7 at the first pos is 0
+	but later it has to be removed
+
+	if the num would be 81:
+	    81
+	   -65
+	    16  // so the 0 in the previous example is the natural output.
+	*/
+
+	digitsNormal := digitsCleaning_leadingZerosRemoval(digitsReverse(digitsReversed))
+	summa := bignum_decimalValue{digits: digitsNormal, exponent: a.exponent, negative: negativeResult}
+	// fmt.Println("sub 5 positive positive summa: ", summa)
 	return summa
 }
 
@@ -782,7 +800,7 @@ func internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(
 	}
 
 	for {
-		fmt.Println("quotient:", quotient, " remainder:", remainder,  "divisor:", divisor)
+		// fmt.Println("quotient:", quotient, " remainder:", remainder,  "divisor:", divisor)
 		if remainder.isLessThan(divisor) {
 			break
 		}
@@ -805,7 +823,7 @@ func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divis
 
 	bigNum = bigNum.normalisedForm_exponentZerosIntoDigits()
 	divisor = divisor.normalisedForm_exponentZerosIntoDigits()
-
+	fmt.Println("bigNum:", bigNum, "divisor:", divisor)
 	quotientDigits:= digitList{}
 	remainder = bigNum
 	err = nil
@@ -829,15 +847,17 @@ func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divis
 		// relocate one digit from the orig digit list into the temporary value (first 98) where we do the first division
 		digitsTmp = append(digitsTmp, digitsToAnalyseOneByOne[0])
 		digitsToAnalyseOneByOne = digitsToAnalyseOneByOne[1:]
+		fmt.Println("A, tmp:", digitsTmp, " <- ", digitsToAnalyseOneByOne, "  quotientDigits", quotientDigits)
 
 		numTmp := bignum_decimalValue{digits: digitsTmp, exponent: 0, negative: false}
 
 		if numTmp.isLessThan(divisor) {
 			continue
 		} else {
-
+			fmt.Println("Temporary num ", numTmp.digits, ">= than divisor", divisor.digits)
 			// 98:65 step -> calculate a SubQuotient and subRemainder
 			subQuotient, subRemainder, subErr := internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(numTmp, divisor)
+			fmt.Println("subQuotient:", subQuotient, "  subRemainder:", subRemainder)
 
 			if subErr != nil {
 				return bigNum_zero(), subRemainder, subErr
@@ -849,8 +869,13 @@ func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divis
 	}
 
 	// the value in digitsTmp is less than divisor, so after the for loop, this is the remainder
-	remainder = bignum_decimalValue{digits: digitsTmp, exponent: 0, negative: false}
+	remainder = bignum_decimalValue{digits: digitsCleaning_leadingZerosRemoval(digitsTmp), exponent: 0, negative: false}
 
 	/////////////////////////////////////////////
-	return quotient.normalisedForm_endingZerosIntoExponent(), remainder.normalisedForm_endingZerosIntoExponent(), err
+	quotient = bignum_decimalValue{digits: digitsCleaning_leadingZerosRemoval(quotientDigits), exponent: 0, negative: false}
+
+	quotient = quotient.normalisedForm_exponentZerosIntoDigits()
+	remainder = remainder.normalisedForm_endingZerosIntoExponent()
+
+	return quotient, remainder.normalisedForm_endingZerosIntoExponent(), err
 }

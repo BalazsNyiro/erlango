@@ -21,6 +21,20 @@ import (
 
 //////////////////////////////////////////////////////////////////
 
+
+//  go test -v -run Test_internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM
+func Test_internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(t *testing.T) {
+	testName := "Test_internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM"
+
+	bn9815 := bigNum_create_from_int(9815)
+	bn65 := bigNum_create_from_int(65)
+
+	bnResultQuotient, bnResultRemainder, _ := internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bn9815, bn65)
+	compare_bigNum_int(testName, 151, bnResultQuotient, t)
+	compare_bigNum_int(testName, 0, bnResultRemainder, t)
+
+}
+
 //  go test -v -run   Test_internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers
 func Test_internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers(t *testing.T) {
 	testName := "Test_internal_used_only_bigNum_div_positivePositive__for_relative_small_numbers"
@@ -266,9 +280,74 @@ func Test_bigNum_operators(t *testing.T) {
 //  go test -v -run  Test_bigNum_debug
 func Test_bigNum_debug(t *testing.T) {
 	op := "mul"
-	// operator_test(op, 34, 12, t)
+	operator_test(op, 34, 12, t)
 	operator_test(op, 10, 1, t)
 	operator_test(op, 999, 99, t)
+}
+
+
+//  go test -v -run   Test_sub_with_same_number
+func Test_sub_with_same_number(t *testing.T) {
+	testName := "Test_sub_with_same_number"
+
+	// this is in reality a digitsCleaning_leadingZerosRemoval()
+	// test, because that removed ALL zeros from the result of the SUB operator
+
+	// will we see one zeros in the output, or no? because if the
+	// leading zeros are removed, the num won't have any digits!!
+	bn65 := bignum_decimalValue{digits: digitList{6, 5}, exponent: 0, negative: false}
+	// so in leading zeros removal, leave minimum one zero!!!
+	result := internal_used_only__bigNum_sub_positive_positive(bn65, bn65)
+
+	compare_bool_bool(testName, len(result.digits)==1, true, t)
+	compare_int_int(testName, int(result.digits[0]), 0, t)
+
+}
+
+//  go test -v -run   Test_sub_with_leading_zeros
+func Test_sub_with_leading_zeros(t *testing.T) {
+	/* This test was created, because accidentally I found a situation, when after SUB operation,
+	leading zeros were in the result:
+
+	=== RUN   Test_sub_with_leading_zeros
+	A, bignum sub positive positive:  {[0 7 1] 0 false} {[6 5] 0 false}
+	b, bignum sub positive positive:  {[0 7 1] 0 false} {[6 5] 0 false}
+	sub 1 pos/pos valueA: 1   valueB 5 overflow: 0
+	sub 2 pos/pos valueA: 1   valueB 5 overflow: 0
+	sub 3 pos/pos valueA: 11   valueB 5 overflow: 1
+	sub 4 pos/pos valueDiff: 6
+	sub 1 pos/pos valueA: 6   valueB 6 overflow: 0
+	sub 2 pos/pos valueA: 6   valueB 6 overflow: 0
+	sub 3 pos/pos valueA: 6   valueB 6 overflow: 0
+	sub 4 pos/pos valueDiff: 0
+	sub 1 pos/pos valueA: 0   valueB 0 overflow: 0
+	sub 2 pos/pos valueA: 0   valueB 0 overflow: 0
+	sub 3 pos/pos valueA: 0   valueB 0 overflow: 0
+	sub 4 pos/pos valueDiff: 0
+	sub 1 pos/pos valueA: 0   valueB 0 overflow: 0
+	sub 5 positive positive summa:  {[0 0 6] 0 false}
+	    bigNum_test.go:365:
+	        Error, different bool comparison Test_sub_with_leading_zeros wanted: false, received: true
+	--- FAIL: Test_sub_with_leading_zeros (0.00s)
+	FAIL
+	exit status 1
+	FAIL	erlango.org/erlango/tokens	0.002s
+
+	so 0,0,6 is not the correct result, fix it!!!
+	*/
+
+
+	testName := "Test_sub_with_leading_zeros"
+	// intentionally contains leading zeros
+	bn071 := bignum_decimalValue{digits: digitList{0, 7, 1}, exponent: 0, negative: false}
+	bn65 := bignum_decimalValue{digits: digitList{6, 5}, exponent: 0, negative: false}
+
+	result := internal_used_only__bigNum_sub_positive_positive(bn071, bn65)
+
+	// the length of the result has to be 1, without leading zeros,
+	// this is the natural output of the algorithm: [0, 0, 6]
+	compare_bool_bool(testName, len(result.digits)==1, true, t)
+	compare_int_int(testName, int(result.digits[0]), 6, t)
 }
 
 
