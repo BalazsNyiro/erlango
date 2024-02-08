@@ -896,7 +896,7 @@ func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divis
 
 	digitsToAnalyseOneByOne := bigNum.digitsExport()
 
-	/* algorithm example: take the first X chars, and if it is bigger than divisor,
+	/* algorithm example: take the first X chars, and if it is bigger than divisor, do the math
 	            vv
 	            9815:65 =
           step1:33   ---> 1

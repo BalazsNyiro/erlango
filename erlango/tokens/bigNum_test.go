@@ -272,6 +272,12 @@ func Test_bigNum_operators(t *testing.T) {
 
 		// I saw problems with these in random tests:
 		operator_test(op,-908, 105, t)
+
+		// div specific tests:
+		operator_test(op,  0, 10, t)
+		operator_test(op,  10, 0, t)
+		operator_test(op,  10, 1, t)
+		operator_test(op,  1, 0, t)
 	}
 
 	// RANDOM MATH TESTS against all operations /////////////////////////////////////////
@@ -368,6 +374,22 @@ func Test_sub_with_leading_zeros(t *testing.T) {
 	compare_int_int(testName, int(result.digits[0]), 6, t)
 }
 
+//  go test -v -run   Test_mass_div_manual_tests
+func Test_mass_div_manual_tests(t *testing.T) {
+
+	// TODO: write a tons of manual tests
+	testName := "Test_mass_div_manual_tests"
+	bnA := bigNum_create_from_int(10)
+	bnB := bigNum_create_from_int(2)
+	math_operator_div_separated_testgroup(testName, bnA, bnB, t)
+
+	/*
+	FIXME: WHY? remainder: 0, 2 ?? why do we see 2 in exponent?
+	Test_mass_div_tests__div_bnA_bnB__10_2 bigQuotient: {[5] 0 false}   bigRemainder: {[0] 2 false}
+
+	*/
+}
+
 
 func operator_test(math_operator string, a, b int, t *testing.T) {
 	testName := fmt.Sprintf("math_operator_test__%s__%d_%d", math_operator, a, b)
@@ -394,25 +416,10 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 	}
 
 	if math_operator == "div" {
-
-		quotient, remainder, err := bigNum_operator_div(bnA, bnB)
-		intA := bigNum_convert_to_INT_for_testcases(bnA)
-		intB := bigNum_convert_to_INT_for_testcases(bnB)
-
-		if intB == 0 {
-			// don't divide with 0!
-			compare_bool_bool(testName+"__div_zeroError", err != nil, true, t)
-			return // no more operation, with 0 division
-		} else {
-
-			// in case of DIV operation, we do different tests here:
-			intQuotient := intA / intB
-			intRemainder := intA % intB
-
-			compare_int_bigNum(testName, intQuotient, quotient, t)
-			compare_int_bigNum(testName, intRemainder, remainder, t)
-			return
-		}
+		// it has more than one result, and error handling,
+		// so tested in a unique group
+		math_operator_div_separated_testgroup(testName, bnA, bnB, t)
+		return
 	}
 
 
@@ -422,6 +429,30 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 	compare_int_int(testName+"__compareIntInt", bigNum_convert_to_INT_for_testcases(bnResult), intResult, t)
 
 }
+
+
+func math_operator_div_separated_testgroup(testName string, bnA, bnB bignum_decimalValue, t *testing.T) {
+	quotient, remainder, err := bigNum_operator_div(bnA, bnB)
+	intA := bigNum_convert_to_INT_for_testcases(bnA)
+	intB := bigNum_convert_to_INT_for_testcases(bnB)
+
+	testName += fmt.Sprintf("__div_bnA_bnB__%d_%d", intA, intB)
+	if intB == 0 {
+		// don't divide with 0!
+		compare_bool_bool(testName, err != nil, true, t)
+	} else {
+
+		// in case of DIV operation, we do different tests here:
+		intQuotient := intA / intB
+		intRemainder := intA % intB
+		fmt.Println(testName, "intQuotient:", intQuotient, "  intRemainder:", intRemainder)
+		fmt.Println(testName, "bigQuotient:", quotient, "  bigRemainder:", remainder)
+
+		compare_int_bigNum(testName, intQuotient, quotient, t)
+		compare_int_bigNum(testName, intRemainder, remainder, t)
+	}
+}
+
 
 
 
