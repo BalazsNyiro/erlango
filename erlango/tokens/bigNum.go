@@ -884,7 +884,7 @@ func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divis
 
 	bigNum = bigNum.normalisedForm_exponentZerosIntoDigits()
 	divisor = divisor.normalisedForm_exponentZerosIntoDigits()
-	fmt.Println("bigNum:", bigNum, "divisor:", divisor)
+	// fmt.Println("div, FULL ALGO - bigNum:", bigNum, "divisor:", divisor)
 	quotientDigits:= digitList{}
 	remainder = bigNum
 	err = nil
@@ -895,6 +895,7 @@ func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divis
 	} ///////////////////////////////////////////
 
 	digitsToAnalyseOneByOne := bigNum.digitsExport()
+	// fmt.Println("digits to analyse:", digitsToAnalyseOneByOne)
 
 	/* algorithm example: take the first X chars, and if it is bigger than divisor, do the math
 	            vv
@@ -904,6 +905,12 @@ func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divis
 	      step3:  65 --->   1
 
 		result: 9815:65 = 151, remainder=0
+
+			411:2 =
+	  step1:0  --> 2
+	  step2: 1 -->  0  // 1:2 = 0 quotient, 1 remainder ------> this 0 has to be REPRESENTED in quotients, too
+	  step3: 11-->   5
+	          1
 	*/
 
 	digitsTmp := digitList{}
@@ -917,6 +924,8 @@ func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divis
 		numTmp := bignum_decimalValue{digits: digitsTmp, exponent: 0, negative: false}
 
 		if numTmp.isLessThan(divisor) {
+			// 0 has to be REPRESENTED in quotient, as a result, too: see in example 2
+			quotientDigits = append(quotientDigits, 0)
 			continue
 		} else {
 			// fmt.Println("Temporary num ", numTmp.digits, ">= than divisor", divisor.digits)
@@ -939,8 +948,10 @@ func internal_used_only_bigNum_div_positivePositive_FULL_ALGORITHM(bigNum, divis
 	/////////////////////////////////////////////
 	quotient = bignum_decimalValue{digits: digitsCleaning_leadingZerosRemoval(quotientDigits), exponent: 0, negative: false}
 
-	quotient = quotient.normalisedForm_exponentZerosIntoDigits()
+	// represent everything in digits, without tricks in exponents
+	quotient = quotient.normalisedForm_endingZerosIntoExponent()
 	remainder = remainder.normalisedForm_endingZerosIntoExponent()
 
-	return quotient, remainder.normalisedForm_endingZerosIntoExponent(), err
+	fmt.Println("div FULL ALGO calculated result, quotient:", quotient,"  remainder:", remainder)
+	return quotient, remainder, err
 }

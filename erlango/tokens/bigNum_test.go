@@ -377,17 +377,26 @@ func Test_sub_with_leading_zeros(t *testing.T) {
 //  go test -v -run   Test_mass_div_manual_tests
 func Test_mass_div_manual_tests(t *testing.T) {
 
-	// TODO: write a tons of manual tests
 	testName := "Test_mass_div_manual_tests"
 	bnA := bigNum_create_from_int(10)
 	bnB := bigNum_create_from_int(2)
-	math_operator_div_separated_testgroup(testName, bnA, bnB, t)
+	math_operator_div_separated_validationCalculation(testName, bnA, bnB, t)
 
-	/*
-	FIXME: WHY? remainder: 0, 2 ?? why do we see 2 in exponent?
-	Test_mass_div_tests__div_bnA_bnB__10_2 bigQuotient: {[5] 0 false}   bigRemainder: {[0] 2 false}
+	bnA = bigNum_create_from_int(10)
+	bnB = bigNum_create_from_int(1)
+	math_operator_div_separated_validationCalculation(testName, bnA, bnB, t)
 
-	*/
+	bnA = bigNum_create_from_int(100)
+	bnB = bigNum_create_from_int(1)
+	math_operator_div_separated_validationCalculation(testName, bnA, bnB, t)
+
+	bnA = bigNum_create_from_int(100)
+	bnB = bigNum_create_from_int(33)
+	math_operator_div_separated_validationCalculation(testName, bnA, bnB, t)
+
+	bnA = bigNum_create_from_int(100)
+	bnB = bigNum_create_from_int(3)
+	math_operator_div_separated_validationCalculation(testName, bnA, bnB, t)
 }
 
 
@@ -418,7 +427,7 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 	if math_operator == "div" {
 		// it has more than one result, and error handling,
 		// so tested in a unique group
-		math_operator_div_separated_testgroup(testName, bnA, bnB, t)
+		math_operator_div_separated_validationCalculation(testName, bnA, bnB, t)
 		return
 	}
 
@@ -431,12 +440,12 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 }
 
 
-func math_operator_div_separated_testgroup(testName string, bnA, bnB bignum_decimalValue, t *testing.T) {
+func math_operator_div_separated_validationCalculation(testName string, bnA, bnB bignum_decimalValue, t *testing.T) {
 	quotient, remainder, err := bigNum_operator_div(bnA, bnB)
 	intA := bigNum_convert_to_INT_for_testcases(bnA)
 	intB := bigNum_convert_to_INT_for_testcases(bnB)
 
-	testName += fmt.Sprintf("__div_bnA_bnB__%d_%d", intA, intB)
+	testName += fmt.Sprintf("__separatedGroup_div_bnA_bnB__%d_%d", intA, intB)
 	if intB == 0 {
 		// don't divide with 0!
 		compare_bool_bool(testName, err != nil, true, t)
