@@ -397,7 +397,65 @@ func Test_mass_div_manual_tests(t *testing.T) {
 	bnA = bigNum_create_from_int(100)
 	bnB = bigNum_create_from_int(3)
 	math_operator_div_separated_validationCalculation(testName, bnA, bnB, t)
+
+
+	bnA = bigNum_create_from_int(0)
+	bnB = bigNum_create_from_int(3)
+	math_operator_div_separated_validationCalculation(testName, bnA, bnB, t)
+
+	/// special cases, negative number combinations
+
+
+	///// POSITIVE-NEGATIVE
+	/* 10> 9 div -7.
+		-1
+		11> 9 rem -7.
+	    2
+	*/
+	bnA = bigNum_create_from_int(9)
+	bnB = bigNum_create_from_int(-7)
+	quotientCalculated, remainderCalculated, _ := math_operator_div_separated_validationCalculation(testName, bnA, bnB, t)
+	compare_int_bigNum(testName, -1, quotientCalculated, t)
+	compare_int_bigNum(testName, 2, remainderCalculated, t)
+
+
+
+	/// NEGATIVE-POSITIVE
+	/*
+		6> -9 / 7.
+		-1.2857142857142858
+		7> -9 div 7.
+		-1
+		8> -9 rem 7.
+		-2
+
+	*/
+
+	bnA = bigNum_create_from_int(-9)
+	bnB = bigNum_create_from_int(7)
+	quotientCalculated, remainderCalculated, _ = math_operator_div_separated_validationCalculation(testName, bnA, bnB, t)
+	compare_int_bigNum(testName, -1, quotientCalculated, t)
+	compare_int_bigNum(testName, -2, remainderCalculated, t)
+
+
+	/// NEGATIVE-NEGATIVE
+	/*
+		3> -9 / -7.
+		1.2857142857142858
+		4> -9 div -7.
+		1
+		5> -9 rem -7.
+		-2
+
+	*/
+	bnA = bigNum_create_from_int(-9)
+	bnB = bigNum_create_from_int(-7)
+	quotientCalculated, remainderCalculated, _ = math_operator_div_separated_validationCalculation(testName, bnA, bnB, t)
+	compare_int_bigNum(testName, 1, quotientCalculated, t)
+	compare_int_bigNum(testName, -2, remainderCalculated, t)
 }
+
+
 
 
 func operator_test(math_operator string, a, b int, t *testing.T) {
@@ -440,7 +498,8 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 }
 
 
-func math_operator_div_separated_validationCalculation(testName string, bnA, bnB bignum_decimalValue, t *testing.T) {
+// if we want to use the result later, give it back
+func math_operator_div_separated_validationCalculation(testName string, bnA, bnB bignum_decimalValue, t *testing.T) (bignum_decimalValue, bignum_decimalValue, error) {
 	quotient, remainder, err := bigNum_operator_div(bnA, bnB)
 	intA := bigNum_convert_to_INT_for_testcases(bnA)
 	intB := bigNum_convert_to_INT_for_testcases(bnB)
@@ -452,6 +511,7 @@ func math_operator_div_separated_validationCalculation(testName string, bnA, bnB
 	} else {
 
 		// in case of DIV operation, we do different tests here:
+
 		intQuotient := intA / intB
 		intRemainder := intA % intB
 		fmt.Println(testName, "intQuotient:", intQuotient, "  intRemainder:", intRemainder)
@@ -460,6 +520,10 @@ func math_operator_div_separated_validationCalculation(testName string, bnA, bnB
 		compare_int_bigNum(testName, intQuotient, quotient, t)
 		compare_int_bigNum(testName, intRemainder, remainder, t)
 	}
+
+	// in this func, I use calculated intQuotient and intRemainder values. in some place,
+	// I check the result manually, too, this is the reason why I return with the bigNum values at the end
+	return quotient, remainder, err
 }
 
 
