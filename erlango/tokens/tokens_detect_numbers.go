@@ -401,7 +401,7 @@ func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (bignum_
 		fmt.Println("digit[",pos,"] => ", digit, string(digit))
 
 		if digit == '_'	 { // first I removed all _ in the root point. then I realised that I change the characters with that action
-			continue	   // so unfortunatelly, the most native/correct ways is to accept the _ but not to do anything
+			continue	   // so unfortunately, the most native/correct ways is to accept the _ but not to do anything
 		}
 
 		// rune -> numberValue conversion, in range 0-9
@@ -416,11 +416,22 @@ func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (bignum_
 
 /* analyse all digits, and calculate a decimal based value from a maybe non-decimal input */
 /*
-func bigNum_from_digits_general_any_numsystem (token Token, numeralSystemType int) (bignum_decimalValue, error) {
+func bigNum_from_digits_general_any_numsystem (token Token) (bignum_decimalValue, error) {
 	summa := bigNum_zero()
+	numeralSystemType := 10
+
+	for pos := 0; pos < len(token.charsInErlSrc); pos++ {
+	// TODO: fix it, not finished
+	}
+
 
 	for pos := 0; pos < len(token.charsInErlSrc); pos++ {
 		digit := token.charsInErlSrc[pos]
+		fmt.Println("digit[",pos,"] => ", digit, string(digit))
+
+		if digit == '_'	 { // first I removed all _ in the root point. then I realised that I change the characters with that action
+			continue	   // so unfortunately, the most native/correct ways is to accept the _ but not to do anything
+		}
 
 		// rune -> numberValue conversion - an integer between 0-35
 		digitValueDecimalInteger, errorValueDetection := digitRune_decimalValue(digit)
@@ -443,16 +454,25 @@ func bigNum_from_digits_general_any_numsystem (token Token, numeralSystemType in
 	return summa, nil
 }
 */
-
 // if the token is a number, return with a value and and OK
 // if it is NOT a number, return with 0 and error
 func bigNum_from_token(token Token) (bignum_decimalValue, error)  {
-	// the token has minimum 1 char, - there is a validation against that, so the for loops always run
+
 	if token.tokenType == tokenType_Num_int {
+		// this is the easiest way
 		num, err := bigNum_from_digits_specialcase_decimalintegergeneral(token)
+
+		// and this is the hardest :-)
+		// num, err :=  bigNum_from_digits_general_any_numsystem(token)
+
 		return num.normalisedForm_endingZerosIntoExponent(), err
 	} // Num_int detected
-
+/*
+	if token.tokenType == tokenType_Num_maybeNonDecimal{
+		num, err := bigNum_from_digits_general_any_numsystem(token)
+		return num.normalisedForm_endingZerosIntoExponent(), err
+	} // Num_int detected
+*/
 	return bigNum_zero(), errors.New("number value detection error ("+token.stringRepr()+")")
 }
 
