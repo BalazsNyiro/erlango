@@ -49,12 +49,14 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 	///////////////////////////////////////////////////////////////
 	digitsZeroNine := []rune(ABC_Eng_digits)
 	digitsZeroNine_underscore := []rune(ABC_Eng_digits+"_")
+
 	digitDot := []rune(".")
 	digitHashmark := []rune("#")
+	digitDotOrHashmark := []rune(".#")
 
 
-	//digitE := []rune("e")
-	//digitPlusMinus := []rune("+-")
+	digitE := []rune("e")
+	digitPlusMinus := []rune("+-")
 
 	const str_digits_abc_ABC = ABC_Eng_digits + ABC_Eng_Lower + ABC_Eng_Upper
 	const str_digits_abc_ABC_underscore = str_digits_abc_ABC + "_"
@@ -94,6 +96,26 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 		4b: 12345    - digitOnly                                 (simple integer)
 		5: $A        - $ + oneChar, or 2 char if it is escaped   (char literals)
 		*/
+
+		if tokenType == "" {
+			detection := "nondecimal_float_scientist 1a, 1b"
+			digit______hash_digitAbc      := charsGroupsAreMatching(charPos, erlSrcRunes,[]([]rune){digitsZeroNine,                            digitDotOrHashmark, digitsZeroNine_abc_ABC                                   , digitE, digitPlusMinus, digitsZeroNine}, "right", "detected_num_digitHashmarkDigitAbc")
+			digitUnder_hash_digitAbc      := charsGroupsAreMatching(charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitDotOrHashmark, digitsZeroNine_abc_ABC                                   , digitE, digitPlusMinus, digitsZeroNine}, "right", "detected_num_digitUnderscoreHashmarkDigitAbc")
+			digitUnder_hash_digitAbcUnder := charsGroupsAreMatching(charPos, erlSrcRunes,[]([]rune){digitsZeroNine, digitsZeroNine_underscore, digitDotOrHashmark, digitsZeroNine_abc_ABC, digitsZeroNine_abc_ABC_underscore, digitE, digitPlusMinus, digitsZeroNine}, "right", "detected_num_digitUnderscoreHashmarkDigitAbcUnderscore")
+			digit______hash_digitAbcUnder := charsGroupsAreMatching(charPos, erlSrcRunes,[]([]rune){digitsZeroNine,                            digitDotOrHashmark, digitsZeroNine_abc_ABC, digitsZeroNine_abc_ABC_underscore, digitE, digitPlusMinus, digitsZeroNine}, "right", "detected_num_digitHashmarkDigitAbcUnderscore")
+
+			detectedMax := max(digitUnder_hash_digitAbc, digit______hash_digitAbc, digitUnder_hash_digitAbcUnder, digit______hash_digitAbcUnder)
+			fmt.Println(detection+" detectedMax", detectedMax)
+
+			if detectedMax > 0 {
+				tokenType = tokenType_Num_maybeNonDecimal_scientific
+				detectionCharPosFirst = charPos
+				detectionCharPosLast = charPos + detectedMax - 1
+			}
+		}
+
+
+
 
 		if tokenType == "" { // hexa and non-decimal detection (2)
 			detection := "hexa/nondecimal detections"
@@ -286,7 +308,7 @@ func number_token_validation(tokenType, erlSrc string) (string, string) {
 	// 	errMsgForUser += "a number cannot start with _ sign: "+erlSrc+" ;"
 	// }
 
-	// 16_ is invalid
+	// 16_ is invalid: the last char cannot be an underscore, something is always has to be after the underscore
 	if strings.HasSuffix(erlSrc, "_"){
 		printIfDebug("validation: suffix _")
 		errMsgForUser += "a number cannot end with _ sign: "+erlSrc+" ;"
@@ -369,7 +391,7 @@ func numDetect_removeUnderscoreFromString(txt string) string {
 	if decimals are converted to bigNum, that is simple, because the values can be directly loaded
     into the digits, without any calculation
 
-	The general solution is more complex, TODO: maybe next time
+	The general solution is more complex, but important for hexa and other num systems, TODO: maybe next time
 */
 func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (bignum_decimalValue, error) {
 
@@ -377,6 +399,10 @@ func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (bignum_
 	for pos := 0; pos < len(token.charsInErlSrc); pos++ {
 		digit := token.charsInErlSrc[pos]
 		fmt.Println("digit[",pos,"] => ", digit, string(digit))
+
+		if digit == '_'	 { // first I removed all _ in the root point. then I realised that I change the characters with that action
+			continue	   // so unfortunatelly, the most native/correct ways is to accept the _ but not to do anything
+		}
 
 		// rune -> numberValue conversion, in range 0-9
 		digitValueDecimalInteger, errorValueDetection := digitRune_decimalValue(digit)
@@ -425,7 +451,6 @@ func bigNum_from_token(token Token) (bignum_decimalValue, error)  {
 	if token.tokenType == tokenType_Num_int {
 		num, err := bigNum_from_digits_specialcase_decimalintegergeneral(token)
 		return num.normalisedForm_endingZerosIntoExponent(), err
-		// TODO: normalize the number here! so (1000, 0) -> (1, 3)!!
 	} // Num_int detected
 
 	return bigNum_zero(), errors.New("number value detection error ("+token.stringRepr()+")")

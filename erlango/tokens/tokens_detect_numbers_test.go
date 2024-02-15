@@ -185,7 +185,14 @@ func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *t
 
 //  go test -v -run Test_mass_number_detection
 func Test_mass_number_detection(t *testing.T) {
-	tokens_detectNumbers_simpleTest(`16      `, tokenType_Num_int, t)
+	// this test calls ERLANG BINARY to check the values, too!
+	tokens_detectNumbers_simpleTest(`16         `, tokenType_Num_int, t)
+	tokens_detectNumbers_simpleTest(`1_6        `, tokenType_Num_int, t)
+	tokens_detectNumbers_simpleTest(`1_6_7      `, tokenType_Num_int, t)
+
+	tokens_detectNumbers_simpleTest(`1__6      `, tokenType_SyntaxError, t)
+	tokens_detectNumbers_simpleTest(`1_6_      `, tokenType_SyntaxError, t)
+	tokens_detectNumbers_simpleTest(`1_6__     `, tokenType_SyntaxError, t)
 
 	// tokens_detectNumbers_simpleTest(`16#4f   `, tokenType_Num_maybeNonDecimal, t)
 	// tokens_detectNumbers_simpleTest(`1_6#4f  `, tokenType_Num_maybeNonDecimal, t)
