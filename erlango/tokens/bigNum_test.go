@@ -492,8 +492,8 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 
 	compare_int_bigNum(testName+"__compareBigNumInt", intResult, bnResult, t)
 
-	// and one more test, for  bigNum_convert_to_INT_for_testcases
-	compare_int_int(testName+"__compareIntInt", bigNum_convert_to_INT_for_testcases(bnResult), intResult, t)
+	// and one more test, for  bigNum_convert_to_INT
+	compare_int_int(testName+"__compareIntInt", bigNum_convert_to_INT(bnResult), intResult, t)
 
 }
 
@@ -501,8 +501,8 @@ func operator_test(math_operator string, a, b int, t *testing.T) {
 // if we want to use the result later, give it back
 func math_operator_div_separated_validationCalculation(testName string, bnA, bnB bignum_decimalValue, t *testing.T) (bignum_decimalValue, bignum_decimalValue, error) {
 	quotient, remainder, err := bigNum_operator_div(bnA, bnB)
-	intA := bigNum_convert_to_INT_for_testcases(bnA)
-	intB := bigNum_convert_to_INT_for_testcases(bnB)
+	intA := bigNum_convert_to_INT(bnA)
+	intB := bigNum_convert_to_INT(bnB)
 
 	testName += fmt.Sprintf("__separatedGroup_div_bnA_bnB__%d_%d", intA, intB)
 	if intB == 0 {
@@ -530,7 +530,7 @@ func math_operator_div_separated_validationCalculation(testName string, bnA, bnB
 
 
 func compare_int_bigNum(testName string, wantedNum int, bn bignum_decimalValue, t *testing.T) {
-	received := bigNum_convert_to_INT_for_testcases(bn)
+	received := bigNum_convert_to_INT(bn)
 	compare_int_int(testName, wantedNum, received, t)
 }
 

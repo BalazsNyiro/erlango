@@ -87,7 +87,12 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 
 		/* num representations, from more complicated to simple direction:
 
-		1a: 1_6#4fe+3_0. - digitAlphabet, dotOrHashmark, digitAndAlphabet, plusMinus, digitAndAlphabet
+		0: the Queen of the numbers. Oh, man. I will die with this:
+		   2> 1_6#4ee+4#1.
+		   1263
+
+
+				1a: 1_6#4fe+3_0. - digitAlphabet, dotOrHashmark, digitAndAlphabet, plusMinus, digitAndAlphabet
 		1b: 1_6.4e+3_0. - digitAlphabet, dotOrHashmark, digitAndAlphabet, plusMinus, digitAndAlphabet
 
 		2: 1_6#4f    - digitAlphabet, hashmark, digitAlphabet    (hexa and nondecimal)
@@ -414,46 +419,146 @@ func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (bignum_
 	return bignum_decimalValue{digits: digits, exponent: 0}, nil
 }
 
-/* analyse all digits, and calculate a decimal based value from a maybe non-decimal input */
-/*
+
+
+
+
+
+
 func bigNum_from_digits_general_any_numsystem (token Token) (bignum_decimalValue, error) {
+	return bigNum_from_digits_specialcase_decimalintegergeneral(token)
+}
+
+
+/* analyse all digits, and calculate a decimal based value from a maybe non-decimal input */
+func bigNum_from_digits_general_any_numsystemREFACTORTHIS (token Token) (bignum_decimalValue, error) {
+
+	// if # is in the token, this will be updated and '..#' prefix removed
+	charsToAnalyseAsNumber := charsCopyRemoveUnwanted(token.charsInErlSrc, "_")
+	numberSystemType := bigNum_ten()
+	scientificPart := []rune{} // empty, or: e+3_0 | e-2_0_0 typed.
+
+	if strings.Contains(token.stringRepr(), "#") {
+		// at this point, we know that # is in the token.
+
+		digits := digitList{}
+
+		// token.charsInErlSrc can be used, because prefix is detected here,
+		// and the token's char structure is NOT modified
+		for _, char := range charsCopy(charsToAnalyseAsNumber){
+			// loop over the original chars, charsToAnalyseAsNumber will be modified in the loop
+
+			if len(charsToAnalyseAsNumber) > 1 { // so if it has minimum 2 elems, take everything after first
+			   charsToAnalyseAsNumber = charsToAnalyseAsNumber[1:]
+			}  // with this solution, '..#' prefix will be removed
+
+			if char == '#' {
+				break
+			}
+			digitValueDecimalInteger, errorValueDetection := digitRune_decimalValue(char)
+			if errorValueDetection != nil { //
+				errMsg := "digit->decimalValue conversion error in anyNumsystem, numSystem part: " + token.stringRepr()
+				fmt.Println(errMsg, errorValueDetection)
+				return bigNum_zero(), errors.New(errMsg)
+			}
+			digits = append(digits, digitValueDecimalInteger)
+		}
+		if len(digits) > 0 { // if anything was detected before the # char
+			numberSystemType = bigNum_from_digitlist(digits)
+		}
+	}
+	// numberSystemType is detected
+
+
+	// hashMark is removed, if it was there
+	charsCurrentStrRepresentation := string(charsToAnalyseAsNumber)
+	scientificPlus := strings.Contains(charsCurrentStrRepresentation, "e+")
+	scientificMinus := strings.Contains(charsCurrentStrRepresentation, "e-")
+
+	// fill the scientific part if it is there
+	if scientificPlus || scientificMinus {
+		// e+ or e- is detected in the string
+		charsWithE := charsCopy(charsToAnalyseAsNumber)
+		for pos, char := range charsWithE {
+
+			// here I can read the next, because I will stop at e+ or at e-,
+			// so if we are at the first char of scientific elem, stop the loop
+			charNext := charsWithE[pos+1]
+			if char == 'e' && (charNext == '-' || charNext == '+') {
+				scientificPart = charsWithE[pos:]
+				break
+			}
+			// collect the real number elems only, without the scientific part
+			charsToAnalyseAsNumber = charsWithE[:pos+1]
+		}
+	}
+
+
+	////////////////////////////////////////////////////////////
+	/* so, here there are 3 things:
+	charsToAnalyseAsNumber
+	numberSystemType
+	scientificPart
+	*/
+
+	// with this solution, the token is NOT sensitive if the value is missing
+	// after the e- or e+
+	scientificMultiply := bigNum_one() // multiply with one doesn't change a number value
+	if len(scientificPart) > 2 {
+		// in the scientific part, only decimal values can be used
+		digitsScientific := digitList{}
+
+		for _, char := range scientificPart {
+			valSci, err := digitRune_decimalValue(char)
+			if err != nil { //
+				errMsg := "digit->decimalValue conversion error in anyNumsystem, Sci part: " + token.stringRepr()
+				fmt.Println(errMsg, err)
+				return bigNum_zero(), errors.New(errMsg)
+			}
+			digitsScientific = append(digitsScientific, valSci)
+		}
+		scientificMultiply = bignum_decimalValue{digits: digitsScientific, exponent: 0, negative: scientificPart[1]=='-'}
+	}
+
+
 	summa := bigNum_zero()
-	numeralSystemType := 10
 
-	for pos := 0; pos < len(token.charsInErlSrc); pos++ {
-	// TODO: fix it, not finished
+	for posChar, char := range charsToAnalyseAsNumber {
+
+		// Do we need to check the number system's possible valid digit range?
+		// I mean in an octal number, 9 is not a valid digit.
+		valDigit, err := digitRune_decimalValue(char)
+		valDigitBigNum := bigNum_from_digitlist(digitList{valDigit})
+		if ! valDigitBigNum.isLessThan(numberSystemType) {
+			errMsg := "digit->decimalValue conversion error, the digit has a bigger value than it's number system. " + token.stringRepr()
+			fmt.Println(errMsg)
+			return bigNum_zero(), errors.New(errMsg)
+		}
+
+		if err != nil { //
+			errMsg := "digit->decimalValue conversion error in anyNumsystem, number analyse, one digit " + token.stringRepr()
+			fmt.Println(errMsg, err)
+			return bigNum_zero(), errors.New(errMsg)
+		}
+
+		// example digits:      456
+		// positions fromBack:  210  the last char is in pos 0 from back
+		positionFromBack := bigNum_create_from_int( len(charsToAnalyseAsNumber)-1 - posChar)
+		multiplier := bigNum_operator_mul(positionFromBack, numberSystemType)
+		digitPositionBasedValue := bigNum_operator_mul(valDigitBigNum, multiplier)
+		summa = bigNum_operator_add(summa, digitPositionBasedValue)
 	}
 
 
-	for pos := 0; pos < len(token.charsInErlSrc); pos++ {
-		digit := token.charsInErlSrc[pos]
-		fmt.Println("digit[",pos,"] => ", digit, string(digit))
+	// NOT FINISHED. TOTAL REWRITE IS NECESSARY
+	// not OK because the scientific num can be any num system, too, not only decimal
+	multiplierScientificVal := bigNum_operator_mul(bigNum_ten(), scientificMultiply)
 
-		if digit == '_'	 { // first I removed all _ in the root point. then I realised that I change the characters with that action
-			continue	   // so unfortunately, the most native/correct ways is to accept the _ but not to do anything
-		}
-
-		// rune -> numberValue conversion - an integer between 0-35
-		digitValueDecimalInteger, errorValueDetection := digitRune_decimalValue(digit)
-		if errorValueDetection != nil {
-			return bigNum_zero(), errors.New("digit (" + string(digit) + ") value detection error in: " + token.stringRepr())
-		}
-
-		multiply := 1
-		if pos > 0 {
-			multiply = (numeralSystemType^pos)
-		}
-
-		digitVal_in_position := digitValueDecimalInteger * multiply
-
-		summa += digitVal_in_position
-
-	}
-
-
+	summa = bigNum_operator_mul(summa, multiplierScientificVal)
 	return summa, nil
 }
-*/
+
+
 // if the token is a number, return with a value and and OK
 // if it is NOT a number, return with 0 and error
 func bigNum_from_token(token Token) (bignum_decimalValue, error)  {

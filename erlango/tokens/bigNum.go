@@ -30,6 +30,7 @@ type digitList []digitElemType
 
 
 
+
 // similar erlang lib: https://github.com/mabrek/erlang-decimal
 // general Decimal arithmetic: https://speleotrove.com/decimal/daops.html
 // the precisions is not used in my implementation.
@@ -194,6 +195,7 @@ func (bn bignum_decimalValue) isEqual(other bignum_decimalValue) bool {
 
 
 // TESTED: Test__isLessThan
+// and I don't want to create an isGreatherThan :-) this is enough
 func (bn bignum_decimalValue) isLessThan(other bignum_decimalValue) bool {
 	if bn.isNegative() && other.isPositive() {
 		return true
@@ -303,7 +305,7 @@ func bigNum_create_from_int(i int) bignum_decimalValue {
 
 
 // TESTED!!!
-func bigNum_convert_to_INT_for_testcases(bigNum bignum_decimalValue) int {
+func bigNum_convert_to_INT(bigNum bignum_decimalValue) int {
 	summa := 0
 	lenDigits := len(bigNum.digits)
 	multiplicator := lenDigits
@@ -531,6 +533,12 @@ func bigNum_one() bignum_decimalValue {
 	return bignum_decimalValue{digits: digitList{1}, exponent: 0, negative: false}
 }
 
+func bigNum_ten() bignum_decimalValue {
+	return bignum_decimalValue{digits: digitList{1}, exponent: 1, negative: false}
+}
+func bigNum_from_digitlist(digitsReceived digitList) bignum_decimalValue {
+	return bignum_decimalValue{digits: digitsReceived, exponent: 0, negative: false}
+}
 
 
 

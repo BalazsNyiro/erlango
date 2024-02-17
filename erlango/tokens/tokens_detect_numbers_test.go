@@ -159,7 +159,7 @@ func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *t
 				fmt.Println("problem with bignum conversion: ", err)
 			} else {
 				fmt.Println("bigNum: ", bigNum)
-				bigNum_INT = bigNum_convert_to_INT_for_testcases(bigNum)
+				bigNum_INT = bigNum_convert_to_INT(bigNum)
 			}
 			fmt.Println("bigNum INT:", bigNum_INT, "erl bin out:", erlOutDetectedNumString, "erl error:", erlErr)
 

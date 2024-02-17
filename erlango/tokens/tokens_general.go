@@ -41,6 +41,28 @@ func (token Token) stringRepr() string {
 }
 
 
+// create an independent copy of characters
+func charsCopy(chars []rune) []rune {
+	duplicated := []rune{}
+	for _, char := range chars {
+		duplicated = append(duplicated, char)
+	}
+	return duplicated
+}
+
+
+// returns with a copy, where unwanted elem is removed
+func charsCopyRemoveUnwanted(chars []rune, unWanted rune) []rune {
+	duplicated := []rune{}
+	for _, char := range chars {
+		if char != unWanted {
+			duplicated = append(duplicated, char)
+		}
+	}
+	return duplicated
+}
+
+
 const tokenType_TextBlockQuotedSingle = "tokenTextBlockQuotedSingle"
 const tokenType_Comment = "tokenComment"
 const tokenType_TextBlockQuotedDouble = "tokenTextBlockQuotedDouble"
