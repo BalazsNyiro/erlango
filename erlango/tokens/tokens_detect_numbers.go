@@ -87,9 +87,15 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 
 		/* num representations, from more complicated to simple direction:
 
-		0: the Queen of the numbers. Oh, man. I will die with this:
+		0a: the Queen of the numbers. Oh, man. I will die with this:
 		   2> 1_6#4ee+4#1.
 		   1263
+		0b: and this is valid, too: but this is not one number, this is 2.
+			1_6#4e+-4#1.
+			77
+
+			1_6#4e - 4#1
+			77
 
 
 				1a: 1_6#4fe+3_0. - digitAlphabet, dotOrHashmark, digitAndAlphabet, plusMinus, digitAndAlphabet
@@ -430,11 +436,14 @@ func bigNum_from_digits_general_any_numsystem (token Token) (bignum_decimalValue
 }
 
 
+////////////////// 1_6#4ee+4#1 //////////////////////
+////////////////// 1_6#4ee+4#1 //////////////////////
+////////////////// 1_6#4ee+4#1 //////////////////////
 /* analyse all digits, and calculate a decimal based value from a maybe non-decimal input */
 func bigNum_from_digits_general_any_numsystemREFACTORTHIS (token Token) (bignum_decimalValue, error) {
 
 	// if # is in the token, this will be updated and '..#' prefix removed
-	charsToAnalyseAsNumber := charsCopyRemoveUnwanted(token.charsInErlSrc, "_")
+	charsToAnalyseAsNumber := charsCopyRemoveUnwanted(token.charsInErlSrc, '_')
 	numberSystemType := bigNum_ten()
 	scientificPart := []rune{} // empty, or: e+3_0 | e-2_0_0 typed.
 
@@ -557,6 +566,14 @@ func bigNum_from_digits_general_any_numsystemREFACTORTHIS (token Token) (bignum_
 	summa = bigNum_operator_mul(summa, multiplierScientificVal)
 	return summa, nil
 }
+
+////////////////// 1_6#4ee+4#1 //////////////////////
+////////////////// 1_6#4ee+4#1 //////////////////////
+////////////////// 1_6#4ee+4#1 //////////////////////
+
+
+
+
 
 
 // if the token is a number, return with a value and and OK

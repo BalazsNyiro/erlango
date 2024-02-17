@@ -559,3 +559,24 @@ func compare_bool_bool(testName string, wanted bool, received bool, t *testing.T
 		t.Fatalf("\nError, different bool comparison %s wanted: %t, received: %t", testName, wanted, received)
 	}
 }
+
+func compare_string_string(callerInfo, strWanted, strReceived string, t *testing.T) {
+	if strWanted != strReceived {
+		t.Fatalf("\nErr String difference (%s):\n  wanted -->>%s<<-- ??\nreceived -->>%s<<--\n\n", callerInfo, strWanted, strReceived)
+	}
+}
+
+func compare_runes_runes(callerInfo string, runesWanted, runesReceived []rune, t *testing.T) {
+	errMsg := fmt.Sprintf("\nErr (%s) []rune <>[]rune:\n  wanted -->>%s<<-- ??\nreceived -->>%s<<--\n\n", callerInfo, string(runesWanted), string(runesReceived))
+	if len(runesWanted) != len(runesReceived) {
+		t.Fatalf(errMsg)
+		return
+	}
+
+	for pos, runeWanted:= range runesWanted {
+		if runeWanted != runesReceived[pos] {
+			t.Fatalf(errMsg)
+			return
+		}
+	}
+}

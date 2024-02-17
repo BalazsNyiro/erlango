@@ -63,6 +63,68 @@ func charsCopyRemoveUnwanted(chars []rune, unWanted rune) []rune {
 }
 
 
+// split chars to 2 separated sections at the first occurence of a splitter char
+// abc-012, - can be a splitter
+func charsCopySplitWithChars(chars []rune, splitterChars []rune) ([]rune, []rune) {
+	left := []rune{}
+	right := []rune{}
+	target := "left"
+
+	pos := 0
+
+	for {
+		if pos >= len(chars) {
+			break
+		}
+
+
+		////////////////////
+		// pattern detection
+		if target == "left" { // if the splitterChars was NEVER detected before
+
+			splitterDetected := true
+			lastCheckedSplitterPosition := -1
+
+			for splitterPos, splitterChar := range splitterChars {
+
+				if pos+splitterPos >= len(chars) { // try to read a position that is not the allowed index range
+					splitterDetected = false
+					break // no need to continue the loop
+				}
+				if chars[pos+splitterPos] != splitterChar {
+					splitterDetected = false
+					break // no need to continue the loop
+				}
+
+				lastCheckedSplitterPosition = pos+splitterPos
+			}
+
+			if splitterDetected {
+				pos = lastCheckedSplitterPosition +1
+				target = "right"
+				continue
+			}
+		} // try to detect splitter ONLY if we didn't detect it once, minimum
+
+		// pattern detection
+		///////////////////////
+
+
+		char := chars[pos]
+		if target == "left" {
+			left = append(left, char)
+		}
+
+		if target == "right" {
+			right = append(right, char)
+		}
+
+		pos++
+	}
+	return left, right
+}
+
+
 const tokenType_TextBlockQuotedSingle = "tokenTextBlockQuotedSingle"
 const tokenType_Comment = "tokenComment"
 const tokenType_TextBlockQuotedDouble = "tokenTextBlockQuotedDouble"

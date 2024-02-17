@@ -36,10 +36,10 @@ func Test_parse_numbers_int_simple(t *testing.T) {
 	fmt.Println("tokensTableOriginal:", tokensTable)
 	fmt.Println("tokensTableUpdated:", tokensTable_02_intDetected)
 
-	compare_strings(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
-	compare_strings(testName, "1", tokensTable_02_intDetected[10].stringRepr(), t)
-	compare_strings(testName, "22", tokensTable_02_intDetected[13].stringRepr(), t)
-	compare_strings(testName, "345", tokensTable_02_intDetected[17].stringRepr(), t)
+	compare_string_string(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
+	compare_string_string(testName, "1", tokensTable_02_intDetected[10].stringRepr(), t)
+	compare_string_string(testName, "22", tokensTable_02_intDetected[13].stringRepr(), t)
+	compare_string_string(testName, "345", tokensTable_02_intDetected[17].stringRepr(), t)
 
 }
 
@@ -60,10 +60,10 @@ func Test_parse_numbers_int_with_underscore(t *testing.T) {
 	fmt.Println("tokensTableOriginal:", tokensTable)
 	fmt.Println("tokensTableUpdated:", tokensTable_02_intDetected)
 
-	compare_strings(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
-	compare_strings(testName, "1_1", tokensTable_02_intDetected[10].stringRepr(), t)
-	compare_strings(testName, "2_2_2", tokensTable_02_intDetected[15].stringRepr(), t)
-	compare_strings(testName, "34_5", tokensTable_02_intDetected[22].stringRepr(), t)
+	compare_string_string(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
+	compare_string_string(testName, "1_1", tokensTable_02_intDetected[10].stringRepr(), t)
+	compare_string_string(testName, "2_2_2", tokensTable_02_intDetected[15].stringRepr(), t)
+	compare_string_string(testName, "34_5", tokensTable_02_intDetected[22].stringRepr(), t)
 
 	fmt.Println(testName, erlSrcWantedAfterTokenDetect, erlSrcOrig, tokensTable)
 }
@@ -86,11 +86,11 @@ func Test_parse_numbers_floats(t *testing.T) {
 	fmt.Println("tokensTableOriginal:", tokensTable)
 	fmt.Println("tokensTableUpdated:", tokensTable_02_detected)
 
-	compare_strings(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
-	compare_strings(testName, "11.2_2", tokensTable_02_detected[13].stringRepr(), t)
-	compare_strings(testName, "33.44", tokensTable_02_detected[21].stringRepr(), t)
-	compare_strings(testName, "5_5.66", tokensTable_02_detected[28].stringRepr(), t)
-	compare_strings(testName, "7_7.8_8", tokensTable_02_detected[36].stringRepr(), t)
+	compare_string_string(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
+	compare_string_string(testName, "11.2_2", tokensTable_02_detected[13].stringRepr(), t)
+	compare_string_string(testName, "33.44", tokensTable_02_detected[21].stringRepr(), t)
+	compare_string_string(testName, "5_5.66", tokensTable_02_detected[28].stringRepr(), t)
+	compare_string_string(testName, "7_7.8_8", tokensTable_02_detected[36].stringRepr(), t)
 
 	fmt.Println(testName, erlSrcWantedAfterTokenDetect, erlSrcOrig, tokensTable)
 }
@@ -114,11 +114,11 @@ func Test_parse_numbers_hexa_nondecimal(t *testing.T) {
 	// fmt.Println("tokensTableOriginal:", tokensTable)
 	// fmt.Println("tokensTableUpdated:", tokensTable_02_detected)
 
-	compare_strings(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
-	compare_strings(testName, "16#4f", tokensTable_02_detected[13].stringRepr(), t)
-	compare_strings(testName, "1_6#4f", tokensTable_02_detected[20].stringRepr(), t)
-	compare_strings(testName, "1_6#4_f", tokensTable_02_detected[28].stringRepr(), t)
-	compare_strings(testName, "16#4_f", tokensTable_02_detected[37].stringRepr(), t)
+	compare_string_string(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
+	compare_string_string(testName, "16#4f", tokensTable_02_detected[13].stringRepr(), t)
+	compare_string_string(testName, "1_6#4f", tokensTable_02_detected[20].stringRepr(), t)
+	compare_string_string(testName, "1_6#4_f", tokensTable_02_detected[28].stringRepr(), t)
+	compare_string_string(testName, "16#4_f", tokensTable_02_detected[37].stringRepr(), t)
 
 	// fmt.Println(testName, erlSrcWantedAfterTokenDetect, erlSrcOrig, tokensTable)
 
@@ -137,7 +137,7 @@ func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *t
 
 
 	fmt.Println("\n\nnumTokenDetect:", erlExpression)
-	compare_strings(funName + ": " + erlExpression, tokenTypeWanted, tokensTable_detected[0].tokenType, t)
+	compare_string_string(funName + ": " + erlExpression, tokenTypeWanted, tokensTable_detected[0].tokenType, t)
 
 
 
@@ -183,6 +183,41 @@ func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *t
 
 }
 
+///////////////////////////////////////////////
+//  go test -v -run Test_charsCopySplitWithChars
+func Test_charsCopySplitWithChars(t *testing.T) {
+	testName := "Test_charsCopySplitWithChars_"
+
+	txt := "abc-012"
+	charsOrig := []rune(txt)
+	leftDetected, rightDetected := charsCopySplitWithChars(charsOrig, []rune("-"))
+
+	leftWanted := []rune("abc")
+	rightWanted := []rune("012")
+	compare_runes_runes(testName+txt, leftWanted, leftDetected, t)
+	compare_runes_runes(testName+txt, rightWanted, rightDetected, t)
+
+
+	txt = "abc-012-345"
+	charsOrig = []rune(txt)
+	leftDetected, rightDetected = charsCopySplitWithChars(charsOrig, []rune("-"))
+
+	leftWanted = []rune("abc")
+	rightWanted = []rune("012-345")
+	compare_runes_runes(testName+txt, leftWanted, leftDetected, t)
+	compare_runes_runes(testName+txt, rightWanted, rightDetected, t)
+
+
+	txt = "abc-012-345"
+	charsOrig = []rune(txt)
+	leftDetected, rightDetected = charsCopySplitWithChars(charsOrig, []rune("01"))
+
+	leftWanted = []rune("abc-")
+	rightWanted = []rune("2-345")
+	compare_runes_runes(testName+txt, leftWanted, leftDetected, t)
+	compare_runes_runes(testName+txt, rightWanted, rightDetected, t)
+}
+
 //  go test -v -run Test_mass_number_detection
 func Test_mass_number_detection(t *testing.T) {
 	// this test calls ERLANG BINARY to check the values, too!
@@ -201,3 +236,5 @@ func Test_mass_number_detection(t *testing.T) {
 	// tokens_detectNumbers_simpleTest(`1_6_#4_f`, tokenType_SyntaxError, t)
 	// tokens_detectNumbers_simpleTest(`1__6#4_f`, tokenType_SyntaxError, t)
 }
+
+
