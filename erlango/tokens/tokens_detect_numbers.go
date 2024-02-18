@@ -442,42 +442,46 @@ func bigNum_from_digits_general_any_numsystem (token Token) (bignum_decimalValue
 // TESTED
 // select the scientific part from a number. by default,
 // there is no scientific part
-func anyNumSystem_charsSelectScientificPart(chars []rune) (bool, []rune) {
+func anyNumSystem_charsSelectScientificPart(chars []rune) (bool, []rune, []rune) {
 	numberCharsScientific := []rune{} // empty, or: e+3_0 | e-2_0_0 typed.
+	numberCharsBeforeScientific := []rune{} // empty, or: e+3_0 | e-2_0_0 typed.
 	scientificEsignDetected := false
 
-	splitterPlusDetectedMinimumOnce, _, charsRightPlus:= charsCopySplitAtFirstWithChars(chars, []rune("e+"))
+	splitterPlusDetectedMinimumOnce, charsLeftPlus, charsRightPlus:= charsCopySplitAtFirstWithChars(chars, []rune("e+"))
 
 	if splitterPlusDetectedMinimumOnce {
 		// everything in the left part is before # sign
 		numberCharsScientific = charsRightPlus
+		numberCharsBeforeScientific = charsLeftPlus
 		scientificEsignDetected = true
 
 	} else { // if splitter plus is not detected, try splitterMinus
-		splitterMinusDetectedMinimumOnce, _, charsRightMinus := charsCopySplitAtFirstWithChars(chars, []rune("e-"))
+		splitterMinusDetectedMinimumOnce, charsLeftMinus, charsRightMinus := charsCopySplitAtFirstWithChars(chars, []rune("e-"))
 		if splitterMinusDetectedMinimumOnce {
 			numberCharsScientific = charsRightMinus
+			numberCharsBeforeScientific = charsLeftMinus
 			scientificEsignDetected = true
 		}
 	}
-	return scientificEsignDetected, numberCharsScientific
+	return scientificEsignDetected, numberCharsBeforeScientific, numberCharsScientific
 }
 
 
 // select the number system from the token
 // basically every number is 10 based, if there is no other sign
-func anyNumSystem_detectNumSystem(chars []rune) (bignum_decimalValue, error) {
+func anyNumSystem_detectNumSystem(chars []rune) (bignum_decimalValue, bool, []rune, error) {
 	numberSystemType := bigNum_ten()
 
 	// _ is removed in 'general_any_numsystem', but if this func
 	// is used standalone, the underscores has to be removed, too
 	chars = charsCopyRemoveUnwanted(chars, '_')
+	charsAfterHashMark := []rune{}
 
-	fmt.Println(">>> Chars: ", chars)
+	// fmt.Println(">>> Chars: ", chars)
 
-	isHashmarkDetected, charsBeforeHashMark, _:= charsCopySplitAtFirstWithChars(chars, []rune("#"))
-	fmt.Println("is hashmark detected:", isHashmarkDetected)
-	fmt.Println("chars before hashmark:", charsBeforeHashMark)
+	isHashmarkDetected, charsBeforeHashMark, charsAfterHashMark:= charsCopySplitAtFirstWithChars(chars, []rune("#"))
+	// fmt.Println("is hashmark detected:", isHashmarkDetected)
+	// fmt.Println("chars before hashmark:", charsBeforeHashMark)
 	if isHashmarkDetected {
 		if len(charsBeforeHashMark) > 0 {
 			/* in the number system section, every digit has to be in 0-9 range */
@@ -487,22 +491,22 @@ func anyNumSystem_detectNumSystem(chars []rune) (bignum_decimalValue, error) {
 				if errorValueDetection != nil { //
 					errMsg := "digit->decimalValue conversion error in anyNumsystem, numSystem part: " + string(chars)
 					fmt.Println(errMsg, errorValueDetection)
-					return numberSystemType, errors.New(errMsg)
+					return numberSystemType, isHashmarkDetected, charsAfterHashMark, errors.New(errMsg)
 				}
 				if digitValueDecimalInteger > 9 {
 					errMsg := "digit->decimalValue in num system you can use 0-9 digits only - too high value error in anyNumsystem, numSystem part: " + string(chars)
 					fmt.Println(errMsg, errorValueDetection)
-					return numberSystemType, errors.New(errMsg)
+					return numberSystemType, isHashmarkDetected, charsAfterHashMark, errors.New(errMsg)
 				}
 				digits = append(digits, digitValueDecimalInteger)
 			}
-			fmt.Println("digits, from before hashmark", digits)
+			// fmt.Println("digits, from before hashmark", digits)
 			numberSystemType = bigNum_from_digitlist(digits)
-			fmt.Println("numberSystemType after bigNum creation", numberSystemType)
+			// fmt.Println("numberSystemType after bigNum creation", numberSystemType)
 		} // len > 0
 	} // # is detected
-	fmt.Println("numberSystemType at the end", numberSystemType)
-	return numberSystemType, nil
+	// fmt.Println("numberSystemType at the end", numberSystemType)
+	return numberSystemType, isHashmarkDetected, charsAfterHashMark, nil
 }
 
 
@@ -512,16 +516,23 @@ func bigNum_from_digits_general_any_numsystemREFACTORTHIS (token Token) (bignum_
 	// if # is in the token, this will be updated and '..#' prefix removed
 	// basic situaton: numberSystem is 10 based, and there is NO scientific part
 	numberCharsBody := charsCopyRemoveUnwanted(token.charsInErlSrc, '_')
-	numberCharsScientific := []rune{} // empty, or: e+3_0 | e-2_0_0 typed.
 	///////////////////////////////////////////////////////////////////////////////
 
 
-	numberSystemType, numberSysErr := anyNumSystem_detectNumSystem(numberCharsBody)
+	numberSystemType, isHashMarkDetected, charsAfterHashMark, numberSysErr := anyNumSystem_detectNumSystem(numberCharsBody)
 	if numberSysErr != nil { //
 		errMsg := "digit->decimalValue conversion error in anyNumsystem, numSystem part: " + token.stringRepr()
 		fmt.Println(errMsg, numberSysErr)
 		return bigNum_zero(), numberSysErr
 	}
+
+	if isHashMarkDetected {
+		numberCharsBody = charsAfterHashMark
+	}
+	///////////////////////////////////////////////////////////////////////////////
+	numberCharsScientific := []rune{} // empty, or: e+3_0 | e-2_0_0 typed.
+
+	///////////////////////////////////////////////////////////////////////////////
 
 
 	// hashMark is removed, if it was there

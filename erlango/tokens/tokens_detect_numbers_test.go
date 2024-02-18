@@ -188,28 +188,34 @@ func Test_anyNumSystem_charsSelectScientificPart(t *testing.T) {
 	testName := "Test_anyNumSystem_charsSelectScientificPart_"
 
 	txt := "123"
-	scientificEsignDetected, _:= anyNumSystem_charsSelectScientificPart([]rune(txt))
+	scientificEsignDetected, _, _:= anyNumSystem_charsSelectScientificPart([]rune(txt))
 	compare_bool_bool(testName+txt, false, scientificEsignDetected, t)
 
 	txt = "123e+45"
-	scientificEsignDetected, scientificPart := anyNumSystem_charsSelectScientificPart([]rune(txt))
+	scientificEsignDetected, beforeScientificPart, scientificPart := anyNumSystem_charsSelectScientificPart([]rune(txt))
 	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
 	compare_runes_runes(testName+txt, []rune("45"), scientificPart, t)
+	compare_runes_runes(testName+txt, []rune("123"), beforeScientificPart, t)
 
 	txt = "123e-45"
-	scientificEsignDetected, scientificPart = anyNumSystem_charsSelectScientificPart([]rune(txt))
+	scientificEsignDetected, beforeScientificPart, scientificPart = anyNumSystem_charsSelectScientificPart([]rune(txt))
 	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
 	compare_runes_runes(testName+txt, []rune("45"), scientificPart, t)
+	compare_runes_runes(testName+txt, []rune("123"), beforeScientificPart, t)
 
 	txt = "1_6_7#4ee+89"
-	scientificEsignDetected, scientificPart = anyNumSystem_charsSelectScientificPart([]rune(txt))
+	scientificEsignDetected, beforeScientificPart, scientificPart = anyNumSystem_charsSelectScientificPart([]rune(txt))
 	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
 	compare_runes_runes(testName+txt, []rune("89"), scientificPart, t)
 
+	// here I don't care about numberSystemPart, so everything before the scientific has to be returned
+	compare_runes_runes(testName+txt, []rune("1_6_7#4e"), beforeScientificPart, t)
+
 	txt = "1_6_7#4ee-89"
-	scientificEsignDetected, scientificPart = anyNumSystem_charsSelectScientificPart([]rune(txt))
+	scientificEsignDetected, beforeScientificPart, scientificPart = anyNumSystem_charsSelectScientificPart([]rune(txt))
 	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
 	compare_runes_runes(testName+txt, []rune("89"), scientificPart, t)
+	compare_runes_runes(testName+txt, []rune("1_6_7#4e"), beforeScientificPart, t)
 }
 
 
@@ -219,15 +225,19 @@ func Test_anyNumSystem_detectNumSystem(t *testing.T) {
 	testName := "Test_anyNumSystem_charsSelectScientificPart_"
 
 	txt := "1_6_7#4ee+89"
-	numberSystemType, numberSystemDetectionError := anyNumSystem_detectNumSystem([]rune(txt))
+	numberSystemType, isHashMarkDetected, charsAfterHashMark, numberSystemDetectionError := anyNumSystem_detectNumSystem([]rune(txt))
 	fmt.Println("numberSystemTypeDetected in the test:", numberSystemType)
 	compare_bool_bool(testName+txt, true, numberSystemDetectionError==nil, t)
 	compare_bigNum_bigNum(testName+txt, bigNum_create_from_int(167), numberSystemType, t)
+	compare_bool_bool(testName+txt, true, isHashMarkDetected, t)
+	compare_runes_runes(testName+txt, []rune("4ee+89"), charsAfterHashMark, t)
 
-	txt = "2a#4ee+89"
-	numberSystemType, numberSystemDetectionError = anyNumSystem_detectNumSystem([]rune(txt))
+	txt = "2a#4ee+789"
+	numberSystemType, isHashMarkDetected, charsAfterHashMark, numberSystemDetectionError = anyNumSystem_detectNumSystem([]rune(txt))
 	// error has to be detected
 	compare_bool_bool(testName+txt, false, numberSystemDetectionError==nil, t)
+	compare_bool_bool(testName+txt, true, isHashMarkDetected, t)
+	compare_runes_runes(testName+txt, []rune("4ee+789"), charsAfterHashMark, t)
 
 }
 
