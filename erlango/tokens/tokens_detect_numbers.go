@@ -398,32 +398,6 @@ func numDetect_removeUnderscoreFromString(txt string) string {
 
 
 
-/*
-	if decimals are converted to bigNum, that is simple, because the values can be directly loaded
-    into the digits, without any calculation
-
-	The general solution is more complex, but important for hexa and other num systems, TODO: maybe next time
-*/
-func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (bignum_decimalValue, error) {
-
-	digits := digitList{}
-	for pos := 0; pos < len(token.charsInErlSrc); pos++ {
-		digit := token.charsInErlSrc[pos]
-		fmt.Println("digit[",pos,"] => ", digit, string(digit))
-
-		if digit == '_'	 { // first I removed all _ in the root point. then I realised that I change the characters with that action
-			continue	   // so unfortunately, the most native/correct ways is to accept the _ but not to do anything
-		}
-
-		// rune -> numberValue conversion, in range 0-9
-		digitValueDecimalInteger, errorValueDetection := digitRune_decimalValue(digit)
-		if errorValueDetection != nil {
-			return bigNum_zero(), errors.New("digit (" + string(digit) + ") value detection error in: " + token.stringRepr())
-		}
-		digits = append(digits, digitValueDecimalInteger)
-	}
-	return bignum_decimalValue{digits: digits, exponent: 0}, nil
-}
 
 
 
@@ -431,9 +405,6 @@ func bigNum_from_digits_specialcase_decimalintegergeneral (token Token) (bignum_
 
 
 
-func bigNum_from_digits_general_any_numsystem (token Token) (bignum_decimalValue, error) {
-	return bigNum_from_digits_specialcase_decimalintegergeneral(token)
-}
 
 ////////////////// 1_6#4ee+4 //////////////////////
 ////////////////// 1_6#4ee+4 //////////////////////
@@ -442,28 +413,25 @@ func bigNum_from_digits_general_any_numsystem (token Token) (bignum_decimalValue
 // TESTED
 // select the scientific part from a number. by default,
 // there is no scientific part
-func anyNumSystem_charsSelectScientificPart(chars []rune) (bool, []rune, []rune) {
+// example: txt = "1_6_7#4ee+89"
+// the numberCharsScientific is : '89'
+func anyNumSystem_charsSelectScientificPart(chars []rune) (bool, []rune, []rune, string) {
 	numberCharsScientific := []rune{} // empty, or: e+3_0 | e-2_0_0 typed.
 	numberCharsBeforeScientific := []rune{} // empty, or: e+3_0 | e-2_0_0 typed.
 	scientificEsignDetected := false
 
-	splitterPlusDetectedMinimumOnce, charsLeftPlus, charsRightPlus:= charsCopySplitAtFirstWithChars(chars, []rune("e+"))
-
-	if splitterPlusDetectedMinimumOnce {
-		// everything in the left part is before # sign
-		numberCharsScientific = charsRightPlus
-		numberCharsBeforeScientific = charsLeftPlus
-		scientificEsignDetected = true
-
-	} else { // if splitter plus is not detected, try splitterMinus
-		splitterMinusDetectedMinimumOnce, charsLeftMinus, charsRightMinus := charsCopySplitAtFirstWithChars(chars, []rune("e-"))
-		if splitterMinusDetectedMinimumOnce {
-			numberCharsScientific = charsRightMinus
-			numberCharsBeforeScientific = charsLeftMinus
-			scientificEsignDetected = true
+	for _, splitter:= range strings.Split("e+,e-,E+,E-", ",") {
+		splitterDetectedMinimumOnce, charsLeft, charsRight := charsCopySplitAtFirstWithChars(chars, []rune(splitter))
+		if splitterDetectedMinimumOnce {
+			// everything in the left part is before # sign
+			numberCharsScientific = charsRight
+			numberCharsBeforeScientific = charsLeft
+			scientificEsignDetected = true  // I name this variable, to represent what value is given back here
+			return scientificEsignDetected, numberCharsBeforeScientific, numberCharsScientific, strings.ToLower(splitter)
 		}
 	}
-	return scientificEsignDetected, numberCharsBeforeScientific, numberCharsScientific
+
+	return scientificEsignDetected, numberCharsBeforeScientific, numberCharsScientific, ""
 }
 
 
@@ -511,14 +479,14 @@ func anyNumSystem_detectNumSystem(chars []rune) (bignum_decimalValue, bool, []ru
 
 
 /* analyse all digits, and calculate a decimal based value from a maybe non-decimal input */
-func bigNum_from_digits_general_any_numsystemREFACTORTHIS (token Token) (bignum_decimalValue, error) {
+func bigNum_from_digits_general_any_numsystem (token Token) (bignum_decimalValue, error) {
 
 	// if # is in the token, this will be updated and '..#' prefix removed
 	// basic situaton: numberSystem is 10 based, and there is NO scientific part
 	numberCharsBody := charsCopyRemoveUnwanted(token.charsInErlSrc, '_')
 	///////////////////////////////////////////////////////////////////////////////
 
-
+	// numberSystemType is get HERE!!!!
 	numberSystemType, isHashMarkDetected, charsAfterHashMark, numberSysErr := anyNumSystem_detectNumSystem(numberCharsBody)
 	if numberSysErr != nil { //
 		errMsg := "digit->decimalValue conversion error in anyNumsystem, numSystem part: " + token.stringRepr()
@@ -530,34 +498,12 @@ func bigNum_from_digits_general_any_numsystemREFACTORTHIS (token Token) (bignum_
 		numberCharsBody = charsAfterHashMark
 	}
 	///////////////////////////////////////////////////////////////////////////////
-	numberCharsScientific := []rune{} // empty, or: e+3_0 | e-2_0_0 typed.
+	// eType: e+, e-
+	scientificEsignDetected, beforeScientificPart, scientificPart, eType:= anyNumSystem_charsSelectScientificPart(numberCharsBody)
 
-	///////////////////////////////////////////////////////////////////////////////
-
-
-	// hashMark is removed, if it was there
-	charsCurrentStrRepresentation := string(numberCharsBody)
-	scientificPlus := strings.Contains(charsCurrentStrRepresentation, "e+")
-	scientificMinus := strings.Contains(charsCurrentStrRepresentation, "e-")
-
-	// fill the scientific part if it is there
-	if scientificPlus || scientificMinus {
-		// e+ or e- is detected in the string
-		charsWithE := charsCopy(numberCharsBody)
-		for pos, char := range charsWithE {
-
-			// here I can read the next, because I will stop at e+ or at e-,
-			// so if we are at the first char of scientific elem, stop the loop
-			charNext := charsWithE[pos+1]
-			if char == 'e' && (charNext == '-' || charNext == '+') {
-				numberCharsScientific = charsWithE[pos:]
-				break
-			}
-			// collect the real number elems only, without the scientific part
-			numberCharsBody = charsWithE[:pos+1]
-		}
+	if scientificEsignDetected {
+		numberCharsBody = beforeScientificPart
 	}
-
 
 	////////////////////////////////////////////////////////////
 	/* so, here there are 3 things:
@@ -569,22 +515,18 @@ func bigNum_from_digits_general_any_numsystemREFACTORTHIS (token Token) (bignum_
 	// with this solution, the token is NOT sensitive if the value is missing
 	// after the e- or e+
 	scientificMultiply := bigNum_one() // multiply with one doesn't change a number value
-	if len(numberCharsScientific) > 2 {
-		// in the scientific part, only decimal values can be used
-		digitsScientific := digitList{}
 
-		for _, char := range numberCharsScientific {
-			valSci, err := digitRune_decimalValue(char)
-			if err != nil { //
-				errMsg := "digit->decimalValue conversion error in anyNumsystem, Sci part: " + token.stringRepr()
-				fmt.Println(errMsg, err)
-				return bigNum_zero(), errors.New(errMsg)
-			}
-			digitsScientific = append(digitsScientific, valSci)
+	if scientificEsignDetected {
+		scientificMultiplyBigNum, errSci := bigNum_from_0123456789_runes(scientificPart) // multiply with one doesn't change a number value
+		if errSci != nil {
+			errMsg := "scientific Multiplier conversion error in anyNumsystem, numSystem part: " + token.stringRepr()
+			fmt.Println(errMsg, errSci)
+			return bigNum_zero(), errSci
 		}
-		scientificMultiply = bignum_decimalValue{digits: digitsScientific, exponent: 0, negative: numberCharsScientific[1]=='-'}
+		scientificMultiply = scientificMultiplyBigNum
+	} else {
+		scientificMultiply.negative = (eType == "e-")   // () is not necessary, but helps to see what is happening
 	}
-
 
 	summa := bigNum_zero()
 
@@ -614,9 +556,6 @@ func bigNum_from_digits_general_any_numsystemREFACTORTHIS (token Token) (bignum_
 		summa = bigNum_operator_add(summa, digitPositionBasedValue)
 	}
 
-
-	// NOT FINISHED. TOTAL REWRITE IS NECESSARY
-	// not OK because the scientific num can be any num system, too, not only decimal
 	multiplierScientificVal := bigNum_operator_mul(bigNum_ten(), scientificMultiply)
 
 	summa = bigNum_operator_mul(summa, multiplierScientificVal)
@@ -636,19 +575,19 @@ func bigNum_from_token(token Token) (bignum_decimalValue, error)  {
 
 	if token.tokenType == tokenType_Num_int {
 		// this is the easiest way
-		num, err := bigNum_from_digits_specialcase_decimalintegergeneral(token)
+		num, err := bigNum_from_0123456789_runes(token.charsInErlSrc)
 
 		// and this is the hardest :-)
 		// num, err :=  bigNum_from_digits_general_any_numsystem(token)
 
 		return num.normalisedForm_endingZerosIntoExponent(), err
 	} // Num_int detected
-/*
+
 	if token.tokenType == tokenType_Num_maybeNonDecimal{
 		num, err := bigNum_from_digits_general_any_numsystem(token)
 		return num.normalisedForm_endingZerosIntoExponent(), err
 	} // Num_int detected
-*/
+
 	return bigNum_zero(), errors.New("number value detection error ("+token.stringRepr()+")")
 }
 

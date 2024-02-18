@@ -188,34 +188,41 @@ func Test_anyNumSystem_charsSelectScientificPart(t *testing.T) {
 	testName := "Test_anyNumSystem_charsSelectScientificPart_"
 
 	txt := "123"
-	scientificEsignDetected, _, _:= anyNumSystem_charsSelectScientificPart([]rune(txt))
+	scientificEsignDetected, beforeScientificPart, scientificPart, splitter := anyNumSystem_charsSelectScientificPart([]rune(txt))
 	compare_bool_bool(testName+txt, false, scientificEsignDetected, t)
+	compare_runes_runes(testName+txt, []rune{}, scientificPart, t)
+	compare_runes_runes(testName+txt, []rune("123"), beforeScientificPart, t)
+	compare_string_string(testName+txt, "", splitter, t)
 
 	txt = "123e+45"
-	scientificEsignDetected, beforeScientificPart, scientificPart := anyNumSystem_charsSelectScientificPart([]rune(txt))
+	scientificEsignDetected, beforeScientificPart, scientificPart, splitter = anyNumSystem_charsSelectScientificPart([]rune(txt))
 	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
 	compare_runes_runes(testName+txt, []rune("45"), scientificPart, t)
 	compare_runes_runes(testName+txt, []rune("123"), beforeScientificPart, t)
+	compare_string_string(testName+txt, "e+", splitter, t)
 
 	txt = "123e-45"
-	scientificEsignDetected, beforeScientificPart, scientificPart = anyNumSystem_charsSelectScientificPart([]rune(txt))
+	scientificEsignDetected, beforeScientificPart, scientificPart, splitter = anyNumSystem_charsSelectScientificPart([]rune(txt))
 	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
 	compare_runes_runes(testName+txt, []rune("45"), scientificPart, t)
 	compare_runes_runes(testName+txt, []rune("123"), beforeScientificPart, t)
+	compare_string_string(testName+txt, "e-", splitter, t)
 
-	txt = "1_6_7#4ee+89"
-	scientificEsignDetected, beforeScientificPart, scientificPart = anyNumSystem_charsSelectScientificPart([]rune(txt))
+	txt = "1_6_7#4eE+89"
+	scientificEsignDetected, beforeScientificPart, scientificPart, splitter = anyNumSystem_charsSelectScientificPart([]rune(txt))
 	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
 	compare_runes_runes(testName+txt, []rune("89"), scientificPart, t)
+	compare_string_string(testName+txt, "E+", splitter, t)
 
 	// here I don't care about numberSystemPart, so everything before the scientific has to be returned
 	compare_runes_runes(testName+txt, []rune("1_6_7#4e"), beforeScientificPart, t)
 
-	txt = "1_6_7#4ee-89"
-	scientificEsignDetected, beforeScientificPart, scientificPart = anyNumSystem_charsSelectScientificPart([]rune(txt))
+	txt = "1_6_7#4eE-89"
+	scientificEsignDetected, beforeScientificPart, scientificPart, splitter = anyNumSystem_charsSelectScientificPart([]rune(txt))
 	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
 	compare_runes_runes(testName+txt, []rune("89"), scientificPart, t)
 	compare_runes_runes(testName+txt, []rune("1_6_7#4e"), beforeScientificPart, t)
+	compare_string_string(testName+txt, "E-", splitter, t)
 }
 
 

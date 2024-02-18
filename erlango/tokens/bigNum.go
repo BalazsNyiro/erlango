@@ -541,6 +541,34 @@ func bigNum_from_digitlist(digitsReceived digitList) bignum_decimalValue {
 }
 
 
+// eType: 'e+' | 'e-'
+// chars: characters from erlang source code,
+// the runes can be only 10 based digits
+/* if decimals are converted to bigNum, that is simple, because the values can be directly loaded
+   into the digits, without any calculation
+*/
+func bigNum_from_0123456789_runes(chars []rune) (bignum_decimalValue, error) {
+	digits := digitList{}
+	for pos := 0; pos < len(chars); pos++ {
+		digit := chars[pos]
+		fmt.Println("digit[",pos,"] => ", digit, string(digit))
+
+		if digit == '_'	 { // first I removed all _ in the root point. then I realised that I change the characters with that action
+			continue	   // so unfortunately, the most native/correct ways is to accept the _ but not to do anything
+		}
+
+		// rune -> numberValue conversion, in range 0-9
+		digitValueDecimalInteger, errorValueDetection := digitRune_decimalValue(digit)
+		if errorValueDetection != nil {
+			return bigNum_zero(), errors.New("digit (" + string(digit) + ") value detection error in: " + string(chars))
+		}
+		digits = append(digits, digitValueDecimalInteger)
+	}
+	return bignum_decimalValue{digits: digits, exponent: 0}, nil
+}
+
+
+
 
 // tested
 func digitsReverse(digits digitList) digitList {
