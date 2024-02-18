@@ -506,11 +506,10 @@ func bigNum_from_digits_general_any_numsystem (token Token) (bignum_decimalValue
 	}
 
 	////////////////////////////////////////////////////////////
-	/* so, here there are 3 things:
-	numberCharsBody
-	numberSystemType
-	numberCharsScientific
-	*/
+	/* so, here there are 3 things: */
+	fmt.Println(">>> numberSystemType:", numberSystemType)
+	fmt.Println(">>> numberCharsBody:", numberCharsBody)
+	fmt.Println(">>> scientificPart:", scientificPart)
 
 	// with this solution, the token is NOT sensitive if the value is missing
 	// after the e- or e+
@@ -527,6 +526,7 @@ func bigNum_from_digits_general_any_numsystem (token Token) (bignum_decimalValue
 	} else {
 		scientificMultiply.negative = (eType == "e-")   // () is not necessary, but helps to see what is happening
 	}
+	fmt.Println(">>> scientificMultiplyBigNum:", scientificMultiply)
 
 	summa := bigNum_zero()
 
@@ -536,6 +536,7 @@ func bigNum_from_digits_general_any_numsystem (token Token) (bignum_decimalValue
 		// I mean in an octal number, 9 is not a valid digit.
 		valDigit, err := digitRune_decimalValue(char)
 		valDigitBigNum := bigNum_from_digitlist(digitList{valDigit})
+		fmt.Println(">>> valDigitBigNum", valDigitBigNum)
 		if ! valDigitBigNum.isLessThan(numberSystemType) {
 			errMsg := "digit->decimalValue conversion error, the digit has a bigger value than it's number system. " + token.stringRepr()
 			fmt.Println(errMsg)
@@ -550,15 +551,32 @@ func bigNum_from_digits_general_any_numsystem (token Token) (bignum_decimalValue
 
 		// example digits:      456
 		// positions fromBack:  210  the last char is in pos 0 from back
-		positionFromBack := bigNum_create_from_int( len(numberCharsBody)-1 - posChar)
-		multiplier := bigNum_operator_mul(positionFromBack, numberSystemType)
-		digitPositionBasedValue := bigNum_operator_mul(valDigitBigNum, multiplier)
+		positionFromBack :=len(numberCharsBody)-1 - posChar
+		fmt.Println(">>> positionFromBack", positionFromBack)
+
+		/* in decimal system:  123
+		   1 real value: 1*10*10  // the multiplication is coming from the position and from the numSystem's base
+		   2 real value: 2*10
+
+			in this example, for every position, the 10base is used as a multiplier.
+
+			so if positionFromBack == 2, the multiplier will be increased 2 times.
+		*/
+		multiplierByPosition := bigNum_one() // the lowest digit position has x1 multiplier only.
+		for MultiplyCounter := 0; MultiplyCounter < positionFromBack; MultiplyCounter++ {
+			multiplierByPosition = bigNum_operator_mul(multiplierByPosition, numberSystemType)
+
+		}
+		fmt.Println(">>> multiplier", multiplierByPosition)
+
+		digitPositionBasedValue := bigNum_operator_mul(valDigitBigNum, multiplierByPosition)
+		fmt.Println(">>> digitPositionBasedValue:", digitPositionBasedValue)
+
 		summa = bigNum_operator_add(summa, digitPositionBasedValue)
+		fmt.Println(">>> summa:", summa)
+		fmt.Println(".........................")
 	}
 
-	multiplierScientificVal := bigNum_operator_mul(bigNum_ten(), scientificMultiply)
-
-	summa = bigNum_operator_mul(summa, multiplierScientificVal)
 	return summa, nil
 }
 ////////////////// 1_6#4ee+4 //////////////////////
@@ -584,7 +602,9 @@ func bigNum_from_token(token Token) (bignum_decimalValue, error)  {
 	} // Num_int detected
 
 	if token.tokenType == tokenType_Num_maybeNonDecimal{
+		fmt.Println("debug1 TOKEN>>>", token.stringRepr())
 		num, err := bigNum_from_digits_general_any_numsystem(token)
+		fmt.Println("debug2 NUM >>>", num)
 		return num.normalisedForm_endingZerosIntoExponent(), err
 	} // Num_int detected
 

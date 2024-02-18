@@ -307,11 +307,11 @@ func Test_mass_number_detection(t *testing.T) {
 	tokens_detectNumbers_simpleTest(`1_6__     `, tokenType_SyntaxError, t)
 
 	tokens_detectNumbers_simpleTest(`16#4f   `, tokenType_Num_maybeNonDecimal, t)
-	// tokens_detectNumbers_simpleTest(`1_6#4f  `, tokenType_Num_maybeNonDecimal, t)
-	// tokens_detectNumbers_simpleTest(`1_6#4_f `, tokenType_Num_maybeNonDecimal, t)
+	tokens_detectNumbers_simpleTest(`1_6#4f  `, tokenType_Num_maybeNonDecimal, t)
+	tokens_detectNumbers_simpleTest(`1_6#4_f `, tokenType_Num_maybeNonDecimal, t)
 
-	// tokens_detectNumbers_simpleTest(`1_6_#4_f`, tokenType_SyntaxError, t)
-	// tokens_detectNumbers_simpleTest(`1__6#4_f`, tokenType_SyntaxError, t)
+	tokens_detectNumbers_simpleTest(`1_6_#4_f`, tokenType_SyntaxError, t)
+	tokens_detectNumbers_simpleTest(`1__6#4_f`, tokenType_SyntaxError, t)
 }
 
 
