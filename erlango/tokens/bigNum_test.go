@@ -527,7 +527,11 @@ func math_operator_div_separated_validationCalculation(testName string, bnA, bnB
 }
 
 
-
+func compare_bigNum_bigNum(testName string, wantedNum, bnReceived bignum_decimalValue, t *testing.T) {
+	if ! wantedNum.isEqual(bnReceived) {
+		t.Fatalf("\nError in %s wanted: %d, received: %d", testName, bigNum_convert_to_INT(wantedNum), bigNum_convert_to_INT(bnReceived))
+	}
+}
 
 func compare_int_bigNum(testName string, wantedNum int, bn bignum_decimalValue, t *testing.T) {
 	received := bigNum_convert_to_INT(bn)

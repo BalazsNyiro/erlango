@@ -183,14 +183,64 @@ func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *t
 
 }
 
+//  go test -v -run  Test_anyNumSystem_charsSelectScientificPart
+func Test_anyNumSystem_charsSelectScientificPart(t *testing.T) {
+	testName := "Test_anyNumSystem_charsSelectScientificPart_"
+
+	txt := "123"
+	scientificEsignDetected, _:= anyNumSystem_charsSelectScientificPart([]rune(txt))
+	compare_bool_bool(testName+txt, false, scientificEsignDetected, t)
+
+	txt = "123e+45"
+	scientificEsignDetected, scientificPart := anyNumSystem_charsSelectScientificPart([]rune(txt))
+	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
+	compare_runes_runes(testName+txt, []rune("45"), scientificPart, t)
+
+	txt = "123e-45"
+	scientificEsignDetected, scientificPart = anyNumSystem_charsSelectScientificPart([]rune(txt))
+	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
+	compare_runes_runes(testName+txt, []rune("45"), scientificPart, t)
+
+	txt = "1_6_7#4ee+89"
+	scientificEsignDetected, scientificPart = anyNumSystem_charsSelectScientificPart([]rune(txt))
+	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
+	compare_runes_runes(testName+txt, []rune("89"), scientificPart, t)
+
+	txt = "1_6_7#4ee-89"
+	scientificEsignDetected, scientificPart = anyNumSystem_charsSelectScientificPart([]rune(txt))
+	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
+	compare_runes_runes(testName+txt, []rune("89"), scientificPart, t)
+}
+
+
+
+//  go test -v -run Test_anyNumSystem_detectNumSystem
+func Test_anyNumSystem_detectNumSystem(t *testing.T) {
+	testName := "Test_anyNumSystem_charsSelectScientificPart_"
+
+	txt := "1_6_7#4ee+89"
+	numberSystemType, numberSystemDetectionError := anyNumSystem_detectNumSystem([]rune(txt))
+	fmt.Println("numberSystemTypeDetected in the test:", numberSystemType)
+	compare_bool_bool(testName+txt, true, numberSystemDetectionError==nil, t)
+	compare_bigNum_bigNum(testName+txt, bigNum_create_from_int(167), numberSystemType, t)
+
+	txt = "2a#4ee+89"
+	numberSystemType, numberSystemDetectionError = anyNumSystem_detectNumSystem([]rune(txt))
+	// error has to be detected
+	compare_bool_bool(testName+txt, false, numberSystemDetectionError==nil, t)
+
+}
+
+
+
 ///////////////////////////////////////////////
 //  go test -v -run Test_charsCopySplitWithChars
-func Test_charsCopySplitWithChars(t *testing.T) {
-	testName := "Test_charsCopySplitWithChars_"
+func Test_charsCopySplitAtFirstWithChars(t *testing.T) {
+	testName := "Test_charsCopySplitAtFirstWithChars "
 
 	txt := "abc-012"
 	charsOrig := []rune(txt)
-	leftDetected, rightDetected := charsCopySplitWithChars(charsOrig, []rune("-"))
+	_, leftDetected, rightDetected := charsCopySplitAtFirstWithChars(charsOrig, []rune("-"))
 
 	leftWanted := []rune("abc")
 	rightWanted := []rune("012")
@@ -200,7 +250,7 @@ func Test_charsCopySplitWithChars(t *testing.T) {
 
 	txt = "abc-012-345"
 	charsOrig = []rune(txt)
-	leftDetected, rightDetected = charsCopySplitWithChars(charsOrig, []rune("-"))
+	_, leftDetected, rightDetected = charsCopySplitAtFirstWithChars(charsOrig, []rune("-"))
 
 	leftWanted = []rune("abc")
 	rightWanted = []rune("012-345")
@@ -210,10 +260,20 @@ func Test_charsCopySplitWithChars(t *testing.T) {
 
 	txt = "abc-012-345"
 	charsOrig = []rune(txt)
-	leftDetected, rightDetected = charsCopySplitWithChars(charsOrig, []rune("01"))
+	_, leftDetected, rightDetected = charsCopySplitAtFirstWithChars(charsOrig, []rune("01"))
 
 	leftWanted = []rune("abc-")
 	rightWanted = []rune("2-345")
+	compare_runes_runes(testName+txt, leftWanted, leftDetected, t)
+	compare_runes_runes(testName+txt, rightWanted, rightDetected, t)
+
+
+	txt = "abc-012-012-345"
+	charsOrig = []rune(txt)
+	_, leftDetected, rightDetected = charsCopySplitAtFirstWithChars(charsOrig, []rune("01"))
+
+	leftWanted = []rune("abc-")
+	rightWanted = []rune("2-012-345")
 	compare_runes_runes(testName+txt, leftWanted, leftDetected, t)
 	compare_runes_runes(testName+txt, rightWanted, rightDetected, t)
 }

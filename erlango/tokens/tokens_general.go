@@ -65,7 +65,8 @@ func charsCopyRemoveUnwanted(chars []rune, unWanted rune) []rune {
 
 // split chars to 2 separated sections at the first occurence of a splitter char
 // abc-012, - can be a splitter
-func charsCopySplitWithChars(chars []rune, splitterChars []rune) ([]rune, []rune) {
+// TESTED: Test_charsCopySplitWithChars
+func charsCopySplitAtFirstWithChars(chars []rune, splitterChars []rune) (bool, []rune, []rune) {
 	left := []rune{}
 	right := []rune{}
 	target := "left"
@@ -121,7 +122,8 @@ func charsCopySplitWithChars(chars []rune, splitterChars []rune) ([]rune, []rune
 
 		pos++
 	}
-	return left, right
+	splitterDetectedMinimumOnce := target == "right"
+	return splitterDetectedMinimumOnce, left, right
 }
 
 
