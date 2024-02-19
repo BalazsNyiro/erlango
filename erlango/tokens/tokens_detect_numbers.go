@@ -183,13 +183,14 @@ func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 			// fmt.Println("detected_num_digitUnderscore_dot_digitUnderscore ", detected_num_digitUnderscore_dot_digitUnderscore )
 
 			detectedMax := max(detected_num_digit_dot_digitUnderscore, detected_num_digit_dot_digit, detected_num_digitUnderscore_dot_digit, detected_num_digitUnderscore_dot_digitUnderscore)
+			printIfDebug(detection+" detectedMax:", detectedMax, "\n")
 
-			if detectedMax> 0 {
+			if detectedMax > 0 {
 				tokenType = tokenType_Num_float
 				detectionCharPosFirst = charPos
 				detectionCharPosLast = charPos + detectedMax - 1
 			}
-			printIfDebug(detection+" tokenType:", tokenType, "\n")
+			printIfDebug(detection+" tokenType maybe float END:", tokenType, "\n")
 		} // float
 
 
@@ -516,7 +517,7 @@ func bigNum_from_digits_general_any_numsystem (token Token) (bignum_decimalValue
 	scientificMultiply := bigNum_one() // multiply with one doesn't change a number value
 
 	if scientificEsignDetected {
-		scientificMultiplyBigNum, errSci := bigNum_from_0123456789_runes(scientificPart) // multiply with one doesn't change a number value
+		scientificMultiplyBigNum, errSci := bigNum_from_0123456789Dot_runes(scientificPart) // multiply with one doesn't change a number value
 		if errSci != nil {
 			errMsg := "scientific Multiplier conversion error in anyNumsystem, numSystem part: " + token.stringRepr()
 			fmt.Println(errMsg, errSci)
@@ -593,13 +594,21 @@ func bigNum_from_token(token Token) (bignum_decimalValue, error)  {
 
 	if token.tokenType == tokenType_Num_int {
 		// this is the easiest way
-		num, err := bigNum_from_0123456789_runes(token.charsInErlSrc)
+		num, err := bigNum_from_0123456789Dot_runes(token.charsInErlSrc)
 
 		// and this is the hardest :-)
 		// num, err :=  bigNum_from_digits_general_any_numsystem(token)
 
 		return num.normalisedForm_endingZerosIntoExponent(), err
 	} // Num_int detected
+
+
+	if token.tokenType == tokenType_Num_float {
+		// this is the easiest way
+		num, err := bigNum_from_0123456789Dot_runes(token.charsInErlSrc)
+		return num.normalisedForm_endingZerosIntoExponent(), err
+	} // float detected
+
 
 	if token.tokenType == tokenType_Num_maybeNonDecimal{
 		fmt.Println("debug1 TOKEN>>>", token.stringRepr())

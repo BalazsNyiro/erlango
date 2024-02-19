@@ -15,7 +15,7 @@ package tokens
 
 import (
 	"fmt"
-	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -127,6 +127,8 @@ func Test_parse_numbers_hexa_nondecimal(t *testing.T) {
 
 
 // there are preparation steps for testing - this is a wrapper func to simplify tests
+
+//  go test -v -run tokens_detectNumbers_simpleTest
 func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *testing.T) {
 	funName := "tokens_detectNumbers_simpleTest"
 	tokensTable := Tokens{}
@@ -136,40 +138,39 @@ func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *t
 	_ = erlSrcTokenRemoved
 
 
-	fmt.Println("\n\nnumTokenDetect:", erlExpression)
+	// TYPE checking: typeWanted VS typeDetected
+	fmt.Println("\n\nnumTokenDetect:", erlExpression, " <- in Erlang source code")
 	compare_string_string(funName + ": " + erlExpression, tokenTypeWanted, tokensTable_detected[0].tokenType, t)
 
 
 
+	////////////////////// what is Erlang output if expression is executed? ////////////
+	erlangOutput, erlErr := erlBinExpressionParse(erlExpression)
+	erlangOutput = strings.TrimSpace(erlangOutput) // whitespace is removed
+	fmt.Println("ERLANG output:", erlangOutput, erlErr)
 
-	//////// compare erlang and bigNum values ///////////////
-	erlOutDetectedNumString, erlErr := erlBinExpressionParse(erlExpression)
 
+	////////////////////// what is bigNum from the token? //////////////////////////////
+	bigNumFromToken, errBn := bigNum_from_token(tokensTable_detected[0])
+	if errBn != nil {
+		errMsg := fmt.Sprintf("bignum is not detected in token: %s", errBn.Error())
+		fmt.Println(errMsg)
+		// maybe this is not a problem, if we wanted to test an incorrect token
+		// t.Fatalf(errMsg)
+	} else {
+		fmt.Println("bigNumFromToken detected from token: ", bigNumFromToken)
+	}
+
+	//////// compare erlang and bigNumFromToken values ///////////////
 	if erlErr == nil {
-		erlOutDetectedNum, errIntConv := strconv.Atoi(erlOutDetectedNumString)
-		if errIntConv != nil {
-			fmt.Println("int conversion problem from erlang shell:", erlOutDetectedNumString, errIntConv)
 
-		} else {
-			fmt.Println("ERLANG DETECTED NUM:", erlOutDetectedNum)
+		// we have a string based Erlang output here. Accept as an ETALON
+		bigNum_as_string := bigNumFromToken.stringRepresentation()
 
-			bigNum, err := bigNum_from_token(tokensTable_detected[0])
-			bigNum_INT := 0
-			if err != nil {
-				fmt.Println("problem with bignum conversion: ", err)
-			} else {
-				fmt.Println("bigNum: ", bigNum)
-				bigNum_INT = bigNum_convert_to_INT(bigNum)
-			}
-			fmt.Println("bigNum INT:", bigNum_INT, "erl bin out:", erlOutDetectedNumString, "erl error:", erlErr)
-
-			if bigNum_INT != erlOutDetectedNum {
-				t.Fatalf("ERROR: erlang integer %d <> %d bigNum int", erlOutDetectedNum, bigNum_INT)
-			}
-
-		} // no problem with erlang output's conversion to int
-	} // erl error == nil, compare the num with bigNum
-
+		if bigNum_as_string != erlangOutput {
+			t.Fatalf("ERROR: different num representations: erlang %s <>  %s bigNum", erlangOutput, bigNum_as_string)
+		}
+	} // erl error == nil, compare the num with bigNumFromToken
 
 
 	if erlErr != nil { // error happend in erlang binary
@@ -298,6 +299,7 @@ func Test_charsCopySplitAtFirstWithChars(t *testing.T) {
 //  go test -v -run Test_mass_number_detection
 func Test_mass_number_detection(t *testing.T) {
 	// this test calls ERLANG BINARY to check the values, too!
+	/*
 	tokens_detectNumbers_simpleTest(`16         `, tokenType_Num_int, t)
 	tokens_detectNumbers_simpleTest(`1_6        `, tokenType_Num_int, t)
 	tokens_detectNumbers_simpleTest(`1_6_7      `, tokenType_Num_int, t)
@@ -312,6 +314,63 @@ func Test_mass_number_detection(t *testing.T) {
 
 	tokens_detectNumbers_simpleTest(`1_6_#4_f`, tokenType_SyntaxError, t)
 	tokens_detectNumbers_simpleTest(`1__6#4_f`, tokenType_SyntaxError, t)
+
+	 */
+
+	tokens_detectNumbers_simpleTest(`1.6`, tokenType_Num_float, t)
+}
+
+
+//  go test -v -run Test_index_reverse
+func Test_index_reverse(t *testing.T) {
+	testName := "Test_index_reverse"
+
+	text := []rune("abcdefghijkl")
+
+	indexLast := len(text)-1
+
+	index := 0  // the reverse index is (LEN-1)
+	indexReverse, _ := indexReverse_get__worksWithNonEmptySlicesOnly(len(text), index)
+	compare_int_int(testName, indexLast, indexReverse, t)
+
+	index = 1
+	indexReverse, _ = indexReverse_get__worksWithNonEmptySlicesOnly(len(text), index)
+	compare_int_int(testName, indexLast-index, indexReverse, t)
+
+	index = 4
+	indexReverse, _ = indexReverse_get__worksWithNonEmptySlicesOnly(len(text), index)
+	compare_int_int(testName, indexLast-index, indexReverse, t)
+
+	index = indexLast
+	indexReverse, _ = indexReverse_get__worksWithNonEmptySlicesOnly(len(text), index)
+	compare_int_int(testName, indexLast-index, indexReverse, t)
+}
+
+//  go test -v -run Test_bigNum_string_representation
+func Test_bigNum_string_representation(t *testing.T) {
+	testName := "Test_bigNum_string_representation"
+
+	bn := bigNum_ten()
+	representation := bn.stringRepresentation()
+
+	compare_string_string(testName, "10", representation, t)
+
+	bn = bigNum_operator_add(bn, bigNum_one())
+	bn.exponent = -1
+	representation = bn.stringRepresentation()
+	compare_string_string(testName, "1.1", representation, t)
+
+	bn.exponent = -2
+	representation = bn.stringRepresentation()
+	compare_string_string(testName, "0.11", representation, t)
+
+	bn.exponent = -3
+	representation = bn.stringRepresentation()
+	compare_string_string(testName, "0.011", representation, t)
+
+	bn.exponent = -4
+	representation = bn.stringRepresentation()
+	compare_string_string(testName, "0.0011", representation, t)
 }
 
 

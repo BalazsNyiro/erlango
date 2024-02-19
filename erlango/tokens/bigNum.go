@@ -66,12 +66,85 @@ func (bn bignum_decimalValue) isNegative() bool {
 	return bn.negative
 }
 
-func (bn bignum_decimalValue) print(msg string) {
+func (bn bignum_decimalValue) printStructure(msg string) {
 	sign := "+"
 	if bn.isNegative() {
 		sign = "-"
 	}
 	fmt.Println(msg, sign, bn.digits, bn.exponent)
+}
+
+func (bn bignum_decimalValue) stringRepresentation() string {
+	normalised := bn.normalisedForm_exponentZerosIntoDigits()
+	fmt.Println(">>> bigNum String repr, debug 1: ", normalised)
+	representation := ""
+
+	if normalised.isNegative() {
+		representation = "-"
+	}
+
+	lenDigits := len(normalised.digits)
+
+	insertDotAfterThisIndex :=      (lenDigits-1) - (-  normalised.exponent)
+	/*indexes:  01 234                         |  |       |
+	  num:      56.789                         |  |       |
+	  exponent is -3 in this situation.        |  |       | exponent is -3
+	  insertDotAfterThisIndex = 1, because: (5-1) - (-  (-3)   )
+	*/
+	fmt.Println(">>> bigNum String repr, debug 2: insertDotAfterThisIndex", insertDotAfterThisIndex)
+
+	//  a special case: 1,1  and exponent = -2.
+	// wanted result:  0.11  but the insertDotAfterThisIndex is -1, and later in the for Loop only positive indexes are handled
+
+	// it has to be handled
+	if insertDotAfterThisIndex < 0 {
+		representation += "0."  // one negative exponent is handled, because the . is BEFORE every number.
+		// +1: because the first -1 inserting happened with the 0.
+		for i:=insertDotAfterThisIndex+1; i<0; i++ {
+			//                        ^^ decrease with 1 the effect
+			// so we need to decrease the effect of insertDotAfterThisIndex with 1
+			representation += "0"
+		}
+	}
+
+	for index, digit := range normalised.digits {
+
+		representation += digit_to_string(digit)
+
+		if normalised.exponent < 0 {
+
+			// normal situation: the number is bigger than 1, and the . has to be inserted at a positive index
+			if insertDotAfterThisIndex >= 0 {
+				if insertDotAfterThisIndex == index {
+					// exponent is negative in this situation, because we have floating . only,
+					// if the number has to be divided with 10^X
+					// so the exponent has to be negative, if we see a . in the number
+					representation += "."
+				}
+			}
+
+		} // if we need to add . into the representation
+	}
+	return representation
+}
+
+
+func digit_to_string(digit digitElemType) string{
+	ret := "X"
+	switch digit {
+	case 0: ret = "0"
+	case 1: ret = "1"
+	case 2: ret = "2"
+	case 3: ret = "3"
+	case 4: ret = "4"
+	case 5: ret = "5"
+	case 6: ret = "6"
+	case 7: ret = "7"
+	case 8: ret = "8"
+	case 9: ret = "9"
+	default: ret = "?"
+	}
+	return ret
 }
 
 // first digit position is 0. what is the last digit id?
@@ -93,6 +166,26 @@ func (bn bignum_decimalValue) digitsExport() digitList{
 	return digits
 }
 
+// if slices are reverse-indexed, what is the reverse index?
+// TESTED
+func indexReverse_get__worksWithNonEmptySlicesOnly(lengthOfSlice, indexNormal int) (int, error) {
+	if lengthOfSlice < 1 {
+		errMsg := "Reverse index calculation in an empty slice, there is no reverse index!"
+		return 0, errors.New(errMsg)
+	}
+	/* if there is no elem in the slice, the result will be negative!!!
+	in an empty slice you cannot select one existing index, so the reverse index doesn't exist, too
+	USE IT WITH length >= 1!
+
+	          0 1 2 3 4  <- normal indexing
+	          4 3 2 1 0  <- reverse indexing
+	Slice := [a,b,c,d,e]
+	the first elem's reverse index is 4. because the last elem's reverse index is 0
+	*/
+	indexReverseOfFirstElem := lengthOfSlice-1
+	indexReverse := indexReverseOfFirstElem - indexNormal
+	return indexReverse, nil
+}
 
 // if the position is not in the digit, the value is 0.
 // posFromBack: 0 is the last digit, 1 is the second from back, 2 is the third from back
@@ -547,8 +640,11 @@ func bigNum_from_digitlist(digitsReceived digitList) bignum_decimalValue {
 /* if decimals are converted to bigNum, that is simple, because the values can be directly loaded
    into the digits, without any calculation
 */
-func bigNum_from_0123456789_runes(chars []rune) (bignum_decimalValue, error) {
+func bigNum_from_0123456789Dot_runes(chars []rune) (bignum_decimalValue, error) {
 	digits := digitList{}
+	exponent := 0
+	dotDetected := false  // 12.34  when . is detected, it will be true
+
 	for pos := 0; pos < len(chars); pos++ {
 		digit := chars[pos]
 		fmt.Println("digit[",pos,"] => ", digit, string(digit))
@@ -557,6 +653,15 @@ func bigNum_from_0123456789_runes(chars []rune) (bignum_decimalValue, error) {
 			continue	   // so unfortunately, the most native/correct ways is to accept the _ but not to do anything
 		}
 
+		if digit == '.' {
+			dotDetected = true
+			continue
+		}
+
+		if dotDetected {
+			exponent -= 1  // every digit after a DOT detection means -1 exponent value
+		} // with this extra, FLOATs can be detected, too
+
 		// rune -> numberValue conversion, in range 0-9
 		digitValueDecimalInteger, errorValueDetection := digitRune_decimalValue(digit)
 		if errorValueDetection != nil {
@@ -564,7 +669,7 @@ func bigNum_from_0123456789_runes(chars []rune) (bignum_decimalValue, error) {
 		}
 		digits = append(digits, digitValueDecimalInteger)
 	}
-	return bignum_decimalValue{digits: digits, exponent: 0}, nil
+	return bignum_decimalValue{digits: digits, exponent: exponent}, nil
 }
 
 

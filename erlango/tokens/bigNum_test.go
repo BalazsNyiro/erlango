@@ -584,3 +584,40 @@ func compare_runes_runes(callerInfo string, runesWanted, runesReceived []rune, t
 		}
 	}
 }
+
+func compare_rune_rune(callerInfo string, runeWanted, runeReceived rune, t *testing.T) {
+	if runeWanted != runeReceived {
+		errMsg := fmt.Sprintf("\nErr (%s) rune <>rune:\n  wanted -->>%s<<-- ??\nreceived -->>%s<<--\n\n", callerInfo, string(runeWanted), string(runeReceived))
+		t.Fatalf(errMsg)
+	}
+}
+
+
+func is_string_contains_only_0123456789(txt string) bool {
+	return is_string_contains_only_allowed_letters(txt, "0123456789")
+}
+
+func is_string_contains_only_0123456789Dot(txt string) bool {
+	return is_string_contains_only_allowed_letters(txt, "0123456789.")
+}
+
+// example: txt = 12.34, allowedChars = "0123456789" - dot is not allowed string elem
+func is_string_contains_only_allowed_letters(txt string, allowedCharsInString string) bool {
+
+	for _, textLetter := range txt {
+		letterDetectedInAlloweds := false
+		for _, allowedLetter := range allowedCharsInString {
+			if textLetter == allowedLetter {
+				letterDetectedInAlloweds = true
+				break
+			}
+		}
+
+		// if we got the first non-allowed textLetter, return with false
+		if ! letterDetectedInAlloweds {
+			return false
+		}
+	}
+
+	return true  // every letter in txt was allowed
+}
