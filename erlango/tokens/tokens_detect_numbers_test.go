@@ -121,8 +121,6 @@ func Test_parse_numbers_hexa_nondecimal(t *testing.T) {
 	compare_string_string(testName, "16#4_f", tokensTable_02_detected[37].stringRepr(), t)
 
 	// fmt.Println(testName, erlSrcWantedAfterTokenDetect, erlSrcOrig, tokensTable)
-
-	fmt.Println("FIXME: erlang native hivasok, szamokkal, eredmenyt olvasd vissza")
 }
 
 
@@ -190,9 +188,10 @@ func Test_anyNumSystem_charsSelectScientificPart(t *testing.T) {
 
 	txt := "123"
 	scientificEsignDetected, beforeScientificPart, scientificPart, splitter := anyNumSystem_charsSelectScientificPart([]rune(txt))
+	fmt.Println("DEBUG:>>>", scientificEsignDetected, beforeScientificPart, scientificPart, splitter)
 	compare_bool_bool(testName+txt, false, scientificEsignDetected, t)
 	compare_runes_runes(testName+txt, []rune{}, scientificPart, t)
-	compare_runes_runes(testName+txt, []rune("123"), beforeScientificPart, t)
+	compare_runes_runes(testName+txt, []rune(""), beforeScientificPart, t)
 	compare_string_string(testName+txt, "", splitter, t)
 
 	txt = "123e+45"
@@ -213,7 +212,7 @@ func Test_anyNumSystem_charsSelectScientificPart(t *testing.T) {
 	scientificEsignDetected, beforeScientificPart, scientificPart, splitter = anyNumSystem_charsSelectScientificPart([]rune(txt))
 	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
 	compare_runes_runes(testName+txt, []rune("89"), scientificPart, t)
-	compare_string_string(testName+txt, "E+", splitter, t)
+	compare_string_string(testName+txt, "e+", splitter, t) // E- or e- return with e- as type, that is not case sensitive
 
 	// here I don't care about numberSystemPart, so everything before the scientific has to be returned
 	compare_runes_runes(testName+txt, []rune("1_6_7#4e"), beforeScientificPart, t)
@@ -223,7 +222,8 @@ func Test_anyNumSystem_charsSelectScientificPart(t *testing.T) {
 	compare_bool_bool(testName+txt, true, scientificEsignDetected, t)
 	compare_runes_runes(testName+txt, []rune("89"), scientificPart, t)
 	compare_runes_runes(testName+txt, []rune("1_6_7#4e"), beforeScientificPart, t)
-	compare_string_string(testName+txt, "E-", splitter, t)
+	compare_string_string(testName+txt, "e-", splitter, t)  // E- or e- return with e- as type, that is not case sensitive
+
 }
 
 
@@ -299,7 +299,6 @@ func Test_charsCopySplitAtFirstWithChars(t *testing.T) {
 //  go test -v -run Test_mass_number_detection
 func Test_mass_number_detection(t *testing.T) {
 	// this test calls ERLANG BINARY to check the values, too!
-	/*
 	tokens_detectNumbers_simpleTest(`16         `, tokenType_Num_int, t)
 	tokens_detectNumbers_simpleTest(`1_6        `, tokenType_Num_int, t)
 	tokens_detectNumbers_simpleTest(`1_6_7      `, tokenType_Num_int, t)
@@ -314,8 +313,6 @@ func Test_mass_number_detection(t *testing.T) {
 
 	tokens_detectNumbers_simpleTest(`1_6_#4_f`, tokenType_SyntaxError, t)
 	tokens_detectNumbers_simpleTest(`1__6#4_f`, tokenType_SyntaxError, t)
-
-	 */
 
 	tokens_detectNumbers_simpleTest(`1.6`, tokenType_Num_float, t)
 }
