@@ -156,6 +156,19 @@ type Tokens map[int]Token
 
 	With this solution, different token groups can be removed in different layers - all of them
     has well-defined input state, and output.
+
+
+	Token detection step examples:
+ 		- Tokens_0_detect_text_blocks
+		- Tokens_1_detect_numbers
+		- Tokens_2_detect_atoms_variableNames
+
+	In one token detection step, the ret value is always this:
+	 - the cleaned src, where the detected elems are removed,
+	 - the tokens table where the detected elems are inserted as Tokens
+
+	To avoid any conflict, the tokensTable is always copied,
+	to avoid accidental side effects
 */
 
 func (tokensInMap Tokens) deepCopy() Tokens {

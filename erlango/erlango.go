@@ -25,11 +25,14 @@ func main() {  // in program plan
 
 
 	erlSrc_cleaned__stringsAtomsCommens_removed, tokensTable_stringsAtomsCommentsAdded :=
-		tokens.Tokens_detect_text_blocks(erlSrc, tokensTable)
+		tokens.Tokens_0_detect_text_blocks(erlSrc, tokensTable)
 
-	erlSrc_cleaned__numbersRemoved, tokensTAble_numbersAdded :=
-		tokens.Tokens_detect_numbers(erlSrc_cleaned__stringsAtomsCommens_removed, tokensTable_stringsAtomsCommentsAdded)
+	erlSrc_cleaned__numbersRemoved, tokensTable_numbersAdded :=
+		tokens.Tokens_1_detect_numbers(erlSrc_cleaned__stringsAtomsCommens_removed, tokensTable_stringsAtomsCommentsAdded)
 
-	fmt.Println("END", erlSrc_cleaned__numbersRemoved, tokensTAble_numbersAdded)
+	erlSrc_cleaned__atomsVariablesRemoved, tokensTable_atomsVariablesAdded :=
+		tokens.Tokens_2_detect_atoms_variableNames(erlSrc_cleaned__numbersRemoved, tokensTable_numbersAdded)
+
+	fmt.Println("END", erlSrc_cleaned__atomsVariablesRemoved, tokensTable_atomsVariablesAdded)
 
 }

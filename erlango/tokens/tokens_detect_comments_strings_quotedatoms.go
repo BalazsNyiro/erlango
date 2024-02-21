@@ -32,8 +32,17 @@ because for atoms/strings, and for comments, it is relatively
 easy to find opener and closer elems.
 
 I like this process. It was rewritten minimum 4 times; and now, it is good to see this :-)
+
+
+The source code parsing order is important. Numbers can be in strings, and characters in numbers.
+Because of this, the source code parsing order is strict, and the exec order is embedded into the function name.
+(Tokens_0)
+
+the ret value is always this:
+ - the cleaned src, where the detected elems are removed,
+ - the tokens table where the detected elems are inserted as Tokens
 */
-func Tokens_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Tokens){
+func Tokens_0_detect_text_blocks(erlSrc string, tokensTable Tokens) (string, Tokens){
 
 	tokenCloserDetected__saveTheToken := "tokenCloserDetected__saveTheToken "
 	tokenOpenerDetected__tokenNew := "tokenOpenerDetected__tokenNew "

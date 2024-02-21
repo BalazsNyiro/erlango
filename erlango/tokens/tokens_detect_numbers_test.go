@@ -26,7 +26,7 @@ func Test_parse_numbers_int_simple(t *testing.T) {
 	erlSrcOrig :=                    `A, B, C = 1, 22, 345.`
 	erlSrcWantedAfterTokenDetect :=  `A, B, C =  ,   ,    .`
 
-	erlSrc_received_after_tokenDetect, tokensTable_02_intDetected := Tokens_detect_numbers(erlSrcOrig, tokensTable)
+	erlSrc_received_after_tokenDetect, tokensTable_02_intDetected := Tokens_1_detect_numbers(erlSrcOrig, tokensTable)
 	print_string_runes_diff(erlSrcOrig, erlSrc_received_after_tokenDetect)
 	print_tokens("tokens table " + testName, tokensTable_02_intDetected)
 
@@ -50,7 +50,7 @@ func Test_parse_numbers_int_with_underscore(t *testing.T) {
 	erlSrcOrig :=                    `A, B, C = 1_1, 2_2_2, 34_5.`
 	erlSrcWantedAfterTokenDetect :=  `A, B, C =    ,      ,     .`
 
-	erlSrc_received_after_tokenDetect, tokensTable_02_intDetected := Tokens_detect_numbers(erlSrcOrig, tokensTable)
+	erlSrc_received_after_tokenDetect, tokensTable_02_intDetected := Tokens_1_detect_numbers(erlSrcOrig, tokensTable)
 	print_string_runes_diff(erlSrcOrig, erlSrc_received_after_tokenDetect)
 	print_tokens("tokens table: " + testName, tokensTable_02_intDetected)
 
@@ -76,7 +76,7 @@ func Test_parse_numbers_floats(t *testing.T) {
 	erlSrcOrig :=                    `A, B, C, D = 11.2_2, 33.44, 5_5.66, 7_7.8_8.`
 	erlSrcWantedAfterTokenDetect :=  `A, B, C, D =       ,      ,       ,        .`
 
-	erlSrc_received_after_tokenDetect, tokensTable_02_detected := Tokens_detect_numbers(erlSrcOrig, tokensTable)
+	erlSrc_received_after_tokenDetect, tokensTable_02_detected := Tokens_1_detect_numbers(erlSrcOrig, tokensTable)
 	print_string_runes_diff(erlSrcOrig, erlSrc_received_after_tokenDetect)
 	print_tokens("tokens table: " + testName, tokensTable_02_detected)
 
@@ -104,7 +104,7 @@ func Test_parse_numbers_hexa_nondecimal(t *testing.T) {
 	erlSrcOrig :=                    `A, B, C, D = 16#4f, 1_6#4f, 1_6#4_f, 16#4_f.`
 	erlSrcWantedAfterTokenDetect :=  `A, B, C, D =      ,       ,        ,       .`
 
-	erlSrc_received_after_tokenDetect, tokensTable_02_detected := Tokens_detect_numbers(erlSrcOrig, tokensTable)
+	erlSrc_received_after_tokenDetect, tokensTable_02_detected := Tokens_1_detect_numbers(erlSrcOrig, tokensTable)
 	// print_string_runes_diff(erlSrcOrig, erlSrc_received_after_tokenDetect)
 	// print_tokens("tokens table: " + testName, tokensTable_02_detected)
 
@@ -130,7 +130,7 @@ func Test_parse_numbers_hexa_nondecimal(t *testing.T) {
 func tokens_detectNumbers_simpleTest(erlExpression, tokenTypeWanted string, t *testing.T) {
 	funName := "tokens_detectNumbers_simpleTest"
 	tokensTable := Tokens{}
-	erlSrcTokenRemoved , tokensTable_detected := Tokens_detect_numbers(erlExpression, tokensTable)
+	erlSrcTokenRemoved , tokensTable_detected := Tokens_1_detect_numbers(erlExpression, tokensTable)
 	// in the tests, the token is checked only now,
 	// so the cleaned src is not used now.
 	_ = erlSrcTokenRemoved

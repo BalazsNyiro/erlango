@@ -41,12 +41,20 @@ If a number representation form is detected, the whole block is removed from the
 
 If the look-forward is not successful, then take the next char, and start again the detection
 
+The source code parsing order is important. Numbers can be in strings, and characters in numbers.
+Because of this, the source code parsing order is strict, and the exec order is embedded into the function name.
+(Tokens_1)
+
+the ret value is always this:
+ - the cleaned src, where the detected elems are removed,
+ - the tokens table where the detected elems are inserted as Tokens
 */
-func Tokens_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
+func Tokens_1_detect_numbers(erlSrc string, tokensTable Tokens) (string, Tokens) {
 
 	tokensTableUpdated := tokensTable.deepCopy()
 	var erlSrcTokenDetectionsRemoved []rune
 	///////////////////////////////////////////////////////////////
+
 	digitsZeroNine := []rune(ABC_Eng_digits)
 	digitsZeroNine_underscore := []rune(ABC_Eng_digits+"_")
 
@@ -611,9 +619,7 @@ func bigNum_from_token(token Token) (bignum_decimalValue, error)  {
 
 
 	if token.tokenType == tokenType_Num_maybeNonDecimal{
-		fmt.Println("debug1 TOKEN>>>", token.stringRepr())
 		num, err := bigNum_from_digits_general_any_numsystem(token)
-		fmt.Println("debug2 NUM >>>", num)
 		return num.normalisedForm_endingZerosIntoExponent(), err
 	} // Num_int detected
 

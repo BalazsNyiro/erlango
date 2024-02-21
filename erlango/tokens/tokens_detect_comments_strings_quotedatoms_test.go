@@ -84,7 +84,7 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted(t *testing.T) {
 	erlSrcOrig :=                    `[AtomVal, IntVal1, StringVal, IntVal2] = ['atomQuoted', 2, "txt", 4]. % comment` + "\n%comment2"
 	erlSrcWantedAfterTokenDetect :=  `[AtomVal, IntVal1, StringVal, IntVal2] = [            , 2,      , 4].          ` + "\n         "
 
-	erlSrc_received_after_tokenDetect, tokensTable_02_textBlocksDetected := Tokens_detect_text_blocks(erlSrcOrig, tokensTable)
+	erlSrc_received_after_tokenDetect, tokensTable_02_textBlocksDetected := Tokens_0_detect_text_blocks(erlSrcOrig, tokensTable)
 	print_string_runes_diff(erlSrcOrig, erlSrc_received_after_tokenDetect)
 	print_tokens("tokens table" + testName, tokensTable_02_textBlocksDetected)
 
@@ -108,7 +108,7 @@ func Test_parse_comments_textDoubleQuoted_textSingleQuoted_escaping(t *testing.T
 	//                                           \n is one char in representation
 	erlSrcWantedAfterTokenDetect :=  "Atom=                                      ,"
 
-	erlSrc_received_after_tokenDetect, _ := Tokens_detect_text_blocks(erlSrcOrig, tokensTable)
+	erlSrc_received_after_tokenDetect, _ := Tokens_0_detect_text_blocks(erlSrcOrig, tokensTable)
 
 	compare_string_string(testName, erlSrcWantedAfterTokenDetect, erlSrc_received_after_tokenDetect, t)
 }
