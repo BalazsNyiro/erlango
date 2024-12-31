@@ -11,8 +11,12 @@ LICENSE file in the root directory of this source tree.
 
 package tokens
 
-import ()
+import (
+	"testing"
+)
 
-func file_read(fname string) string {
-	return "file_content"
+func Test_file_read(t *testing.T) {
+	testName := "first fake test to see if function calling is working"
+	answer := tokens_detect_comments_strings_quotedatoms("something")
+	compare_string_string(testName, "org/erlango/pkg/tokens", answer, t)
 }

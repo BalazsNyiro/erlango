@@ -12,11 +12,9 @@ LICENSE file in the root directory of this source tree.
 package tokens
 
 import (
-	"testing"
+	"erlango.org/erlango/pkg/base_toolset"
 )
 
-func Test_file_read(t *testing.T) {
-	testName := "first fake test to see if function calling is working"
-	answer := file_read("something")
-	compare_string_string(testName, answer, "file_content", t)
+func tokens_detect_comments_strings_quotedatoms(fname string) string {
+	return base_toolset.GetCurrentGoFuncName()
 }
