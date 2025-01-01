@@ -12,11 +12,15 @@ LICENSE file in the root directory of this source tree.
 package tokens
 
 import (
+	"erlango.org/erlango/pkg/base_toolset"
 	"testing"
 )
 
 func Test_file_read(t *testing.T) {
 	testName := "first fake test to see if function calling is working"
-	answer := tokens_detect_comments_strings_quotedatoms("something")
+	erlSrcRunes, _ := base_toolset.File_read_runes("erl_src/erlang_whitespaces_separators_basic_types.erl", "test_comment_string_quotedatom_1")
+
+	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes)
+	answer := tokens_detect_comments_strings_quotedatoms(charactersInErlSrc)
 	compare_string_string(testName, "org/erlango/pkg/tokens", answer, t)
 }

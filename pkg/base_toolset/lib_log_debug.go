@@ -17,9 +17,9 @@ import (
 	"strings"
 )
 
+// This fun can be called from other functions, where you can get dynamically the actual function name
 func GetCurrentGoFuncName() string {
 	pc, _, _, _ := runtime.Caller(1)
-	// complex fun name: command_x2dline_x2darguments.ParseErlangSourceCode
 	funName := fmt.Sprintf("%s", runtime.FuncForPC(pc).Name())
 	if strings.Contains(funName, ".") {
 		funName = strings.Split(funName, ".")[1]

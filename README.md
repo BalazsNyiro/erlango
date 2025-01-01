@@ -13,7 +13,11 @@ Shared code execution on multiple nodes.
 The first session doesn't want to be perfect.
 It is a POC, and when it works, the code will be refactored/tuned.
 
-Documentation
+# Documentation
+
+The used Erlang documentation is v27.2
+https://www.erlang.org/doc/system/data_types.html
+
 
 # Compile this project
 

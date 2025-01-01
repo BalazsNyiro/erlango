@@ -13,8 +13,14 @@ package tokens
 
 import (
 	"erlango.org/erlango/pkg/base_toolset"
+	"fmt"
 )
 
-func tokens_detect_comments_strings_quotedatoms(fname string) string {
+// TODO: func tokens_detect_all(characters, TOKENS)
+
+func tokens_detect_comments_strings_quotedatoms(charactersInErlSrc []CharacterInErlSrc) string {
+	for _, charStruct := range charactersInErlSrc {
+		fmt.Printf("tokens_detect_comments_strings_quotedatoms: %s\n", charStruct.stringRepr())
+	}
 	return base_toolset.GetCurrentGoFuncName()
 }
