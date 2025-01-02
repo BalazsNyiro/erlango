@@ -30,6 +30,11 @@ func tokens_detect_comments_strings_quotedatoms(charactersInErlSrc CharacterInEr
 func character_loop(
 	charactersInErlSrc CharacterInErlSrcCollector,
 	tokensInErlSrc TokenCollector,
+
+// the opener looks forward, the closer looks backward in the characters.
+// the opener/closer elems are part of the token!!!
+// so a string has a text, and the boundary too.
+// example token content: "string_with_boundary"
 	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc, bool) bool,
 	tokenCloserConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc, bool) bool) (CharacterInErlSrcCollector, TokenCollector) {
 
@@ -53,9 +58,31 @@ func character_loop(
 
 		fmt.Printf("charPosition: %d, characterLoop: %s\n", charPositionNowInSrc, charStructNow.stringRepr())
 
-		// TODO: opener/closer func usage
-		tokenOpenerConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow,
-			isActiveTokenDetectionBecauseOpenerConditionTriggered)
+		if !isActiveTokenDetectionBecauseOpenerConditionTriggered {
+
+			openerDetected := tokenOpenerConditionFun(
+				charPositionNowInSrc, charactersInErlSrc, charStructNow,
+				isActiveTokenDetectionBecauseOpenerConditionTriggered)
+
+			if openerDetected {
+				isActiveTokenDetectionBecauseOpenerConditionTriggered = true
+				// TODO: modify the characters, because they are in a token detection
+				continue
+			}
+
+		} else { // the loop is in Active token detection section now:
+
+			closerDetected := tokenCloserConditionFun(
+				charPositionNowInSrc, charactersInErlSrc, charStructNow,
+				isActiveTokenDetectionBecauseOpenerConditionTriggered)
+
+			if closerDetected {
+				isActiveTokenDetectionBecauseOpenerConditionTriggered = false
+				// TODO: modify the characters, because they are leaving a token detection
+				continue
+			}
+
+		}
 
 		tokenCloserConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow,
 			isActiveTokenDetectionBecauseOpenerConditionTriggered)
