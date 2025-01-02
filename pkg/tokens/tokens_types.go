@@ -16,9 +16,14 @@ package tokens
 
 const TokenType_id_unknown = -1
 
-const TokenType_id_Comment = 0
-const TokenType_id_TextBlockQuotedSingle = 1
-const TokenType_id_TextBlockQuotedDouble = 2
+// value 0 is not used, because 0 is the golang integer default value
+// if a new char is created,
+// and if the value is not updated, 0 is set by default,
+// I would like to see if somebody changes the value or not.
+
+const TokenType_id_Comment = 1
+const TokenType_id_TextBlockQuotedSingle = 2
+const TokenType_id_TextBlockQuotedDouble = 3
 
 // numbers are in 1X block
 const TokenType_id_Num_int = 10
@@ -50,9 +55,10 @@ type TokenInErlSrc struct {
 type CharacterInErlSrcCollector []CharacterInErlSrc
 
 type CharacterInErlSrc struct {
-	tokenDetectedForThisCharacterInErlSrc bool
-	tokenIdNumInSrc                       int // the id of the parent token in the file, IF the token is detected.
-	runeInErlSrc                          rune
+	tokenDetectedType    int // the id of the parent token in the file, IF the token is detected.
+	runeInErlSrc         rune
+	tokenOpenerCharacter bool
+	tokenCloserCharacter bool
 }
 
 func (chr CharacterInErlSrc) stringRepr() string {
@@ -63,9 +69,10 @@ func Runes_to_character_structs(runesAll []rune) []CharacterInErlSrc {
 	CharactersAll := []CharacterInErlSrc{}
 	for _, runeInErlSrc := range runesAll {
 		CharactersAll = append(CharactersAll, CharacterInErlSrc{
-			tokenDetectedForThisCharacterInErlSrc: false,
-			tokenIdNumInSrc:                       -1, // no valid real token for this character
-			runeInErlSrc:                          runeInErlSrc,
+			tokenDetectedType:    TokenType_id_unknown,
+			runeInErlSrc:         runeInErlSrc,
+			tokenOpenerCharacter: false,
+			tokenCloserCharacter: false,
 		})
 	}
 	return CharactersAll

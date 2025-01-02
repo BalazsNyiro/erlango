@@ -23,11 +23,12 @@ func tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tok
 func tokens_detect_comments_strings_quotedatoms(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
 	funTokenOpener := token_opener_detect_quote_double
 	funTokenCloser := token_closer_detect_quote_double
-	charactersInErlSrc, tokensInErlSrc = character_loop(charactersInErlSrc, tokensInErlSrc, funTokenOpener, funTokenCloser)
+	charactersInErlSrc, tokensInErlSrc = character_loop(TokenType_id_TextBlockQuotedDouble, charactersInErlSrc, tokensInErlSrc, funTokenOpener, funTokenCloser)
 	return charactersInErlSrc, tokensInErlSrc
 }
 
 func character_loop(
+	tokenTypeId_wanted int,
 	charactersInErlSrc CharacterInErlSrcCollector,
 	tokensInErlSrc TokenCollector,
 
@@ -39,7 +40,7 @@ func character_loop(
 	tokenCloserConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc, bool) bool) (CharacterInErlSrcCollector, TokenCollector) {
 
 	backSlashCounterBeforeCurrentChar := 0
-	isActiveTokenDetectionBecauseOpenerConditionTriggered := false
+	inActiveTokenDetectionBecauseOpenerConditionTriggered := false
 
 	// use the slice position only, because in the for loop, charactersInErlSrc will be updated/modified,
 	// so I think it is safer to not use a range here (containter is updated inside the loop)
@@ -47,7 +48,7 @@ func character_loop(
 
 		charStructNow := charactersInErlSrc[charPositionNowInSrc]
 
-		if charPositionNowInSrc > 0 {
+		if charPositionNowInSrc > 0 { // backslash
 			charStructPrev := charactersInErlSrc[charPositionNowInSrc-1]
 			if charStructPrev.runeInErlSrc == '\\' {
 				backSlashCounterBeforeCurrentChar++
@@ -58,34 +59,41 @@ func character_loop(
 
 		fmt.Printf("charPosition: %d, characterLoop: %s\n", charPositionNowInSrc, charStructNow.stringRepr())
 
-		if !isActiveTokenDetectionBecauseOpenerConditionTriggered {
+		////////////// OPENER DETECT ///////////////
+
+		if !inActiveTokenDetectionBecauseOpenerConditionTriggered {
 
 			openerDetected := tokenOpenerConditionFun(
 				charPositionNowInSrc, charactersInErlSrc, charStructNow,
-				isActiveTokenDetectionBecauseOpenerConditionTriggered)
+				inActiveTokenDetectionBecauseOpenerConditionTriggered)
 
 			if openerDetected {
-				isActiveTokenDetectionBecauseOpenerConditionTriggered = true
-				// TODO: modify the characters, because they are in a token detection
+				inActiveTokenDetectionBecauseOpenerConditionTriggered = true
+
+				charactersInErlSrc[charPositionNowInSrc].tokenDetectedType = tokenTypeId_wanted
+				charactersInErlSrc[charPositionNowInSrc].tokenOpenerCharacter = true
 				continue
 			}
 
-		} else { // the loop is in Active token detection section now:
+		} ////////////////////////////////////////////
 
+		// I feel to declare the ELSE case with a verbose condition instead of an else,
+		// it is more descriptive
+		if inActiveTokenDetectionBecauseOpenerConditionTriggered {
+
+			charactersInErlSrc[charPositionNowInSrc].tokenDetectedType = tokenTypeId_wanted
+
+			////////////// CLOSER DETECT ///////////////
 			closerDetected := tokenCloserConditionFun(
 				charPositionNowInSrc, charactersInErlSrc, charStructNow,
-				isActiveTokenDetectionBecauseOpenerConditionTriggered)
+				inActiveTokenDetectionBecauseOpenerConditionTriggered)
 
 			if closerDetected {
-				isActiveTokenDetectionBecauseOpenerConditionTriggered = false
-				// TODO: modify the characters, because they are leaving a token detection
+				charactersInErlSrc[charPositionNowInSrc].tokenCloserCharacter = true
+				inActiveTokenDetectionBecauseOpenerConditionTriggered = false
 				continue
 			}
-
 		}
-
-		tokenCloserConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow,
-			isActiveTokenDetectionBecauseOpenerConditionTriggered)
 
 	}
 
