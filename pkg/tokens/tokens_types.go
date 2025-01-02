@@ -27,7 +27,9 @@ const TokenType_id_Num_float = 11
 // $A $B
 const TokenType_id_Num_charLiterals = 20
 
-type Token struct {
+type TokenCollector []TokenInErlSrc
+
+type TokenInErlSrc struct {
 	tokenTypeId int
 
 	// "quoted" string's first " is the tokens' first position!
@@ -44,6 +46,8 @@ type Token struct {
 	// or maybe a dynamically generated, then evaluated string
 	charsInErlSrc []rune
 }
+
+type CharacterInErlSrcCollector []CharacterInErlSrc
 
 type CharacterInErlSrc struct {
 	tokenDetectedForThisCharacterInErlSrc bool

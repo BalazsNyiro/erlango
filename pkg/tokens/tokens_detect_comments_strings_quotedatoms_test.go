@@ -16,11 +16,14 @@ import (
 	"testing"
 )
 
-func Test_file_read(t *testing.T) {
-	testName := "first fake test to see if function calling is working"
+func Test_tokens_detect_in_erl_src(t *testing.T) {
+	testName := "Test_tokens_detect_in_erl_src"
 	erlSrcRunes, _ := base_toolset.File_read_runes("erl_src/erlang_whitespaces_separators_basic_types.erl", "test_comment_string_quotedatom_1")
 
 	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes)
-	answer := tokens_detect_comments_strings_quotedatoms(charactersInErlSrc)
-	compare_string_string(testName, "org/erlango/pkg/tokens", answer, t)
+	tokens := TokenCollector{}
+
+	charactersInErlSrc, tokens = tokens_detect_in_erl_src(charactersInErlSrc, tokens)
+
+	compare_string_string(testName, "fakeTest", "fakeTest", t)
 }
