@@ -25,12 +25,34 @@ const TokenType_id_Comment = 1
 const TokenType_id_TextBlockQuotedSingle = 2
 const TokenType_id_TextBlockQuotedDouble = 3
 
-// numbers are in 1X block
-const TokenType_id_Num_int = 10
-const TokenType_id_Num_float = 11
+// a number can be represented in a lot of forms.
+// integer, float with dots, hexadeciamls - in first step,
+// I simply try to see if the runes are part of any number, or not.
+const TokenType_id_Num_building_elem = 10
 
-// $A $B
+// $A $B - this is a really special char representation,
+// and can be detected directly, in a simple way
 const TokenType_id_Num_charLiterals = 20
+
+func TokenTypeReprShort(wantedTokenTypeNum int) rune {
+	the_key_is_not_defined_in_repr_map := -99
+	var map_types_repr = map[int]rune{
+		the_key_is_not_defined_in_repr_map: 'K',
+		TokenType_id_unknown:               '?',
+		TokenType_id_Comment:               '#',
+		TokenType_id_TextBlockQuotedSingle: '\'',
+		TokenType_id_TextBlockQuotedDouble: '"',
+		TokenType_id_Num_building_elem:     'n',
+		TokenType_id_Num_charLiterals:      'L',
+	}
+	repr, ok := map_types_repr[wantedTokenTypeNum]
+
+	if ok {
+		return repr
+	} else { // if the wantedTokenType not in map, than that is unknown
+		return map_types_repr[the_key_is_not_defined_in_repr_map]
+	}
+}
 
 type TokenCollector []TokenInErlSrc
 

@@ -20,21 +20,49 @@ func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tok
 
 func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) {
 
-	lineNum := 0
-	newLineStarted := true
+	lineNumInErlSrc := 0
+
+	type reportLine []rune
+	type reportLineMore []reportLine
+
+	// one erland line -> more lines are printed with token type infos
+	printedReportLinesForOneErlangSrcLine := 3 //  for every erlang line, 2 report lines are printed
+	reportLine_2_separator := []rune("============================")
+	reportLine_1_token_type := reportLine{}
+	reportLine_0_erl_src_chars := reportLine{}
+
+	reportLines := reportLineMore{}
 
 	for _, charInErlSrc := range charactersInErlSrc {
-		if newLineStarted {
-			fmt.Printf("\n%3d >>> ", lineNum)
-			newLineStarted = false
-		}
-		if charInErlSrc.runeInErlSrc == '\n' { // newline chars
-			lineNum += 1
-			newLineStarted = true
-		}
 
-		fmt.Printf("%c", charInErlSrc.runeInErlSrc)
+		if charInErlSrc.runeInErlSrc == '\n' { // newline chars
+			lineNumInErlSrc += 1
+			reportLines = append(reportLines, reportLine_2_separator)
+			reportLines = append(reportLines, reportLine_1_token_type)
+			reportLines = append(reportLines, reportLine_0_erl_src_chars)
+			reportLine_1_token_type = reportLine{}
+			reportLine_0_erl_src_chars = reportLine{}
+		} else { // non-newline char
+			oneCharWideTokenTypeRepresentation := TokenTypeReprShort(TokenType_id_unknown)
+			reportLine_1_token_type = append(reportLine_1_token_type, oneCharWideTokenTypeRepresentation)
+			reportLine_0_erl_src_chars = append(reportLine_0_erl_src_chars, charInErlSrc.runeInErlSrc)
+		}
 	}
-	fmt.Printf("\n")
+
+	// add the possible last elems, too, without newline chars
+	reportLines = append(reportLines, reportLine_2_separator)
+	reportLines = append(reportLines, reportLine_1_token_type)
+	reportLines = append(reportLines, reportLine_0_erl_src_chars)
+
+	lineNum := 0
+	for _, oneReportLine := range reportLines {
+
+		fmt.Printf("line %3d >>> ", lineNum/printedReportLinesForOneErlangSrcLine)
+		for _, oneReportChar := range oneReportLine {
+			fmt.Printf("%c", oneReportChar)
+		}
+		fmt.Printf("\n")
+		lineNum += 1
+	}
 
 }
