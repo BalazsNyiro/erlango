@@ -11,17 +11,18 @@ LICENSE file in the root directory of this source tree.
 
 package tokens
 
-import (
-	"fmt"
-)
-
+import "fmt"
 
 func tokens_detect_comments_strings_quotedatoms(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
 	funTokenOpener := token_opener_detect_quote_double
 	funTokenCloser := token_closer_detect_quote_double
 	oneCharacterLongTokenDetection_standaloneCharacterWanted := false // "" a string has minimum 2 chars: an opener and a closer " char.
-	charactersInErlSrc, tokensInErlSrc = character_loop(TokenType_id_TextBlockQuotedDouble, oneCharacterLongTokenDetection_standaloneCharacterWanted, charactersInErlSrc, tokensInErlSrc, funTokenOpener, funTokenCloser)
-	return charactersInErlSrc, tokensInErlSrc
+	charactersInErlSrc2, tokensInErlSrc2 := character_loop(TokenType_id_TextBlockQuotedDouble, oneCharacterLongTokenDetection_standaloneCharacterWanted, charactersInErlSrc, tokensInErlSrc, funTokenOpener, funTokenCloser)
+
+	fmt.Println("111111111111111111111111")
+	Tokens_detection_print_verbose(charactersInErlSrc2, tokensInErlSrc2)
+	fmt.Println("22222222222222222222222222")
+	return charactersInErlSrc2, tokensInErlSrc2
 }
 
 // keep it simple. Don't increase the complexity, this is the core of the parser.
@@ -31,13 +32,13 @@ func character_loop(
 	charactersInErlSrc CharacterInErlSrcCollector,
 	tokensInErlSrc TokenCollector,
 
-	// the opener looks forward, the closer looks backward in the characters.
-	// the opener/closer elems are part of the token!!!
-	// so a string has a text, and the boundary too.
-	// example token content: "string_with_boundary"
-	// if a long token is detected (so more than one character, the opener can shift the current position.
+// the opener looks forward, the closer looks backward in the characters.
+// the opener/closer elems are part of the token!!!
+// so a string has a text, and the boundary too.
+// example token content: "string_with_boundary"
+// if a long token is detected (so more than one character, the opener can shift the current position.
 	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) (bool, int),
-	tokenCloserConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool) (CharacterInErlSrcCollector, TokenCollector) {
+	tokenCloserConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc, int) bool) (CharacterInErlSrcCollector, TokenCollector) {
 
 	backSlashCounterBeforeCurrentChar := 0
 	activeTokenDetectionBecauseOpenerConditionTriggered := false
@@ -57,28 +58,32 @@ func character_loop(
 			}
 		} // > 0
 
-		fmt.Printf("charPosition: %d, characterLoop: %s\n", charPositionNowInSrc, charStructNow.stringRepr())
+		fmt.Printf("charPosition: %d, characterInLoop: %s  isActiveDetection: %t \n", charPositionNowInSrc, charStructNow.stringRepr(), activeTokenDetectionBecauseOpenerConditionTriggered)
 
 		if !activeTokenDetectionBecauseOpenerConditionTriggered {
 
 			openerDetected, positionModifierBecauseLongTokenOpenerCharsAreDetected := tokenOpenerConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow)
+			fmt.Println("opener detected:", openerDetected, positionModifierBecauseLongTokenOpenerCharsAreDetected)
 
 			if openerDetected { ////////////// OPENER DETECT ///////////////
 				activeTokenDetectionBecauseOpenerConditionTriggered = true
 
-				charactersInErlSrc[charPositionNowInSrc].tokenDetectedType = tokenTypeId_wanted
-				charactersInErlSrc[charPositionNowInSrc].tokenOpenerCharacter = true
+				charStructNow.tokenDetectedType = tokenTypeId_wanted
+				charStructNow.tokenOpenerCharacter = true
 
 				if oneCharacterLongTokenDetection_standaloneCharacterWanted {
 					// if we want to detect one character only, which is an opener AND a closer same time,
 					// close that immediatelly (and in this case pass a fake/empty closer function.
-					charactersInErlSrc[charPositionNowInSrc].tokenCloserCharacter = true
+					charStructNow.tokenCloserCharacter = true
 					activeTokenDetectionBecauseOpenerConditionTriggered = false
 				}
 
 				// this modifier is used ONLY if the detected token length is longer than 1 char.
 				// in that case the modifier value is: (tokenLength-1)
 				charPositionNowInSrc += positionModifierBecauseLongTokenOpenerCharsAreDetected
+
+				charactersInErlSrc[charPositionNowInSrc] = charStructNow
+				fmt.Printf("charPosition: %d, characterInOpen: %s  opener: %t closer: %t \n", charPositionNowInSrc, charStructNow.stringRepr(), charStructNow.tokenOpenerCharacter, charStructNow.tokenCloserCharacter)
 				continue
 			} ////////////////////////////////////////////////
 		} // not active
@@ -86,34 +91,53 @@ func character_loop(
 		// it is more descriptive instead of a simple else:
 		if activeTokenDetectionBecauseOpenerConditionTriggered {
 
-			charactersInErlSrc[charPositionNowInSrc].tokenDetectedType = tokenTypeId_wanted
+			charStructNow.tokenDetectedType = tokenTypeId_wanted
 
-			closerDetected := tokenCloserConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow)
+			closerDetected := tokenCloserConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow, backSlashCounterBeforeCurrentChar)
 
 			if closerDetected {
-				charactersInErlSrc[charPositionNowInSrc].tokenCloserCharacter = true
+				charStructNow.tokenCloserCharacter = true
 				activeTokenDetectionBecauseOpenerConditionTriggered = false
-				continue
 			} ///////////////////////////////////////////
+
+			charactersInErlSrc[charPositionNowInSrc] = charStructNow
+
+			fmt.Printf("charPosition: %d, characterInClos: %s  opener: %t closer: %t   tokenDetectedType: %d \n",
+				charPositionNowInSrc, charStructNow.stringRepr(),
+				charactersInErlSrc[charPositionNowInSrc].tokenOpenerCharacter,
+				charactersInErlSrc[charPositionNowInSrc].tokenCloserCharacter,
+				charactersInErlSrc[charPositionNowInSrc].tokenDetectedType)
+
 		}
 	}
 
+	fmt.Println("00000000000000000 AAAAAAAAA")
+	Tokens_detection_print_verbose(charactersInErlSrc, tokensInErlSrc)
+	fmt.Println("000000000000000  BBBBBBBBBBBB")
 	return charactersInErlSrc, tokensInErlSrc
 }
 
 func token_opener_detect_quote_double(
 	charPositionNowInSrc int,
 	charactersInErlSrc CharacterInErlSrcCollector,
-	charStructNow CharacterInErlSrc) (bool, int) {
+	charStructNow CharacterInErlSrc,
+) (bool, int) {
 
 	// 0: double quote " opener is 1 char wide, there is no need to shift the original character loop position
-	return true, 0
+	return charStructNow.runeInErlSrc == '"', 0
 }
 
 func token_closer_detect_quote_double(
 	charPositionNowInSrc int,
 	charactersInErlSrc CharacterInErlSrcCollector,
-	charStructNow CharacterInErlSrc) bool {
+	charStructNow CharacterInErlSrc,
+	backSlashCounterBeforeCurrentCharInterpretedOnlyInStringLikeClosers int,
+) bool {
 
-	return true
+	// if the remainder is not 0, there is an active escaping before this character
+	if backSlashCounterBeforeCurrentCharInterpretedOnlyInStringLikeClosers%2 > 0 {
+		return false // so this is
+	}
+	// 0: double quote " closer is 1 char wide, there is no need to shift the original character loop position
+	return charStructNow.runeInErlSrc == '"'
 }
