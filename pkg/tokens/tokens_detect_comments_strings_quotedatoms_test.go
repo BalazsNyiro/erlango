@@ -18,12 +18,13 @@ import (
 
 func Test_tokens_detect_in_erl_src(t *testing.T) {
 	testName := "Test_tokens_detect_in_erl_src"
-	erlSrcRunes, _ := base_toolset.File_read_runes("erl_src/erlang_whitespaces_separators_basic_types.erl", "test_comment_string_quotedatom_1")
+	erlSrcRunes, _ := base_toolset.File_read_runes("erl_src/erlang_whitespaces_separators_basic_types.erl", "Test_tokens_detect_in_erl_src")
 
 	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes)
 	tokens := TokenCollector{}
 
 	charactersInErlSrc, tokens = Tokens_detect_in_erl_src(charactersInErlSrc, tokens)
+	Tokens_detection_print_verbose(charactersInErlSrc, tokens)
 
 	compare_string_string(testName, "fakeTest", "fakeTest", t)
 }
