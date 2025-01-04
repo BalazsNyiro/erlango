@@ -10,3 +10,8 @@ LICENSE file in the root directory of this source tree.
 */
 
 package tokens
+
+func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
+	charactersInErlSrc2, tokensInErlSrc2 := tokens_detect_comments_strings_quotedatoms(charactersInErlSrc, tokensInErlSrc)
+	return charactersInErlSrc2, tokensInErlSrc2
+}

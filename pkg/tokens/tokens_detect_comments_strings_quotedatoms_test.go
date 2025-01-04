@@ -23,7 +23,7 @@ func Test_tokens_detect_in_erl_src(t *testing.T) {
 	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes)
 	tokens := TokenCollector{}
 
-	charactersInErlSrc, tokens = tokens_detect_in_erl_src(charactersInErlSrc, tokens)
+	charactersInErlSrc, tokens = Tokens_detect_in_erl_src(charactersInErlSrc, tokens)
 
 	compare_string_string(testName, "fakeTest", "fakeTest", t)
 }

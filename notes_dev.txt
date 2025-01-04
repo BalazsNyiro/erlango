@@ -1,0 +1,4 @@
+
+Test the interpreter with these projects:
+https://github.com/mabrek/erlang-decimal
+rebar3
