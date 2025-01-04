@@ -14,8 +14,8 @@ package tokens
 import "fmt"
 
 func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
-	charactersInErlSrc2, tokensInErlSrc2 := tokens_detect_comments_strings_quotedatoms(charactersInErlSrc, tokensInErlSrc)
-	return charactersInErlSrc2, tokensInErlSrc2
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_comments_strings_quotedatoms(charactersInErlSrc, tokensInErlSrc)
+	return charactersInErlSrc, tokensInErlSrc
 }
 
 func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) {
@@ -43,7 +43,7 @@ func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollecto
 			reportLine_1_token_type = reportLine{}
 			reportLine_0_erl_src_chars = reportLine{}
 		} else { // non-newline char
-			oneCharWideTokenTypeRepresentation := TokenTypeReprShort(TokenType_id_unknown)
+			oneCharWideTokenTypeRepresentation := TokenTypeReprShort(charInErlSrc.tokenDetectedType)
 			reportLine_1_token_type = append(reportLine_1_token_type, oneCharWideTokenTypeRepresentation)
 			reportLine_0_erl_src_chars = append(reportLine_0_erl_src_chars, charInErlSrc.runeInErlSrc)
 		}

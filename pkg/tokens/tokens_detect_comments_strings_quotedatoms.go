@@ -17,12 +17,8 @@ func tokens_detect_comments_strings_quotedatoms(charactersInErlSrc CharacterInEr
 	funTokenOpener := token_opener_detect_quote_double
 	funTokenCloser := token_closer_detect_quote_double
 	oneCharacterLongTokenDetection_standaloneCharacterWanted := false // "" a string has minimum 2 chars: an opener and a closer " char.
-	charactersInErlSrc2, tokensInErlSrc2 := character_loop(TokenType_id_TextBlockQuotedDouble, oneCharacterLongTokenDetection_standaloneCharacterWanted, charactersInErlSrc, tokensInErlSrc, funTokenOpener, funTokenCloser)
-
-	fmt.Println("111111111111111111111111")
-	Tokens_detection_print_verbose(charactersInErlSrc2, tokensInErlSrc2)
-	fmt.Println("22222222222222222222222222")
-	return charactersInErlSrc2, tokensInErlSrc2
+	charactersInErlSrc, tokensInErlSrc = character_loop(TokenType_id_TextBlockQuotedDouble, oneCharacterLongTokenDetection_standaloneCharacterWanted, charactersInErlSrc, tokensInErlSrc, funTokenOpener, funTokenCloser)
+	return charactersInErlSrc, tokensInErlSrc
 }
 
 // keep it simple. Don't increase the complexity, this is the core of the parser.
@@ -103,17 +99,13 @@ func character_loop(
 			charactersInErlSrc[charPositionNowInSrc] = charStructNow
 
 			fmt.Printf("charPosition: %d, characterInClos: %s  opener: %t closer: %t   tokenDetectedType: %d \n",
-				charPositionNowInSrc, charStructNow.stringRepr(),
+				charPositionNowInSrc,
+				charactersInErlSrc[charPositionNowInSrc].stringRepr(),
 				charactersInErlSrc[charPositionNowInSrc].tokenOpenerCharacter,
 				charactersInErlSrc[charPositionNowInSrc].tokenCloserCharacter,
 				charactersInErlSrc[charPositionNowInSrc].tokenDetectedType)
-
 		}
 	}
-
-	fmt.Println("00000000000000000 AAAAAAAAA")
-	Tokens_detection_print_verbose(charactersInErlSrc, tokensInErlSrc)
-	fmt.Println("000000000000000  BBBBBBBBBBBB")
 	return charactersInErlSrc, tokensInErlSrc
 }
 
