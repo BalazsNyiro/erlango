@@ -20,8 +20,21 @@ func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tok
 
 func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) {
 
-	for charPos, charInErlSrc := range charactersInErlSrc {
-		fmt.Printf("print_verbose >>> charPosition: %d, characterLoop: %s\n", charPos, string(charInErlSrc.runeInErlSrc))
+	lineNum := 0
+	newLineStarted := true
+
+	for _, charInErlSrc := range charactersInErlSrc {
+		if newLineStarted {
+			fmt.Printf("\n%3d >>> ", lineNum)
+			newLineStarted = false
+		}
+		if charInErlSrc.runeInErlSrc == '\n' { // newline chars
+			lineNum += 1
+			newLineStarted = true
+		}
+
+		fmt.Printf("%c", charInErlSrc.runeInErlSrc)
 	}
+	fmt.Printf("\n")
 
 }
