@@ -31,7 +31,7 @@ func tokens_detect_erlang_strings__quoted_atoms__comments(charactersInErlSrc Cha
 }
 
 func tokens_detect_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
-	funTokenOpener := token_opener_and_closer_detect__whitespaces_inside_lines
+	funTokenOpener := token_opener_and_closer_detect__whitespaces
 	printVerboseOpenerDetectMsg := true
 	charactersInErlSrc, tokensInErlSrc = character_loop(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
 	return charactersInErlSrc, tokensInErlSrc
@@ -220,7 +220,7 @@ func token_opener_detect__quoteDouble__quoteSinge_comment(
 }
 
 // /////////////////////////////////////////////////
-func general_pattern__is_whitespace_rune_inside_lines(r rune) bool {
+func general_pattern__is_whitespace_rune(r rune) bool {
 	return (r == ' ' || r == '\r' || r == '\t' || r == '\n')
 }
 
@@ -277,13 +277,13 @@ func general_look_forward_accepted_chars_detector(
 
 ///////////////////////////////////////////////////
 
-func token_opener_and_closer_detect__whitespaces_inside_lines(
+func token_opener_and_closer_detect__whitespaces(
 	charPositionNowInSrc int,                      //                      this opener uses ONLY the actual character,
 	charactersInErlSrc CharacterInErlSrcCollector, // there is no need to look forward/back in src
 	charStructNow CharacterInErlSrc) (int, bool, int, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool, bool) {
 
-	generalCharOpenerDetector := general_pattern__is_whitespace_rune_inside_lines
-	generalCharNextAcceptableDetector := general_pattern__is_whitespace_rune_inside_lines
+	generalCharOpenerDetector := general_pattern__is_whitespace_rune
+	generalCharNextAcceptableDetector := general_pattern__is_whitespace_rune
 	tokenTypeIfActiveDetection := TokenType_id_WhitespaceInSrc
 
 	return general_look_forward_accepted_chars_detector(
