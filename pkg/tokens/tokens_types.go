@@ -81,6 +81,7 @@ type CharacterInErlSrc struct {
 	runeInErlSrc         rune
 	tokenOpenerCharacter bool
 	tokenCloserCharacter bool
+	positionInErlSrc     int // 0 based char position in the source
 }
 
 func (chr CharacterInErlSrc) stringRepr() string {
@@ -89,12 +90,13 @@ func (chr CharacterInErlSrc) stringRepr() string {
 
 func Runes_to_character_structs(runesAll []rune) []CharacterInErlSrc {
 	CharactersAll := []CharacterInErlSrc{}
-	for _, runeInErlSrc := range runesAll {
+	for posInErlSrc, runeInErlSrc := range runesAll {
 		CharactersAll = append(CharactersAll, CharacterInErlSrc{
 			tokenDetectedType:    TokenType_id_unknown,
 			runeInErlSrc:         runeInErlSrc,
 			tokenOpenerCharacter: false,
 			tokenCloserCharacter: false,
+			positionInErlSrc:     posInErlSrc,
 		})
 	}
 	return CharactersAll
