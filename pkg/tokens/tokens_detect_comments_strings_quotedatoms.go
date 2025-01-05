@@ -23,11 +23,11 @@ So these 3 has to be handled in one func.
 */
 func tokens_detect_erlang_strings__quoted_atoms__comments(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
 	funTokenOpener := token_opener_detect__quoteDouble__quoteSinge_comment
-	funTokenCloser := token_closer_detect_quote_double
+	// funTokenCloser is defined in the opener
 	oneCharacterLongTokenDetection_standaloneCharacterWanted := false // "" a string has minimum 2 chars: an opener and a closer " char.
 	charactersInErlSrc, tokensInErlSrc = character_loop(
 		TokenType_id_TextBlockQuotedDouble, oneCharacterLongTokenDetection_standaloneCharacterWanted,
-		charactersInErlSrc, tokensInErlSrc, funTokenOpener, funTokenCloser)
+		charactersInErlSrc, tokensInErlSrc, funTokenOpener)
 	return charactersInErlSrc, tokensInErlSrc
 }
 
@@ -66,10 +66,13 @@ func character_loop(
 // the opener/closer elems are part of the token - so a string has a text, and the boundary too.
 // example token content: "string_with_boundary"
 // if a long token is detected (so more than one character, the opener can shift the current position.
-	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) (bool, int),
-	tokenCloserConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool) (CharacterInErlSrcCollector, TokenCollector) {
+// the closer func is returned from the opener func, because sometime an opener can detect
+// more than one type (string|quotedAtom|comment) and this info is created only in the opener state
+	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) (bool, int, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool)) (CharacterInErlSrcCollector, TokenCollector) {
 
 	activeTokenDetectionBecauseOpenerConditionTriggered := false
+
+	tokenCloserConditionFun := token_closer_fake_placeholder_fun
 
 	// use the slice position only, because in the for loop, charactersInErlSrc will be updated/modified,
 	for charPositionNowInSrc := 0; charPositionNowInSrc < len(charactersInErlSrc); charPositionNowInSrc++ {
@@ -78,7 +81,9 @@ func character_loop(
 
 		if !activeTokenDetectionBecauseOpenerConditionTriggered {
 
-			openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected := tokenOpenerConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow)
+			openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected, tokenCloserConditionFunFromOpener := tokenOpenerConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow)
+			tokenCloserConditionFun = tokenCloserConditionFunFromOpener
+
 			// fmt.Println("opener detected:", openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected)
 
 			if openerDetected { ////////////// OPENER DETECT ///////////////
@@ -115,11 +120,16 @@ func character_loop(
 func token_opener_detect__quoteDouble__quoteSinge_comment(
 	charPositionNowInSrc int,
 	charactersInErlSrc CharacterInErlSrcCollector,
-	charStructNow CharacterInErlSrc) (bool, int) {
+	charStructNow CharacterInErlSrc) (bool, int, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool) {
 
 	// 0: double quote " opener is 1 char wide,
 	//there is no need to shift the original character loop position
-	return charStructNow.runeInErlSrc == '"', 0
+
+	if charStructNow.runeInErlSrc == '"' {
+		return true, 0, token_closer_detect_quote_double
+	}
+
+	return charStructNow.runeInErlSrc == '"', 0, token_closer_detect_quote_double
 }
 
 func token_closer_detect_quote_double(
@@ -133,4 +143,12 @@ func token_closer_detect_quote_double(
 	}
 	// 0: double quote " closer is 1 char wide, there is no need to shift the original character loop position
 	return charStructNow.runeInErlSrc == '"'
+}
+
+func token_closer_fake_placeholder_fun(
+	charPositionNowInSrc int,
+	charactersInErlSrc CharacterInErlSrcCollector,
+	charStructNow CharacterInErlSrc,
+) bool {
+	return false
 }
