@@ -14,7 +14,7 @@ package tokens
 import "fmt"
 
 func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
-	charactersInErlSrc, tokensInErlSrc = tokens_detect_comments_strings_quotedatoms(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_erlang_strings__quoted_atoms__comments(charactersInErlSrc, tokensInErlSrc)
 	return charactersInErlSrc, tokensInErlSrc
 }
 
@@ -56,7 +56,7 @@ func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollecto
 				openerCloserStatus = 'c'
 			}
 			if charInErlSrc.tokenOpenerCharacter && charInErlSrc.tokenCloserCharacter {
-				openerCloserStatus = '㏇' // closer AND opener same time
+				openerCloserStatus = '2' // closer AND opener same time
 			}
 			reportLine_2_opener_closer = append(reportLine_2_opener_closer, openerCloserStatus)
 

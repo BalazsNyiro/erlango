@@ -11,11 +11,23 @@ LICENSE file in the root directory of this source tree.
 
 package tokens
 
-func tokens_detect_comments_strings_quotedatoms(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
-	funTokenOpener := token_opener_detect_quote_double
+/*
+in a comment, there can be a string:  % example "string" in comment
+in a string, there can be a % sign:  "taxes are increased with 10% in this year"
+
+and in quoted atoms, there can be other signs:
+A='atom_with_double_quote"'.
+'atom_with_double_quote"'
+
+So these 3 has to be handled in one func.
+*/
+func tokens_detect_erlang_strings__quoted_atoms__comments(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
+	funTokenOpener := token_opener_detect__quoteDouble__quoteSinge_comment
 	funTokenCloser := token_closer_detect_quote_double
 	oneCharacterLongTokenDetection_standaloneCharacterWanted := false // "" a string has minimum 2 chars: an opener and a closer " char.
-	charactersInErlSrc, tokensInErlSrc = character_loop(TokenType_id_TextBlockQuotedDouble, oneCharacterLongTokenDetection_standaloneCharacterWanted, charactersInErlSrc, tokensInErlSrc, funTokenOpener, funTokenCloser)
+	charactersInErlSrc, tokensInErlSrc = character_loop(
+		TokenType_id_TextBlockQuotedDouble, oneCharacterLongTokenDetection_standaloneCharacterWanted,
+		charactersInErlSrc, tokensInErlSrc, funTokenOpener, funTokenCloser)
 	return charactersInErlSrc, tokensInErlSrc
 }
 
@@ -50,10 +62,10 @@ func character_loop(
 	charactersInErlSrc CharacterInErlSrcCollector,
 	tokensInErlSrc TokenCollector,
 
-	// the opener looks forward, the closer looks backward in the characters.
-	// the opener/closer elems are part of the token - so a string has a text, and the boundary too.
-	// example token content: "string_with_boundary"
-	// if a long token is detected (so more than one character, the opener can shift the current position.
+// the opener looks forward, the closer looks backward in the characters.
+// the opener/closer elems are part of the token - so a string has a text, and the boundary too.
+// example token content: "string_with_boundary"
+// if a long token is detected (so more than one character, the opener can shift the current position.
 	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) (bool, int),
 	tokenCloserConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool) (CharacterInErlSrcCollector, TokenCollector) {
 
@@ -100,11 +112,10 @@ func character_loop(
 	return charactersInErlSrc, tokensInErlSrc
 } // func character_loop
 
-func token_opener_detect_quote_double(
+func token_opener_detect__quoteDouble__quoteSinge_comment(
 	charPositionNowInSrc int,
 	charactersInErlSrc CharacterInErlSrcCollector,
-	charStructNow CharacterInErlSrc,
-) (bool, int) {
+	charStructNow CharacterInErlSrc) (bool, int) {
 
 	// 0: double quote " opener is 1 char wide,
 	//there is no need to shift the original character loop position
