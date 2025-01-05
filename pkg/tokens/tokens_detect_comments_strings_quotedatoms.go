@@ -31,7 +31,7 @@ func tokens_detect_erlang_strings__quoted_atoms__comments(charactersInErlSrc Cha
 }
 
 func tokens_detect_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
-	funTokenOpener := token_opener_and_closer_detect__whitespaces
+	funTokenOpener := token_opener_and_closer_look_forward__detect__whitespaces
 	printVerboseOpenerDetectMsg := true
 	charactersInErlSrc, tokensInErlSrc = character_loop(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
 	return charactersInErlSrc, tokensInErlSrc
@@ -159,6 +159,10 @@ func character_loop(
 					// I have the feeling that there is a way to convert a mixed solution to be separated,
 					// but this solution seems to give the flexibility: to use the easier method which is the more natural.
 
+					// if the token has external boundaries, the opener/closer approach is simple and work (string/quotedAtoms/comments)
+					// if the token hasn't got boundaries, but it has general firs char + other chars rules, the mixed opener/closer is useful.
+					// these are SOFT RULES ONLY because the mixed-opener/closer solution can be written from separated opener/closer solution,
+
 					// if the token is one char wide, this special section is added to do an immediate closing:
 
 					charStructNow.tokenCloserCharacter = true                               // close the last charStructNow elem,
@@ -277,9 +281,9 @@ func general_look_forward_accepted_chars_detector(
 
 ///////////////////////////////////////////////////
 
-func token_opener_and_closer_detect__whitespaces(
-	charPositionNowInSrc int,                      //                      this opener uses ONLY the actual character,
-	charactersInErlSrc CharacterInErlSrcCollector, // there is no need to look forward/back in src
+func token_opener_and_closer_look_forward__detect__whitespaces(
+	charPositionNowInSrc int,
+	charactersInErlSrc CharacterInErlSrcCollector,
 	charStructNow CharacterInErlSrc) (int, bool, int, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool, bool) {
 
 	generalCharOpenerDetector := general_pattern__is_whitespace_rune
