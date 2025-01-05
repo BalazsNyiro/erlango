@@ -61,41 +61,43 @@ func character_loop(
 	charactersInErlSrc CharacterInErlSrcCollector,
 	tokensInErlSrc TokenCollector,
 
-// the opener looks forward, the closer looks backward in the characters.
-// the opener/closer elems are part of the token - so a string has a text, and the boundary too.
-// example token content: "string_with_boundary"
-// if a long token is detected (so more than one character, the opener can shift the current position.
-// the closer func is returned from the opener func, because sometime an opener can detect
-// more than one type (string|quotedAtom|comment) and this info is created only in the opener state
+	// the opener looks forward, the closer looks backward in the characters.
+	// the opener/closer elems are part of the token - so a string has a text, and the boundary too.
+	// example token content: "string_with_boundary"
+	// if a long token is detected (so more than one character, the opener can shift the current position.
+	// the closer func is returned from the opener func, because sometime an opener can detect
+	// more than one type (string|quotedAtom|comment) and this info is created only in the opener state
 	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) (int, bool, int, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool)) (CharacterInErlSrcCollector, TokenCollector) {
 
-	activeTokenDetectionBecauseOpenerConditionTriggered := false
-
 	tokenCloserConditionFun := token_closer_fake_placeholder_fun
+
+	activeTokenDetectionBecauseOpenerConditionTriggered := false
+	tokenTypeId_now := TokenType_id_unknown
 
 	// use the slice position only, because in the for loop, charactersInErlSrc will be updated/modified,
 	for charPositionNowInSrc := 0; charPositionNowInSrc < len(charactersInErlSrc); charPositionNowInSrc++ {
 
 		charStructNow := charactersInErlSrc[charPositionNowInSrc]
-		tokenTypeId_detected := TokenType_id_unknown
 
 		if !activeTokenDetectionBecauseOpenerConditionTriggered {
 
 			tokenTypeId_fromOpener, openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected, tokenCloserConditionFunFromOpener := tokenOpenerConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow)
 			tokenCloserConditionFun = tokenCloserConditionFunFromOpener
-			tokenTypeId_detected = tokenTypeId_fromOpener
+			tokenTypeId_now = tokenTypeId_fromOpener
 
 			// fmt.Println("opener detected:", openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected)
 
 			if openerDetected { ////////////// OPENER DETECT ///////////////
 				activeTokenDetectionBecauseOpenerConditionTriggered = true
 
-				charStructNow.tokenDetectedType = tokenTypeId_detected
+				charStructNow.tokenDetectedType = tokenTypeId_now
 				charStructNow.tokenOpenerCharacter = true
 
 				if oneCharacterLongTokenDetection__theCharIsOpenerAndCloserSameTime_closeDetectionImmediately {
-					charStructNow.tokenCloserCharacter = true                   // and if you detect 1 char only,
+					charStructNow.tokenCloserCharacter = true // and if you detect 1 char only,
+					// cleaning after token Close
 					activeTokenDetectionBecauseOpenerConditionTriggered = false // pass a fake/empty closer function.
+					tokenTypeId_now = TokenType_id_unknown
 				}
 
 				// this modifier>0 ONLY if the detected token length is longer than 1 char.
@@ -104,12 +106,16 @@ func character_loop(
 			} ////////////////////////////////////////////////
 
 		} else { // activeTokenDetectionBecauseOpenerConditionTriggered == true:
-			charStructNow.tokenDetectedType = tokenTypeId_detected
+			charStructNow.tokenDetectedType = tokenTypeId_now
 
 			closerDetected := tokenCloserConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow)
 			if closerDetected {
+
 				charStructNow.tokenCloserCharacter = true
+				// cleaning after token Close
 				activeTokenDetectionBecauseOpenerConditionTriggered = false
+				tokenTypeId_now = TokenType_id_unknown
+
 			} ///////////////////////////////////////////
 		}
 		charactersInErlSrc[charPositionNowInSrc] = charStructNow

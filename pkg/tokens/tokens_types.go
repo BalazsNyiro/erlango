@@ -39,7 +39,7 @@ func TokenTypeReprShort(wantedTokenTypeNum int) rune {
 	var map_types_repr = map[int]rune{
 		the_key_is_not_defined_in_repr_map: 'K',
 		TokenType_id_unknown:               '?',
-		TokenType_id_Comment:               '#',
+		TokenType_id_Comment:               '%',
 		TokenType_id_TextBlockQuotedSingle: '\'',
 		TokenType_id_TextBlockQuotedDouble: '"',
 		TokenType_id_Num_building_elem:     'n',
