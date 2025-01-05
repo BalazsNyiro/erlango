@@ -123,42 +123,44 @@ func character_loop(
 					charStructNow.tokenDetectedType = tokenTypeId_now
 					charactersInErlSrc[charPositionNowInSrc] = charStructNow
 				}
-				// one char long operators (+,-,*,/), commas and other elems are only ONE char wide elems, they need to be closed when they opened
-				// or more than one char were processed in the opener, and positionModifier was used
-				// honestly the separated tokenCloser is typically used for strings and comments,
-				// other elems are easier to handled in one step, when opener/closer are processed in one step,
-
-				// BUT: if the opener/closer are handled in one func, that is more complicated,
-				// in one word: try to use which method is more nature in a given situation (separated opener/closer or mixed solution).
-
-				// if you can, use separated opener/closer functions.
-				// this can be a problem in a situation when the (active-1) so the previous character
-				// is the closer. The for loop goes forward, so it is harder to look back from the closer fun,
-				// and modify a previously processed character again.
-
-				// new suggestion: separated opener/closer can be used easily, if the knowing of actual character
-				// is enough, and you don't need to modify back a closing property.
-
-				// ======================================================
-				// I try to explain it in a different way (and maybe this is the best):
-				// a section with whitespaces can be one char long, or more char long.
-
-				// the separated opener/closer approach cannot be used when the token is one char wide,
-				// because when the opening is detected, a token closing is necessary, too.
-
-				// the current character_loop() solution made a choice in first level:
-				// do an opening OR a closing, because the parsing's first step was string/comment/quotedAtom detection,
-				// and in those cases there are well-defined and differently positioned opening/closing elems.
-
-				// so, if you have a token which needs to be detected in one step (operators for example)
-				// then you need to use the opening+closing method, not the separated opening/closing funs
-
-				// I have the feeling that there is a way to convert a mixed solution to be separated,
-				// but maybe different approach can be used when it is guaranteed that the token is minimum 2 char long, or not.
-
-				// if the token is one char wide, this special section is added to do an immediate closing:
 
 				if openerAndCloserSameTime_closeDetectionImmediately {
+					// one char long operators (+,-,*,/), commas and other elems are only ONE char wide elems, they need to be closed when they opened
+					// or more than one char were processed in the opener, and positionModifier was used
+					// honestly the separated tokenCloser is typically used for strings and comments,
+					// other elems are easier to handled in one step, when opener/closer are processed in one step,
+
+					// BUT: if the opener/closer are handled in one func, that is more complicated,
+					// in one word: try to use which method is more nature in a given situation (separated opener/closer or mixed solution).
+
+					// if you can, use separated opener/closer functions.
+					// this can be a problem in a situation when the (active-1) so the previous character
+					// is the closer. The for loop goes forward, so it is harder to look back from the closer fun,
+					// and modify a previously processed character again.
+
+					// new suggestion: separated opener/closer can be used easily, if the knowing of actual character
+					// is enough, and you don't need to modify back a closing property.
+
+					// ======================================================
+					// I try to explain it in a different way (and maybe this is the best):
+					// a section with whitespaces can be one char long, or more char long.
+
+					// the separated opener/closer approach cannot be used when the token is one char wide,
+					// because when the opening is detected, a token closing is necessary, too.
+
+					// the current character_loop() solution made a choice in first level:
+					// do an opening OR a closing (is activeTokenDetection or not), because the parsing's first step was string/comment/quotedAtom detection,
+					// and in those cases there are well-defined and differently positioned opening/closing elems.
+
+					// so, if you have a token which needs to be detected in one step (operators for example)
+					// then you need to use the opening+closing method, not the separated opening/closing funs,
+					// because with the opening, a closing is necessary too for the actual character
+
+					// I have the feeling that there is a way to convert a mixed solution to be separated,
+					// but this solution seems to give the flexibility: to use the easier method which is the more natural.
+
+					// if the token is one char wide, this special section is added to do an immediate closing:
+
 					charStructNow.tokenCloserCharacter = true                               // close the last charStructNow elem,
 					charactersInErlSrc[charPositionNowInSrc] = charStructNow                // if the previous loop updated more chars.
 					set_noActiveTokenDetection__tokenTypeUnknown__cleaningAfterTokenClose() // maybe that is not the starter one,
