@@ -31,7 +31,7 @@ func tokens_detect_erlang_strings__quoted_atoms__comments(charactersInErlSrc Cha
 }
 
 func tokens_detect_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
-	funTokenOpener := token_opener_detect__whitespaces_inside_lines
+	funTokenOpener := token_opener_and_closer_detect__whitespaces_inside_lines
 	printVerboseOpenerDetectMsg := true
 	charactersInErlSrc, tokensInErlSrc = character_loop(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
 	return charactersInErlSrc, tokensInErlSrc
@@ -167,7 +167,7 @@ func character_loop(
 				}
 			} ////////////////////////////////////////////////
 
-		} else { // activeTokenDetectionBecauseOpenerConditionTriggered == true:
+		} else { // opener was detected previously - the loop is in activeTokenDetectionBecauseOpenerConditionTriggered == true:
 			charStructNow.tokenDetectedType = tokenTypeId_now
 
 			closerDetected := tokenCloserConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow)
@@ -219,34 +219,39 @@ func token_opener_detect__quoteDouble__quoteSinge_comment(
 	return tokenTypeId, openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected, funCloser, oneCharacterLongTokenDetection__theCharIsOpenerAndCloserSameTime_closeDetectionImmediately
 }
 
-func token_opener_detect__whitespaces_inside_lines(
+// /////////////////////////////////////////////////
+func general_pattern__is_whitespace_rune_inside_lines(r rune) bool {
+	return (r == ' ' || r == '\r' || r == '\t' || r == '\n')
+}
+
+// this is a generic 'look forward' detector
+func general_look_forward_accepted_chars_detector(
 	charPositionNowInSrc int,                      //                      this opener uses ONLY the actual character,
 	charactersInErlSrc CharacterInErlSrcCollector, // there is no need to look forward/back in src
-	charStructNow CharacterInErlSrc) (int, bool, int, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool, bool) {
+	charStructNow CharacterInErlSrc,
+
+// the first char rules are sometime different from the next char rules
+	generalCharNowAcceptableDetector func(rune) bool,
+	generalCharNextAcceptableDetector func(rune) bool,
+
+	tokenTypeIfActiveDetection int) (int, bool, int, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool, bool) {
 
 	oneCharacterLongTokenDetection__openerAndCloserSameTime_closeDetectionImmediately := false
+	// 0 means: there is no need to shift the original character loop position
 	positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected := 0
 
 	tokenTypeId := TokenType_id_unknown
 	funCloser := token_closer_fake_placeholder_fun
 	openerDetected := false
 
-	// 0: double quote " opener is 1 char wide,
-	//there is no need to shift the original character loop position
-
-	is_whitespace_rune := func(r rune) bool {
-		// I don't want to mix newlines here - that is a line separator, these can be in the middle of the src.
-		return (r == ' ' || r == '\r' || r == '\t')
-	}
-
-	if is_whitespace_rune(charStructNow.runeInErlSrc) {
+	if generalCharNowAcceptableDetector(charStructNow.runeInErlSrc) {
 
 		// all whitespaces are detected in this opener step, the detection process can be closed immediatelly
 		oneCharacterLongTokenDetection__openerAndCloserSameTime_closeDetectionImmediately = true
 
 		openerDetected = true
-		funCloser = token_closer_fake_placeholder_fun
-		tokenTypeId = TokenType_id_WhitespaceInSrc
+		funCloser = token_closer_fake_placeholder_fun // this is a general opener/closer fun,
+		tokenTypeId = tokenTypeIfActiveDetection      // ^^^^ no need to user closer later
 
 		charPositionNextInSrc := charPositionNowInSrc
 		for true {
@@ -255,7 +260,7 @@ func token_opener_detect__whitespaces_inside_lines(
 			if charPositionNextInSrc < len(charactersInErlSrc) {
 				charStructNext := charactersInErlSrc[charPositionNextInSrc]
 
-				if is_whitespace_rune(charStructNext.runeInErlSrc) {
+				if generalCharNextAcceptableDetector(charStructNext.runeInErlSrc) {
 					positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected++
 				} else {
 					break
@@ -268,6 +273,27 @@ func token_opener_detect__whitespaces_inside_lines(
 		}
 	}
 	return tokenTypeId, openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected, funCloser, oneCharacterLongTokenDetection__openerAndCloserSameTime_closeDetectionImmediately
+}
+
+///////////////////////////////////////////////////
+
+func token_opener_and_closer_detect__whitespaces_inside_lines(
+	charPositionNowInSrc int,                      //                      this opener uses ONLY the actual character,
+	charactersInErlSrc CharacterInErlSrcCollector, // there is no need to look forward/back in src
+	charStructNow CharacterInErlSrc) (int, bool, int, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool, bool) {
+
+	generalCharOpenerDetector := general_pattern__is_whitespace_rune_inside_lines
+	generalCharNextAcceptableDetector := general_pattern__is_whitespace_rune_inside_lines
+	tokenTypeIfActiveDetection := TokenType_id_WhitespaceInSrc
+
+	return general_look_forward_accepted_chars_detector(
+		charPositionNowInSrc,
+		charactersInErlSrc,
+		charStructNow,
+		generalCharOpenerDetector,
+		generalCharNextAcceptableDetector,
+		tokenTypeIfActiveDetection,
+	)
 }
 
 func token_closer_detect_comment_end(
