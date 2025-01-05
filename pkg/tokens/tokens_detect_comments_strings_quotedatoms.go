@@ -129,9 +129,7 @@ func character_loop(
 				// other elems are easier to handled in one step, when opener/closer are processed in one step,
 
 				// BUT: if the opener/closer are handled in one func, that is more complicated,
-				// I think it is possible to modify the whitespace handler too into separated
-				// opener/closer if you feel the power :-)
-				// in one word: I try to use which method is more nature in a given situation (separated opener/closer or mixed solution).
+				// in one word: try to use which method is more nature in a given situation (separated opener/closer or mixed solution).
 
 				// if you can, use separated opener/closer functions.
 				// this can be a problem in a situation when the (active-1) so the previous character
@@ -141,13 +139,25 @@ func character_loop(
 				// new suggestion: separated opener/closer can be used easily, if the knowing of actual character
 				// is enough, and you don't need to modify back a closing property.
 
-				// so with the mixed solution, I always look forward, there is no need to go back.
-				// example: whitespaces.
-				// for a separated opener/closer, if you use the simple approach to check the actual char only,
-				// the end of the whitespaces will be detected in the next char which is not a whitespace.
-				// so option one: look forward in the opener, or look back in the closer -
-				// and there is a need to modify a once processed char,
-				// which is extra complexity in the character_loop.
+				// ======================================================
+				// I try to explain it in a different way (and maybe this is the best):
+				// a section with whitespaces can be one char long, or more char long.
+
+				// the separated opener/closer approach cannot be used when the token is one char wide,
+				// because when the opening is detected, a token closing is necessary, too.
+
+				// the current character_loop() solution made a choice in first level:
+				// do an opening OR a closing, because the parsing's first step was string/comment/quotedAtom detection,
+				// and in those cases there are well-defined and differently positioned opening/closing elems.
+
+				// so, if you have a token which needs to be detected in one step (operators for example)
+				// then you need to use the opening+closing method, not the separated opening/closing funs
+
+				// I have the feeling that there is a way to convert a mixed solution to be separated,
+				// but maybe different approach can be used when it is guaranteed that the token is minimum 2 char long, or not.
+
+				// if the token is one char wide, this special section is added to do an immediate closing:
+
 				if openerAndCloserSameTime_closeDetectionImmediately {
 					charStructNow.tokenCloserCharacter = true                               // close the last charStructNow elem,
 					charactersInErlSrc[charPositionNowInSrc] = charStructNow                // if the previous loop updated more chars.
@@ -233,7 +243,7 @@ func token_opener_detect__whitespaces_inside_lines(
 		oneCharacterLongTokenDetection__openerAndCloserSameTime_closeDetectionImmediately = true
 
 		openerDetected = true
-		funCloser = token_closer_detect_quote_double
+		funCloser = token_closer_fake_placeholder_fun
 		tokenTypeId = TokenType_id_WhitespaceInSrc
 
 		charPositionNextInSrc := charPositionNowInSrc
