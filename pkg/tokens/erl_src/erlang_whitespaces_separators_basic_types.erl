@@ -1,4 +1,5 @@
 #!/usr/bin/env escript
+    SEC(       "SECOND"),
 
 % test file for basic types,
 % whitespaces, commas, dots, colons
@@ -15,6 +16,8 @@ main(_) ->
     io:fwrite("~p~n", [double(9)]),
 
     io:fwrite("~p~n", [half(10)]),
+
+    io:fwrite(       "multiple whitespaces in src"),
 
     ok.
 

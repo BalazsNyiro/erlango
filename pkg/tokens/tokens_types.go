@@ -34,6 +34,8 @@ const TokenType_id_Num_building_elem = 10
 // and can be detected directly, in a simple way
 const TokenType_id_Num_charLiterals = 20
 
+const TokenType_id_WhitespaceInSrc = 30
+
 func TokenTypeReprShort(wantedTokenTypeNum int) rune {
 	the_key_is_not_defined_in_repr_map := -99
 	var map_types_repr = map[int]rune{
@@ -44,6 +46,7 @@ func TokenTypeReprShort(wantedTokenTypeNum int) rune {
 		TokenType_id_TextBlockQuotedDouble: '"',
 		TokenType_id_Num_building_elem:     'n',
 		TokenType_id_Num_charLiterals:      'L',
+		TokenType_id_WhitespaceInSrc:       'w',
 	}
 	repr, ok := map_types_repr[wantedTokenTypeNum]
 
