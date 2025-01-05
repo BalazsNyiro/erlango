@@ -123,11 +123,35 @@ func character_loop(
 					charStructNow.tokenDetectedType = tokenTypeId_now
 					charactersInErlSrc[charPositionNowInSrc] = charStructNow
 				}
+				// one char long operators (+,-,*,/), commas and other elems are only ONE char wide elems, they need to be closed when they opened
+				// or more than one char were processed in the opener, and positionModifier was used
+				// honestly the separated tokenCloser is typically used for strings and comments,
+				// other elems are easier to handled in one step, when opener/closer are processed in one step,
 
+				// BUT: if the opener/closer are handled in one func, that is more complicated,
+				// I think it is possible to modify the whitespace handler too into separated
+				// opener/closer if you feel the power :-)
+				// in one word: I try to use which method is more nature in a given situation (separated opener/closer or mixed solution).
+
+				// if you can, use separated opener/closer functions.
+				// this can be a problem in a situation when the (active-1) so the previous character
+				// is the closer. The for loop goes forward, so it is harder to look back from the closer fun,
+				// and modify a previously processed character again.
+
+				// new suggestion: separated opener/closer can be used easily, if the knowing of actual character
+				// is enough, and you don't need to modify back a closing property.
+
+				// so with the mixed solution, I always look forward, there is no need to go back.
+				// example: whitespaces.
+				// for a separated opener/closer, if you use the simple approach to check the actual char only,
+				// the end of the whitespaces will be detected in the next char which is not a whitespace.
+				// so option one: look forward in the opener, or look back in the closer -
+				// and there is a need to modify a once processed char,
+				// which is extra complexity in the character_loop.
 				if openerAndCloserSameTime_closeDetectionImmediately {
-					charStructNow.tokenCloserCharacter = true // and if you detect 1 char only,
-					charactersInErlSrc[charPositionNowInSrc] = charStructNow
-					set_noActiveTokenDetection__tokenTypeUnknown__cleaningAfterTokenClose()
+					charStructNow.tokenCloserCharacter = true                               // close the last charStructNow elem,
+					charactersInErlSrc[charPositionNowInSrc] = charStructNow                // if the previous loop updated more chars.
+					set_noActiveTokenDetection__tokenTypeUnknown__cleaningAfterTokenClose() // maybe that is not the starter one,
 				}
 			} ////////////////////////////////////////////////
 
