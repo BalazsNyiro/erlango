@@ -61,12 +61,12 @@ func character_loop(
 	charactersInErlSrc CharacterInErlSrcCollector,
 	tokensInErlSrc TokenCollector,
 
-	// the opener looks forward, the closer looks backward in the characters.
-	// the opener/closer elems are part of the token - so a string has a text, and the boundary too.
-	// example token content: "string_with_boundary"
-	// if a long token is detected (so more than one character, the opener can shift the current position.
-	// the closer func is returned from the opener func, because sometime an opener can detect
-	// more than one type (string|quotedAtom|comment) and this info is created only in the opener state
+// the opener looks forward, the closer looks backward in the characters.
+// the opener/closer elems are part of the token - so a string has a text, and the boundary too.
+// example token content: "string_with_boundary"
+// if a long token is detected (so more than one character, the opener can shift the current position.
+// the closer func is returned from the opener func, because sometime an opener can detect
+// more than one type (string|quotedAtom|comment) and this info is created only in the opener state
 	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) (int, bool, int, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool)) (CharacterInErlSrcCollector, TokenCollector) {
 
 	tokenCloserConditionFun := token_closer_fake_placeholder_fun
@@ -74,10 +74,18 @@ func character_loop(
 	activeTokenDetectionBecauseOpenerConditionTriggered := false
 	tokenTypeId_now := TokenType_id_unknown
 
+	set_noActiveTokenDetection__tokenTypeUnknown__cleaningAfterTokenClose := func() {
+		activeTokenDetectionBecauseOpenerConditionTriggered = false
+		tokenTypeId_now = TokenType_id_unknown
+	}
+
 	// use the slice position only, because in the for loop, charactersInErlSrc will be updated/modified,
 	for charPositionNowInSrc := 0; charPositionNowInSrc < len(charactersInErlSrc); charPositionNowInSrc++ {
 
 		charStructNow := charactersInErlSrc[charPositionNowInSrc]
+		if charStructNow.tokenDetectedType != TokenType_id_unknown {
+			continue // if the char was detected and has a TokenType_id, there is no more to do.
+		}
 
 		if !activeTokenDetectionBecauseOpenerConditionTriggered {
 
@@ -95,9 +103,7 @@ func character_loop(
 
 				if oneCharacterLongTokenDetection__theCharIsOpenerAndCloserSameTime_closeDetectionImmediately {
 					charStructNow.tokenCloserCharacter = true // and if you detect 1 char only,
-					// cleaning after token Close
-					activeTokenDetectionBecauseOpenerConditionTriggered = false // pass a fake/empty closer function.
-					tokenTypeId_now = TokenType_id_unknown
+					set_noActiveTokenDetection__tokenTypeUnknown__cleaningAfterTokenClose()
 				}
 
 				// this modifier>0 ONLY if the detected token length is longer than 1 char.
@@ -110,12 +116,8 @@ func character_loop(
 
 			closerDetected := tokenCloserConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow)
 			if closerDetected {
-
 				charStructNow.tokenCloserCharacter = true
-				// cleaning after token Close
-				activeTokenDetectionBecauseOpenerConditionTriggered = false
-				tokenTypeId_now = TokenType_id_unknown
-
+				set_noActiveTokenDetection__tokenTypeUnknown__cleaningAfterTokenClose()
 			} ///////////////////////////////////////////
 		}
 		charactersInErlSrc[charPositionNowInSrc] = charStructNow

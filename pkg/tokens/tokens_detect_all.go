@@ -14,7 +14,14 @@ package tokens
 import "fmt"
 
 func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
+
 	charactersInErlSrc, tokensInErlSrc = tokens_detect_erlang_strings__quoted_atoms__comments(charactersInErlSrc, tokensInErlSrc)
+
+	// TODO: whitespace detection, operator detection.
+	// atom detection
+	// variable detection
+	// operators detection?
+	// comma, dot, :,
 	return charactersInErlSrc, tokensInErlSrc
 }
 
