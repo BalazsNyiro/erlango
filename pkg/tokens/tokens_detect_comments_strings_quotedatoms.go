@@ -163,6 +163,13 @@ func character_loop(
 					// if the token hasn't got boundaries, but it has general firs char + other chars rules, the mixed opener/closer is useful.
 					// these are SOFT RULES ONLY because the mixed-opener/closer solution can be written from separated opener/closer solution,
 
+					// important: the string/quotedAtom/Comment question is problematic,
+					// because they need to be detected together (there can be a comment in a string, or a string in a comment)
+					// and based on the real situation, the closer function is changing.
+
+					// !! the separated opener/closer has an option to look back OR look forward, same time.
+					// !! the mixed option can look forward only, so in some situation that is not enough.
+
 					// if the token is one char wide, this special section is added to do an immediate closing:
 
 					charStructNow.tokenCloserCharacter = true                               // close the last charStructNow elem,
