@@ -206,12 +206,3 @@ func general_look_forward_accepted_chars_detector(
 	}
 	return tokenTypeId, openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected
 }
-
-// /////////////////////////////////////////////////
-func token_opener_closer_general_fake_placeholder_fun_pattern(
-	charPositionNowInSrc int,
-	charactersInErlSrc CharacterInErlSrcCollector,
-	charStructNow CharacterInErlSrc,
-) bool {
-	return false
-}
