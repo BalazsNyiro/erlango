@@ -20,7 +20,7 @@ func tokens_detect_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollec
 	return charactersInErlSrc, tokensInErlSrc
 }
 
-// TODO: needs to be reviewed:
+// TODO: comment review is necessary:
 // one char long operators (+,-,*,/), commas and other elems are only ONE char wide elems, they need to be closed when they opened
 // or more than one char were processed in the opener, and positionModifier was used
 // honestly the separated tokenCloser is typically used for strings and comments,
@@ -75,7 +75,7 @@ func character_loop_patterns(
 
 	tokenTypeId_now := TokenType_id_unknown
 
-	set_noActiveTokenDetection__tokenTypeUnknown__cleaningAfterTokenClose := func() {
+	cleaningAfterTokenClose_set_back_default_values := func() {
 		tokenTypeId_now = TokenType_id_unknown
 	}
 
@@ -85,7 +85,7 @@ func character_loop_patterns(
 		charStructNow := charactersInErlSrc[charPositionNowInSrc]
 		if charStructNow.tokenDetectedType != TokenType_id_unknown {
 			continue // if the char was detected and has a TokenType_id, there is no more to do.
-		}
+		} //don't start new detection if the current char was detected once
 
 		tokenTypeId_fromOpener, openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected := tokenOpenerConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow)
 		tokenTypeId_now = tokenTypeId_fromOpener
@@ -98,7 +98,6 @@ func character_loop_patterns(
 
 			charStructNow.tokenDetectedType = tokenTypeId_now
 			charStructNow.tokenOpenerCharacter = true
-
 			charactersInErlSrc[charPositionNowInSrc] = charStructNow
 
 			// this modifier>0 ONLY if the detected token length is longer than 1 char.
@@ -106,21 +105,21 @@ func character_loop_patterns(
 			charPositionNewWanted := charPositionNowInSrc + positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected
 			for charPositionNowInSrc < charPositionNewWanted {
 				charPositionNowInSrc++
+
 				charStructNow = charactersInErlSrc[charPositionNowInSrc]
 				charStructNow.tokenDetectedType = tokenTypeId_now
 				charactersInErlSrc[charPositionNowInSrc] = charStructNow
 			}
-
 			// close Immediately
-			charStructNow.tokenCloserCharacter = true                               // close the last charStructNow elem,
-			charactersInErlSrc[charPositionNowInSrc] = charStructNow                // if the previous loop updated more chars.
-			set_noActiveTokenDetection__tokenTypeUnknown__cleaningAfterTokenClose() // maybe that is not the starter one,
+			charStructNow.tokenCloserCharacter = true                // close the last charStructNow elem,
+			charactersInErlSrc[charPositionNowInSrc] = charStructNow // if the previous loop updated more chars.
+			cleaningAfterTokenClose_set_back_default_values()        // maybe that is not the starter one,
 		} // if openerDetected
 
 	} // for charPosition....
 
 	return charactersInErlSrc, tokensInErlSrc
-} // func character_loop
+} // func character_loop patterns
 ///////////////////////////////////////////////////
 
 func token_opener_and_closer_look_forward__detect__whitespaces(
@@ -155,20 +154,20 @@ func general_pattern__false_always(_ rune) bool {
 }
 
 func general_pattern__is_whitespace_rune_inside_line(r rune) bool {
-	return (r == ' ' || r == '\r' || r == '\t')
+	return r == ' ' || r == '\r' || r == '\t'
 }
 
 func general_pattern__is_whitespace_rune_newline(r rune) bool {
-	return (r == '\n')
+	return r == '\n'
 }
 
 // this is a generic 'look forward' detector
 func general_look_forward_accepted_chars_detector(
-	charPositionNowInSrc int,                      //                      this opener uses ONLY the actual character,
+	charPositionNowInSrc int, //                      this opener uses ONLY the actual character,
 	charactersInErlSrc CharacterInErlSrcCollector, // there is no need to look forward/back in src
 	charStructNow CharacterInErlSrc,
 
-// the first char rules are sometime different from the next char rules
+	// the first char rules are sometime different from the next char rules
 	generalCharNowAcceptableDetector func(rune) bool,
 	generalCharNextAcceptableDetector func(rune) bool,
 
