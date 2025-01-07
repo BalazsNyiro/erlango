@@ -34,19 +34,20 @@ const TokenType_id_Num_building_elem = 10
 // and can be detected directly, in a simple way
 const TokenType_id_Num_charLiterals = 20
 
-const TokenType_id_WhitespaceInSrc = 30
+const TokenType_id_WhitespaceInLine_ErlSrc = 30
+const TokenType_id_WhitespaceNewLine_ErlSrc = 31
 
 func TokenTypeReprShort(wantedTokenTypeNum int) rune {
 	the_key_is_not_defined_in_repr_map := -99
 	var map_types_repr = map[int]rune{
-		the_key_is_not_defined_in_repr_map: 'K',
-		TokenType_id_unknown:               '?',
-		TokenType_id_Comment:               '%',
-		TokenType_id_TextBlockQuotedSingle: '\'',
-		TokenType_id_TextBlockQuotedDouble: '"',
-		TokenType_id_Num_building_elem:     'n',
-		TokenType_id_Num_charLiterals:      'L',
-		TokenType_id_WhitespaceInSrc:       'w',
+		the_key_is_not_defined_in_repr_map:   'K',
+		TokenType_id_unknown:                 '?',
+		TokenType_id_Comment:                 '%',
+		TokenType_id_TextBlockQuotedSingle:   '\'',
+		TokenType_id_TextBlockQuotedDouble:   '"',
+		TokenType_id_Num_building_elem:       'n',
+		TokenType_id_Num_charLiterals:        'L',
+		TokenType_id_WhitespaceInLine_ErlSrc: 'w',
 	}
 	repr, ok := map_types_repr[wantedTokenTypeNum]
 
