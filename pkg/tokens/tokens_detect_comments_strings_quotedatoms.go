@@ -26,7 +26,7 @@ So these 3 has to be handled in one func.
 func tokens_detect_erlang_strings__quoted_atoms__comments(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
 	funTokenOpener := token_opener_detect__quoteDouble__quoteSinge_comment
 	printVerboseOpenerDetectMsg := false
-	charactersInErlSrc, tokensInErlSrc = character_loop_openers_closers(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
+	charactersInErlSrc, tokensInErlSrc = character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_opener_closer_section(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
 	return charactersInErlSrc, tokensInErlSrc
 }
 
@@ -55,16 +55,16 @@ func is_escaped_the_current_char(charPositionInSrc int, charactersInErlSrc Chara
 }
 
 // keep it simple. Don't increase the complexity
-func character_loop_openers_closers(
+func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_opener_closer_section(
 	charactersInErlSrc CharacterInErlSrcCollector,
 	tokensInErlSrc TokenCollector,
 
-// the opener looks forward, the closer looks backward in the characters.
-// the opener/closer elems are part of the token - so a string has a text, and the boundary too.
-// example token content: "string_with_boundary"
-// if a long token is detected (so more than one character, the opener can shift the current position.
-// the closer func is returned from the opener func, because sometime an opener can detect
-// more than one type (string|quotedAtom|comment) and this info is created only in the opener state
+	// the opener looks forward, the closer looks backward in the characters.
+	// the opener/closer elems are part of the token - so a string has a text, and the boundary too.
+	// example token content: "string_with_boundary"
+	// if a long token is detected (so more than one character, the opener can shift the current position.
+	// the closer func is returned from the opener func, because sometime an opener can detect
+	// more than one type (string|quotedAtom|comment) and this info is created only in the opener state
 	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) (int, bool, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool),
 	printVerboseOpenerDetectMsg bool) (CharacterInErlSrcCollector, TokenCollector) {
 
@@ -115,10 +115,10 @@ func character_loop_openers_closers(
 	} // for charPosition....
 
 	return charactersInErlSrc, tokensInErlSrc
-} // func character_loop_openers_closers
+} // func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_opener_closer_section
 
 func token_opener_detect__quoteDouble__quoteSinge_comment(
-	charPositionNowInSrc int,                      //                      this opener uses ONLY the actual character,
+	charPositionNowInSrc int, //                      this opener uses ONLY the actual character,
 	charactersInErlSrc CharacterInErlSrcCollector, // there is no need to look forward/back in src
 	charStructNow CharacterInErlSrc) (int, bool, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool) {
 

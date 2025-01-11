@@ -34,23 +34,26 @@ func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollecto
 	type reportLineMore []reportLine
 
 	// one erland line -> more lines are printed with token type infos
-	printedReportLinesForOneErlangSrcLine := 3 //  for every erlang line, 2 report lines are printed
-	reportLine_3_separator := []rune("============================")
-	reportLine_2_opener_closer := []rune("============================")
+	printedReportLinesForOneErlangSrcLine := 5 //  for every erlang line, X report lines are printed
+	reportLine_4_separator := []rune("============================")
+	reportLine_3_char_counter := reportLine{}
+	reportLine_2_opener_closer := reportLine{}
 	reportLine_1_token_type := reportLine{}
 	reportLine_0_erl_src_chars := reportLine{}
 
 	reportLines := reportLineMore{}
 
-	for _, charInErlSrc := range charactersInErlSrc {
-
+	for charCounter, charInErlSrc := range charactersInErlSrc {
+		// fmt.Println("charCounter: ", charCounter)
 		if charInErlSrc.runeInErlSrc == '\n' { // newline chars
 			lineNumInErlSrc += 1
-			reportLines = append(reportLines, reportLine_3_separator)
+			reportLines = append(reportLines, reportLine_4_separator)
+			reportLines = append(reportLines, reportLine_3_char_counter)
 			reportLines = append(reportLines, reportLine_2_opener_closer)
 			reportLines = append(reportLines, reportLine_1_token_type)
 			reportLines = append(reportLines, reportLine_0_erl_src_chars)
 
+			reportLine_3_char_counter = reportLine{}
 			reportLine_2_opener_closer = reportLine{}
 			reportLine_1_token_type = reportLine{}
 			reportLine_0_erl_src_chars = reportLine{}
@@ -75,12 +78,15 @@ func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollecto
 			if charInErlSrc.runeInErlSrc == '\t' {   //and long tabulators needs to be repplaced
 				runePrinted = ' '
 			}
+
 			reportLine_0_erl_src_chars = append(reportLine_0_erl_src_chars, runePrinted)
+			reportLine_3_char_counter = append(reportLine_3_char_counter, []rune(fmt.Sprintf("%d", charCounter%10))[0])
 		}
 	}
 
 	// add the possible last elems, too, without newline chars
-	reportLines = append(reportLines, reportLine_3_separator)
+	reportLines = append(reportLines, reportLine_4_separator)
+	reportLines = append(reportLines, reportLine_3_char_counter)
 	reportLines = append(reportLines, reportLine_2_opener_closer)
 	reportLines = append(reportLines, reportLine_1_token_type)
 	reportLines = append(reportLines, reportLine_0_erl_src_chars)

@@ -16,7 +16,7 @@ import "fmt"
 func tokens_detect_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
 	funTokenOpener := token_opener_and_closer_look_forward__detect__whitespaces
 	printVerboseOpenerDetectMsg := true
-	charactersInErlSrc, tokensInErlSrc = character_loop_patterns(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
+	charactersInErlSrc, tokensInErlSrc = character_loop__pattern_detection__one_or_more_char__like_a_regexp(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
 	return charactersInErlSrc, tokensInErlSrc
 }
 
@@ -66,8 +66,7 @@ func tokens_detect_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollec
 // !! the separated opener/closer has an option to look back OR look forward, same time.
 // !! the mixed option can look forward only, so in some situation that is not enough.
 
-// if the token is one char wide, this special section is added to do an immediate closing:
-func character_loop_patterns(
+func character_loop__pattern_detection__one_or_more_char__like_a_regexp(
 	charactersInErlSrc CharacterInErlSrcCollector,
 	tokensInErlSrc TokenCollector,
 	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) (int, bool, int),
