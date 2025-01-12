@@ -85,7 +85,7 @@ func (collector CharacterInErlSrcCollector) char_get_by_index(index int) (charIn
 
 	indexIsExistInValidRange__charWasDetectedCorrectly = false
 
-	if index < len(collector) {
+	if index < len(collector) && index >= 0 {
 		indexIsExistInValidRange__charWasDetectedCorrectly = true
 		charInErl = collector[index]
 	}

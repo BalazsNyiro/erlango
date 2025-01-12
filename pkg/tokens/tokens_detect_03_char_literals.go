@@ -15,10 +15,11 @@ package tokens
 //   - non-escaped: 'A=$B.'
 //   - escaped: 'C=$\n.'
 //     Char can be any unicode char: 'U=$ち.'
+/*
 func tokens_detect_03a_erlang_char_literals_nonescaped__dollar_plus_character(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
 	funTokenOpener := token_opener_and_closer_look_forward__detect__char_literal
 	printVerboseOpenerDetectMsg := true
-	charactersInErlSrc, tokensInErlSrc = character_loop__pattern_detection__one_or_more_char__like_a_regexp(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
+	charactersInErlSrc, tokensInErlSrc = character_loop__set_one_char_tokentype(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
 	return charactersInErlSrc, tokensInErlSrc
 }
 
@@ -61,3 +62,4 @@ func general_pattern__is_dollar_rune(r rune) bool {
 func general_pattern__is__one_nonescaped__or__backslash_and_one_escaped__char(r rune) bool {
 	return r == '$'
 }
+*/

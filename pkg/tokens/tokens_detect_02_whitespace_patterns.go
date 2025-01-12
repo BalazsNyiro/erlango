@@ -11,26 +11,22 @@ LICENSE file in the root directory of this source tree.
 
 package tokens
 
-import "fmt"
-
 func tokens_detect_02_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
-	funTokenOpener := token_opener_and_closer_look_forward__detect__whitespaces
-	printVerboseOpenerDetectMsg := true
-	charactersInErlSrc, tokensInErlSrc = character_loop__pattern_detection__one_or_more_char__like_a_regexp(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
+
+	for _, wantedCharInErl := range []rune{'\n', '\r', '\t', ' '} {
+		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, TokenType_id_WhitespaceInLine_ErlSrc)
+	}
+	character_loop__opener_closer_sections_set(charactersInErlSrc, TokenType_id_WhitespaceInLine_ErlSrc)
+
+	charactersInErlSrc = character_loop__set_one_char_tokentype('\n', charactersInErlSrc, TokenType_id_WhitespaceNewLine_ErlSrc)
 	return charactersInErlSrc, tokensInErlSrc
 }
 
-func character_loop__pattern_detection__one_or_more_char__like_a_regexp(
+func character_loop__set_one_char_tokentype(
+	wantedCharInErlSrc rune,
 	charactersInErlSrc CharacterInErlSrcCollector,
-	tokensInErlSrc TokenCollector,
-	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) (int, bool, int),
-	printVerboseOpenerDetectMsg bool) (CharacterInErlSrcCollector, TokenCollector) {
-
-	tokenTypeId_now := TokenType_id_unknown
-
-	cleaningAfterTokenClose_set_back_default_values := func() {
-		tokenTypeId_now = TokenType_id_unknown
-	}
+	tokenTypeId_ifDetected int,
+) CharacterInErlSrcCollector {
 
 	// use the slice position only, because in the for loop, charactersInErlSrc will be updated/modified,
 	for charPositionNowInSrc := 0; charPositionNowInSrc < len(charactersInErlSrc); charPositionNowInSrc++ {
@@ -40,121 +36,47 @@ func character_loop__pattern_detection__one_or_more_char__like_a_regexp(
 			continue // if the char was detected and has a TokenType_id, there is no more to do.
 		} //don't start new detection if the current char was detected once
 
-		tokenTypeId_fromOpener, openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected := tokenOpenerConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow)
-		tokenTypeId_now = tokenTypeId_fromOpener
-
-		if printVerboseOpenerDetectMsg {
-			fmt.Println("opener detected:", openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected, charStructNow.stringRepr())
-		}
-
-		if openerDetected { ////////////// OPENER DETECT ///////////////
-
-			charStructNow.tokenDetectedType = tokenTypeId_now
-			charStructNow.tokenOpenerCharacter = true
+		if charStructNow.runeInErlSrc == wantedCharInErlSrc {
+			charStructNow.tokenDetectedType = tokenTypeId_ifDetected
+			charStructNow.tokenOpenerCharacter = true // the current char is opener and closer first time,
+			charStructNow.tokenCloserCharacter = true // later the same TokenTypes will be merged
 			charactersInErlSrc[charPositionNowInSrc] = charStructNow
+		}
+	}
 
-			// this modifier>0 ONLY if the detected token length is longer than 1 char.
-			// in that case the modifier value is: (tokenLength-1), because the for loop does 1 increasing
-			charPositionNewWanted := charPositionNowInSrc + positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected
-			for charPositionNowInSrc < charPositionNewWanted {
-				charPositionNowInSrc++
-
-				charStructNow = charactersInErlSrc[charPositionNowInSrc]
-				charStructNow.tokenDetectedType = tokenTypeId_now
-				charactersInErlSrc[charPositionNowInSrc] = charStructNow
-			}
-			// close Immediately
-			charStructNow.tokenCloserCharacter = true                // close the last charStructNow elem,
-			charactersInErlSrc[charPositionNowInSrc] = charStructNow // if the previous loop updated more chars.
-			cleaningAfterTokenClose_set_back_default_values()        // maybe that is not the starter one,
-		} // if openerDetected
-
-	} // for charPosition....
-
-	return charactersInErlSrc, tokensInErlSrc
+	return charactersInErlSrc
 } // func character_loop patterns
 ///////////////////////////////////////////////////
 
-func token_opener_and_closer_look_forward__detect__whitespaces(
-	charPositionNowInSrc int,
+// if there are more whitespaces next to each other, or more numbers for example, merge them into one group
+func character_loop__opener_closer_sections_set(
 	charactersInErlSrc CharacterInErlSrcCollector,
-	charStructNow CharacterInErlSrc) (int, bool, int) { // ret: tokenType, openerDetected, positionModifier
+	tokenTypeId_toMergeIntoOneOpenerCloserGroup int,
+) CharacterInErlSrcCollector {
 
-	generalCharOpenerDetector := general_pattern__is_whitespace_rune_inside_line
-	generalCharNextAcceptableDetector := general_pattern__is_whitespace_rune_inside_line
-	tokenTypeIfActiveDetection := TokenType_id_WhitespaceInLine_ErlSrc
+	for charPositionNowInSrc := 0; charPositionNowInSrc < len(charactersInErlSrc); charPositionNowInSrc++ {
 
-	if charStructNow.runeInErlSrc == '\n' { // newline handled separately, I want to close that at detection
-		generalCharOpenerDetector = general_pattern__is_whitespace_rune_newline
-		generalCharNextAcceptableDetector = general_pattern__false_always // every newline chars are separated, no next char check
-		tokenTypeIfActiveDetection = TokenType_id_WhitespaceNewLine_ErlSrc
-	}
+		charStructPrev, charStructPrev_detectedCorrectly := charactersInErlSrc.char_get_by_index(charPositionNowInSrc - 1)
+		charStructNow := charactersInErlSrc[charPositionNowInSrc]
+		charStructNext, charStructNext_detectedCorrectly := charactersInErlSrc.char_get_by_index(charPositionNowInSrc + 1)
 
-	return general_look_forward_accepted_chars_detector(
-		charPositionNowInSrc,
-		charactersInErlSrc,
-		charStructNow,
-		generalCharOpenerDetector,
-		generalCharNextAcceptableDetector,
-		tokenTypeIfActiveDetection,
-	)
-}
+		if charStructNow.tokenDetectedType == tokenTypeId_toMergeIntoOneOpenerCloserGroup {
 
-// /////////////////////////////////////////////////
-// sometime a char has to be closed immediately, there is no need to analyse the next char.
-func general_pattern__false_always(_ rune) bool {
-	return false
-}
-
-func general_pattern__is_whitespace_rune_inside_line(r rune) bool {
-	return r == ' ' || r == '\r' || r == '\t'
-}
-
-func general_pattern__is_whitespace_rune_newline(r rune) bool {
-	return r == '\n'
-}
-
-// this is a generic 'look forward' detector
-func general_look_forward_accepted_chars_detector(
-	charPositionNowInSrc int,                      //                      this opener uses ONLY the actual character,
-	charactersInErlSrc CharacterInErlSrcCollector, // there is no need to look forward/back in src
-	charStructNow CharacterInErlSrc,
-
-// the first char rules are sometime different from the next char rules
-	generalCharNowAcceptableDetector func(rune) bool,
-	generalCharNextAcceptableDetector func(rune) bool,
-
-	tokenTypeIfActiveDetection int) (int, bool, int) {
-
-	// 0 means: there is no need to shift the original character loop position
-	positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected := 0
-
-	tokenTypeId := TokenType_id_unknown
-	openerDetected := false
-
-	if generalCharNowAcceptableDetector(charStructNow.runeInErlSrc) {
-
-		openerDetected = true
-		tokenTypeId = tokenTypeIfActiveDetection
-
-		charPositionNextInSrc := charPositionNowInSrc
-		for true {
-			charPositionNextInSrc++
-
-			charStructNext, charWasDetectedCorrectly := charactersInErlSrc.char_get_by_index(charPositionNextInSrc)
-
-			if charWasDetectedCorrectly {
-				if generalCharNextAcceptableDetector(charStructNext.runeInErlSrc) {
-					positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected++
-				} else {
-					break
+			if charStructPrev_detectedCorrectly {
+				if charStructPrev.tokenDetectedType == tokenTypeId_toMergeIntoOneOpenerCloserGroup {
+					charStructNow.tokenOpenerCharacter = false
 				}
-
-			} else {
-				break
 			}
 
-		}
+			if charStructNext_detectedCorrectly {
+				if charStructNext.tokenDetectedType == tokenTypeId_toMergeIntoOneOpenerCloserGroup {
+					charStructNow.tokenCloserCharacter = false
+				}
+			}
+
+			charactersInErlSrc[charPositionNowInSrc] = charStructNow
+		} // current token type is the wanted
 	}
-	return tokenTypeId, openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected
-}
+	return charactersInErlSrc
+} // func character_loop patterns
+///////////////////////////////////////////////////
