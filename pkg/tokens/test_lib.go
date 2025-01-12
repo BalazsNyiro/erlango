@@ -7,7 +7,6 @@ All rights reserved.
 This source code (all file in this repo) is licensed
 under the Apache-2 style license found in the
 LICENSE file in the root directory of this source tree.
-
 */
 package tokens
 
@@ -18,7 +17,7 @@ import (
 
 //////////////////////////////////////////////////////////////////
 
-func compare_int_int(testName string, wantedNum int, received int, t *testing.T) {
+func compare_int__int_(testName string, wantedNum int, received int, t *testing.T) {
 	if wantedNum != received {
 		t.Fatalf("\nError in %s wanted: %d, received: %d", testName, wantedNum, received)
 	}
