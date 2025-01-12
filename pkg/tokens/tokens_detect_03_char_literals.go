@@ -15,51 +15,36 @@ package tokens
 //   - non-escaped: 'A=$B.'
 //   - escaped: 'C=$\n.'
 //     Char can be any unicode char: 'U=$ち.'
-/*
+
 func tokens_detect_03a_erlang_char_literals_nonescaped__dollar_plus_character(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
-	funTokenOpener := token_opener_and_closer_look_forward__detect__char_literal
-	printVerboseOpenerDetectMsg := true
-	charactersInErlSrc, tokensInErlSrc = character_loop__set_one_char_tokentype(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
-	return charactersInErlSrc, tokensInErlSrc
-}
 
-func token_opener_and_closer_look_forward__detect__char_literal(
-	charPositionNowInSrc int,
-	charactersInErlSrc CharacterInErlSrcCollector,
-	charStructNow CharacterInErlSrc) (int, bool, int) { // ret: tokenType, openerDetected, positionModifier
+	charactersInErlSrc = character_loop__set_one_char_tokentype('$', charactersInErlSrc, TokenType_id_Num_charLiterals)
 
-	/////////////////////////////////////////////////////////
-	tokenTypeId := TokenType_id_unknown
-	openerDetected := false
-	positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected := 0
-	/////////////////////////////////////////////////////////
+	for charPositionNowInSrc := 0; charPositionNowInSrc < len(charactersInErlSrc); charPositionNowInSrc++ {
 
-	charStructNext1, charNext1CanBeDetected_notOverindexed := charactersInErlSrc.char_get_by_index(charPositionNowInSrc + 1)
-	_, charNext2CanBeDetected_notOverindexed := charactersInErlSrc.char_get_by_index(charPositionNowInSrc + 2)
+		charStructNow := charactersInErlSrc[charPositionNowInSrc]
+		charStructNext1, charNext1CanBeDetected_notOverindexed := charactersInErlSrc.char_get_by_index(charPositionNowInSrc + 1)
+		charStructNext2, charNext2CanBeDetected_notOverindexed := charactersInErlSrc.char_get_by_index(charPositionNowInSrc + 2)
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	if charStructNow.runeInErlSrc == '$' && charNext1CanBeDetected_notOverindexed {
+		if charStructNow.tokenDetectedType == TokenType_id_Num_charLiterals && charStructNow.runeInErlSrc == '$' && charNext1CanBeDetected_notOverindexed {
 
-		if charStructNext1.runeInErlSrc != '\\' {
-			tokenTypeId = TokenType_id_Num_charLiterals
-			openerDetected = true
-			positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected = 1
-		} else {
-			// the next1 char is backslash.
-			if charNext2CanBeDetected_notOverindexed {
-				tokenTypeId = TokenType_id_Num_charLiterals
-				openerDetected = true
-				positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected = 2
+			charStructNext1.tokenDetectedType = TokenType_id_Num_charLiterals
+
+			if charStructNext1.runeInErlSrc == '\\' && charNext2CanBeDetected_notOverindexed {
+				charStructNext2.tokenDetectedType = TokenType_id_Num_charLiterals
 			}
+		} // current char is $
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		charactersInErlSrc[charPositionNowInSrc] = charStructNow
+		if charNext1CanBeDetected_notOverindexed {
+			charactersInErlSrc[charPositionNowInSrc+1] = charStructNext1
+		}
+		if charNext2CanBeDetected_notOverindexed {
+			charactersInErlSrc[charPositionNowInSrc+2] = charStructNext2
 		}
 	}
-	return tokenTypeId, openerDetected, positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected
-}
 
-func general_pattern__is_dollar_rune(r rune) bool {
-	return r == '$'
+	return charactersInErlSrc, tokensInErlSrc
 }
-
-func general_pattern__is__one_nonescaped__or__backslash_and_one_escaped__char(r rune) bool {
-	return r == '$'
-}
-*/
