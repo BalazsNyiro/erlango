@@ -81,16 +81,17 @@ type TokenInErlSrc struct {
 type CharacterInErlSrcCollector []CharacterInErlSrc
 
 // return with wanted char from the collection, or with a default value if the char doesn't exist - and
-func (collector CharacterInErlSrcCollector) char_get_by_index(index int) (charInErl CharacterInErlSrc, indexIsExistInValidRange__charWasDetectedCorrectly bool) {
+func (collector CharacterInErlSrcCollector) char_get_by_index(index int) (CharacterInErlSrc, bool) {
 
-	indexIsExistInValidRange__charWasDetectedCorrectly = false
+	var charInErl CharacterInErlSrc
+	indexIsExistInValidRange__charWasDetectedCorrectly__not_over_or_under_indexed := false
 
 	if index < len(collector) && index >= 0 {
-		indexIsExistInValidRange__charWasDetectedCorrectly = true
+		indexIsExistInValidRange__charWasDetectedCorrectly__not_over_or_under_indexed = true
 		charInErl = collector[index]
 	}
 
-	return charInErl, indexIsExistInValidRange__charWasDetectedCorrectly
+	return charInErl, indexIsExistInValidRange__charWasDetectedCorrectly__not_over_or_under_indexed
 }
 
 type CharacterInErlSrc struct {
@@ -103,6 +104,10 @@ type CharacterInErlSrc struct {
 
 func (chr CharacterInErlSrc) stringRepr() string {
 	return string(chr.runeInErlSrc)
+}
+
+func (chr CharacterInErlSrc) tokenNotDetected() bool {
+	return chr.tokenDetectedType == TokenType_id_unknown
 }
 
 func Runes_to_character_structs(runesAll []rune) []CharacterInErlSrc {

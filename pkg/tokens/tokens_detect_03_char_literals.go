@@ -29,11 +29,16 @@ func tokens_detect_03a_erlang_char_literals_nonescaped__dollar_plus_character(ch
 
 		if charStructNow.tokenDetectedType == TokenType_id_Num_charLiterals && charStructNow.runeInErlSrc == '$' && charNext1CanBeDetected_notOverindexed {
 
-			charStructNext1.tokenDetectedType = TokenType_id_Num_charLiterals
+			if charStructNext1.tokenNotDetected() {
+				charStructNext1.tokenDetectedType = TokenType_id_Num_charLiterals
 
-			if charStructNext1.runeInErlSrc == '\\' && charNext2CanBeDetected_notOverindexed {
-				charStructNext2.tokenDetectedType = TokenType_id_Num_charLiterals
-			}
+				if charStructNext1.runeInErlSrc == '\\' && charNext2CanBeDetected_notOverindexed {
+					if charStructNext2.tokenNotDetected() {
+						charStructNext2.tokenDetectedType = TokenType_id_Num_charLiterals
+					}
+				} // if, next 2
+
+			} // if, next1 token is not detected
 		} // current char is $
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +50,8 @@ func tokens_detect_03a_erlang_char_literals_nonescaped__dollar_plus_character(ch
 			charactersInErlSrc[charPositionNowInSrc+2] = charStructNext2
 		}
 	}
+
+	character_loop__opener_closer_sections_set(charactersInErlSrc, TokenType_id_Num_charLiterals)
 
 	return charactersInErlSrc, tokensInErlSrc
 }
