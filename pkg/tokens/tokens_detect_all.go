@@ -44,43 +44,47 @@ func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollecto
 	reportLines := reportLineMore{}
 
 	for charCounter, charInErlSrc := range charactersInErlSrc {
+
+		openerCloserStatus := ' '
+		if charInErlSrc.tokenOpenerCharacter {
+			openerCloserStatus = 'o'
+		}
+		if charInErlSrc.tokenCloserCharacter {
+			openerCloserStatus = 'c'
+		}
+		if charInErlSrc.tokenOpenerCharacter && charInErlSrc.tokenCloserCharacter {
+			openerCloserStatus = '2' // closer AND opener same time
+		}
+		reportLine_2_opener_closer = append(reportLine_2_opener_closer, openerCloserStatus)
+
+		oneCharWideTokenTypeRepresentation := TokenTypeReprShort(charInErlSrc.tokenDetectedType)
+		reportLine_1_token_type = append(reportLine_1_token_type, oneCharWideTokenTypeRepresentation)
+
+		runePrinted := charInErlSrc.runeInErlSrc // this will be printed/displayed,
+		if charInErlSrc.runeInErlSrc == '\t' {   //and long tabulators needs to be replaced
+			runePrinted = ' '
+		}
+		if charInErlSrc.runeInErlSrc == '\n' { // newline representation
+			runePrinted = unicode_stop_table
+		}
+
+		reportLine_0_erl_src_chars = append(reportLine_0_erl_src_chars, runePrinted)
+		reportLine_3_char_counter = append(reportLine_3_char_counter, []rune(fmt.Sprintf("%d", charCounter%10))[0])
+
 		// fmt.Println("charCounter: ", charCounter)
 		if charInErlSrc.runeInErlSrc == '\n' { // newline chars
-			lineNumInErlSrc += 1
+
 			reportLines = append(reportLines, reportLine_4_separator)
 			reportLines = append(reportLines, reportLine_3_char_counter)
 			reportLines = append(reportLines, reportLine_2_opener_closer)
 			reportLines = append(reportLines, reportLine_1_token_type)
 			reportLines = append(reportLines, reportLine_0_erl_src_chars)
 
+			lineNumInErlSrc += 1
 			reportLine_3_char_counter = reportLine{}
 			reportLine_2_opener_closer = reportLine{}
 			reportLine_1_token_type = reportLine{}
 			reportLine_0_erl_src_chars = reportLine{}
-
-		} else { // non-newline char
-			openerCloserStatus := ' '
-			if charInErlSrc.tokenOpenerCharacter {
-				openerCloserStatus = 'o'
-			}
-			if charInErlSrc.tokenCloserCharacter {
-				openerCloserStatus = 'c'
-			}
-			if charInErlSrc.tokenOpenerCharacter && charInErlSrc.tokenCloserCharacter {
-				openerCloserStatus = '2' // closer AND opener same time
-			}
-			reportLine_2_opener_closer = append(reportLine_2_opener_closer, openerCloserStatus)
-
-			oneCharWideTokenTypeRepresentation := TokenTypeReprShort(charInErlSrc.tokenDetectedType)
-			reportLine_1_token_type = append(reportLine_1_token_type, oneCharWideTokenTypeRepresentation)
-
-			runePrinted := charInErlSrc.runeInErlSrc // this will be printed/displayed,
-			if charInErlSrc.runeInErlSrc == '\t' {   //and long tabulators needs to be repplaced
-				runePrinted = ' '
-			}
-
-			reportLine_0_erl_src_chars = append(reportLine_0_erl_src_chars, runePrinted)
-			reportLine_3_char_counter = append(reportLine_3_char_counter, []rune(fmt.Sprintf("%d", charCounter%10))[0])
 		}
 	}
 

@@ -118,3 +118,7 @@ func Runes_to_character_structs(runesAll []rune) []CharacterInErlSrc {
 	}
 	return CharactersAll
 }
+
+// unocode stop table, https://www.amp-what.com/unicode/search/stop
+// octagonal sign, &#128721; //U+1f6d1
+var unicode_stop_table = '🛑'
