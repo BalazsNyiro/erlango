@@ -80,6 +80,19 @@ type TokenInErlSrc struct {
 
 type CharacterInErlSrcCollector []CharacterInErlSrc
 
+// return with wanted char from the collection, or with a default value if the char doesn't exist - and
+func (collector CharacterInErlSrcCollector) char_get_by_index(index int) (charInErl CharacterInErlSrc, indexIsExistInValidRange__charWasDetectedCorrectly bool) {
+
+	indexIsExistInValidRange__charWasDetectedCorrectly = false
+
+	if index < len(collector) {
+		indexIsExistInValidRange__charWasDetectedCorrectly = true
+		charInErl = collector[index]
+	}
+
+	return charInErl, indexIsExistInValidRange__charWasDetectedCorrectly
+}
+
 type CharacterInErlSrc struct {
 	tokenDetectedType    int // the id of the parent token in the file, IF the token is detected.
 	runeInErlSrc         rune

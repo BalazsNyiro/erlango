@@ -19,12 +19,13 @@ func Test_tokens_detect_in_erl_src(t *testing.T) {
 	testName := "Test_tokens_detect_strings_1"
 	// erlSrcRunes, _ := base_toolset.File_read_runes("erl_src/erlang_whitespaces_separators_basic_types.erl", "Test_tokens_detect_in_erl_src")
 
-	erlSrcRunes := []rune(`A  = "B\"". % comment`)
+	erlSrcRunes := []rune(`A  = "B\"". % this is a string plus a comment
+                           % comment in newline`)
 	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes)
 	tokensInErlSrc := TokenCollector{}
 
-	charactersInErlSrc, tokensInErlSrc = tokens_detect_erlang_strings__quoted_atoms__comments(charactersInErlSrc, tokensInErlSrc)
-	charactersInErlSrc, tokensInErlSrc = tokens_detect_erlang_whitespaces(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_01_erlang_strings__quoted_atoms__comments(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_02_erlang_whitespaces(charactersInErlSrc, tokensInErlSrc)
 	Tokens_detection_print_verbose(charactersInErlSrc, tokensInErlSrc)
 
 	// line   0 >>> ============================

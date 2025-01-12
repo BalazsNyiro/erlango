@@ -13,7 +13,7 @@ package tokens
 
 import "fmt"
 
-func tokens_detect_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
+func tokens_detect_02_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
 	funTokenOpener := token_opener_and_closer_look_forward__detect__whitespaces
 	printVerboseOpenerDetectMsg := true
 	charactersInErlSrc, tokensInErlSrc = character_loop__pattern_detection__one_or_more_char__like_a_regexp(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
@@ -124,7 +124,7 @@ func character_loop__pattern_detection__one_or_more_char__like_a_regexp(
 func token_opener_and_closer_look_forward__detect__whitespaces(
 	charPositionNowInSrc int,
 	charactersInErlSrc CharacterInErlSrcCollector,
-	charStructNow CharacterInErlSrc) (int, bool, int) {
+	charStructNow CharacterInErlSrc) (int, bool, int) { // ret: tokenType, openerDetected, positionModifier
 
 	generalCharOpenerDetector := general_pattern__is_whitespace_rune_inside_line
 	generalCharNextAcceptableDetector := general_pattern__is_whitespace_rune_inside_line
@@ -162,11 +162,11 @@ func general_pattern__is_whitespace_rune_newline(r rune) bool {
 
 // this is a generic 'look forward' detector
 func general_look_forward_accepted_chars_detector(
-	charPositionNowInSrc int, //                      this opener uses ONLY the actual character,
+	charPositionNowInSrc int,                      //                      this opener uses ONLY the actual character,
 	charactersInErlSrc CharacterInErlSrcCollector, // there is no need to look forward/back in src
 	charStructNow CharacterInErlSrc,
 
-	// the first char rules are sometime different from the next char rules
+// the first char rules are sometime different from the next char rules
 	generalCharNowAcceptableDetector func(rune) bool,
 	generalCharNextAcceptableDetector func(rune) bool,
 
@@ -187,9 +187,9 @@ func general_look_forward_accepted_chars_detector(
 		for true {
 			charPositionNextInSrc++
 
-			if charPositionNextInSrc < len(charactersInErlSrc) {
-				charStructNext := charactersInErlSrc[charPositionNextInSrc]
+			charStructNext, charWasDetectedCorrectly := charactersInErlSrc.char_get_by_index(charPositionNextInSrc)
 
+			if charWasDetectedCorrectly {
 				if generalCharNextAcceptableDetector(charStructNext.runeInErlSrc) {
 					positionModifierBecauseLongerThanOneTokenOpenerCharsAreDetected++
 				} else {

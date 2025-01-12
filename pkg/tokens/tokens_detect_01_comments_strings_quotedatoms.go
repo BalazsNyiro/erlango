@@ -23,7 +23,7 @@ A='atom_with_double_quote"'.
 
 So these 3 has to be handled in one func.
 */
-func tokens_detect_erlang_strings__quoted_atoms__comments(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
+func tokens_detect_01_erlang_strings__quoted_atoms__comments(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
 	funTokenOpener := token_opener_detect__quoteDouble__quoteSinge_comment
 	printVerboseOpenerDetectMsg := false
 	charactersInErlSrc, tokensInErlSrc = character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_opener_closer_section(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
