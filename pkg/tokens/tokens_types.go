@@ -24,6 +24,7 @@ const TokenType_id_unknown = -1
 const TokenType_id_Comment = 1
 const TokenType_id_TextBlockQuotedSingle = 2
 const TokenType_id_TextBlockQuotedDouble = 3
+const TokenType_id_TextBlockQuotedTriple = 4
 
 // a number can be represented in a lot of forms.
 // integer, float with dots, hexadeciamls - in first step,
@@ -45,6 +46,7 @@ func TokenTypeReprShort(wantedTokenTypeNum int) rune {
 		TokenType_id_Comment:                 '%',
 		TokenType_id_TextBlockQuotedSingle:   '\'',
 		TokenType_id_TextBlockQuotedDouble:   '"',
+		TokenType_id_TextBlockQuotedTriple:   '3',
 		TokenType_id_Num_building_elem:       'n',
 		TokenType_id_Num_charLiterals:        'L',
 		TokenType_id_WhitespaceInLine_ErlSrc: 'w',
@@ -94,6 +96,14 @@ func (collector CharacterInErlSrcCollector) char_get_by_index(index int) (Charac
 	return charInErl, indexIsExistInValidRange__charWasDetectedCorrectly__not_over_or_under_indexed
 }
 
+func (collector CharacterInErlSrcCollector) char_get_by_index___give_fake_empty_space_char_if_no_real_char_in_position(index int) CharacterInErlSrc {
+
+	if index < len(collector) && index >= 0 {
+		return collector[index]
+	}
+	return CharacterInErlSrc{runeInErlSrc: ' '}
+}
+
 type CharacterInErlSrc struct {
 	tokenDetectedType    int // the id of the parent token in the file, IF the token is detected.
 	runeInErlSrc         rune
@@ -108,6 +118,10 @@ func (chr CharacterInErlSrc) stringRepr() string {
 
 func (chr CharacterInErlSrc) tokenNotDetected() bool {
 	return chr.tokenDetectedType == TokenType_id_unknown
+}
+
+func (chr CharacterInErlSrc) tokenIsDetected() bool {
+	return chr.tokenDetectedType != TokenType_id_unknown
 }
 
 func Runes_to_character_structs(runesAll []rune) []CharacterInErlSrc {

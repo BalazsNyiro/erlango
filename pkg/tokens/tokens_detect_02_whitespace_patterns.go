@@ -32,7 +32,7 @@ func character_loop__set_one_char_tokentype(
 	for charPositionNowInSrc := 0; charPositionNowInSrc < len(charactersInErlSrc); charPositionNowInSrc++ {
 
 		charStructNow := charactersInErlSrc[charPositionNowInSrc]
-		if charStructNow.tokenDetectedType != TokenType_id_unknown {
+		if charStructNow.tokenIsDetected() {
 			continue // if the char was detected and has a TokenType_id, there is no more to do.
 		} //don't start new detection if the current char was detected once
 

@@ -20,7 +20,9 @@ func Test_tokens_detect_in_erl_src(t *testing.T) {
 	// erlSrcRunes, _ := base_toolset.File_read_runes("erl_src/erlang_whitespaces_separators_basic_types.erl", "Test_tokens_detect_in_erl_src")
 
 	erlSrcRunes := []rune(`A  = "B\"". % this is a string plus a comment
-                           % comment in newline`)
+                           % comment in newline
+                           LongString = """This is a "quote"  """
+                            `)
 	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes)
 	tokensInErlSrc := TokenCollector{}
 
