@@ -26,10 +26,14 @@ const TokenType_id_TextBlockQuotedSingle = 2
 const TokenType_id_TextBlockQuotedDouble = 3
 const TokenType_id_TextBlockQuotedTriple = 4
 
+const TokenType_id_braces_grouping_elems = 5
+const TokenType_id_dots_commas = 6
+const TokenType_id_LanguageElement_operators_specialchars = 8
+
 // a number can be represented in a lot of forms.
 // integer, float with dots, hexadeciamls - in first step,
 // I simply try to see if the runes are part of any number, or not.
-const TokenType_id_Num_building_elem = 10
+const TokenType_id_AlphaNumeric = 10
 
 // $A $B - this is a really special char representation,
 // and can be detected directly, in a simple way
@@ -41,15 +45,18 @@ const TokenType_id_WhitespaceNewLine_ErlSrc = 31
 func TokenTypeReprShort(wantedTokenTypeNum int) rune {
 	the_key_is_not_defined_in_repr_map := -99
 	var map_types_repr = map[int]rune{
-		the_key_is_not_defined_in_repr_map:   'K',
-		TokenType_id_unknown:                 '?',
-		TokenType_id_Comment:                 '%',
-		TokenType_id_TextBlockQuotedSingle:   '\'',
-		TokenType_id_TextBlockQuotedDouble:   '"',
-		TokenType_id_TextBlockQuotedTriple:   '3',
-		TokenType_id_Num_building_elem:       'n',
-		TokenType_id_Num_charLiterals:        'L',
-		TokenType_id_WhitespaceInLine_ErlSrc: 'w',
+		the_key_is_not_defined_in_repr_map:                  'K',
+		TokenType_id_unknown:                                '?',
+		TokenType_id_Comment:                                '%',
+		TokenType_id_TextBlockQuotedSingle:                  '\'',
+		TokenType_id_TextBlockQuotedDouble:                  '"',
+		TokenType_id_TextBlockQuotedTriple:                  '3',
+		TokenType_id_AlphaNumeric:                           'A',
+		TokenType_id_Num_charLiterals:                       'L',
+		TokenType_id_WhitespaceInLine_ErlSrc:                'w',
+		TokenType_id_braces_grouping_elems:                  '(',
+		TokenType_id_dots_commas:                            '.',
+		TokenType_id_LanguageElement_operators_specialchars: 's',
 	}
 	repr, ok := map_types_repr[wantedTokenTypeNum]
 

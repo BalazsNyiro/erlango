@@ -16,7 +16,7 @@ func tokens_detect_02_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCol
 	for _, wantedCharInErl := range []rune{'\n', '\r', '\t', ' '} {
 		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, TokenType_id_WhitespaceInLine_ErlSrc)
 	}
-	character_loop__opener_closer_sections_set(charactersInErlSrc, TokenType_id_WhitespaceInLine_ErlSrc)
+	character_loop__opener_closer_sections_set__if_more_separated_isolated_elems_are_next_to_each_other(charactersInErlSrc, TokenType_id_WhitespaceInLine_ErlSrc)
 
 	charactersInErlSrc = character_loop__set_one_char_tokentype('\n', charactersInErlSrc, TokenType_id_WhitespaceNewLine_ErlSrc)
 	return charactersInErlSrc, tokensInErlSrc
@@ -49,7 +49,7 @@ func character_loop__set_one_char_tokentype(
 ///////////////////////////////////////////////////
 
 // if there are more whitespaces next to each other, or more numbers for example, merge them into one group
-func character_loop__opener_closer_sections_set(
+func character_loop__opener_closer_sections_set__if_more_separated_isolated_elems_are_next_to_each_other(
 	charactersInErlSrc CharacterInErlSrcCollector,
 	tokenTypeId_toMergeIntoOneOpenerCloserGroup int,
 ) CharacterInErlSrcCollector {

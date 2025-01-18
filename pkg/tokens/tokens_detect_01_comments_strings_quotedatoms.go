@@ -59,12 +59,12 @@ func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_ope
 	charactersInErlSrc CharacterInErlSrcCollector,
 	tokensInErlSrc TokenCollector,
 
-// the opener looks forward, the closer looks backward in the characters.
-// the opener/closer elems are part of the token - so a string has a text, and the boundary too.
-// example token content: "string_with_boundary"
-// if a long token is detected (so more than one character, the opener can shift the current position.
-// the closer func is returned from the opener func, because sometime an opener can detect
-// more than one type (string|quotedAtom|comment) and this info is created only in the opener state
+	// the opener looks forward, the closer looks backward in the characters.
+	// the opener/closer elems are part of the token - so a string has a text, and the boundary too.
+	// example token content: "string_with_boundary"
+	// if a long token is detected (so more than one character, the opener can shift the current position.
+	// the closer func is returned from the opener func, because sometime an opener can detect
+	// more than one type (string|quotedAtom|comment) and this info is created only in the opener state
 	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) (int, bool, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool, int),
 	printVerboseOpenerDetectMsg bool) (CharacterInErlSrcCollector, TokenCollector) {
 
@@ -83,6 +83,7 @@ func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_ope
 				continue // if the char was detected and has a TokenType_id, there is no more to do.
 			} //don't start new detection if the current char was detected once
 
+			// the opener func can look forward, and sometime more than one char is processed and detected as an opener part
 			tokenTypeId_fromOpener, openerDetected, tokenCloserConditionFunFromOpener, positionShifter__usedCharNumDuringDetection := tokenOpenerConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow)
 			tokenCloserConditionFun = tokenCloserConditionFunFromOpener
 			tokenTypeId_now = tokenTypeId_fromOpener
@@ -97,7 +98,7 @@ func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_ope
 
 					charStructNow = charactersInErlSrc[charPositionNowInSrc]
 					charStructNow.tokenDetectedType = tokenTypeId_now
-					if shift == 0 { // the first char is in the opener position opener.
+					if shift == 0 { // the first char is marked as an opener
 						charStructNow.tokenOpenerCharacter = true
 					}
 					charactersInErlSrc[charPositionNowInSrc] = charStructNow
@@ -131,7 +132,7 @@ func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_ope
 } // func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_opener_closer_section
 
 func token_opener_detect__quoteDouble__quoteSinge_comment(
-	charPositionNowInSrc int,                      //                      this opener uses ONLY the actual character,
+	charPositionNowInSrc int, //                      this opener uses ONLY the actual character,
 	charactersInErlSrc CharacterInErlSrcCollector, // there is no need to look forward/back in src
 	charStructNow CharacterInErlSrc) (int, bool, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool, int) {
 

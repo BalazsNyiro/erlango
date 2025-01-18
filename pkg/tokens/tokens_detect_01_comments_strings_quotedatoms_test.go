@@ -21,13 +21,20 @@ func Test_tokens_detect_in_erl_src(t *testing.T) {
 
 	erlSrcRunes := []rune(`A  = "B\"". % this is a string plus a comment
                            % comment in newline
-                           LongString = """This is a "quote"  """
+                           Long_String1 = """This is a "quote"  """.
+                           Long_String2 = """ \n\n very\t"Long" string   \"""".
+                           Num = (1 + 2.3 / 4 * 5).
+                           List = [6,7].
                             `)
 	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes)
 	tokensInErlSrc := TokenCollector{}
 
 	charactersInErlSrc, tokensInErlSrc = tokens_detect_01_erlang_strings__quoted_atoms__comments(charactersInErlSrc, tokensInErlSrc)
 	charactersInErlSrc, tokensInErlSrc = tokens_detect_02_erlang_whitespaces(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_03a_erlang_char_literals_nonescaped__dollar_plus_character(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_04_alphanumerics(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_05__braces__dotsCommas__operatorBuilders(charactersInErlSrc, tokensInErlSrc)
+
 	Tokens_detection_print_verbose(charactersInErlSrc, tokensInErlSrc)
 
 	// line   0 >>> ============================

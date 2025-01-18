@@ -51,7 +51,7 @@ func tokens_detect_03a_erlang_char_literals_nonescaped__dollar_plus_character(ch
 		}
 	}
 
-	character_loop__opener_closer_sections_set(charactersInErlSrc, TokenType_id_Num_charLiterals)
+	character_loop__opener_closer_sections_set__if_more_separated_isolated_elems_are_next_to_each_other(charactersInErlSrc, TokenType_id_Num_charLiterals)
 
 	return charactersInErlSrc, tokensInErlSrc
 }

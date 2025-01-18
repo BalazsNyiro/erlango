@@ -18,10 +18,10 @@ func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tok
 	charactersInErlSrc, tokensInErlSrc = tokens_detect_01_erlang_strings__quoted_atoms__comments(charactersInErlSrc, tokensInErlSrc)
 	charactersInErlSrc, tokensInErlSrc = tokens_detect_02_erlang_whitespaces(charactersInErlSrc, tokensInErlSrc)
 	charactersInErlSrc, tokensInErlSrc = tokens_detect_03a_erlang_char_literals_nonescaped__dollar_plus_character(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_04_alphanumerics(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_05__braces__dotsCommas__operatorBuilders(charactersInErlSrc, tokensInErlSrc)
 
 	// TODO: whitespace detection, operator detection.
-	// atom detection
-	// variable detection
 	// operators detection?
 	// comma, dot, :,
 	return charactersInErlSrc, tokensInErlSrc
