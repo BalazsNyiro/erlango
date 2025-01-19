@@ -18,7 +18,7 @@ var tokens_ABC_Eng_Lower = "abcdefghijklmnopqrstuvwxyz"
 
 var tokens_AlphaNums = tokens_ABC_Eng_Upper + tokens_ABC_Eng_Lower + "_0123456789"
 
-func tokens_detect_04_alphanumerics(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
+func tokens_detect_03_alphanumerics(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
 
 	for _, wantedCharInErl := range []rune(tokens_AlphaNums) {
 		fmt.Println("wanted char in alphanum:", wantedCharInErl)
@@ -28,4 +28,3 @@ func tokens_detect_04_alphanumerics(charactersInErlSrc CharacterInErlSrcCollecto
 
 	return charactersInErlSrc, tokensInErlSrc
 }
-

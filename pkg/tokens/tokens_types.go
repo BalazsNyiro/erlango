@@ -103,6 +103,10 @@ func (collector CharacterInErlSrcCollector) char_get_by_index(index int) (Charac
 	return charInErl, indexIsExistInValidRange__charWasDetectedCorrectly__not_over_or_under_indexed
 }
 
+// in char_get_by_index() if the char position is overindexed/incorrect, an error is given back.
+// here if the char cannot be indexed, a default value is returned.
+// sometime the important question is only what is the next char (if it exists, and it is not important if it doesn't exist)
+// and with this a lot of unnecessary condition/validation step can be avoided
 func (collector CharacterInErlSrcCollector) char_get_by_index___give_fake_empty_space_char_if_no_real_char_in_position(index int) CharacterInErlSrc {
 
 	if index < len(collector) && index >= 0 {

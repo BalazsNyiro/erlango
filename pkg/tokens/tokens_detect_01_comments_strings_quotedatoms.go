@@ -24,7 +24,7 @@ A='atom_with_double_quote"'.
 So these 3 has to be handled in one func.
 */
 func tokens_detect_01_erlang_strings__quoted_atoms__comments(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
-	funTokenOpener := token_opener_detect__quoteDouble__quoteSinge_comment
+	funTokenOpener := token_opener_detect__quoteTriple_quoteDouble_quoteSingle_comment
 	printVerboseOpenerDetectMsg := false
 	charactersInErlSrc, tokensInErlSrc = character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_opener_closer_section(charactersInErlSrc, tokensInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
 	return charactersInErlSrc, tokensInErlSrc
@@ -68,7 +68,7 @@ func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_ope
 	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) (int, bool, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool, int),
 	printVerboseOpenerDetectMsg bool) (CharacterInErlSrcCollector, TokenCollector) {
 
-	tokenCloserConditionFun := token_closer_fake_placeholder_fun
+	tokenCloserConditionFun := token_closer_always_false___never_close
 
 	activeTokenDetectionBecauseOpenerConditionTriggered := false
 	tokenTypeId_now := TokenType_id_unknown
@@ -131,7 +131,7 @@ func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_ope
 	return charactersInErlSrc, tokensInErlSrc
 } // func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_opener_closer_section
 
-func token_opener_detect__quoteDouble__quoteSinge_comment(
+func token_opener_detect__quoteTriple_quoteDouble_quoteSingle_comment(
 	charPositionNowInSrc int, //                      this opener uses ONLY the actual character,
 	charactersInErlSrc CharacterInErlSrcCollector, // there is no need to look forward/back in src
 	charStructNow CharacterInErlSrc) (int, bool, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool, int) {
@@ -139,7 +139,7 @@ func token_opener_detect__quoteDouble__quoteSinge_comment(
 	positionShifter__usedCharNumDuringDetection := 1
 
 	tokenTypeId := TokenType_id_unknown
-	funCloser := token_closer_fake_placeholder_fun
+	funCloser := token_closer_always_false___never_close
 	openerDetected := false
 
 	// 0: double quote " opener is 1 char wide,
@@ -171,6 +171,29 @@ func token_opener_detect__quoteDouble__quoteSinge_comment(
 		funCloser = token_closer_detect_comment_end
 		openerDetected = true
 		tokenTypeId = TokenType_id_Comment
+	}
+
+	if charStructNow.runeInErlSrc == '$' {
+		// minimum 2 char wide,
+		//   - non-escaped: 'A=$B.'
+		//   - escaped: 'C=$\n.'
+		//     Char can be any unicode char: 'U=$ち.'
+
+		// possible problems: in a char literal, there can be ", ', % signs.
+		// for example: $", $', $% - and these will be detedted by quote/comma detection.
+		// So the char literal has to be in the same logical step with the string detection
+
+		funCloser = token_closer_always_close_at_next_char
+		openerDetected = true
+		tokenTypeId = TokenType_id_Num_charLiterals
+
+		// check if the next char is a backslash or not
+		charStructNext1 := charactersInErlSrc.char_get_by_index___give_fake_empty_space_char_if_no_real_char_in_position(charPositionNowInSrc + 1)
+
+		if charStructNext1.runeInErlSrc == '\\' {
+			positionShifter__usedCharNumDuringDetection = 2 // '$\' was detected, and the next char will be closed immediatelly (one char can be after $ or $\
+		} // if there is backslash/escape sign...
+
 	}
 
 	return tokenTypeId, openerDetected, funCloser, positionShifter__usedCharNumDuringDetection
@@ -231,7 +254,15 @@ func token_closer_detect_quote_single(
 	return charStructNow.runeInErlSrc == '\''
 }
 
-func token_closer_fake_placeholder_fun(
+func token_closer_always_close_at_next_char(
+	charPositionNowInSrc int,
+	charactersInErlSrc CharacterInErlSrcCollector,
+	charStructNow CharacterInErlSrc,
+) bool {
+	return true
+}
+
+func token_closer_always_false___never_close(
 	charPositionNowInSrc int,
 	charactersInErlSrc CharacterInErlSrcCollector,
 	charStructNow CharacterInErlSrc,

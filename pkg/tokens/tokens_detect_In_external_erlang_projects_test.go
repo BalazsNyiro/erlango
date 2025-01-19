@@ -21,14 +21,14 @@ func Test_tokens_detect_in_external_erlang_projects(t *testing.T) {
 
 	// erlSrcRunes := []rune(`External  = 1. `)
 	erlSrcRunes, _ := base_toolset.File_read_runes("../../../erlang_projects_external_sources/rebar3_all.erl", testName+"_rebar3_all")
+	// erlSrcRunes, _ := base_toolset.File_read_runes("../../../erlang_projects_1external_sources/rebar3_one_problem.erl", testName+"_rebar3_all")
 
 	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes)
 	tokensInErlSrc := TokenCollector{}
 
 	charactersInErlSrc, tokensInErlSrc = Tokens_detect_in_erl_src(charactersInErlSrc, tokensInErlSrc)
 
-	Tokens_detection_print_verbose(charactersInErlSrc, tokensInErlSrc)
-	// non-real test
-	compare_bool_bool(testName, true, true, t)
+	// Tokens_detection_print_verbose(charactersInErlSrc, tokensInErlSrc)
+	Tokens_detection_print_one_char_per_line(charactersInErlSrc, tokensInErlSrc, true)
 
 }

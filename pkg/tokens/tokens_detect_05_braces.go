@@ -11,7 +11,7 @@ LICENSE file in the root directory of this source tree.
 
 package tokens
 
-func tokens_detect_05__braces__dotsCommas__operatorBuilders(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
+func tokens_detect_04__braces__dotsCommas__operatorBuilders(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
 
 	for _, wantedCharInErl := range []rune("()[]{}") {
 		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, TokenType_id_braces_grouping_elems)
@@ -24,7 +24,7 @@ func tokens_detect_05__braces__dotsCommas__operatorBuilders(charactersInErlSrc C
 		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, TokenType_id_dots_commas)
 	}
 
-	for _, wantedCharInErl := range []rune("=<>+-*/#?|@") {
+	for _, wantedCharInErl := range []rune("=<>+-*/#?|@!") {
 		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, TokenType_id_LanguageElement_operators_specialchars)
 	}
 

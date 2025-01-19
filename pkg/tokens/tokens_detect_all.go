@@ -17,19 +17,42 @@ func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tok
 
 	charactersInErlSrc, tokensInErlSrc = tokens_detect_01_erlang_strings__quoted_atoms__comments(charactersInErlSrc, tokensInErlSrc)
 	charactersInErlSrc, tokensInErlSrc = tokens_detect_02_erlang_whitespaces(charactersInErlSrc, tokensInErlSrc)
-	charactersInErlSrc, tokensInErlSrc = tokens_detect_03a_erlang_char_literals_nonescaped__dollar_plus_character(charactersInErlSrc, tokensInErlSrc)
-	charactersInErlSrc, tokensInErlSrc = tokens_detect_04_alphanumerics(charactersInErlSrc, tokensInErlSrc)
-	charactersInErlSrc, tokensInErlSrc = tokens_detect_05__braces__dotsCommas__operatorBuilders(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_03_alphanumerics(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_04__braces__dotsCommas__operatorBuilders(charactersInErlSrc, tokensInErlSrc)
 
 	// TODO: whitespace detection, operator detection.
 	// operators detection?
 	// comma, dot, :,
 	return charactersInErlSrc, tokensInErlSrc
 }
+func Tokens_detection_print_one_char_per_line(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector, displayOnlyUnknownChars bool) {
+
+	lineNumInErlSrc := 1
+
+	for _, charInErlSrc := range charactersInErlSrc {
+		display := true
+		if displayOnlyUnknownChars {
+			display = false
+			if charInErlSrc.tokenNotDetected() {
+				display = true
+			}
+		}
+
+		if display {
+			fmt.Println("line:", lineNumInErlSrc, string(charInErlSrc.runeInErlSrc), charInErlSrc.tokenDetectedType)
+		}
+
+		// fmt.Println("charCounter: ", charCounter)
+		if charInErlSrc.runeInErlSrc == '\n' { // newline chars
+			lineNumInErlSrc += 1
+		}
+	}
+
+}
 
 func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) {
 
-	lineNumInErlSrc := 0
+	lineNumInErlSrc := 1
 
 	type reportLine []rune
 	type reportLineMore []reportLine
