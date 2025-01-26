@@ -23,7 +23,7 @@ A='atom_with_double_quote"'.
 
 So these 3 has to be handled in one func.
 */
-func tokens_detect_01_erlang_strings__quoted_atoms__comments(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
+func tokens_detect_prepare__01_erlang_strings__quoted_atoms__comments(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
 	funTokenOpener := token_opener_detect__quoteTriple_quoteDouble_quoteSingle_comment
 	printVerboseOpenerDetectMsg := false
 	charactersInErlSrc = character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_opener_closer_section(charactersInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
@@ -58,12 +58,12 @@ func is_escaped_char(charPositionInSrc int, charactersInErlSrc CharacterInErlSrc
 func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_opener_closer_section(
 	charactersInErlSrc CharacterInErlSrcCollector,
 
-// the opener looks forward, the closer looks backward in the characters.
-// the opener/closer elems are part of the token - so a string has a text, and the boundary too.
-// example token content: "string_with_boundary"
-// if a long token is detected (so more than one character, the opener can shift the current position.
-// the closer func is returned from the opener func, because sometime an opener can detect
-// more than one type (string|quotedAtom|comment) and this info is created only in the opener state
+	// the opener looks forward, the closer looks backward in the characters.
+	// the opener/closer elems are part of the token - so a string has a text, and the boundary too.
+	// example token content: "string_with_boundary"
+	// if a long token is detected (so more than one character, the opener can shift the current position.
+	// the closer func is returned from the opener func, because sometime an opener can detect
+	// more than one type (string|quotedAtom|comment) and this info is created only in the opener state
 	tokenOpenerConditionFun func(int, CharacterInErlSrcCollector, CharacterInErlSrc) (int, bool, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool, int),
 	printVerboseOpenerDetectMsg bool) CharacterInErlSrcCollector {
 
@@ -131,7 +131,7 @@ func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_ope
 } // func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_opener_closer_section
 
 func token_opener_detect__quoteTriple_quoteDouble_quoteSingle_comment(
-	charPositionNowInSrc int,                      //                      this opener uses ONLY the actual character,
+	charPositionNowInSrc int, //                      this opener uses ONLY the actual character,
 	charactersInErlSrc CharacterInErlSrcCollector, // there is no need to look forward/back in src
 	charStructNow CharacterInErlSrc) (int, bool, func(int, CharacterInErlSrcCollector, CharacterInErlSrc) bool, int) {
 

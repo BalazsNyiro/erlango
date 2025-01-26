@@ -28,10 +28,10 @@ func Test_tokens_detect_in_erl_src(t *testing.T) {
                             `)
 	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes)
 
-	charactersInErlSrc = tokens_detect_01_erlang_strings__quoted_atoms__comments(charactersInErlSrc)
-	charactersInErlSrc = tokens_detect_02_erlang_whitespaces(charactersInErlSrc)
-	charactersInErlSrc = tokens_detect_03_erlang_alphanumerics(charactersInErlSrc)
-	charactersInErlSrc = tokens_detect_04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc)
+	charactersInErlSrc = tokens_detect_prepare__01_erlang_strings__quoted_atoms__comments(charactersInErlSrc)
+	charactersInErlSrc = tokens_detect_prepare__02_erlang_whitespaces(charactersInErlSrc)
+	charactersInErlSrc = tokens_detect_prepare__03_erlang_alphanumerics(charactersInErlSrc)
+	charactersInErlSrc = tokens_detect_prepare__04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc)
 
 	tokensInErlSrc := TokenCollector{}
 	Tokens_detection_print_verbose(charactersInErlSrc, tokensInErlSrc)

@@ -19,14 +19,11 @@ import (
 // 'convert characters -> tokens'
 func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
 
-	charactersInErlSrc = tokens_detect_01_erlang_strings__quoted_atoms__comments(charactersInErlSrc)
-	charactersInErlSrc = tokens_detect_02_erlang_whitespaces(charactersInErlSrc)
-	charactersInErlSrc = tokens_detect_03_erlang_alphanumerics(charactersInErlSrc)
-	charactersInErlSrc = tokens_detect_04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc)
+	charactersInErlSrc = tokens_detect_prepare__01_erlang_strings__quoted_atoms__comments(charactersInErlSrc)
+	charactersInErlSrc = tokens_detect_prepare__02_erlang_whitespaces(charactersInErlSrc)
+	charactersInErlSrc = tokens_detect_prepare__03_erlang_alphanumerics(charactersInErlSrc)
+	charactersInErlSrc = tokens_detect_prepare__04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc)
 
-	// TODO: whitespace detection, operator detection.
-	// operators detection?
-	// comma, dot, :,
 	return charactersInErlSrc, tokensInErlSrc
 }
 

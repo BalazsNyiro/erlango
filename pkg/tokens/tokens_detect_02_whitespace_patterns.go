@@ -11,7 +11,7 @@ LICENSE file in the root directory of this source tree.
 
 package tokens
 
-func tokens_detect_02_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
+func tokens_detect_prepare__02_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
 
 	for _, wantedCharInErl := range []rune{'\n', '\r', '\t', ' '} {
 		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, TokenType_id_WhitespaceInLine_ErlSrc)
