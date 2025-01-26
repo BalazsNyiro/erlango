@@ -18,7 +18,7 @@ var tokens_ABC_Eng_Lower = "abcdefghijklmnopqrstuvwxyz"
 
 var tokens_AlphaNums = tokens_ABC_Eng_Upper + tokens_ABC_Eng_Lower + "_0123456789"
 
-func tokens_detect_03_erlang_alphanumerics(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
+func tokens_detect_03_erlang_alphanumerics(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
 
 	for _, wantedCharInErl := range []rune(tokens_AlphaNums) {
 		fmt.Println("wanted char in alphanum:", wantedCharInErl)
@@ -26,5 +26,5 @@ func tokens_detect_03_erlang_alphanumerics(charactersInErlSrc CharacterInErlSrcC
 	}
 	character_loop__opener_closer_sections_set__if_more_separated_isolated_elems_are_next_to_each_other(charactersInErlSrc, TokenType_id_AlphaNumeric)
 
-	return charactersInErlSrc, tokensInErlSrc
+	return charactersInErlSrc
 }
