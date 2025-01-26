@@ -11,20 +11,34 @@ LICENSE file in the root directory of this source tree.
 
 package tokens
 
-import "fmt"
+import (
+	"erlango.org/erlango/pkg/base_toolset"
+	"fmt"
+)
 
+// 'convert characters -> tokens'
 func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
 
 	charactersInErlSrc, tokensInErlSrc = tokens_detect_01_erlang_strings__quoted_atoms__comments(charactersInErlSrc, tokensInErlSrc)
 	charactersInErlSrc, tokensInErlSrc = tokens_detect_02_erlang_whitespaces(charactersInErlSrc, tokensInErlSrc)
-	charactersInErlSrc, tokensInErlSrc = tokens_detect_03_alphanumerics(charactersInErlSrc, tokensInErlSrc)
-	charactersInErlSrc, tokensInErlSrc = tokens_detect_04__braces__dotsCommas__operatorBuilders(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_03_erlang_alphanumerics(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc, tokensInErlSrc)
 
 	// TODO: whitespace detection, operator detection.
 	// operators detection?
 	// comma, dot, :,
 	return charactersInErlSrc, tokensInErlSrc
 }
+
+// convert 'fileErl -> characters -> tokens'
+func Tokens_detect_in_erl_file(fileErl string, callerFun string) (CharacterInErlSrcCollector, TokenCollector) {
+	erlSrcRunes, _ := base_toolset.File_read_runes(fileErl, callerFun)
+	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes)
+	tokensInErlSrc := TokenCollector{}
+	charactersInErlSrc, tokensInErlSrc = Tokens_detect_in_erl_src(charactersInErlSrc, tokensInErlSrc)
+	return charactersInErlSrc, tokensInErlSrc
+}
+
 func Tokens_detection_print_one_char_per_line(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector, displayOnlyUnknownChars bool) {
 
 	lineNumInErlSrc := 1

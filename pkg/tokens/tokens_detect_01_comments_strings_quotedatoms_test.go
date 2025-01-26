@@ -31,8 +31,8 @@ func Test_tokens_detect_in_erl_src(t *testing.T) {
 
 	charactersInErlSrc, tokensInErlSrc = tokens_detect_01_erlang_strings__quoted_atoms__comments(charactersInErlSrc, tokensInErlSrc)
 	charactersInErlSrc, tokensInErlSrc = tokens_detect_02_erlang_whitespaces(charactersInErlSrc, tokensInErlSrc)
-	charactersInErlSrc, tokensInErlSrc = tokens_detect_03_alphanumerics(charactersInErlSrc, tokensInErlSrc)
-	charactersInErlSrc, tokensInErlSrc = tokens_detect_04__braces__dotsCommas__operatorBuilders(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_03_erlang_alphanumerics(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc, tokensInErlSrc = tokens_detect_04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc, tokensInErlSrc)
 
 	Tokens_detection_print_verbose(charactersInErlSrc, tokensInErlSrc)
 
