@@ -14,18 +14,18 @@ package tokens
 func tokens_detect_prepare__04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
 
 	for _, wantedCharInErl := range []rune("()[]{}") {
-		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, TokenType_id_braces_grouping_elems)
+		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, CharBlock_braces_grouping_elems)
 	}
 
 	// TODO:  find double chars << >> -> <- ::  == != <>
 	// :: is used in type specification
 
 	for _, wantedCharInErl := range []rune(",;.:") {
-		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, TokenType_id_dots_commas)
+		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, CharBlock_dots_commas)
 	}
 
 	for _, wantedCharInErl := range []rune("=<>+-*/#?|@!") {
-		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, TokenType_id_LanguageElement_operators_specialchars)
+		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, CharBlock_LanguageElement_operators_specialchars)
 	}
 
 	return charactersInErlSrc

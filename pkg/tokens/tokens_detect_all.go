@@ -92,7 +92,7 @@ func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollecto
 		}
 		reportLine_2_opener_closer = append(reportLine_2_opener_closer, openerCloserStatus)
 
-		oneCharWideTokenTypeRepresentation := TokenTypeReprShort(charInErlSrc.tokenDetectedType)
+		oneCharWideTokenTypeRepresentation := CharBlockReprShort(charInErlSrc.tokenDetectedType)
 		reportLine_1_token_type = append(reportLine_1_token_type, oneCharWideTokenTypeRepresentation)
 
 		runePrinted := charInErlSrc.runeInErlSrc // this will be printed/displayed,

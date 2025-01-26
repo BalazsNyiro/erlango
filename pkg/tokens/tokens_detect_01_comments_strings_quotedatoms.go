@@ -70,7 +70,7 @@ func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_ope
 	tokenCloserConditionFun := token_closer_always_false___never_close
 
 	activeTokenDetectionBecauseOpenerConditionTriggered := false
-	tokenTypeId_now := TokenType_id_unknown
+	tokenTypeId_now := CharBlock_unknown
 
 	// use the slice position only, because in the for loop, charactersInErlSrc will be updated/modified,
 	for charPositionNowInSrc := 0; charPositionNowInSrc < len(charactersInErlSrc); {
@@ -118,7 +118,7 @@ func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_ope
 
 				// set_noActiveTokenDetection__tokenTypeUnknown
 				activeTokenDetectionBecauseOpenerConditionTriggered = false
-				tokenTypeId_now = TokenType_id_unknown
+				tokenTypeId_now = CharBlock_unknown
 
 			} ///////////////////////////////////////////
 			charactersInErlSrc[charPositionNowInSrc] = charStructNow
@@ -137,7 +137,7 @@ func token_opener_detect__quoteTriple_quoteDouble_quoteSingle_comment(
 
 	positionShifter__usedCharNumDuringDetection := 1
 
-	tokenTypeId := TokenType_id_unknown
+	tokenTypeId := CharBlock_unknown
 	funCloser := token_closer_always_false___never_close
 	openerDetected := false
 
@@ -147,14 +147,14 @@ func token_opener_detect__quoteTriple_quoteDouble_quoteSingle_comment(
 	if charStructNow.runeInErlSrc == '"' {
 		openerDetected = true
 		funCloser = token_closer_detect_quote_double
-		tokenTypeId = TokenType_id_TextBlockQuotedDouble
+		tokenTypeId = CharBlockQuotedDouble
 
 		charStructNext1 := charactersInErlSrc.char_get_by_index___give_fake_empty_space_char_if_no_real_char_in_position(charPositionNowInSrc + 1)
 		charStructNext2 := charactersInErlSrc.char_get_by_index___give_fake_empty_space_char_if_no_real_char_in_position(charPositionNowInSrc + 2)
 
 		if charStructNext1.runeInErlSrc == '"' && charStructNext2.runeInErlSrc == '"' {
 			funCloser = token_closer_detect_quote_triple
-			tokenTypeId = TokenType_id_TextBlockQuotedTriple
+			tokenTypeId = CharBlockQuotedTriple
 			positionShifter__usedCharNumDuringDetection = 3
 		}
 
@@ -163,13 +163,13 @@ func token_opener_detect__quoteTriple_quoteDouble_quoteSingle_comment(
 	if charStructNow.runeInErlSrc == '\'' {
 		funCloser = token_closer_detect_quote_single
 		openerDetected = true
-		tokenTypeId = TokenType_id_TextBlockQuotedSingle
+		tokenTypeId = CharBlockQuotedSingle
 	}
 
 	if charStructNow.runeInErlSrc == '%' {
 		funCloser = token_closer_detect_comment_end
 		openerDetected = true
-		tokenTypeId = TokenType_id_Comment
+		tokenTypeId = CharBlock_Comment
 	}
 
 	if charStructNow.runeInErlSrc == '$' {
@@ -184,7 +184,7 @@ func token_opener_detect__quoteTriple_quoteDouble_quoteSingle_comment(
 
 		funCloser = token_closer_always_close_at_next_char
 		openerDetected = true
-		tokenTypeId = TokenType_id_Num_charLiterals
+		tokenTypeId = CharBlock_Num_charLiterals
 
 		// check if the next char is a backslash or not
 		charStructNext1 := charactersInErlSrc.char_get_by_index___give_fake_empty_space_char_if_no_real_char_in_position(charPositionNowInSrc + 1)

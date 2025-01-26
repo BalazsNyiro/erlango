@@ -50,20 +50,20 @@ func Test_tokens_detect_in_erl_src(t *testing.T) {
 	charNow = charactersInErlSrc[5]
 	compare_bool_bool(testName, true, charNow.tokenOpenerCharacter, t)
 	compare_bool_bool(testName, false, charNow.tokenCloserCharacter, t)
-	compare_int__int_(testName, TokenType_id_TextBlockQuotedDouble, charNow.tokenDetectedType, t)
+	compare_int__int_(testName, CharBlockQuotedDouble, charNow.tokenDetectedType, t)
 
 	charNow = charactersInErlSrc[6]
 	compare_bool_bool(testName, false, charNow.tokenOpenerCharacter, t)
 	compare_bool_bool(testName, false, charNow.tokenCloserCharacter, t)
-	compare_int__int_(testName, TokenType_id_TextBlockQuotedDouble, charNow.tokenDetectedType, t)
+	compare_int__int_(testName, CharBlockQuotedDouble, charNow.tokenDetectedType, t)
 
 	charNow = charactersInErlSrc[8]
 	compare_bool_bool(testName, false, charNow.tokenOpenerCharacter, t)
 	compare_bool_bool(testName, false, charNow.tokenCloserCharacter, t)
-	compare_int__int_(testName, TokenType_id_TextBlockQuotedDouble, charNow.tokenDetectedType, t)
+	compare_int__int_(testName, CharBlockQuotedDouble, charNow.tokenDetectedType, t)
 
 	charNow = charactersInErlSrc[9]
 	compare_bool_bool(testName, false, charNow.tokenOpenerCharacter, t)
 	compare_bool_bool(testName, true, charNow.tokenCloserCharacter, t)
-	compare_int__int_(testName, TokenType_id_TextBlockQuotedDouble, charNow.tokenDetectedType, t)
+	compare_int__int_(testName, CharBlockQuotedDouble, charNow.tokenDetectedType, t)
 }

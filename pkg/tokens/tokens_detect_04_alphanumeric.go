@@ -22,9 +22,9 @@ func tokens_detect_prepare__03_erlang_alphanumerics(charactersInErlSrc Character
 
 	for _, wantedCharInErl := range []rune(tokens_AlphaNums) {
 		fmt.Println("wanted char in alphanum:", wantedCharInErl)
-		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, TokenType_id_AlphaNumeric)
+		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, CharBlock_AlphaNumeric)
 	}
-	character_loop__opener_closer_sections_set__if_more_separated_isolated_elems_are_next_to_each_other(charactersInErlSrc, TokenType_id_AlphaNumeric)
+	character_loop__opener_closer_sections_set__if_more_separated_isolated_elems_are_next_to_each_other(charactersInErlSrc, CharBlock_AlphaNumeric)
 
 	return charactersInErlSrc
 }

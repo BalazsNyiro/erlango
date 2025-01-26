@@ -14,49 +14,49 @@ LICENSE file in the root directory of this source tree.
 
 package tokens
 
-const TokenType_id_unknown = -1
+const CharBlock_unknown = -1
 
 // value 0 is not used, because 0 is the golang integer default value
 // if a new char is created,
 // and if the value is not updated, 0 is set by default,
 // I would like to see if somebody changes the value or not.
 
-const TokenType_id_Comment = 1
-const TokenType_id_TextBlockQuotedSingle = 2
-const TokenType_id_TextBlockQuotedDouble = 3
-const TokenType_id_TextBlockQuotedTriple = 4
+const CharBlock_Comment = 1
+const CharBlockQuotedSingle = 2
+const CharBlockQuotedDouble = 3
+const CharBlockQuotedTriple = 4
 
-const TokenType_id_braces_grouping_elems = 5
-const TokenType_id_dots_commas = 6
-const TokenType_id_LanguageElement_operators_specialchars = 8
+const CharBlock_braces_grouping_elems = 5
+const CharBlock_dots_commas = 6
+const CharBlock_LanguageElement_operators_specialchars = 8
 
 // a number can be represented in a lot of forms.
 // integer, float with dots, hexadeciamls - in first step,
 // I simply try to see if the runes are part of any number, or not.
-const TokenType_id_AlphaNumeric = 10
+const CharBlock_AlphaNumeric = 10
 
 // $A $B - this is a really special char representation,
 // and can be detected directly, in a simple way
-const TokenType_id_Num_charLiterals = 20
+const CharBlock_Num_charLiterals = 20
 
-const TokenType_id_WhitespaceInLine_ErlSrc = 30
-const TokenType_id_WhitespaceNewLine_ErlSrc = 31
+const CharBlock_WhitespaceInLine_ErlSrc = 30
+const CharBlock_WhitespaceNewLine_ErlSrc = 31
 
-func TokenTypeReprShort(wantedTokenTypeNum int) rune {
+func CharBlockReprShort(wantedTokenTypeNum int) rune {
 	the_key_is_not_defined_in_repr_map := -99
 	var map_types_repr = map[int]rune{
-		the_key_is_not_defined_in_repr_map:                  'K',
-		TokenType_id_unknown:                                '?',
-		TokenType_id_Comment:                                '%',
-		TokenType_id_TextBlockQuotedSingle:                  '\'',
-		TokenType_id_TextBlockQuotedDouble:                  '"',
-		TokenType_id_TextBlockQuotedTriple:                  '3',
-		TokenType_id_AlphaNumeric:                           'A',
-		TokenType_id_Num_charLiterals:                       'L',
-		TokenType_id_WhitespaceInLine_ErlSrc:                'w',
-		TokenType_id_braces_grouping_elems:                  '(',
-		TokenType_id_dots_commas:                            '.',
-		TokenType_id_LanguageElement_operators_specialchars: 's',
+		the_key_is_not_defined_in_repr_map:               'K',
+		CharBlock_unknown:                                '?',
+		CharBlock_Comment:                                '%',
+		CharBlockQuotedSingle:                            '\'',
+		CharBlockQuotedDouble:                            '"',
+		CharBlockQuotedTriple:                            '3',
+		CharBlock_AlphaNumeric:                           'A',
+		CharBlock_Num_charLiterals:                       'L',
+		CharBlock_WhitespaceInLine_ErlSrc:                'w',
+		CharBlock_braces_grouping_elems:                  '(',
+		CharBlock_dots_commas:                            '.',
+		CharBlock_LanguageElement_operators_specialchars: 's',
 	}
 	repr, ok := map_types_repr[wantedTokenTypeNum]
 
@@ -128,18 +128,18 @@ func (chr CharacterInErlSrc) stringRepr() string {
 }
 
 func (chr CharacterInErlSrc) tokenNotDetected() bool {
-	return chr.tokenDetectedType == TokenType_id_unknown
+	return chr.tokenDetectedType == CharBlock_unknown
 }
 
 func (chr CharacterInErlSrc) tokenIsDetected() bool {
-	return chr.tokenDetectedType != TokenType_id_unknown
+	return chr.tokenDetectedType != CharBlock_unknown
 }
 
 func Runes_to_character_structs(runesAll []rune) []CharacterInErlSrc {
 	CharactersAll := []CharacterInErlSrc{}
 	for posInErlSrc, runeInErlSrc := range runesAll {
 		CharactersAll = append(CharactersAll, CharacterInErlSrc{
-			tokenDetectedType:    TokenType_id_unknown,
+			tokenDetectedType:    CharBlock_unknown,
 			runeInErlSrc:         runeInErlSrc,
 			tokenOpenerCharacter: false,
 			tokenCloserCharacter: false,
