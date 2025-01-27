@@ -17,23 +17,66 @@ import (
 )
 
 // 'convert characters -> tokens'
-func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector) {
+func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector, errorMessages) {
 
-	charactersInErlSrc = tokens_detect_prepare__01_erlang_strings__quoted_atoms__comments(charactersInErlSrc)
-	charactersInErlSrc = tokens_detect_prepare__02_erlang_whitespaces(charactersInErlSrc)
-	charactersInErlSrc = tokens_detect_prepare__03_erlang_alphanumerics(charactersInErlSrc)
-	charactersInErlSrc = tokens_detect_prepare__04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc)
+	charactersInErlSrc = character_block_detect__01_erlang_strings__quoted_atoms__comments(charactersInErlSrc)
+	charactersInErlSrc = character_block_detect__02_erlang_whitespaces(charactersInErlSrc)
+	charactersInErlSrc = character_block_detect__03_erlang_alphanumerics(charactersInErlSrc)
+	charactersInErlSrc = character_block_detect__04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc)
 
-	return charactersInErlSrc, tokensInErlSrc
+	errors := character_blocks_validations___unknownSections__nonClosedSections(charactersInErlSrc)
+	return charactersInErlSrc, tokensInErlSrc, errors
 }
 
 // convert 'fileErl -> characters -> tokens'
-func Tokens_detect_in_erl_file(fileErl string, callerFun string) (CharacterInErlSrcCollector, TokenCollector) {
+func Tokens_detect_in_erl_file(interpreterHostMachineCoord string, fileErl string, callerFun string) (CharacterInErlSrcCollector, TokenCollector, errorMessages) {
 	erlSrcRunes, _ := base_toolset.File_read_runes(fileErl, callerFun)
-	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes)
+	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes, "file:"+interpreterHostMachineCoord+":"+fileErl)
 	tokensInErlSrc := TokenCollector{}
-	charactersInErlSrc, tokensInErlSrc = Tokens_detect_in_erl_src(charactersInErlSrc, tokensInErlSrc)
-	return charactersInErlSrc, tokensInErlSrc
+	charactersInErlSrc2, tokensInErlSrc2, errors := Tokens_detect_in_erl_src(charactersInErlSrc, tokensInErlSrc)
+	return charactersInErlSrc2, tokensInErlSrc2, errors
+}
+
+// detect unknown character sections in erlang source
+// detect non-closed sections
+func character_blocks_validations___unknownSections__nonClosedSections(charactersInErlSrc CharacterInErlSrcCollector) errorMessages {
+	errors := errorMessages{}
+
+	counterOpener := 0
+	counterCloser := 0
+
+	for charPositionNowInSrc := 0; charPositionNowInSrc < len(charactersInErlSrc); charPositionNowInSrc++ {
+
+		charStructNow := charactersInErlSrc[charPositionNowInSrc]
+
+		if charStructNow.charBlockIsNotDetected() {
+			errors = append(errors, "char block type is not detected: "+charStructNow.stringReprDetailed())
+		}
+
+		if charStructNow.charBlockOpenerCharacter {
+			counterOpener++
+
+			if counterOpener-counterCloser != 1 {
+				errors = append(errors, "char block closer was not detected before this opener: "+charStructNow.stringReprDetailed())
+			}
+		}
+		if charStructNow.charBlockCloserCharacter {
+			counterCloser++
+			if counterOpener-counterCloser != 0 {
+				errors = append(errors, "char block closer: too many detected: "+charStructNow.stringReprDetailed())
+			}
+		}
+
+		// this is the last character in the source
+		if charPositionNowInSrc == len(charactersInErlSrc)-1 {
+			if counterOpener-counterCloser != 0 {
+				errors = append(errors, "char block closer: The last block closer is missing: "+charStructNow.stringReprDetailed())
+			}
+		}
+
+	}
+
+	return errors
 }
 
 func Tokens_detection_print_one_char_per_line(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector, displayOnlyUnknownChars bool) {
@@ -44,13 +87,13 @@ func Tokens_detection_print_one_char_per_line(charactersInErlSrc CharacterInErlS
 		display := true
 		if displayOnlyUnknownChars {
 			display = false
-			if charInErlSrc.tokenNotDetected() {
+			if charInErlSrc.charBlockIsNotDetected() {
 				display = true
 			}
 		}
 
 		if display {
-			fmt.Println("line:", lineNumInErlSrc, string(charInErlSrc.runeInErlSrc), charInErlSrc.tokenDetectedType)
+			fmt.Println("line:", lineNumInErlSrc, string(charInErlSrc.runeInErlSrc), charInErlSrc.charBlockDetectedType)
 		}
 
 		// fmt.Println("charCounter: ", charCounter)
@@ -81,18 +124,18 @@ func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollecto
 	for charCounter, charInErlSrc := range charactersInErlSrc {
 
 		openerCloserStatus := ' '
-		if charInErlSrc.tokenOpenerCharacter {
+		if charInErlSrc.charBlockOpenerCharacter {
 			openerCloserStatus = 'o'
 		}
-		if charInErlSrc.tokenCloserCharacter {
+		if charInErlSrc.charBlockCloserCharacter {
 			openerCloserStatus = 'c'
 		}
-		if charInErlSrc.tokenOpenerCharacter && charInErlSrc.tokenCloserCharacter {
+		if charInErlSrc.charBlockOpenerCharacter && charInErlSrc.charBlockCloserCharacter {
 			openerCloserStatus = '2' // closer AND opener same time
 		}
 		reportLine_2_opener_closer = append(reportLine_2_opener_closer, openerCloserStatus)
 
-		oneCharWideTokenTypeRepresentation := CharBlockReprShort(charInErlSrc.tokenDetectedType)
+		oneCharWideTokenTypeRepresentation := CharBlockReprShort(charInErlSrc.charBlockDetectedType)
 		reportLine_1_token_type = append(reportLine_1_token_type, oneCharWideTokenTypeRepresentation)
 
 		runePrinted := charInErlSrc.runeInErlSrc // this will be printed/displayed,

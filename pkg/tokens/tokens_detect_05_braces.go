@@ -11,7 +11,7 @@ LICENSE file in the root directory of this source tree.
 
 package tokens
 
-func tokens_detect_prepare__04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
+func character_block_detect__04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
 
 	for _, wantedCharInErl := range []rune("()[]{}") {
 		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, CharBlock_braces_grouping_elems)

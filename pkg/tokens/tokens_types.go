@@ -116,34 +116,45 @@ func (collector CharacterInErlSrcCollector) char_get_by_index___give_fake_empty_
 }
 
 type CharacterInErlSrc struct {
-	tokenDetectedType    int // the id of the parent token in the file, IF the token is detected.
-	runeInErlSrc         rune
-	tokenOpenerCharacter bool
-	tokenCloserCharacter bool
-	positionInErlSrc     int // 0 based char position in the source
+	charBlockDetectedType    int // the id of the parent token in the file, IF the token is detected.
+	runeInErlSrc             rune
+	charBlockOpenerCharacter bool
+	charBlockCloserCharacter bool
+	positionInErlSrc         int // 0 based char position in the source
+
+	// POSSIBLE OPTIONS:
+	// file:<sourceComputerCoord>:/struct/in/computers/file/system
+	// storageSystem:<kafkaOrDatabaseOrOtherStorageCoord>:/info/about/localization/of/the/data/in/the/system
+	// insertedManually:<whyWhenHowWhereInserted>
+	srcPathInformation_fromWhereIsItComing string
 }
 
 func (chr CharacterInErlSrc) stringRepr() string {
 	return string(chr.runeInErlSrc)
 }
 
-func (chr CharacterInErlSrc) tokenNotDetected() bool {
-	return chr.tokenDetectedType == CharBlock_unknown
+func (chr CharacterInErlSrc) stringReprDetailed() string {
+	return "characterOrigin:" + chr.srcPathInformation_fromWhereIsItComing + "positionInErlSrc:" + string(chr.positionInErlSrc) + "  stringRepr: " + string(chr.runeInErlSrc)
 }
 
-func (chr CharacterInErlSrc) tokenIsDetected() bool {
-	return chr.tokenDetectedType != CharBlock_unknown
+func (chr CharacterInErlSrc) charBlockIsNotDetected() bool {
+	return chr.charBlockDetectedType == CharBlock_unknown
 }
 
-func Runes_to_character_structs(runesAll []rune) []CharacterInErlSrc {
+func (chr CharacterInErlSrc) charBlockIsDetected() bool {
+	return chr.charBlockDetectedType != CharBlock_unknown
+}
+
+func Runes_to_character_structs(runesAll []rune, srcPathInformation string) []CharacterInErlSrc {
 	CharactersAll := []CharacterInErlSrc{}
 	for posInErlSrc, runeInErlSrc := range runesAll {
 		CharactersAll = append(CharactersAll, CharacterInErlSrc{
-			tokenDetectedType:    CharBlock_unknown,
-			runeInErlSrc:         runeInErlSrc,
-			tokenOpenerCharacter: false,
-			tokenCloserCharacter: false,
-			positionInErlSrc:     posInErlSrc,
+			charBlockDetectedType:                  CharBlock_unknown,
+			runeInErlSrc:                           runeInErlSrc,
+			charBlockOpenerCharacter:               false,
+			charBlockCloserCharacter:               false,
+			positionInErlSrc:                       posInErlSrc,
+			srcPathInformation_fromWhereIsItComing: srcPathInformation,
 		})
 	}
 	return CharactersAll
@@ -152,3 +163,5 @@ func Runes_to_character_structs(runesAll []rune) []CharacterInErlSrc {
 // unocode stop table, https://www.amp-what.com/unicode/search/stop
 // octagonal sign, &#128721; //U+1f6d1
 var unicode_stop_table = '🛑'
+
+type errorMessages []string

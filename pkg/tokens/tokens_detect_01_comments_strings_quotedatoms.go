@@ -23,7 +23,7 @@ A='atom_with_double_quote"'.
 
 So these 3 has to be handled in one func.
 */
-func tokens_detect_prepare__01_erlang_strings__quoted_atoms__comments(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
+func character_block_detect__01_erlang_strings__quoted_atoms__comments(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
 	funTokenOpener := token_opener_detect__quoteTriple_quoteDouble_quoteSingle_comment
 	printVerboseOpenerDetectMsg := false
 	charactersInErlSrc = character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_opener_closer_section(charactersInErlSrc, funTokenOpener, printVerboseOpenerDetectMsg)
@@ -78,7 +78,7 @@ func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_ope
 		if !activeTokenDetectionBecauseOpenerConditionTriggered {
 			charStructNow := charactersInErlSrc[charPositionNowInSrc]
 
-			if charStructNow.tokenIsDetected() { // READING ONLY of current char OPERATION
+			if charStructNow.charBlockIsDetected() { // READING ONLY of current char OPERATION
 				continue // if the char was detected and has a TokenType_id, there is no more to do.
 			} //don't start new detection if the current char was detected once
 
@@ -96,9 +96,9 @@ func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_ope
 				if openerDetected { ////////////// OPENER DETECT ///////////////
 
 					charStructNow = charactersInErlSrc[charPositionNowInSrc]
-					charStructNow.tokenDetectedType = tokenTypeId_now
+					charStructNow.charBlockDetectedType = tokenTypeId_now
 					if shift == 0 { // the first char is marked as an opener
-						charStructNow.tokenOpenerCharacter = true
+						charStructNow.charBlockOpenerCharacter = true
 					}
 					charactersInErlSrc[charPositionNowInSrc] = charStructNow
 
@@ -110,11 +110,11 @@ func character_loop_openers_closers__detect_minimum_2_chars_with_welldefined_ope
 		} else { // opener was detected previously - the loop is in activeTokenDetectionBecauseOpenerConditionTriggered == true:
 
 			charStructNow := charactersInErlSrc[charPositionNowInSrc]
-			charStructNow.tokenDetectedType = tokenTypeId_now
+			charStructNow.charBlockDetectedType = tokenTypeId_now
 
 			closerDetected := tokenCloserConditionFun(charPositionNowInSrc, charactersInErlSrc, charStructNow)
 			if closerDetected {
-				charStructNow.tokenCloserCharacter = true
+				charStructNow.charBlockCloserCharacter = true
 
 				// set_noActiveTokenDetection__tokenTypeUnknown
 				activeTokenDetectionBecauseOpenerConditionTriggered = false

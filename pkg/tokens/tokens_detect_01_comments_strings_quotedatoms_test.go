@@ -26,12 +26,12 @@ func Test_tokens_detect_in_erl_src(t *testing.T) {
                            Num = (1 + 2.3 / 4 * 5).
                            List = [6,7].
                             `)
-	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes)
+	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes, "insertedManually:test-token-detection")
 
-	charactersInErlSrc = tokens_detect_prepare__01_erlang_strings__quoted_atoms__comments(charactersInErlSrc)
-	charactersInErlSrc = tokens_detect_prepare__02_erlang_whitespaces(charactersInErlSrc)
-	charactersInErlSrc = tokens_detect_prepare__03_erlang_alphanumerics(charactersInErlSrc)
-	charactersInErlSrc = tokens_detect_prepare__04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc)
+	charactersInErlSrc = character_block_detect__01_erlang_strings__quoted_atoms__comments(charactersInErlSrc)
+	charactersInErlSrc = character_block_detect__02_erlang_whitespaces(charactersInErlSrc)
+	charactersInErlSrc = character_block_detect__03_erlang_alphanumerics(charactersInErlSrc)
+	charactersInErlSrc = character_block_detect__04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc)
 
 	tokensInErlSrc := TokenCollector{}
 	Tokens_detection_print_verbose(charactersInErlSrc, tokensInErlSrc)
@@ -43,27 +43,27 @@ func Test_tokens_detect_in_erl_src(t *testing.T) {
 	// line   0 >>> A  = "B\"". % comment
 
 	charNow := charactersInErlSrc[4]
-	compare_bool_bool(testName, true, charNow.tokenOpenerCharacter, t)
-	compare_bool_bool(testName, true, charNow.tokenCloserCharacter, t)
-	// compare_string_string(testName, charactersInErlSrc[4].tokenOpenerCharacter, true, t)
+	compare_bool_bool(testName, true, charNow.charBlockOpenerCharacter, t)
+	compare_bool_bool(testName, true, charNow.charBlockCloserCharacter, t)
+	// compare_string_string(testName, charactersInErlSrc[4].charBlockOpenerCharacter, true, t)
 
 	charNow = charactersInErlSrc[5]
-	compare_bool_bool(testName, true, charNow.tokenOpenerCharacter, t)
-	compare_bool_bool(testName, false, charNow.tokenCloserCharacter, t)
-	compare_int__int_(testName, CharBlockQuotedDouble, charNow.tokenDetectedType, t)
+	compare_bool_bool(testName, true, charNow.charBlockOpenerCharacter, t)
+	compare_bool_bool(testName, false, charNow.charBlockCloserCharacter, t)
+	compare_int__int_(testName, CharBlockQuotedDouble, charNow.charBlockDetectedType, t)
 
 	charNow = charactersInErlSrc[6]
-	compare_bool_bool(testName, false, charNow.tokenOpenerCharacter, t)
-	compare_bool_bool(testName, false, charNow.tokenCloserCharacter, t)
-	compare_int__int_(testName, CharBlockQuotedDouble, charNow.tokenDetectedType, t)
+	compare_bool_bool(testName, false, charNow.charBlockOpenerCharacter, t)
+	compare_bool_bool(testName, false, charNow.charBlockCloserCharacter, t)
+	compare_int__int_(testName, CharBlockQuotedDouble, charNow.charBlockDetectedType, t)
 
 	charNow = charactersInErlSrc[8]
-	compare_bool_bool(testName, false, charNow.tokenOpenerCharacter, t)
-	compare_bool_bool(testName, false, charNow.tokenCloserCharacter, t)
-	compare_int__int_(testName, CharBlockQuotedDouble, charNow.tokenDetectedType, t)
+	compare_bool_bool(testName, false, charNow.charBlockOpenerCharacter, t)
+	compare_bool_bool(testName, false, charNow.charBlockCloserCharacter, t)
+	compare_int__int_(testName, CharBlockQuotedDouble, charNow.charBlockDetectedType, t)
 
 	charNow = charactersInErlSrc[9]
-	compare_bool_bool(testName, false, charNow.tokenOpenerCharacter, t)
-	compare_bool_bool(testName, true, charNow.tokenCloserCharacter, t)
-	compare_int__int_(testName, CharBlockQuotedDouble, charNow.tokenDetectedType, t)
+	compare_bool_bool(testName, false, charNow.charBlockOpenerCharacter, t)
+	compare_bool_bool(testName, true, charNow.charBlockCloserCharacter, t)
+	compare_int__int_(testName, CharBlockQuotedDouble, charNow.charBlockDetectedType, t)
 }

@@ -11,7 +11,7 @@ LICENSE file in the root directory of this source tree.
 
 package tokens
 
-func tokens_detect_prepare__02_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
+func character_block_detect__02_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
 
 	for _, wantedCharInErl := range []rune{'\n', '\r', '\t', ' '} {
 		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, CharBlock_WhitespaceInLine_ErlSrc)
@@ -32,14 +32,14 @@ func character_loop__set_one_char_tokentype(
 	for charPositionNowInSrc := 0; charPositionNowInSrc < len(charactersInErlSrc); charPositionNowInSrc++ {
 
 		charStructNow := charactersInErlSrc[charPositionNowInSrc]
-		if charStructNow.tokenIsDetected() {
+		if charStructNow.charBlockIsDetected() {
 			continue // if the char was detected and has a TokenType_id, there is no more to do.
 		} //don't start new detection if the current char was detected once
 
 		if charStructNow.runeInErlSrc == wantedCharInErlSrc {
-			charStructNow.tokenDetectedType = tokenTypeId_ifDetected
-			charStructNow.tokenOpenerCharacter = true // the current char is opener and closer first time,
-			charStructNow.tokenCloserCharacter = true // later the same TokenTypes will be merged
+			charStructNow.charBlockDetectedType = tokenTypeId_ifDetected
+			charStructNow.charBlockOpenerCharacter = true // the current char is opener and closer first time,
+			charStructNow.charBlockCloserCharacter = true // later the same TokenTypes will be merged
 			charactersInErlSrc[charPositionNowInSrc] = charStructNow
 		}
 	}
@@ -60,17 +60,17 @@ func character_loop__opener_closer_sections_set__if_more_separated_isolated_elem
 		charStructNow := charactersInErlSrc[charPositionNowInSrc]
 		charStructNext, charStructNext_detectedCorrectly := charactersInErlSrc.char_get_by_index(charPositionNowInSrc + 1)
 
-		if charStructNow.tokenDetectedType == tokenTypeId_toMergeIntoOneOpenerCloserGroup {
+		if charStructNow.charBlockDetectedType == tokenTypeId_toMergeIntoOneOpenerCloserGroup {
 
 			if charStructPrev_detectedCorrectly {
-				if charStructPrev.tokenDetectedType == tokenTypeId_toMergeIntoOneOpenerCloserGroup {
-					charStructNow.tokenOpenerCharacter = false
+				if charStructPrev.charBlockDetectedType == tokenTypeId_toMergeIntoOneOpenerCloserGroup {
+					charStructNow.charBlockOpenerCharacter = false
 				}
 			}
 
 			if charStructNext_detectedCorrectly {
-				if charStructNext.tokenDetectedType == tokenTypeId_toMergeIntoOneOpenerCloserGroup {
-					charStructNow.tokenCloserCharacter = false
+				if charStructNext.charBlockDetectedType == tokenTypeId_toMergeIntoOneOpenerCloserGroup {
+					charStructNow.charBlockCloserCharacter = false
 				}
 			}
 

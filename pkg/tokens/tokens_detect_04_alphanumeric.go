@@ -18,7 +18,7 @@ var tokens_ABC_Eng_Lower = "abcdefghijklmnopqrstuvwxyz"
 
 var tokens_AlphaNums = tokens_ABC_Eng_Upper + tokens_ABC_Eng_Lower + "_0123456789"
 
-func tokens_detect_prepare__03_erlang_alphanumerics(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
+func character_block_detect__03_erlang_alphanumerics(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
 
 	for _, wantedCharInErl := range []rune(tokens_AlphaNums) {
 		fmt.Println("wanted char in alphanum:", wantedCharInErl)
