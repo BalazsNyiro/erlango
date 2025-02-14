@@ -25,6 +25,12 @@ func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tok
 	charactersInErlSrc = character_block_detect__04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc)
 
 	errors := character_blocks_validations___unknownSections__nonClosedSections(charactersInErlSrc)
+
+	if len(errors) == 0 {
+		// https://stackoverflow.com/questions/5639177/what-exactly-is-a-token-in-relation-to-parsing
+		// TODO: tokensInErlSrc = ....append() ? erlang_language_objects_creation_from_character_blocks
+	}
+
 	return charactersInErlSrc, tokensInErlSrc, errors
 }
 

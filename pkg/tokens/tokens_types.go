@@ -14,6 +14,8 @@ LICENSE file in the root directory of this source tree.
 
 package tokens
 
+import "strconv"
+
 const CharBlock_unknown = -1
 
 // value 0 is not used, because 0 is the golang integer default value
@@ -134,7 +136,7 @@ func (chr CharacterInErlSrc) stringRepr() string {
 }
 
 func (chr CharacterInErlSrc) stringReprDetailed() string {
-	return "characterOrigin:" + chr.srcPathInformation_fromWhereIsItComing + "positionInErlSrc:" + string(chr.positionInErlSrc) + "  stringRepr: " + string(chr.runeInErlSrc)
+	return "characterOrigin:" + chr.srcPathInformation_fromWhereIsItComing + "positionInErlSrc:" + strconv.Itoa(chr.positionInErlSrc) + "  stringRepr: " + string(chr.runeInErlSrc)
 }
 
 func (chr CharacterInErlSrc) charBlockIsNotDetected() bool {
