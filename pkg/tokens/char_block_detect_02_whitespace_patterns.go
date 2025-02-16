@@ -13,7 +13,7 @@ package tokens
 
 func character_block_detect__02_erlang_whitespaces(charactersInErlSrc CharacterInErlSrcCollector) CharacterInErlSrcCollector {
 
-	for _, wantedCharInErl := range []rune{'\n', '\r', '\t', ' '} {
+	for _, wantedCharInErl := range []rune{'\r', '\t', ' '} {
 		charactersInErlSrc = character_loop__set_one_char_tokentype(wantedCharInErl, charactersInErlSrc, CharBlock_WhitespaceInLine_ErlSrc)
 	}
 	character_loop__opener_closer_sections_set__if_more_separated_isolated_elems_are_next_to_each_other(charactersInErlSrc, CharBlock_WhitespaceInLine_ErlSrc)

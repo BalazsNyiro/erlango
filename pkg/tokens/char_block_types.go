@@ -69,26 +69,6 @@ func CharBlockReprShort(wantedTokenTypeNum int) rune {
 	}
 }
 
-type TokenCollector []TokenInErlSrc
-
-type TokenInErlSrc struct {
-	tokenTypeId int
-
-	// "quoted" string's first " is the tokens' first position!
-	// 'atoms'  fist ' char is the tokens first pos!
-	// so ALL character is included from the src into the token position range
-	// 0 based position: the first char pos in the whole src is 0.
-	// the first/last positions means included positions.
-	// so first is the included first char, last is the included last char.
-	// if the token length == 1, the positionCharFirst == positionCharLast
-	positionCharFirst int
-	positionCharLast  int
-
-	sourceOfCode string // can be a file, a user-typed-terminal-input,
-	// or maybe a dynamically generated, then evaluated string
-	charsInErlSrc []rune
-}
-
 type CharacterInErlSrcCollector []CharacterInErlSrc
 
 // return with wanted char from the collection, or with a default value if the char doesn't exist - and

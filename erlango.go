@@ -25,7 +25,9 @@ func main() {
 	// Placeholder
 	erlSrcRunes := []rune("Num = 7.")
 	charactersInErlSrc := tokens.Runes_to_character_structs(erlSrcRunes, "on-the-fly-defined")
-	tokensInErlSrc := tokens.TokenCollector{}
 
-	charactersInErlSrc, tokensInErlSrc = tokens.Tokens_detect_in_erl_src(charactersInErlSrc, tokensInErlSrc)
+	charactersInErlSrc2, errors := tokens.Character_block_detect_in_erl_src(charactersInErlSrc)
+
+	// RESULT 1: every important char is detected, and a simple token is assigned to them
+
 }

@@ -17,7 +17,7 @@ import (
 )
 
 // 'convert characters -> tokens'
-func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) (CharacterInErlSrcCollector, TokenCollector, errorMessages) {
+func Character_block_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector) (CharacterInErlSrcCollector, errorMessages) {
 
 	charactersInErlSrc = character_block_detect__01_erlang_strings__quoted_atoms__comments(charactersInErlSrc)
 	charactersInErlSrc = character_block_detect__02_erlang_whitespaces(charactersInErlSrc)
@@ -31,16 +31,15 @@ func Tokens_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcCollector, tok
 		// TODO: tokensInErlSrc = ....append() ? erlang_language_objects_creation_from_character_blocks
 	}
 
-	return charactersInErlSrc, tokensInErlSrc, errors
+	return charactersInErlSrc, errors
 }
 
 // convert 'fileErl -> characters -> tokens'
-func Tokens_detect_in_erl_file(interpreterHostMachineCoord string, fileErl string, callerFun string) (CharacterInErlSrcCollector, TokenCollector, errorMessages) {
+func Character_block_detect_in_erl_file(interpreterHostMachineCoord string, fileErl string, callerFun string) (CharacterInErlSrcCollector, errorMessages) {
 	erlSrcRunes, _ := base_toolset.File_read_runes(fileErl, callerFun)
 	charactersInErlSrc := Runes_to_character_structs(erlSrcRunes, "file:"+interpreterHostMachineCoord+":"+fileErl)
-	tokensInErlSrc := TokenCollector{}
-	charactersInErlSrc2, tokensInErlSrc2, errors := Tokens_detect_in_erl_src(charactersInErlSrc, tokensInErlSrc)
-	return charactersInErlSrc2, tokensInErlSrc2, errors
+	charactersInErlSrc2, errors := Character_block_detect_in_erl_src(charactersInErlSrc)
+	return charactersInErlSrc2, errors
 }
 
 // detect unknown character sections in erlang source
@@ -85,7 +84,7 @@ func character_blocks_validations___unknownSections__nonClosedSections(character
 	return errors
 }
 
-func Tokens_detection_print_one_char_per_line(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector, displayOnlyUnknownChars bool) {
+func Char_block_detection_print_one_char_per_line(charactersInErlSrc CharacterInErlSrcCollector, displayOnlyUnknownChars bool) {
 
 	lineNumInErlSrc := 1
 
@@ -110,7 +109,7 @@ func Tokens_detection_print_one_char_per_line(charactersInErlSrc CharacterInErlS
 
 }
 
-func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollector, tokensInErlSrc TokenCollector) {
+func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollector) {
 
 	lineNumInErlSrc := 1
 

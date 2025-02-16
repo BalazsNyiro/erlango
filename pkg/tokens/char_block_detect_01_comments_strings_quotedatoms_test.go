@@ -33,8 +33,7 @@ func Test_tokens_detect_in_erl_src(t *testing.T) {
 	charactersInErlSrc = character_block_detect__03_erlang_alphanumerics(charactersInErlSrc)
 	charactersInErlSrc = character_block_detect__04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc)
 
-	tokensInErlSrc := TokenCollector{}
-	Tokens_detection_print_verbose(charactersInErlSrc, tokensInErlSrc)
+	Tokens_detection_print_verbose(charactersInErlSrc)
 
 	// line   0 >>> ============================
 	// line   0 >>> 012345678901234567890
