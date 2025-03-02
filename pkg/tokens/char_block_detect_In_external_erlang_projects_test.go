@@ -22,7 +22,7 @@ func Test_char_block_detect_in_external_erlang_projects(t *testing.T) {
 	// erlSrcRunes := []rune(`External  = 1. `)
 	fileErl := "../../../erlang_projects_external_sources/rebar3_all.erl"
 	charactersInErlSrc, errors := Character_block_detect_in_erl_file("localhost", fileErl, testName+"_rebar3_all")
-	// Tokens_detection_print_verbose(charactersInErlSrc, tokensInErlSrc)
+	// CharacterCollectorPrint(charactersInErlSrc, tokensInErlSrc)
 	Char_block_detection_print_one_char_per_line(charactersInErlSrc, true)
 
 	fmt.Println("errors in character detection:", errors)

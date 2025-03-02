@@ -33,8 +33,6 @@ func Test_tokens_detect_in_erl_src(t *testing.T) {
 	charactersInErlSrc = character_block_detect__03_erlang_alphanumerics(charactersInErlSrc)
 	charactersInErlSrc = character_block_detect__04_erlang_braces__dotsCommas__operatorBuilders(charactersInErlSrc)
 
-	Tokens_detection_print_verbose(charactersInErlSrc)
-
 	// line   0 >>> ============================
 	// line   0 >>> 012345678901234567890
 	// line   0 >>>  oc 2o   c 2o
@@ -65,4 +63,6 @@ func Test_tokens_detect_in_erl_src(t *testing.T) {
 	compare_bool_bool(testName, false, charNow.charBlockOpenerCharacter, t)
 	compare_bool_bool(testName, true, charNow.charBlockCloserCharacter, t)
 	compare_int__int_(testName, CharBlockQuotedDouble, charNow.charBlockDetectedType, t)
+
+	CharacterCollectorPrint(charactersInErlSrc)
 }

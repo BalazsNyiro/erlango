@@ -26,11 +26,6 @@ func Character_block_detect_in_erl_src(charactersInErlSrc CharacterInErlSrcColle
 
 	errors := character_blocks_validations___unknownSections__nonClosedSections(charactersInErlSrc)
 
-	if len(errors) == 0 {
-		// https://stackoverflow.com/questions/5639177/what-exactly-is-a-token-in-relation-to-parsing
-		// TODO: tokensInErlSrc = ....append() ? erlang_language_objects_creation_from_character_blocks
-	}
-
 	return charactersInErlSrc, errors
 }
 
@@ -109,7 +104,7 @@ func Char_block_detection_print_one_char_per_line(charactersInErlSrc CharacterIn
 
 }
 
-func Tokens_detection_print_verbose(charactersInErlSrc CharacterInErlSrcCollector) {
+func CharacterCollectorPrint(charactersInErlSrc CharacterInErlSrcCollector) {
 
 	lineNumInErlSrc := 1
 

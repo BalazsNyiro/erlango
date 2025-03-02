@@ -26,8 +26,13 @@ func main() {
 	erlSrcRunes := []rune("Num = 7.")
 	charactersInErlSrc := tokens.Runes_to_character_structs(erlSrcRunes, "on-the-fly-defined")
 
-	charactersInErlSrc2, errors := tokens.Character_block_detect_in_erl_src(charactersInErlSrc)
+	charactersInErlSrc, errors := tokens.Character_block_detect_in_erl_src(charactersInErlSrc)
 
 	// RESULT 1: every important char is detected, and a simple token is assigned to them
+	if len(errors) == 0 {
+		// https://stackoverflow.com/questions/5639177/what-exactly-is-a-token-in-relation-to-parsing
+		// TODO: tokensInErlSrc = ....append() ? erlang_language_objects_creation_from_character_blocks
+		tokens.CharacterCollectorPrint(charactersInErlSrc)
+	}
 
 }
