@@ -14,11 +14,98 @@
 
 <guardClause> ::= "when" <guardExpression>
 
-<parameterList> ::= <variable> ("," <variable>)* | /* empty */
+<parameterList> ::= <pattern> ("," <pattern>)* | /* empty */
 
-<moduleName> ::= <smallLetter> <identifierTail>*
+<pattern> ::= <variable>
+            | <literal>
+            | <tuplePattern>
+            | <listPattern>
+            | <consPattern>
+            | <mapPattern>
+            | <recordPattern>
+            | "(" <pattern> ")"
 
-<functionName> ::= <smallLetter> <identifierTail>*
+<literal> ::= <number> | <string> | <atom>
 
-<integer> ::= <digit>+
+<tuplePattern> ::= "{" <patternList>? "}"
+
+<patternList> ::= <pattern> ("," <pattern>)*
+
+<listPattern> ::= "[" <patternList>? "]"
+
+<consPattern> ::= "[" <pattern> "|" <pattern> "]"
+
+<mapPattern> ::= "#{" <mapFieldList>? "}"
+
+<mapFieldList> ::= <mapField> ("," <mapField>)*
+
+<mapField> ::= <pattern> "=>" <pattern>
+
+<recordPattern> ::= "#" <atom> "{" <recordFieldList>? "}"
+
+<recordFieldList> ::= <recordField> ("," <recordField>)*
+
+<recordField> ::= <atom> "=" <pattern>
+
+<expressionPrecedenceLevel_0> ::= <expressionPrecedenceLevel_0> "+" <expressionPrecedenceLevel_1>
+                               |  <expressionPrecedenceLevel_0> "-" <expressionPrecedenceLevel_1>
+                               |  <expressionPrecedenceLevel_1>
+
+<expressionPrecedenceLevel_1> ::= <expressionPrecedenceLevel_1> "*" <expressionPrecedenceLevel_2>
+                               |  <expressionPrecedenceLevel_1> "/" <expressionPrecedenceLevel_2>
+                               |  <expressionPrecedenceLevel_2>
+
+<expressionPrecedenceLevel_2> ::= <unaryExpression>
+
+<unaryExpression> ::= "+" <unaryExpression>
+                    |  "-" <unaryExpression>
+                    |  <primaryExpression>
+
+<primaryExpression> ::= "(" <expressionPrecedenceLevel_0> ")"
+                      |  <number>
+                      |  <variable>
+                      |  <functionCall>
+                      |  <string>
+                      |  <atom>
+                      |  <tuple>
+                      |  <list>
+                      |  <map>
+
+<functionCall> ::= <functionName> "(" <argumentList> ")"
+
+<argumentList> ::= <expressionPrecedenceLevel_0> ("," <expressionPrecedenceLevel_0>)* | /* empty */
+
+<tuple> ::= "{" <expressionList>? "}"
+
+<expressionList> ::= <expressionPrecedenceLevel_0> ("," <expressionPrecedenceLevel_0>)*
+
+<list> ::= "[" <expressionList>? "]"
+
+<map> ::= "#{" <mapFieldExprList>? "}"
+
+<mapFieldExprList> ::= <mapFieldExpr> ("," <mapFieldExpr>)*
+
+<mapFieldExpr> ::= <expressionPrecedenceLevel_0> "=>" <expressionPrecedenceLevel_0>
+
+<number> ::= <digit>+
+
+<variable> ::= <capitalLetter> <variableTail>*
+
+<variableTail> ::= <letter> | <digit>
+
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+<letter> ::= <capitalLetter> | <smallLetter>
+
+<smallLetter> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
+
+<capitalLetter> ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
+
+<string> ::= "\"" (<stringChar>)* "\""
+
+<stringChar> ::= any character except "\""
+
+<atom> ::= <smallLetter> <identifierTail>*
+
+<identifierTail> ::= <letter> | <digit>
 
