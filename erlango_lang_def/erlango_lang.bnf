@@ -1,62 +1,24 @@
-<expressionPrecedenceLevel_0> ::= <expressionPrecedenceLevel_0> "+" <expressionPrecedenceLevel_1>
-                               |  <expressionPrecedenceLevel_0> "-" <expressionPrecedenceLevel_1>
-                               |  <expressionPrecedenceLevel_1>
+<module> ::= <moduleDeclaration> <exportDeclaration>? <functionDefinition>+ "."
 
-<expressionPrecedenceLevel_1> ::= <expressionPrecedenceLevel_1> "*" <expressionPrecedenceLevel_2>
-                               |  <expressionPrecedenceLevel_1> "/" <expressionPrecedenceLevel_2>
-                               |  <expressionPrecedenceLevel_2>
+<moduleDeclaration> ::= "-module" "(" <moduleName> ")" "."
 
-<expressionPrecedenceLevel_2> ::= <unaryExpression>
+<exportDeclaration> ::= "-export" "(" <functionExportList> ")" "."
 
-<unaryExpression> ::= "+" <unaryExpression>
-                    |  "-" <unaryExpression>
-                    |  <primaryExpression>
+<functionExportList> ::= <functionExport> ("," <functionExport>)*
 
-<primaryExpression> ::= "(" <expressionPrecedenceLevel_0> ")"
-                      |  <number>
-                      |  <float>
-                      |  <string>
-                      |  <atom>
-                      |  <list>
-                      |  <tuple>
-                      |  <map>
-                      |  <functionCall>
-                      |  <variable>
+<functionExport> ::= <functionName> "/" <integer>
 
-<list> ::= "[" <expressionPrecedenceLevel_0List> "]"
-         | "[" <expressionPrecedenceLevel_0> "|" <expressionPrecedenceLevel_0> "]"
+<functionDefinition> ::= <functionClause> (";" <functionClause>)*
 
-<expressionPrecedenceLevel_0List> ::= <expressionPrecedenceLevel_0> ("," <expressionPrecedenceLevel_0>)*
+<functionClause> ::= <functionName> "(" <parameterList> ")" "->" <expressionPrecedenceLevel_0> <guardClause>? 
 
-<tuple> ::= "{" <expressionPrecedenceLevel_0List> "}"
+<guardClause> ::= "when" <guardExpression>
 
-<map> ::= "#{" <mapEntryList> "}"
-       | <primaryExpression> "#{" <mapUpdateList> "}"
+<parameterList> ::= <variable> ("," <variable>)* | /* empty */
 
-<mapEntryList> ::= <mapEntry> ("," <mapEntry>)*
-<mapEntry> ::= <expressionPrecedenceLevel_0> "=>" <expressionPrecedenceLevel_0>
+<moduleName> ::= <smallLetter> <identifierTail>*
 
-<mapUpdateList> ::= <mapUpdate> ("," <mapUpdate>)*
-<mapUpdate> ::= <expressionPrecedenceLevel_0> ":=" <expressionPrecedenceLevel_0>
+<functionName> ::= <smallLetter> <identifierTail>*
 
-<functionCall> ::= <functionName> "(" <argumentList> ")"
-
-<argumentList> ::= <expressionPrecedenceLevel_0> ("," <expressionPrecedenceLevel_0>)* | /* empty */
-
-<number> ::= <digit>+
-<float> ::= <digit>+ "." <digit>+
-<string> ::= "\"" <stringChar>* "\""
-<atom> ::= <smallLetter> <atomTail>*
-
-<variable> ::= <capitalLetter> <variableTail>*
-
-<variableTail> ::= <letter> | <digit>
-<atomTail> ::= <letter> | <digit> | "_"
-
-<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
-<letter> ::= <capitalLetter> | <smallLetter>
-
-<smallLetter> ::= "a" | ... | "z"
-<capitalLetter> ::= "A" | ... | "Z"
-<stringChar> ::= /* any char except " */
+<integer> ::= <digit>+
 
