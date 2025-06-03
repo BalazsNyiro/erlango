@@ -1,32 +1,95 @@
-Features Supported in This BNF
-Modules with explicit declarations
+== Module System ==
 
-Multiple function clauses with guards (when)
+Module declarations with -module(Name).
 
-Pattern matching in function parameters and case expressions
+Supports multiple module attributes (expandable for includes, exports, etc.)
 
-Basic arithmetic expressions with unary + and - operators
+== Functions ==
 
-Function calls with arguments
+Function definitions with Erlang-style -> arrow and clause termination .
 
-Variables (capitalized, can contain letters/digits)
+Multiple function clauses with optional guards (when)
 
-Literals: integer, float, string, atoms (quoted and unquoted)
+Parameters accept patterns, supporting complex matching
 
-Complex data types: lists, tuples, maps, binaries
+Functions can be assigned to variables (anonymous functions)
 
-Special Erlang data types: PIDs, Ports, References
+== Pattern Matching ==
 
-Anonymous functions (fun ... end)
+Variables, literals (numbers, atoms, strings)
 
-Control flow: if-else, case expressions with pattern matching
+Complex patterns: tuples {}, lists [], maps #{}, records #record{}, wildcards _
 
-String concatenation via the space " " operator (in expressions, implicit in string handling)
+Patterns usable in function parameters, case clauses, receive clauses
 
-Guard expressions in functions and if clauses
+== Data Types ==
 
-Quoted atoms supporting special characters
+Simple: integer, float, string, atom (quoted and unquoted)
 
-Bitstring syntax with size/type specifiers
+Complex: tuple, list (including cons form [Head | Tail]), map, record, binary (<<>>)
+
+Records include field assignments
+
+Binaries support comma-separated items
+
+== Expressions & Operators ==
+
+Arithmetic: +, -, *, / with unary support
+
+String concatenation via " " operator
+
+List cons operator |
+
+Comparisons: ==, /=, <, <=, >, >=
+
+Boolean operations in guards: andalso, orelse, not
+
+Parentheses for grouping
+
+== Control Structures ==
+
+if expressions with multiple guards and clauses, ending with end
+
+case expressions with pattern matching clauses
+
+receive blocks for message handling with optional timeout
+
+try-catch blocks for error handling
+
+== Guards ==
+
+Boolean expressions combining comparisons and function calls
+
+Support for logical operators (andalso, orelse, not)
+
+Guards on function clauses, case clauses, receive clauses
+
+== Macros ==
+
+Basic macro definitions with -define(Name, Value).
+
+Limited to syntax, no complex macro expansions modeled yet
+
+== Comments ==
+
+Single-line comments using %
+
+== Records ==
+
+Syntax for record creation and pattern matching
+
+Field assignments inside {}
+
+== Binaries ==
+
+Support for binary construction with << >>
+
+Multiple binary items separated by commas
+
+== Anonymous Functions ==
+
+Functions can appear as values and assigned to variables
+
+Supports passing functions as parameters or returning them
 
 
