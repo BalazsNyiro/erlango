@@ -1,20 +1,32 @@
-Features currently supported in this BNF:
-Module declaration
+Features Supported in This BNF
+Modules with explicit declarations
 
-Export declaration
+Multiple function clauses with guards (when)
 
-Multiple function clauses with guards
+Pattern matching in function parameters and case expressions
 
-Pattern matching in function parameters (variables, literals, tuples, lists, cons, maps, records)
+Basic arithmetic expressions with unary + and - operators
 
-Erlang-style operators (+, -, *, /, unary + and -)
+Function calls with arguments
 
-Function calls
+Variables (capitalized, can contain letters/digits)
 
-Complex data types: tuples, lists, maps
+Literals: integer, float, string, atoms (quoted and unquoted)
 
-Strings and atoms
+Complex data types: lists, tuples, maps, binaries
 
-If-Else expressions (with multiple guarded clauses)
+Special Erlang data types: PIDs, Ports, References
 
-Case expressions (pattern matching with multiple clauses)
+Anonymous functions (fun ... end)
+
+Control flow: if-else, case expressions with pattern matching
+
+String concatenation via the space " " operator (in expressions, implicit in string handling)
+
+Guard expressions in functions and if clauses
+
+Quoted atoms supporting special characters
+
+Bitstring syntax with size/type specifiers
+
+

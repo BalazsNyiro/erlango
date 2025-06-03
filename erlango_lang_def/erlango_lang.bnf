@@ -1,51 +1,25 @@
-<module> ::= <moduleDeclaration> <exportDeclaration>? <functionDefinition>+ "."
+<module> ::= <moduleDeclaration> <functionClauses>
 
-<moduleDeclaration> ::= "-module" "(" <moduleName> ")" "."
+<moduleDeclaration> ::= "module" "(" <moduleName> ")" "."
 
-<exportDeclaration> ::= "-export" "(" <functionExportList> ")" "."
+<moduleName> ::= <smallLetter> <identifierTail>*
 
-<functionExportList> ::= <functionExport> ("," <functionExport>)*
+<functionClauses> ::= <functionClause> (";" <functionClause>)* "."
 
-<functionExport> ::= <functionName> "/" <integer>
+<functionClause> ::= <functionName> "(" <parameterList> ")" <guardClause>? "->" <expressionPrecedenceLevel_0>
 
-<functionDefinition> ::= <functionClause> (";" <functionClause>)*
+<functionName> ::= <smallLetter> <identifierTail>*
 
-<functionClause> ::= <functionName> "(" <parameterList> ")" "->" <expressionPrecedenceLevel_0> <guardClause>? 
+<parameterList> ::= <parameter> ("," <parameter>)* | /* empty */
+
+<parameter> ::= <pattern>
 
 <guardClause> ::= "when" <guardExpression>
 
-<parameterList> ::= <pattern> ("," <pattern>)* | /* empty */
+<guardExpression> ::= <guardExpression> "," <guardTerm>
+                    | <guardTerm>
 
-<pattern> ::= <variable>
-            | <literal>
-            | <tuplePattern>
-            | <listPattern>
-            | <consPattern>
-            | <mapPattern>
-            | <recordPattern>
-            | "(" <pattern> ")"
-
-<literal> ::= <number> | <string> | <atom>
-
-<tuplePattern> ::= "{" <patternList>? "}"
-
-<patternList> ::= <pattern> ("," <pattern>)*
-
-<listPattern> ::= "[" <patternList>? "]"
-
-<consPattern> ::= "[" <pattern> "|" <pattern> "]"
-
-<mapPattern> ::= "#{" <mapFieldList>? "}"
-
-<mapFieldList> ::= <mapField> ("," <mapField>)*
-
-<mapField> ::= <pattern> "=>" <pattern>
-
-<recordPattern> ::= "#" <atom> "{" <recordFieldList>? "}"
-
-<recordFieldList> ::= <recordField> ("," <recordField>)*
-
-<recordField> ::= <atom> "=" <pattern>
+<guardTerm> ::= <expressionPrecedenceLevel_0>
 
 <expressionPrecedenceLevel_0> ::= <expressionPrecedenceLevel_0> "+" <expressionPrecedenceLevel_1>
                                |  <expressionPrecedenceLevel_0> "-" <expressionPrecedenceLevel_1>
@@ -62,36 +36,108 @@
                     |  <primaryExpression>
 
 <primaryExpression> ::= "(" <expressionPrecedenceLevel_0> ")"
-                      |  <number>
+                      |  <literal>
                       |  <variable>
                       |  <functionCall>
-                      |  <string>
-                      |  <atom>
-                      |  <tuple>
                       |  <list>
+                      |  <tuple>
                       |  <map>
+                      |  <binary>
+                      |  <pid>
+                      |  <port>
+                      |  <reference>
+                      |  <funExpression>
+                      |  <ifExpression>
+                      |  <caseExpression>
+
+<literal> ::= <integer> | <float> | <string> | <atom>
 
 <functionCall> ::= <functionName> "(" <argumentList> ")"
 
 <argumentList> ::= <expressionPrecedenceLevel_0> ("," <expressionPrecedenceLevel_0>)* | /* empty */
 
-<tuple> ::= "{" <expressionList>? "}"
+<pattern> ::= <literal> 
+            | <variable>
+            | <listPattern>
+            | <tuplePattern>
+            | <mapPattern>
+            | <wildcardPattern>
+            | <consPattern>
+            | <literal> 
+            | <patternVariable>
+            | <functionPattern>
 
-<expressionList> ::= <expressionPrecedenceLevel_0> ("," <expressionPrecedenceLevel_0>)*
+<listPattern> ::= "[" (<pattern> ("," <pattern>)*)? "]"
 
-<list> ::= "[" <expressionList>? "]"
+<tuplePattern> ::= "{" (<pattern> ("," <pattern>)*)? "}"
 
-<map> ::= "#{" <mapFieldExprList>? "}"
+<mapPattern> ::= "#{" (<pattern> "=>" <pattern> ("," <pattern> "=>" <pattern>)*)? "}"
 
-<mapFieldExprList> ::= <mapFieldExpr> ("," <mapFieldExpr>)*
+<wildcardPattern> ::= "_"
 
-<mapFieldExpr> ::= <expressionPrecedenceLevel_0> "=>" <expressionPrecedenceLevel_0>
+<consPattern> ::= <pattern> "|" <pattern>
 
-<number> ::= <digit>+
+<patternVariable> ::= <variable>
+
+<functionPattern> ::= <functionName> "(" <patternList> ")"
+
+<patternList> ::= <pattern> ("," <pattern>)* | /* empty */
 
 <variable> ::= <capitalLetter> <variableTail>*
 
 <variableTail> ::= <letter> | <digit>
+
+<integer> ::= <digit>+
+
+<float> ::= <digit>+ "." <digit>+
+
+<string> ::= "\"" <stringChar>* "\""
+
+<stringChar> ::= any character except double quote or backslash | "\\" <escapedChar>
+
+<escapedChar> ::= "\"" | "\\" | "n" | "r" | "t"
+
+<atom> ::= <unquotedAtom> | <quotedAtom>
+
+<unquotedAtom> ::= <smallLetter> <identifierTail>*
+
+<quotedAtom> ::= "'" <quotedAtomChar>* "'"
+
+<quotedAtomChar> ::= any character except single quote or backslash | "\\" <escapedChar>
+
+<list> ::= "[" (<expressionPrecedenceLevel_0> ("," <expressionPrecedenceLevel_0>)*)? "]"
+
+<tuple> ::= "{" (<expressionPrecedenceLevel_0> ("," <expressionPrecedenceLevel_0>)*)? "}"
+
+<map> ::= "#{" (<mapEntry> ("," <mapEntry>)*)? "}"
+
+<mapEntry> ::= <expressionPrecedenceLevel_0> "=>" <expressionPrecedenceLevel_0>
+
+<binary> ::= "<<" (<binaryElement> ("," <binaryElement>)*)? ">>"
+
+<binaryElement> ::= <expressionPrecedenceLevel_0> (":" <size>)? ("/" <type>)?
+
+<size> ::= <integer>
+
+<type> ::= "integer" | "float" | "binary" | "bitstring" | "bytes" | "bits" | "utf8" | "utf16" | "utf32" | "signed" | "unsigned" | "big" | "little" | "native"
+
+<pid> ::= "<" <pidContent> ">"
+
+<pidContent> ::= <digit>+ ("." <digit>+)*
+
+<port> ::= "#Port<" <digit>+ ">"
+
+<reference> ::= "#Ref<" <digit>+ ">"
+
+<funExpression> ::= "fun" <functionClauses> "end"
+
+<ifExpression> ::= "if" <ifClause>+ "end"
+
+<ifClause> ::= <guardExpression> "->" <expressionPrecedenceLevel_0> ";"
+
+<caseExpression> ::= "case" <expressionPrecedenceLevel_0> "of" <caseClause>+ "end"
+
+<caseClause> ::= <pattern> "->" <expressionPrecedenceLevel_0> ";"
 
 <digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 
@@ -101,11 +147,6 @@
 
 <capitalLetter> ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
 
-<string> ::= "\"" (<stringChar>)* "\""
+<identifierTail> ::= <letter> | <digit> | "_"
 
-<stringChar> ::= any character except "\""
-
-<atom> ::= <smallLetter> <identifierTail>*
-
-<identifierTail> ::= <letter> | <digit>
 
