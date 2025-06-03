@@ -1,3 +1,13 @@
+<functionDefinition> ::= <functionName> "(" <parameterList> ")" "->" <expressionPrecedenceLevel_0>
+
+<functionName> ::= <smallLetter> <identifierTail>*
+
+<parameterList> ::= <parameter> ("," <parameter>)* | /* empty */
+
+<parameter> ::= <variable>
+
+<identifierTail> ::= <letter> | <digit>
+
 <expressionPrecedenceLevel_0> ::= <expressionPrecedenceLevel_0> "+" <expressionPrecedenceLevel_1>
                                |  <expressionPrecedenceLevel_0> "-" <expressionPrecedenceLevel_1>
                                |  <expressionPrecedenceLevel_1>
@@ -14,7 +24,12 @@
 
 <primaryExpression> ::= "(" <expressionPrecedenceLevel_0> ")"
                       |  <number>
+                      |  <functionCall>
                       |  <variable>
+
+<functionCall> ::= <functionName> "(" <argumentList> ")"
+
+<argumentList> ::= <expressionPrecedenceLevel_0> ("," <expressionPrecedenceLevel_0>)* | /* empty */
 
 <number> ::= <digit>+
 
@@ -29,10 +44,4 @@
 <smallLetter> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
 
 <capitalLetter> ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
-
-
-
-
-
-
 
