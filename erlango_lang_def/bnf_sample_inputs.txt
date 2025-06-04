@@ -1,8 +1,5 @@
-hello_world42
-foo@bar
-abc123
-x
-data_stream@node1
-42
-3.14
-100.0
+-module(math).
+-export([add/2]).
+
+add(A, B) ->
+    A + B.

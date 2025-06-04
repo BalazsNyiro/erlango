@@ -2,29 +2,146 @@
 ##################################################################
 
 
-# ========== erlang_types_=====================
+# ========== expression   =====================
+<program> ::= <functionDefinition> <programTail>
 
+<programTail> ::= <functionDefinition> <programTail>
+                | <empty>
+
+<functionDefinition> ::= <functionName> "(" <parameterList> ")" "->" <expression> "."
+
+<functionName> ::= <identifier>
+
+<parameterList> ::= <identifier> <parameterListTail>
+                  | <empty>
+
+<parameterListTail> ::= "," <identifier> <parameterListTail>
+                      | <empty>
+
+<expression> ::= <expression> "+" <term>
+               | <expression> "-" <term>
+               | <term>
+
+<term> ::= <term> "*" <factor>
+         | <term> "/" <factor>
+         | <factor>
+
+<factor> ::= <number>
+           | <string>
+           | <atom>
+           | <identifier>
+           | <functionCall>
+           | "(" <expression> ")"
+           | <caseExpression>
+           | <list>
+           | <map>
+
+
+
+
+
+
+# ======  FUNCTIONS ========
+<functionCall> ::= <functionName> "(" <argumentList> ")"
+
+<argumentList> ::= <expression> <argumentListTail>
+                 | <empty>
+
+<argumentListTail> ::= "," <expression> <argumentListTail>
+                     | <empty>
+
+<identifier> ::= <letter> <identifierTail>
+
+<identifierTail> ::= <letterOrDigit> <identifierTail>
+                   | <empty>
+
+# ========== CASE =====================
+<caseExpression> ::= "case" <expression> "of" <caseClauseList> "end"
+
+<caseClauseList> ::= <caseClause> <caseClauseTail>
+
+<caseClauseTail> ::= <caseClause> <caseClauseTail>
+                   | <empty>
+
+<caseClause> ::= <pattern> "->" <expression> ","
+               | <pattern> "->" <expression>
+
+<pattern> ::= <identifier>
+            | <number>
+            | <string>
+            | <atom>
+            | <list>
+            | <tuple>
+            | <map>
+
+
+# ========== erlang_types_=====================
+<tuple> ::= "{" <expressionList> "}"
+<list> ::= "[" <expressionList> "]"
+
+<expressionList> ::= <expression> <expressionListTail>
+                   | <empty>
+
+<expressionListTail> ::= "," <expression> <expressionListTail>
+                       | <empty>
+
+
+
+
+<map> ::= "#{" <mapEntryList> "}"
+
+<mapEntryList> ::= <mapEntry> <mapEntryListTail>
+                 | <empty>
+
+<mapEntryListTail> ::= "," <mapEntry> <mapEntryListTail>
+                     | <empty>
+
+<mapEntry> ::= <expression> "=>" <expression>
+
+
+
+
+
+<string> ::= <stringQuoteOne> | <stringInSigil>
+<stringQuoteOne> ::= "\"" <stringQuoteOneTail> "\""
+<stringQuoteOneTail> ::=  <anyUnicodeCharsExceptNonEscapedSingleQuote> | <empty>
+
+<stringInSigil> ::= "\"\"\"" <stringSigilTail> "\"\"\""
+<stringSigilTail> ::=  <anyUnicodeChars> | <empty>
+
+
+
+<atom> ::= <atomInQuotes> | <atomSmallFirstChar>
 <atomSmallFirstChar> ::= <letterSmall> <atomSmallFirstChar_tail>
 <atomSmallFirstChar_tail> ::= <letterOrDigitOrUnderscoreOrAtSign> <atomSmallFirstChar_tail>
                             | <empty>
 
-<atomInQuotes> ::= "'" atomCharList_inQuotes "'"
-<atomCharList_inQuotes> :: = <allUnicodeChars>
+<atomInQuotes> ::= "'" <atomCharList_inQuotes> "'"
+<atomCharList_inQuotes> ::= <anyUnicodeChars> <atomCharList_inQuotes>
+                          | <empty>
 
 
-# ===============_comment_section_numbers_=====================
 
-<number> ::= <digit> <numberTail> | <digit> . <digit> <numberTail>
 
-<numberTail> ::= <digit> <numberTail>
-               | <empty>
+<number> ::= <integer> | <float>
+<integer> ::= <digit> <numberTail>
+<float> ::= <digit> <numberTail> "." <digit> <numberTail>
 
 <digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 
 
+
+
 # ===============_comment_section_abc_=====================
+# TODO: all unicode char has to be accepted, except , handle this in the parser
+<anyUnicodeChars> ::= <letterOrDigitOrUnderscoreOrAtSign>
+
 # TODO: all unicode char has to be accepted, handle this in the parser
-<allUnicodeChars> ::= <letterOrDigitOrUnderscoreOrAtSign>
+<anyUnicodeCharsExceptNonEscapedSingleQuote> ::= <letterOrDigitOrUnderscoreOrAtSign>
+
+<escapeSequence> ::= "\\" <escapeChar>
+<escapeChar> ::= "n" | "t" | "\\" | "\"" | "'"
+
 
 
 <letterOrDigitOrUnderscoreOrAtSign> ::= <letterSmallCapital>
@@ -44,3 +161,4 @@
                  | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T"
                  | "U" | "V" | "W" | "X" | "Y" | "Z"
 
+<empty> ::=   /* nothing */
