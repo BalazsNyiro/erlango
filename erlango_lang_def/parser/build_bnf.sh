@@ -1,0 +1,1 @@
+cargo run -- ../erlango_lang_balazs.bnf ../bnf_sample_inputs.txt
