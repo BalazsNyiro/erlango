@@ -2,10 +2,9 @@
 ##################################################################
 
 # TODO for later: add try/catch structure for error handling
-# TODO: what if new/more operators will be used?
 
 
-
+# ========== expression   =====================
 <program> ::= <dashPrgAttrib> <program>
             | <functionDefinition> <programTail>
 
@@ -44,6 +43,18 @@
 
 <expression> ::= <expression> "+" <term>
                | <expression> "-" <term>
+               | <expression> "=" <term>
+               | <expression> "==" <term>
+               | <expression> "/=" <term>
+               | <expression> "=:=" <term>
+               | <expression> "=/=" <term>
+               | <expression> "<" <term>
+               | <expression> "=<" <term>
+               | <expression> ">" <term>
+               | <expression> ">=" <term>
+               | <expression> "++" <term>
+               | <expression> "--" <term>
+               | <expression> "!" <term>
                | <term>
 
 <term> ::= <term> "*" <factor>
@@ -59,7 +70,7 @@
            | <caseExpression>
            | <list>
            | <map>
-
+           | <pid>
 
 
 
@@ -97,6 +108,7 @@
             | <list>
             | <tuple>
             | <map>
+            | <pid>
 
 
 # ========== erlang_types_=====================
@@ -109,9 +121,6 @@
 <expressionListTail> ::= "," <expression> <expressionListTail>
                        | <empty>
 
-
-
-
 <map> ::= "#{" <mapEntryList> "}"
 
 <mapEntryList> ::= <mapEntry> <mapEntryListTail>
@@ -122,7 +131,7 @@
 
 <mapEntry> ::= <expression> "=>" <expression>
 
-
+<pid> ::= "<" <integer> "." <integer> "." <integer> ">"
 
 
 
@@ -133,8 +142,6 @@
 <stringInSigil> ::= "\"\"\"" <stringSigilTail> "\"\"\""
 <stringSigilTail> ::=  <anyUnicodeChars> | <empty>
 
-
-
 <atom> ::= <atomInQuotes> | <atomSmallFirstChar>
 <atomSmallFirstChar> ::= <letterSmall> <atomSmallFirstChar_tail>
 <atomSmallFirstChar_tail> ::= <letterOrDigitOrUnderscoreOrAtSign> <atomSmallFirstChar_tail>
@@ -144,15 +151,11 @@
 <atomCharList_inQuotes> ::= <anyUnicodeChars> <atomCharList_inQuotes>
                           | <empty>
 
-
-
-
 <number> ::= <integer> | <float>
 <integer> ::= <digit> <numberTail>
 <float> ::= <digit> <numberTail> "." <digit> <numberTail>
 
 <digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
-
 
 
 
@@ -166,8 +169,6 @@
 <escapeSequence> ::= "\\" <escapeChar>
 <escapeChar> ::= "n" | "t" | "\\" | "\"" | "'"
 
-
-
 <letterOrDigitOrUnderscoreOrAtSign> ::= <letterSmallCapital>
                                       | <digit>
                                       | "_" | "@"
@@ -178,8 +179,6 @@
 <letterSmall> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j"
                | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t"
                | "u" | "v" | "w" | "x" | "y" | "z"
-
-
 
 <letterCapital> ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J"
                  | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T"
