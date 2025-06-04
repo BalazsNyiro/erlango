@@ -1,0 +1,46 @@
+# read this: "https://www.erlang.org/doc/system/data_types.html#atom"
+##################################################################
+
+
+# ========== erlang_types_=====================
+
+<atomSmallFirstChar> ::= <letterSmall> <atomSmallFirstChar_tail>
+<atomSmallFirstChar_tail> ::= <letterOrDigitOrUnderscoreOrAtSign> <atomSmallFirstChar_tail>
+                            | <empty>
+
+<atomInQuotes> ::= "'" atomCharList_inQuotes "'"
+<atomCharList_inQuotes> :: = <allUnicodeChars>
+
+
+# ===============_comment_section_numbers_=====================
+
+<number> ::= <digit> <numberTail> | <digit> . <digit> <numberTail>
+
+<numberTail> ::= <digit> <numberTail>
+               | <empty>
+
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+
+# ===============_comment_section_abc_=====================
+# TODO: all unicode char has to be accepted, handle this in the parser
+<allUnicodeChars> ::= <letterOrDigitOrUnderscoreOrAtSign>
+
+
+<letterOrDigitOrUnderscoreOrAtSign> ::= <letterSmallCapital>
+                                      | <digit>
+                                      | "_" | "@"
+
+<letterSmallCapital> ::= <letterSmall>
+                      | <letterCapital>
+
+<letterSmall> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j"
+               | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t"
+               | "u" | "v" | "w" | "x" | "y" | "z"
+
+
+
+<letterCapital> ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J"
+                 | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T"
+                 | "U" | "V" | "W" | "X" | "Y" | "Z"
+

@@ -1,146 +1,128 @@
-<module> ::= <moduleAttribute>* <functionDefinition>+ ;
+<program> ::= <functionDefinition> <programTail>
 
-<moduleAttribute> ::= "-module" "(" <atom> ")" "." ;
+<programTail> ::= <functionDefinition> <programTail>
+                | <empty>
 
-<functionDefinition> ::= <functionName> "(" <parameterList> ")" <guard>? "->" <expressionPrecedenceLevel_0> "." ;
+<functionDefinition> ::= <functionName> "(" <parameterList> ")" "->" <expression> "."
 
-<functionName> ::= <smallLetter> <identifierTail>* ;
+<functionName> ::= <identifier>
 
-<parameterList> ::= <pattern> ("," <pattern>)* | /* empty */ ;
+<parameterList> ::= <identifier> <parameterListTail>
+                  | <empty>
 
-<pattern> ::= <variable>
+<parameterListTail> ::= "," <identifier> <parameterListTail>
+                      | <empty>
+
+<expression> ::= <expression> "+" <term>
+               | <expression> "-" <term>
+               | <term>
+
+<term> ::= <term> "*" <factor>
+         | <term> "/" <factor>
+         | <factor>
+
+<factor> ::= <number>
+           | <string>
+           | <atom>
+           | <identifier>
+           | <functionCall>
+           | "(" <expression> ")"
+           | <caseExpression>
+           | <list>
+           | <map>
+
+<caseExpression> ::= "case" <expression> "of" <caseClauseList> "end"
+
+<caseClauseList> ::= <caseClause> <caseClauseTail>
+
+<caseClauseTail> ::= <caseClause> <caseClauseTail>
+                   | <empty>
+
+<caseClause> ::= <pattern> "->" <expression> ","
+               | <pattern> "->" <expression>
+
+<pattern> ::= <identifier>
             | <number>
-            | <atom>
             | <string>
-            | <tuple>
-            | <list>
-            | <map>
-            | <record>
-            | <wildcard>
-            | <functionDefinition> /* function as variable */
-            ;
+            | <atom>
 
-<guard> ::= "when" <guardExpression> ;
+<functionCall> ::= <functionName> "(" <argumentList> ")"
 
-<guardExpression> ::= <guardExpression> "andalso" <guardExpression>
-                    | <guardExpression> "orelse" <guardExpression>
-                    | "not" <guardExpression>
-                    | <guardPrimary> ;
+<argumentList> ::= <expression> <argumentListTail>
+                 | <empty>
 
-<guardPrimary> ::= <variable>
-                 | <boolean>
-                 | <comparison>
-                 | <functionCall> ;
+<argumentListTail> ::= "," <expression> <argumentListTail>
+                     | <empty>
 
-<boolean> ::= "true" | "false" ;
+<list> ::= "[" <expressionList> "]"
 
-<comparison> ::= <expressionPrecedenceLevel_0> <compOperator> <expressionPrecedenceLevel_0> ;
+<expressionList> ::= <expression> <expressionListTail>
+                   | <empty>
 
-<compOperator> ::= "==" | "/=" | "<" | "<=" | ">" | ">=" ;
+<expressionListTail> ::= "," <expression> <expressionListTail>
+                       | <empty>
 
-<expressionPrecedenceLevel_0> ::= <expressionPrecedenceLevel_0> "+" <expressionPrecedenceLevel_1>
-                               |  <expressionPrecedenceLevel_0> "-" <expressionPrecedenceLevel_1>
-                               |  <expressionPrecedenceLevel_0> " " <expressionPrecedenceLevel_1>    /* String concatenation */
-                               |  <expressionPrecedenceLevel_1> ;
+<map> ::= "#{" <mapEntryList> "}"
 
-<expressionPrecedenceLevel_1> ::= <expressionPrecedenceLevel_1> "*" <expressionPrecedenceLevel_2>
-                               |  <expressionPrecedenceLevel_1> "/" <expressionPrecedenceLevel_2>
-                               |  <expressionPrecedenceLevel_2> ;
+<mapEntryList> ::= <mapEntry> <mapEntryListTail>
+                 | <empty>
 
-<expressionPrecedenceLevel_2> ::= <unaryExpression> ;
+<mapEntryListTail> ::= "," <mapEntry> <mapEntryListTail>
+                     | <empty>
 
-<unaryExpression> ::= "+" <unaryExpression>
-                    |  "-" <unaryExpression>
-                    |  <primaryExpression> ;
+<mapEntry> ::= <expression> "=>" <expression>
 
-<primaryExpression> ::= "(" <expressionPrecedenceLevel_0> ")"
-                      |  <number>
-                      |  <variable>
-                      |  <functionCall>
-                      |  <tuple>
-                      |  <list>
-                      |  <map>
-                      |  <record>
-                      |  <binary>
-                      |  <atom>
-                      |  <string>
-                      ;
+<identifier> ::= <letter> <identifierTail>
 
-<functionCall> ::= <functionName> "(" <argumentList> ")" ;
+<identifierTail> ::= <letterOrDigit> <identifierTail>
+                   | <empty>
 
-<argumentList> ::= <expressionPrecedenceLevel_0> ("," <expressionPrecedenceLevel_0>)* | /* empty */ ;
+<letterOrDigit> ::= <letter>
+                 | <digit>
 
-<number> ::= <integer> | <float> ;
+<letter> ::= <smallLetter>
+           | <capitalLetter>
 
-<integer> ::= <digit>+ ;
+<smallLetter> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j"
+               | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t"
+               | "u" | "v" | "w" | "x" | "y" | "z"
 
-<float> ::= <digit>+ "." <digit>+ ;
+<capitalLetter> ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J"
+                 | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T"
+                 | "U" | "V" | "W" | "X" | "Y" | "Z"
 
-<variable> ::= <capitalLetter> <variableTail>* | <functionDefinition> ;
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 
-<variableTail> ::= <letter> | <digit> ;
+<number> ::= <digit> <numberTail>
 
-<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+<numberTail> ::= <digit> <numberTail>
+               | <empty>
 
-<letter> ::= <capitalLetter> | <smallLetter> ;
+<string> ::= "\"" <stringContent> "\""
 
-<smallLetter> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z" ;
+<stringContent> ::= <stringChar> <stringContent>
+                  | <escapeSequence> <stringContent>
+                  | <empty>
 
-<capitalLetter> ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z" ;
+<stringChar> ::= (any Unicode character except "\"" and "\\")
 
-<atom> ::= <smallLetter> <identifierTail>* | "'" <atomChars> "'" ;
+<escapeSequence> ::= "\\" <escapeChar>
 
-<atomChars> ::= /* any sequence of characters except single quote */ ;
+<escapeChar> ::= "\\" | "\"" | "n" | "t" | "r"
 
-<string> ::= "\"" <stringChars> "\"" ;
+<atom> ::= <unquotedAtom>
+         | "'" <atomCharList> "'"
 
-<stringChars> ::= /* any sequence of characters except double quote */ ;
+<unquotedAtom> ::= <smallLetter> <unquotedAtomTail>
 
-<tuple> ::= "{" <expressionPrecedenceLevel_0> ("," <expressionPrecedenceLevel_0>)* "}" ;
+<unquotedAtomTail> ::= <letterOrDigitOrUnderscore> <unquotedAtomTail>
+                     | <empty>
 
-<list> ::= "[" <expressionPrecedenceLevel_0> ("," <expressionPrecedenceLevel_0>)* "]"
-         | "[" <expressionPrecedenceLevel_0> "|" <expressionPrecedenceLevel_0> "]" ; /* cons */
+<letterOrDigitOrUnderscore> ::= <letter>
+                             | <digit>
+                             | "_"
 
-<map> ::= "#{" <mapEntry> ("," <mapEntry>)* "}" ;
+<atomCharList> ::= <atomChar> <atomCharList>
+                 | <empty>
 
-<mapEntry> ::= <expressionPrecedenceLevel_0> "=>" <expressionPrecedenceLevel_0> ;
-
-<record> ::= "#" <atom> "{" <recordField> ("," <recordField>)* "}" ;
-
-<recordField> ::= <atom> "=" <expressionPrecedenceLevel_0> ;
-
-<binary> ::= "<<" <binaryItem> ("," <binaryItem>)* ">>" ;
-
-<binaryItem> ::= <expressionPrecedenceLevel_0> ;
-
-<wildcard> ::= "_" ;
-
-<comment> ::= "%" <anyCharExceptNewline>* ;
-
-<!-- Control structures -->
-
-<ifExpression> ::= "if" <guardExpression> "->" <expressionPrecedenceLevel_0> (";" <guardExpression> "->" <expressionPrecedenceLevel_0>)* "end" ;
-
-<caseExpression> ::= "case" <expressionPrecedenceLevel_0> "of" <caseClause>+ "end" ;
-
-<caseClause> ::= <pattern> "->" <expressionPrecedenceLevel_0> ";"? ;
-
-<!-- Additional control flow -->
-
-<receiveExpression> ::= "receive" <receiveClauses>? "after" <number> "->" <expressionPrecedenceLevel_0> "end" ;
-
-<receiveClauses> ::= <receiveClause>+ ;
-
-<receiveClause> ::= <pattern> "when" <guardExpression>? "->" <expressionPrecedenceLevel_0> ";"? ;
-
-<tryCatchExpression> ::= "try" <expressionPrecedenceLevel_0> "of" <tryClause>+ "catch" <catchClause>+ "end" ;
-
-<tryClause> ::= <pattern> "->" <expressionPrecedenceLevel_0> ";"? ;
-
-<catchClause> ::= <pattern> "->" <expressionPrecedenceLevel_0> ";"? ;
-
-<!-- Macros -->
-
-<macroDefinition> ::= "-define" "(" <atom> "," <expressionPrecedenceLevel_0> ")" "." ;
-
-
+<atomChar> ::= (printable ASCII except single quote)
