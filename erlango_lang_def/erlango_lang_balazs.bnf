@@ -2,14 +2,14 @@
 ##################################################################
 
 # TODO for later: add try/catch structure for error handling
-# TODO: processId as a type has to be added
-# what if new/more operators will be used?
+# TODO: what if new/more operators will be used?
 
 
-# -module("abc")
+
 <program> ::= <dashPrgAttrib> <program>
             | <functionDefinition> <programTail>
 
+# -module("abc")
 <dashPrgAttrib> ::= "-" <atom> "(" <dashArg> ")" "."
 <dashArg> ::= <string>
             | <exportList>
