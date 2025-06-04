@@ -1,12 +1,36 @@
 # read this: "https://www.erlang.org/doc/system/data_types.html#atom"
 ##################################################################
 
+# TODO for later: add try/catch structure for error handling
+# TODO: processId as a type has to be added
+# what if new/more operators will be used?
 
-# ========== expression   =====================
-<program> ::= <functionDefinition> <programTail>
+
+# -module("abc")
+<program> ::= <dashPrgAttrib> <program>
+            | <functionDefinition> <programTail>
+
+<dashPrgAttrib> ::= "-" <atom> "(" <dashArg> ")" "."
+<dashArg> ::= <string>
+            | <exportList>
 
 <programTail> ::= <functionDefinition> <programTail>
                 | <empty>
+
+<exportList> ::= "[" <exportEntryList> "]"
+
+<exportEntryList> ::= <exportEntry> <exportEntryListTail>
+                    | <empty>
+
+<exportEntryListTail> ::= "," <exportEntry> <exportEntryListTail>
+                        | <empty>
+
+<exportEntry> ::= <atom> "/" <integer>
+
+
+
+
+# ========== expression   =====================
 
 <functionDefinition> ::= <functionName> "(" <parameterList> ")" "->" <expression> "."
 
