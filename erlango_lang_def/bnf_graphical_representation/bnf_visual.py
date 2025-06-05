@@ -44,6 +44,27 @@ class Symbol:
 
 
 def main(filePathBnf: str):
+
+    symbols, errors = symbol_detect(filePathBnf)
+
+    for symbolName, symbol in symbols.items():
+        print()
+        print(f"detected symbol: {symbolName:>{Symbol.symbolNameMax}}")
+        for defLine in symbol.definitionInBnf.split("\n"):
+            print(f"    {defLine.strip()}")  # to use standard indentation
+
+
+    ################################################
+    if not errors:
+        print(f"No problem detected in the BNF")
+
+    for err in errors:
+        print(f"ERROR: {err}")
+
+
+def symbol_detect(filePathBnf: str):
+    """collect symbols and definitions from the bnf file"""
+
     print(f"BNF def file: {filePathBnf}")
 
     errors = list()
@@ -56,7 +77,7 @@ def main(filePathBnf: str):
         if line.startswith("#"):
             continue  # comment line
 
-        symbolDefInLine = line.strip()
+        symbolDefInLine = line
         if "::=" in line:
             symbolName, symbolDefInLine = line.split("::=")
             symbolName = symbolName.strip()
@@ -71,37 +92,16 @@ def main(filePathBnf: str):
         # one symbol definition is max a few lines long, not a long string,
         # so this naive string concatenate is not a problem.
         if symbolName:  # not the empty non-defined:
-            symbols[symbolName].definitionInBnf += symbolDefInLine.strip()
+            symbols[symbolName].definitionInBnf += symbolDefInLine
 
-
-    for symbolName, symbol in symbols.items():
-        print()
-        print(f"detected symbol: {symbolName:>{Symbol.symbolNameMax}}")
-        print(f"   definition: {symbol.definitionInBnf}")
-
-
-
-
-
-    ################################################
-    if not errors:
-        print(f"No problem detected in the BNF")
-
-    for err in errors:
-        print(f"ERROR: {err}")
-
-
-
-
-
+    return symbols, errors
 
 
 
 def file_src_lines(path: str) -> [str]:
     lines = []
     with open(path, 'r') as file:
-        for line in file.readlines():
-            lines.append(line.strip())
+        lines = file.readlines()
     return lines
 
 def file_validation(path : str):
