@@ -45,13 +45,13 @@ class Symbol:
 
 def main(filePathBnf: str):
 
-    symbols, errors = symbol_detect(filePathBnf)
+    errors = list()
+    symbols, errors = symbol_detect(filePathBnf, errors)
 
     for symbolName, symbol in symbols.items():
         print()
         print(f"detected symbol: {symbolName:>{Symbol.symbolNameMax}}")
-        for defLine in symbol.definitionInBnf.split("\n"):
-            print(f"    {defLine.strip()}")  # to use standard indentation
+        print(symbol.definitionInBnf)
 
 
     ################################################
@@ -62,12 +62,52 @@ def main(filePathBnf: str):
         print(f"ERROR: {err}")
 
 
-def symbol_detect(filePathBnf: str):
-    """collect symbols and definitions from the bnf file"""
+
+
+
+
+
+def get_symbolname_and_definition(line, errors):
+    """<newSymbol> ::= .....definition....
+    in a line, there is only definition, or if it is a new symbol, a symbolName and definition.
+
+    detect them.
+    """
+    acceptedSymbolChars = "_-abcdefghijklmnopqrstuvwxyZABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    newSymbolNameInLine = ""
+    definitionInLine = line
+
+    if "::=" in line:
+        # wanted: "<symbol>::="
+        lineClean = line.strip().replace(" ", "").replace("\t", "")
+        maybeSymbol = lineClean.split("::=")[0]
+        if maybeSymbol.startswith("<") and maybeSymbol.endswith(">"):
+            # it can have only a-zA-Z_- chars
+
+            allLettersAreAcceptedInSymbolName = True
+            for letter in maybeSymbol[1:-1]:
+                if letter not in acceptedSymbolChars:
+                    allLettersAreAcceptedInSymbolName = False
+                    errors.append(f"maybe human error: strange character '{letter}' in '<symbol> ::=' definition:\n---> {maybeSymbol} ")
+                    break
+
+            if allLettersAreAcceptedInSymbolName:
+                newSymbolNameInLine = maybeSymbol
+
+                # keep the lenght of indentation WITHOUT the '<symbol> ::=' part
+                elems = line.split("::=")  # the split is executed on the original line, so every char is kept
+                definitionInLine = " " * (len(elems[0])+3) + elems[1]  # the '<..> ::=' part, filled with space, and the definition
+
+    return newSymbolNameInLine, definitionInLine
+
+def symbol_detect(filePathBnf: str, errors: [str]):
+    """collect symbols and definitions from the bnf file
+    errors is returned to represent on caller level that it is modified here
+    """
 
     print(f"BNF def file: {filePathBnf}")
 
-    errors = list()
     symbols = dict()
     ################################################
 
@@ -77,10 +117,10 @@ def symbol_detect(filePathBnf: str):
         if line.startswith("#"):
             continue  # comment line
 
-        symbolDefInLine = line
-        if "::=" in line:
-            symbolName, symbolDefInLine = line.split("::=")
-            symbolName = symbolName.strip()
+        symbolNameNewDetected, definitionInLine = get_symbolname_and_definition(line, errors)
+
+        if symbolNameNewDetected:
+            symbolName = symbolNameNewDetected
 
             if symbolName not in symbols:
                 symbols[symbolName] = Symbol(symbolName)
@@ -92,7 +132,7 @@ def symbol_detect(filePathBnf: str):
         # one symbol definition is max a few lines long, not a long string,
         # so this naive string concatenate is not a problem.
         if symbolName:  # not the empty non-defined:
-            symbols[symbolName].definitionInBnf += symbolDefInLine
+            symbols[symbolName].definitionInBnf += definitionInLine
 
     return symbols, errors
 
