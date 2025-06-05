@@ -4,12 +4,47 @@ import os, argparse
 
 """
 Analyse the passed BNF file to support the development.
+
+BNF uses a specific set of symbols to define the syntax of a language. 
+These symbols, sometimes called metasymbols, act as operators within the grammar definition. 
+
+Here's a breakdown of the common operators:
+
+Basic Operators:
+
+::=  This is the definition operator. It separates a non-terminal symbol 
+     (on the left) from its possible expansions (on the right). 
+     For example, <expression> ::= <term>.
+
+|    The vertical bar represents an "or" operator. 
+     It indicates that a non-terminal can be replaced by one of several alternatives. 
+     For example, <digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9".
+     
+< >  Angle brackets enclose non-terminal symbols. 
+     Non-terminals are placeholders that represent a syntactic category. 
+     For example, <expression>, <term>, <digit>.
+     
+" "  Double quotes enclose terminal symbols. 
+     Terminals are the actual characters or keywords that appear in the language. 
+     For example, "if", "+", "1".
+
 """
 
 def main(filePathBnf: str):
     print(f"BNF def file: {filePathBnf}")
+    bnfLines = file_src_lines(filePathBnf)
+
+    for line in bnfLines:
 
 
+
+
+
+def file_src_lines(path: str) -> [str]:
+    lines = []
+    with open(path, 'r') as file:
+        lines = file.readlines()
+    return lines
 
 def file_validation(path : str):
     if not os.path.exists(path):
