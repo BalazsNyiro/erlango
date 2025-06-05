@@ -42,17 +42,27 @@ class Symbol:
 
         Symbol.symbolNameMax = max(Symbol.symbolNameMax, len(symbolName))
 
+    def expand(self):
+        # all possible options are given back, as possible expansions
+        return self.definitionInBnf.split("|")
 
 def main(filePathBnf: str):
 
     errors = list()
     symbols, errors = symbol_detect(filePathBnf, errors)
 
+
+
+    ################################################
     for symbolName, symbol in symbols.items():
         print()
         print(f"detected symbol: {symbolName:>{Symbol.symbolNameMax}}")
         print(symbol.definitionInBnf)
 
+    ################################################
+    for symbolName, symbol in symbols.items():
+        print(f"\n=================== {symbolName} Expand ================================")
+        display_possible_accepted_language_elems(symbolName, symbols)
 
     ################################################
     if not errors:
@@ -62,12 +72,18 @@ def main(filePathBnf: str):
         print(f"ERROR: {err}")
 
 
+def display_possible_accepted_language_elems(symbolName: str, symbols: dict[str, Symbol], allowedRecusiveReuseInSameSymbol=2, parentSymbolsUsedInExpanding=[]):
+    """Expand all possible matching elems. To block neverending code generation, max 2 recursive call is allowed."""
+    print(f"display possible accepted language elems: {symbolName}")
 
 
 
 
 
-def get_symbolname_and_definition(line, errors):
+
+
+
+def get_symbolname_and_definition_in_line(line, errors):
     """<newSymbol> ::= .....definition....
     in a line, there is only definition, or if it is a new symbol, a symbolName and definition.
 
@@ -96,7 +112,8 @@ def get_symbolname_and_definition(line, errors):
                 newSymbolNameInLine = maybeSymbol
 
                 # keep the lenght of indentation WITHOUT the '<symbol> ::=' part
-                elems = line.split("::=")  # the split is executed on the original line, so every char is kept
+                # split only at the first ::=
+                elems = line.split("::=", 1)  # the split is executed on the original line, so every char is kept
                 definitionInLine = " " * (len(elems[0])+3) + elems[1]  # the '<..> ::=' part, filled with space, and the definition
 
     return newSymbolNameInLine, definitionInLine
@@ -117,7 +134,7 @@ def symbol_detect(filePathBnf: str, errors: [str]):
         if line.startswith("#"):
             continue  # comment line
 
-        symbolNameNewDetected, definitionInLine = get_symbolname_and_definition(line, errors)
+        symbolNameNewDetected, definitionInLine = get_symbolname_and_definition_in_line(line, errors)
 
         if symbolNameNewDetected:
             symbolName = symbolNameNewDetected
@@ -141,7 +158,7 @@ def symbol_detect(filePathBnf: str, errors: [str]):
 def file_src_lines(path: str) -> [str]:
     lines = []
     with open(path, 'r') as file:
-        lines = file.readlines()
+        lines = file.readlines()  # Pycharm highlight if I return directly in this line
     return lines
 
 def file_validation(path : str):
