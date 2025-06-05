@@ -32,15 +32,63 @@ Basic Operators:
 specials here: if # sign is the first non-whitespace char in a line, that line is a comment.
 """
 
+class Symbol:
+    symbolNameMax = 0
+
+    def __init__(self, symbolName):
+        self.name = symbolName
+        self.definitionInBnf = ""
+        self.definitionCounterInBnf = 0  # in lucky case, the symbol is defined only once in the file
+
+        Symbol.symbolNameMax = max(Symbol.symbolNameMax, len(symbolName))
+
+
 def main(filePathBnf: str):
     print(f"BNF def file: {filePathBnf}")
 
-    for line in file_src_lines(filePathBnf):
-        print(line)
+    errors = list()
+    symbols = dict()
+    ################################################
 
+    symbolName = ""
+
+    for line in file_src_lines(filePathBnf):
         if line.startswith("#"):
-            print("--> commented")
             continue  # comment line
+
+        symbolDefInLine = line.strip()
+        if "::=" in line:
+            symbolName, symbolDefInLine = line.split("::=")
+            symbolName = symbolName.strip()
+
+            if symbolName not in symbols:
+                symbols[symbolName] = Symbol(symbolName)
+            else:
+                symbols[symbolName].definitionCounterInBnf += 1
+                errors.append(f"problem: the symbol is defined more than once in the bnf grammar: {symbolName}, defCount: {symbols[symbolName].definitionCounterInBnf} ")
+
+
+        # one symbol definition is max a few lines long, not a long string,
+        # so this naive string concatenate is not a problem.
+        if symbolName:  # not the empty non-defined:
+            symbols[symbolName].definitionInBnf += symbolDefInLine.strip()
+
+
+    for symbolName, symbol in symbols.items():
+        print()
+        print(f"detected symbol: {symbolName:>{Symbol.symbolNameMax}}")
+        print(f"   definition: {symbol.definitionInBnf}")
+
+
+
+
+
+    ################################################
+    if not errors:
+        print(f"No problem detected in the BNF")
+
+    for err in errors:
+        print(f"ERROR: {err}")
 
 
 
