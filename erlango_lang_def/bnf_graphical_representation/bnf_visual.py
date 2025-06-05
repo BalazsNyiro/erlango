@@ -28,13 +28,22 @@ Basic Operators:
      Terminals are the actual characters or keywords that appear in the language. 
      For example, "if", "+", "1".
 
+
+specials here: if # sign is the first non-whitespace char in a line, that line is a comment.
 """
 
 def main(filePathBnf: str):
     print(f"BNF def file: {filePathBnf}")
-    bnfLines = file_src_lines(filePathBnf)
 
-    for line in bnfLines:
+    for line in file_src_lines(filePathBnf):
+        print(line)
+
+        if line.startswith("#"):
+            print("--> commented")
+            continue  # comment line
+
+
+
 
 
 
@@ -43,7 +52,8 @@ def main(filePathBnf: str):
 def file_src_lines(path: str) -> [str]:
     lines = []
     with open(path, 'r') as file:
-        lines = file.readlines()
+        for line in file.readlines():
+            lines.append(line.strip())
     return lines
 
 def file_validation(path : str):
