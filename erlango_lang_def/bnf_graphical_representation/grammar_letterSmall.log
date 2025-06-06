@@ -1,9 +1,0 @@
-
-               1. loop === first possibility === : -> "a"
-              1. loop - one symbol in possibility: -> "a"
-                       only terminating symbolname -> a
-
-
-               2. loop === first possibility === : -> "b"
-              2. loop - one symbol in possibility: -> "b"
-                       only terminating symbolname -> b

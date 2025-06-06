@@ -161,8 +161,8 @@
 
 
 
-<variable> ::= <variableCapitalLetterOrUnderscore> <variableTail>
-<variableCapitalLetterOrUnderscore> ::= <letterCapital>
+<variable> ::= <variableLetterCapitalOrUnderscore> <variableTail>
+<variableLetterCapitalOrUnderscore> ::= <letterCapital>
                                       | "_"
 <variableTail> ::= <variableLetterOrDigitOrUnderscore> <variableTail>
                  | <empty>

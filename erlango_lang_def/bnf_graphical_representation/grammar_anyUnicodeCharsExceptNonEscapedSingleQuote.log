@@ -1,8 +1,0 @@
-
-               1. loop === first possibility === : -> <atomPossibleCharAfterFirstPosition>
-              1. loop - one symbol in possibility: -> <atomPossibleCharAfterFirstPosition>
-
-               2. loop === first possibility === : -> "t", "m"
-              2. loop - one symbol in possibility: -> "t"
-              2. loop - one symbol in possibility: -> "m"
-                       only terminating symbolname -> tm
