@@ -44,7 +44,7 @@ class Symbol:
 
         # the ABC/numbers is too wide. To see the grammar working, a few chars are more than enough.
         self.limitExpandPossibilitiesInTooBigSets = False
-        self.limitExpandPossibilities = 3
+        self.limitExpandPossibilities = 2
 
 
     def symbols_nonterminating_all_used_in_bnf_grammar(self):
@@ -110,7 +110,7 @@ def main(filePathBnf: str):
 
 
 
-def  count_non_terminatings_is_under_repetition_limit(nonTerminatingSymbols: [str], allowedSymbolReuseInSamePossibility=3) -> dict[str, int]:
+def  count_non_terminatings_is_under_repetition_limit(nonTerminatingSymbols: [str], allowedSymbolReuseInSamePossibility) -> dict[str, int]:
     """count non-terminating symbols. To avoid neverending recursion, stop if the same elem has more than allowed repetitions"""
     stats = dict()
 
@@ -119,13 +119,13 @@ def  count_non_terminatings_is_under_repetition_limit(nonTerminatingSymbols: [st
         stats[nonTermSymbol] += 1
 
     for symbolName, counted in stats.items():
-        if counted >= allowedSymbolReuseInSamePossibility:   # in case of <float>, there are 2 <digits> immediatelly in the grammar, so use 3 here.
+        if counted > allowedSymbolReuseInSamePossibility:   # in case of <float>, there are 2 <digits> immediatelly in the grammar, so use 3 here.
             return False  # not under limit
 
     return True
 
 
-def display_possible_accepted_language_elems(symbolName: str, symbols: dict[str, Symbol], allowedSymbolReuseInSamePossibility=3, parentSymbolsUsedInExpanding=[]):
+def display_possible_accepted_language_elems(symbolName: str, symbols: dict[str, Symbol], allowedSymbolReuseInSamePossibility=2):
     """Expand all possible matching elems. To block neverending code generation, max 2 recursive call is allowed."""
 
 
