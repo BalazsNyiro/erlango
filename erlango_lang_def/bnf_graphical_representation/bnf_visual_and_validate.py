@@ -52,8 +52,10 @@ class Symbol:
         tokensNonTerminating = re.findall(r'<[^<>]+>', self.definitionInBnf)
         return tokensNonTerminating
 
-    def expandPossibilities(self):
-        # all possible options are given back, as possible expansions
+    def expandPossibilities(self) -> [[str]]:
+        """collect all possible expansions"""
+        # one expansion: list of one or more symbol series
+        # so the return value is 'list of series-of-symbols'
 
         expanded = []
 
@@ -69,9 +71,15 @@ class Symbol:
 
 
 def main(filePathBnf: str):
+    """
+     - collect all symbols from the grammar
+     - reduce the too big grammar sets to a smaller set, to get a manageable set of symbols for generating possibilities
+     - detect missing symbol definitions
+     - display detected errors in the grammar
+    """
 
     errors = list()
-    symbols, errors = symbol_detect(filePathBnf, errors)
+    symbols, errors = level0_symbol_detect(filePathBnf, errors)
 
     for tooBigUseSmallerSetForGrammarCheck in ["<letterSmall>", "<letterCapital>", "<digit>"]:
         symbols[tooBigUseSmallerSetForGrammarCheck].limitExpandPossibilitiesInTooBigSets = True
@@ -91,15 +99,14 @@ def main(filePathBnf: str):
                 errors.append(f"non-defined symbol:  {symbolName} ::= .... {nonTerminatingSymbolInDefinition} <===== not defined in the grammar ")
 
 
-
-
     ################################################
     if not missingSymbols:
         for symbolName, symbol in symbols.items():
-            if symbolName != "<float>": continue
+            # one symbol process only, for testing
+            # if symbolName != "<float>": continue
 
             print(f"\n=================== {symbolName} Expand ================================")
-            display_possible_accepted_language_elems(symbolName, symbols)
+            level0_possible_accepted_language_elems_save(symbolName, symbols)
 
     ################################################
     if not errors:
@@ -109,107 +116,7 @@ def main(filePathBnf: str):
         print(f"ERROR: {err}")
 
 
-
-def  count_non_terminatings_is_under_repetition_limit(nonTerminatingSymbols: [str], allowedSymbolReuseInSamePossibility) -> dict[str, int]:
-    """count non-terminating symbols. To avoid neverending recursion, stop if the same elem has more than allowed repetitions"""
-    stats = dict()
-
-    for nonTermSymbol in nonTerminatingSymbols:
-        stats.setdefault(nonTermSymbol, 0)
-        stats[nonTermSymbol] += 1
-
-    for symbolName, counted in stats.items():
-        if counted > allowedSymbolReuseInSamePossibility:   # in case of <float>, there are 2 <digits> immediatelly in the grammar, so use 3 here.
-            return False  # not under limit
-
-    return True
-
-
-def display_possible_accepted_language_elems(symbolName: str, symbols: dict[str, Symbol], allowedSymbolReuseInSamePossibility=2):
-    """Expand all possible matching elems. To block neverending code generation, max 2 recursive call is allowed."""
-
-
-    symbol = symbols[symbolName]
-    print(f"display possible accepted language elems in this symbol: {symbolName} -> {symbol.expandPossibilities()}")
-
-    expandTheseSymbolsUntilTerminationIsNotReached = symbol.expandPossibilities()
-
-    report = []
-    while expandTheseSymbolsUntilTerminationIsNotReached:
-
-        onePossibilitySymbolChangingList = expandTheseSymbolsUntilTerminationIsNotReached.pop(0)
-        expandedOnlyTerminatings = []
-
-        # expand one symbol in the possibility. if it has more than one options, insert all of them back into the list
-        while onePossibilitySymbolChangingList:
-
-            # be careful, if you print this, helps to understand what is happening,
-            # but you will get more thousand extra lines in the output
-            # print(f"one possibility symbols, in expansion process: {onePossibilitySymbolChangingList}")
-
-            symbolInPossibility = onePossibilitySymbolChangingList.pop(0)
-
-            isTerminating = symbolInPossibility.startswith('"') and symbolInPossibility.endswith('"')
-
-            if isTerminating:
-                expandedOnlyTerminatings.append(symbolInPossibility)
-            else:
-                for nonTerminatingExpansion in symbols[symbolInPossibility].expandPossibilities():
-                    oneStepExpansionHappened = expandedOnlyTerminatings + nonTerminatingExpansion + onePossibilitySymbolChangingList
-                    if count_non_terminatings_is_under_repetition_limit(oneStepExpansionHappened, allowedSymbolReuseInSamePossibility=allowedSymbolReuseInSamePossibility):
-                        expandTheseSymbolsUntilTerminationIsNotReached.append(oneStepExpansionHappened)
-                break
-
-        # there is no more symbol that can be converted in the possibility, add it to the report
-        if expandedOnlyTerminatings and len(onePossibilitySymbolChangingList) == 0:
-            quotesRemovedFromTerminatingSimbols = []
-            for terminatingSymbol in expandedOnlyTerminatings:
-                quotesRemovedFromTerminatingSimbols.append(terminatingSymbol[1:-1])
-            report.append("".join(quotesRemovedFromTerminatingSimbols))
-
-    for expanded in report:
-        print(f"expanded, language accepted terminating symbol: {expanded}")
-
-
-
-
-
-def get_symbolname_and_definition_in_line(line, errors):
-    """<newSymbol> ::= .....definition....
-    in a line, there is only definition, or if it is a new symbol, a symbolName and definition.
-
-    detect them.
-    """
-    acceptedSymbolChars = "_-abcdefghijklmnopqrstuvwxyZABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-    newSymbolNameInLine = ""
-    definitionInLine = line
-
-    if "::=" in line:
-        # wanted: "<symbol>::="
-        lineClean = line.strip().replace(" ", "").replace("\t", "")
-        maybeSymbol = lineClean.split("::=")[0]
-        if maybeSymbol.startswith("<") and maybeSymbol.endswith(">"):
-            # it can have only a-zA-Z_- chars
-
-            allLettersAreAcceptedInSymbolName = True
-            for letter in maybeSymbol[1:-1]:
-                if letter not in acceptedSymbolChars:
-                    allLettersAreAcceptedInSymbolName = False
-                    errors.append(f"maybe human error: strange character '{letter}' in '<symbol> ::=' definition:\n---> {maybeSymbol} ")
-                    break
-
-            if allLettersAreAcceptedInSymbolName:
-                newSymbolNameInLine = maybeSymbol
-
-                # keep the lenght of indentation WITHOUT the '<symbol> ::=' part
-                # split only at the first ::=
-                elems = line.split("::=", 1)  # the split is executed on the original line, so every char is kept
-                definitionInLine = " " * (len(elems[0])+3) + elems[1]  # the '<..> ::=' part, filled with space, and the definition
-
-    return newSymbolNameInLine, definitionInLine
-
-def symbol_detect(filePathBnf: str, errors: [str]):
+def level0_symbol_detect(filePathBnf: str, errors: [str]):
     """collect symbols and definitions from the bnf file
     errors is returned to represent on caller level that it is modified here
     """
@@ -245,6 +152,114 @@ def symbol_detect(filePathBnf: str, errors: [str]):
     return symbols, errors
 
 
+def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, Symbol], allowedSymbolReuseInSamePossibility=2):
+    """Expand all possible matching elems. To block neverending code generation, max 2 recursive call is allowed."""
+
+    symbol = symbols[symbolName]
+    print(f"display possible accepted language elems in this symbol: {symbolName} -> {symbol.expandPossibilities()}")
+
+    expandTheseSymbolsUntilTerminationIsNotReached = symbol.expandPossibilities()
+
+    reportAcceptedLangExamples = []
+    while expandTheseSymbolsUntilTerminationIsNotReached:
+
+        onePossibilitySymbolChangingList = expandTheseSymbolsUntilTerminationIsNotReached.pop(0)
+        expandedOnlyTerminatingsPossibilities = []
+
+        # expand one symbol/one-word only in the possibility.
+        # if it has more than one options, insert all of them back into the list
+        while onePossibilitySymbolChangingList:
+
+            # be careful, if you print this, helps to understand what is happening,
+            # but you will get more thousands extra lines in the output
+            # print(f"one possibility symbols, in expansion process: {onePossibilitySymbolChangingList}")
+
+            ###############################################################################
+            # get first word of the possibility
+            symbolInPossibility = onePossibilitySymbolChangingList.pop(0)
+
+            if is_terminating_symbolname(symbolInPossibility):
+                expandedOnlyTerminatingsPossibilities.append(symbolInPossibility)
+            else:
+                # in the first record of Possibility, there is a non-terminating symbol.
+                # Expand it and pack it back.
+                for nonTerminatingExpansion in symbols[symbolInPossibility].expandPossibilities():
+                    oneStepExpansionHappened = expandedOnlyTerminatingsPossibilities + nonTerminatingExpansion + onePossibilitySymbolChangingList
+                    if count_non_terminatings_are_under_repetition_limit(oneStepExpansionHappened, allowedSymbolReuseInSamePossibility=allowedSymbolReuseInSamePossibility):
+                        expandTheseSymbolsUntilTerminationIsNotReached.append(oneStepExpansionHappened)
+                break
+            ###############################################################################
+
+
+        # there is no more symbol that can be converted in the possibility, add it to the reportAcceptedLangExamples
+        if expandedOnlyTerminatingsPossibilities and len(onePossibilitySymbolChangingList) == 0:
+            quotesRemovedFromTerminatingSimbols = []
+            for terminatingSymbol in expandedOnlyTerminatingsPossibilities:
+                quotesRemovedFromTerminatingSimbols.append(terminatingSymbol[1:-1])
+            reportAcceptedLangExamples.append("".join(quotesRemovedFromTerminatingSimbols))
+
+    file_write(f"grammar_{symbolName[1:-1]}.bnf_accepted", "\n".join(reportAcceptedLangExamples))
+
+
+def is_terminating_symbolname(symbolName: str) -> bool:
+    """is it a terminating symbol name?"""
+    return symbolName.startswith('"') and symbolName.endswith('"')
+
+
+def  count_non_terminatings_are_under_repetition_limit(nonTerminatingSymbols: [str], allowedSymbolReuseInSamePossibility) -> dict[str, int]:
+    """count non-terminating symbols. To avoid neverending recursion, stop if the same elem is repeated more than allowed"""
+    stats = dict()
+
+    # build full statistics about nonterminals... (relative small operation, full statistics can be calculated)
+    for nonTermSymbol in nonTerminatingSymbols:
+        stats.setdefault(nonTermSymbol, 0)
+        stats[nonTermSymbol] += 1
+
+    for symbolName, counted in stats.items():
+        if counted > allowedSymbolReuseInSamePossibility:   # in case of <float>, there are 2 <digits> immediatelly in the grammar, so use 3 here.
+            return False  # not under limit
+
+    return True
+
+
+def get_symbolname_and_definition_in_line(line, errors):
+    """<newSymbol> ::= .....definition....
+    in a line, there is only definition, or if it is a new symbol, a symbolName and definition.
+
+    detect them.
+    """
+    acceptedSymbolChars = "_-abcdefghijklmnopqrstuvwxyZABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    # If there is no definition in a line, return with empty string.
+    newSymbolNameInLine = ""
+    definitionInLine = line
+
+    if "::=" in line:
+        # wanted: "<symbol>::="
+        lineClean = line.strip().replace(" ", "").replace("\t", "")
+        maybeSymbol = lineClean.split("::=", 1)[0]
+        if maybeSymbol.startswith("<") and maybeSymbol.endswith(">"):
+            # it can have only a-zA-Z_- chars
+
+            allLettersAreAcceptedInMaybeSymbolName = True
+            for letter in maybeSymbol[1:-1]:
+                if letter not in acceptedSymbolChars:
+                    allLettersAreAcceptedInMaybeSymbolName = False
+                    errors.append(f"maybe human error: strange character '{letter}' in '<symbol> ::=' definition:\n---> {maybeSymbol} ")
+                    break
+
+            if allLettersAreAcceptedInMaybeSymbolName:
+                newSymbolNameInLine = maybeSymbol
+
+                # keep the lenght of indentation WITHOUT the '<symbol> ::=' part
+                # split only at the first ::=
+                elems = line.split("::=", 1)  # the split is executed on the original line, so every char is kept
+                definitionInLine = " " * (len(elems[0])+3) + elems[1]  # the '<..> ::=' part, filled with space, and the definition
+
+    return newSymbolNameInLine, definitionInLine
+
+
+
 
 def file_src_lines(path: str) -> [str]:
     lines = []
@@ -252,10 +267,15 @@ def file_src_lines(path: str) -> [str]:
         lines = file.readlines()  # Pycharm highlight if I return directly in this line
     return lines
 
-def file_validation(path : str):
+
+def file_is_exists(path: str):
     if not os.path.exists(path):
         print(f"ERROR: invalid file path: {path}")
         sys.exit(1)
+
+def file_write(path: str, content: str):
+    with open(path, mode="w") as f:
+        f.write(content)
 
 
 if __name__ == '__main__':
@@ -263,6 +283,6 @@ if __name__ == '__main__':
     parser.add_argument("--file_bnf_path", type=str, default="../erlango_lang.bnf", required=False)
     args = parser.parse_args()
 
-    file_validation(args.file_bnf_path)
+    file_is_exists(args.file_bnf_path)
 
     main(args.file_bnf_path)
