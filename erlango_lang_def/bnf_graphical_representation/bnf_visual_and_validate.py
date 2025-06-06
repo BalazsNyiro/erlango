@@ -160,7 +160,7 @@ def level0_symbol_detect(filePathBnf: str, errors: [str]):
 
 
 def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, Symbol], allowedSymbolReuseInSamePossibility=2):
-    """Expand all possible matching elems. To block neverending code generation, max 2 recursive call is allowed."""
+    """Expand all possible matching elems. To block neverending code generation, max N recursive call is allowed."""
 
     symbol = symbols[symbolName]
     print(f"display possible accepted language elems in this symbol: {symbolName} -> {symbol.expandPossibilities()}")
@@ -168,9 +168,21 @@ def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[
     expandTheseSymbolsUntilTerminationIsNotReached = symbol.expandPossibilities()
 
     reportAcceptedLangExamples = []
+    logs = []
+    def log(msg, val, extraLineBefore=False, extraLineAfter=False):
+        if extraLineBefore:
+            logs.append("")
+        logs.append(f"{msg:>50} -> {val}")
+        if extraLineAfter:
+            logs.append("")
+
+    loopCounter = 0
     while expandTheseSymbolsUntilTerminationIsNotReached:
+        loopCounter += 1
 
         onePossibilitySymbolChangingList = expandTheseSymbolsUntilTerminationIsNotReached.pop(0)
+        log(f"{loopCounter:>5}. loop === first possibility === :", onePossibilitySymbolChangingList, extraLineBefore=True)
+
         expandedOnlyTerminatingsPossibilities = []
 
         # expand one symbol/one-word only in the possibility.
@@ -184,16 +196,22 @@ def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[
             ###############################################################################
             # get first word of the possibility
             symbolInPossibility = onePossibilitySymbolChangingList.pop(0)
+            # log(f"{loopCounter:>5}. loop - one symbol in possibility:", symbolInPossibility)
 
             if is_terminating_symbolname(symbolInPossibility):
                 expandedOnlyTerminatingsPossibilities.append(symbolInPossibility)
             else:
                 # in the first record of Possibility, there is a non-terminating symbol.
-                # Expand it and pack it back.
+                # Expand it and pack it back to the first position, to continue the expanding totally.
+                insertTheseAfterOneExpand = []
                 for nonTerminatingExpansion in symbols[symbolInPossibility].expandPossibilities():
                     oneStepExpansionHappened = expandedOnlyTerminatingsPossibilities + nonTerminatingExpansion + onePossibilitySymbolChangingList
+                    # log("oneStepExpanded before SymbolReuseCheck", oneStepExpansionHappened)
+
                     if count_non_terminatings_are_under_repetition_limit(oneStepExpansionHappened, allowedSymbolReuseInSamePossibility=allowedSymbolReuseInSamePossibility):
-                        expandTheseSymbolsUntilTerminationIsNotReached.append(oneStepExpansionHappened)
+                        log("oneStepExpanded after SymbolReuseCheck", oneStepExpansionHappened)
+                        insertTheseAfterOneExpand.append(oneStepExpansionHappened)
+                expandTheseSymbolsUntilTerminationIsNotReached = insertTheseAfterOneExpand + expandTheseSymbolsUntilTerminationIsNotReached
                 break
             ###############################################################################
 
@@ -204,8 +222,11 @@ def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[
             for terminatingSymbol in expandedOnlyTerminatingsPossibilities:
                 quotesRemovedFromTerminatingSimbols.append(terminatingSymbol[1:-1])
             reportAcceptedLangExamples.append("".join(quotesRemovedFromTerminatingSimbols))
+            log(" only terminating symbolname", quotesRemovedFromTerminatingSimbols, extraLineAfter=True)
 
-    file_write(f"grammar_{symbolName[1:-1]}.bnf_accepted", "\n".join(reportAcceptedLangExamples))
+    fname = f"grammar_{symbolName[1:-1]}"
+    file_write(f"{fname}.bnf_accepted", "\n".join(reportAcceptedLangExamples))
+    file_write(f"{fname}.log", "\n".join(logs))
 
 
 def is_terminating_symbolname(symbolName: str) -> bool:
