@@ -1,0 +1,273 @@
+
+               1. loop === first possibility === : -> <digit>, <numberTail>
+
+               2. loop === first possibility === : -> "0", <numberTail>
+                       only terminating symbolname -> 0
+
+
+               3. loop === first possibility === : -> "0", <digit>, <numberTail>
+
+               4. loop === first possibility === : -> "0", "0", <numberTail>
+                       only terminating symbolname -> 00
+
+
+               5. loop === first possibility === : -> "0", "0", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "0", "0", "0", <numberTail>
+
+               6. loop === first possibility === : -> "0", "0", "1", <numberTail>
+                       only terminating symbolname -> 001
+
+
+               7. loop === first possibility === : -> "0", "0", "1", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "0", "0", "1", "0", <numberTail>
+
+               8. loop === first possibility === : -> "0", "0", "1", "1", <numberTail>
+                       only terminating symbolname -> 0011
+
+
+               9. loop === first possibility === : -> "0", "0", "1", "1", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "0", "0", "1", "1", "0", <numberTail>
+                          overRepetition > 2 here: -> "0", "0", "1", "1", "1", <numberTail>
+
+              10. loop === first possibility === : -> "0", "0", "1", "1", <empty>
+                       only terminating symbolname -> 0011
+
+
+              11. loop === first possibility === : -> "0", "0", "1", "1"
+                       only terminating symbolname -> 0011
+
+
+              12. loop === first possibility === : -> "0", "0", "1", <empty>
+                       only terminating symbolname -> 001
+
+
+              13. loop === first possibility === : -> "0", "0", "1"
+                       only terminating symbolname -> 001
+
+
+              14. loop === first possibility === : -> "0", "0", <empty>
+                       only terminating symbolname -> 00
+
+
+              15. loop === first possibility === : -> "0", "0"
+                       only terminating symbolname -> 00
+
+
+              16. loop === first possibility === : -> "0", "1", <numberTail>
+                       only terminating symbolname -> 01
+
+
+              17. loop === first possibility === : -> "0", "1", <digit>, <numberTail>
+
+              18. loop === first possibility === : -> "0", "1", "0", <numberTail>
+                       only terminating symbolname -> 010
+
+
+              19. loop === first possibility === : -> "0", "1", "0", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "0", "1", "0", "0", <numberTail>
+
+              20. loop === first possibility === : -> "0", "1", "0", "1", <numberTail>
+                       only terminating symbolname -> 0101
+
+
+              21. loop === first possibility === : -> "0", "1", "0", "1", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "0", "1", "0", "1", "0", <numberTail>
+                          overRepetition > 2 here: -> "0", "1", "0", "1", "1", <numberTail>
+
+              22. loop === first possibility === : -> "0", "1", "0", "1", <empty>
+                       only terminating symbolname -> 0101
+
+
+              23. loop === first possibility === : -> "0", "1", "0", "1"
+                       only terminating symbolname -> 0101
+
+
+              24. loop === first possibility === : -> "0", "1", "0", <empty>
+                       only terminating symbolname -> 010
+
+
+              25. loop === first possibility === : -> "0", "1", "0"
+                       only terminating symbolname -> 010
+
+
+              26. loop === first possibility === : -> "0", "1", "1", <numberTail>
+                       only terminating symbolname -> 011
+
+
+              27. loop === first possibility === : -> "0", "1", "1", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "0", "1", "1", "1", <numberTail>
+
+              28. loop === first possibility === : -> "0", "1", "1", "0", <numberTail>
+                       only terminating symbolname -> 0110
+
+
+              29. loop === first possibility === : -> "0", "1", "1", "0", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "0", "1", "1", "0", "0", <numberTail>
+                          overRepetition > 2 here: -> "0", "1", "1", "0", "1", <numberTail>
+
+              30. loop === first possibility === : -> "0", "1", "1", "0", <empty>
+                       only terminating symbolname -> 0110
+
+
+              31. loop === first possibility === : -> "0", "1", "1", "0"
+                       only terminating symbolname -> 0110
+
+
+              32. loop === first possibility === : -> "0", "1", "1", <empty>
+                       only terminating symbolname -> 011
+
+
+              33. loop === first possibility === : -> "0", "1", "1"
+                       only terminating symbolname -> 011
+
+
+              34. loop === first possibility === : -> "0", "1", <empty>
+                       only terminating symbolname -> 01
+
+
+              35. loop === first possibility === : -> "0", "1"
+                       only terminating symbolname -> 01
+
+
+              36. loop === first possibility === : -> "0", <empty>
+                       only terminating symbolname -> 0
+
+
+              37. loop === first possibility === : -> "0"
+                       only terminating symbolname -> 0
+
+
+              38. loop === first possibility === : -> "1", <numberTail>
+                       only terminating symbolname -> 1
+
+
+              39. loop === first possibility === : -> "1", <digit>, <numberTail>
+
+              40. loop === first possibility === : -> "1", "0", <numberTail>
+                       only terminating symbolname -> 10
+
+
+              41. loop === first possibility === : -> "1", "0", <digit>, <numberTail>
+
+              42. loop === first possibility === : -> "1", "0", "0", <numberTail>
+                       only terminating symbolname -> 100
+
+
+              43. loop === first possibility === : -> "1", "0", "0", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "1", "0", "0", "0", <numberTail>
+
+              44. loop === first possibility === : -> "1", "0", "0", "1", <numberTail>
+                       only terminating symbolname -> 1001
+
+
+              45. loop === first possibility === : -> "1", "0", "0", "1", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "1", "0", "0", "1", "0", <numberTail>
+                          overRepetition > 2 here: -> "1", "0", "0", "1", "1", <numberTail>
+
+              46. loop === first possibility === : -> "1", "0", "0", "1", <empty>
+                       only terminating symbolname -> 1001
+
+
+              47. loop === first possibility === : -> "1", "0", "0", "1"
+                       only terminating symbolname -> 1001
+
+
+              48. loop === first possibility === : -> "1", "0", "0", <empty>
+                       only terminating symbolname -> 100
+
+
+              49. loop === first possibility === : -> "1", "0", "0"
+                       only terminating symbolname -> 100
+
+
+              50. loop === first possibility === : -> "1", "0", "1", <numberTail>
+                       only terminating symbolname -> 101
+
+
+              51. loop === first possibility === : -> "1", "0", "1", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "1", "0", "1", "1", <numberTail>
+
+              52. loop === first possibility === : -> "1", "0", "1", "0", <numberTail>
+                       only terminating symbolname -> 1010
+
+
+              53. loop === first possibility === : -> "1", "0", "1", "0", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "1", "0", "1", "0", "0", <numberTail>
+                          overRepetition > 2 here: -> "1", "0", "1", "0", "1", <numberTail>
+
+              54. loop === first possibility === : -> "1", "0", "1", "0", <empty>
+                       only terminating symbolname -> 1010
+
+
+              55. loop === first possibility === : -> "1", "0", "1", "0"
+                       only terminating symbolname -> 1010
+
+
+              56. loop === first possibility === : -> "1", "0", "1", <empty>
+                       only terminating symbolname -> 101
+
+
+              57. loop === first possibility === : -> "1", "0", "1"
+                       only terminating symbolname -> 101
+
+
+              58. loop === first possibility === : -> "1", "0", <empty>
+                       only terminating symbolname -> 10
+
+
+              59. loop === first possibility === : -> "1", "0"
+                       only terminating symbolname -> 10
+
+
+              60. loop === first possibility === : -> "1", "1", <numberTail>
+                       only terminating symbolname -> 11
+
+
+              61. loop === first possibility === : -> "1", "1", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "1", "1", "1", <numberTail>
+
+              62. loop === first possibility === : -> "1", "1", "0", <numberTail>
+                       only terminating symbolname -> 110
+
+
+              63. loop === first possibility === : -> "1", "1", "0", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "1", "1", "0", "1", <numberTail>
+
+              64. loop === first possibility === : -> "1", "1", "0", "0", <numberTail>
+                       only terminating symbolname -> 1100
+
+
+              65. loop === first possibility === : -> "1", "1", "0", "0", <digit>, <numberTail>
+                          overRepetition > 2 here: -> "1", "1", "0", "0", "0", <numberTail>
+                          overRepetition > 2 here: -> "1", "1", "0", "0", "1", <numberTail>
+
+              66. loop === first possibility === : -> "1", "1", "0", "0", <empty>
+                       only terminating symbolname -> 1100
+
+
+              67. loop === first possibility === : -> "1", "1", "0", "0"
+                       only terminating symbolname -> 1100
+
+
+              68. loop === first possibility === : -> "1", "1", "0", <empty>
+                       only terminating symbolname -> 110
+
+
+              69. loop === first possibility === : -> "1", "1", "0"
+                       only terminating symbolname -> 110
+
+
+              70. loop === first possibility === : -> "1", "1", <empty>
+                       only terminating symbolname -> 11
+
+
+              71. loop === first possibility === : -> "1", "1"
+                       only terminating symbolname -> 11
+
+
+              72. loop === first possibility === : -> "1", <empty>
+                       only terminating symbolname -> 1
+
+
+              73. loop === first possibility === : -> "1"
+                       only terminating symbolname -> 1
