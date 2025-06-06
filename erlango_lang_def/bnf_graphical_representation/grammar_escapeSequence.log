@@ -1,23 +1,35 @@
 
                1. loop === first possibility === : -> "\\", <escapeCharInSeq>
+              1. loop - one symbol in possibility: -> "\\"
+              1. loop - one symbol in possibility: -> <escapeCharInSeq>
                        only terminating symbolname -> \\
 
 
                2. loop === first possibility === : -> "\\", "n"
+              2. loop - one symbol in possibility: -> "\\"
+              2. loop - one symbol in possibility: -> "n"
                        only terminating symbolname -> \\n
 
 
                3. loop === first possibility === : -> "\\", "t"
+              3. loop - one symbol in possibility: -> "\\"
+              3. loop - one symbol in possibility: -> "t"
                        only terminating symbolname -> \\t
 
 
                4. loop === first possibility === : -> "\\", "\\"
+              4. loop - one symbol in possibility: -> "\\"
+              4. loop - one symbol in possibility: -> "\\"
                        only terminating symbolname -> \\\\
 
 
                5. loop === first possibility === : -> "\\", "\"
+              5. loop - one symbol in possibility: -> "\\"
+              5. loop - one symbol in possibility: -> "\"
                        only terminating symbolname -> \\\
 
 
                6. loop === first possibility === : -> "\\", "'"
+              6. loop - one symbol in possibility: -> "\\"
+              6. loop - one symbol in possibility: -> "'"
                        only terminating symbolname -> \\'

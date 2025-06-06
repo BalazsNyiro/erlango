@@ -81,8 +81,16 @@ def main(filePathBnf: str):
     errors = list()
     symbols, errors = level0_symbol_detect(filePathBnf, errors)
 
-    for tooBigUseSmallerSetForGrammarCheck in ["<letterSmall>", "<letterCapital>", "<digit>"]:
+    ####### USE SMALL SETS FOR TOO WIDE ELEMS #################
+    tooManyElems = ["<letterSmall>", "<letterCapital>", "<digit>", "<letterSmallCapital>"]
+    for tooBigUseSmallerSetForGrammarCheck in tooManyElems:
         symbols[tooBigUseSmallerSetForGrammarCheck].limitExpandPossibilitiesInTooBigSets = True
+
+    symbols["<variableLetterOrDigitOrUnderscore>"].definitionInBnf = '"h", "i"'
+    symbols["<variableLetterCapitalOrUnderscore>"].definitionInBnf = '"V", "_"'
+    symbols["<atomPossibleCharAfterFirstPosition>"].definitionInBnf = '"t", "m"'
+    ####### USE SMALL SETS FOR TOO WIDE ELEMS #################
+
 
 
     ################################################
@@ -114,7 +122,13 @@ def main(filePathBnf: str):
         "<letterSmall>",
         "<letterSmallCapital>",
         "<number>",
-        
+        "<variable>",
+        "<variableLetterCapitalOrUnderscore>",
+        "<variableLetterOrDigitOrUnderscore>",
+        "<variableTail>",
+        "<numberTail>",
+        "<atomCharList_inQuotes>",
+        "<atomInQuotes>",            
     }
     if not missingSymbols:
         for symbolName, symbol in symbols.items():
@@ -191,7 +205,9 @@ def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[
     def log(msg, val, extraLineBefore=False, extraLineAfter=False):
         if extraLineBefore:
             logs.append("")
-        logs.append(f"{msg:>50} -> {val}")
+        out = f"{msg:>50} -> {val}"
+        print(out)
+        logs.append(out)
         if extraLineAfter:
             logs.append("")
 
@@ -215,7 +231,7 @@ def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[
             ###############################################################################
             # get first word of the possibility
             symbolInPossibility = onePossibilitySymbolChangingList.pop(0)
-            #log(f"{loopCounter:>5}. loop - one symbol in possibility:", symbolInPossibility)
+            log(f"{loopCounter:>5}. loop - one symbol in possibility:", symbolInPossibility)
 
             if is_terminating_symbolname(symbolInPossibility):
                 expandedOnlyTerminatingsPossibilities.append(symbolInPossibility)

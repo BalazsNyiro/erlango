@@ -1,19 +1,25 @@
 
                1. loop === first possibility === : -> <letterSmall>
+              1. loop - one symbol in possibility: -> <letterSmall>
 
                2. loop === first possibility === : -> "a"
+              2. loop - one symbol in possibility: -> "a"
                        only terminating symbolname -> a
 
 
                3. loop === first possibility === : -> "b"
+              3. loop - one symbol in possibility: -> "b"
                        only terminating symbolname -> b
 
 
                4. loop === first possibility === : -> <letterCapital>
+              4. loop - one symbol in possibility: -> <letterCapital>
 
                5. loop === first possibility === : -> "A"
+              5. loop - one symbol in possibility: -> "A"
                        only terminating symbolname -> A
 
 
                6. loop === first possibility === : -> "B"
+              6. loop - one symbol in possibility: -> "B"
                        only terminating symbolname -> B

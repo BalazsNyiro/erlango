@@ -1,0 +1,5 @@
+
+               1. loop === first possibility === : -> "h", "i"
+              1. loop - one symbol in possibility: -> "h"
+              1. loop - one symbol in possibility: -> "i"
+                       only terminating symbolname -> hi

@@ -534,3 +534,9 @@
               73. loop === first possibility === : -> "1"
              73. loop - one symbol in possibility: -> "1"
                        only terminating symbolname -> 1
+
+
+              74. loop === first possibility === : -> <empty>
+             74. loop - one symbol in possibility: -> <empty>
+
+              75. loop === first possibility === : -> 

@@ -1,0 +1,67 @@
+
+               1. loop === first possibility === : -> <variableLetterOrDigitOrUnderscore>, <variableTail>
+              1. loop - one symbol in possibility: -> <variableLetterOrDigitOrUnderscore>
+
+               2. loop === first possibility === : -> "h", "i", <variableTail>
+              2. loop - one symbol in possibility: -> "h"
+              2. loop - one symbol in possibility: -> "i"
+              2. loop - one symbol in possibility: -> <variableTail>
+                       only terminating symbolname -> hi
+
+
+               3. loop === first possibility === : -> "h", "i", <variableLetterOrDigitOrUnderscore>, <variableTail>
+              3. loop - one symbol in possibility: -> "h"
+              3. loop - one symbol in possibility: -> "i"
+              3. loop - one symbol in possibility: -> <variableLetterOrDigitOrUnderscore>
+
+               4. loop === first possibility === : -> "h", "i", "h", "i", <variableTail>
+              4. loop - one symbol in possibility: -> "h"
+              4. loop - one symbol in possibility: -> "i"
+              4. loop - one symbol in possibility: -> "h"
+              4. loop - one symbol in possibility: -> "i"
+              4. loop - one symbol in possibility: -> <variableTail>
+                       only terminating symbolname -> hihi
+
+
+               5. loop === first possibility === : -> "h", "i", "h", "i", <variableLetterOrDigitOrUnderscore>, <variableTail>
+              5. loop - one symbol in possibility: -> "h"
+              5. loop - one symbol in possibility: -> "i"
+              5. loop - one symbol in possibility: -> "h"
+              5. loop - one symbol in possibility: -> "i"
+              5. loop - one symbol in possibility: -> <variableLetterOrDigitOrUnderscore>
+                          overRepetition > 2 here: -> "h", "i", "h", "i", "h", "i", <variableTail>
+
+               6. loop === first possibility === : -> "h", "i", "h", "i", <empty>
+              6. loop - one symbol in possibility: -> "h"
+              6. loop - one symbol in possibility: -> "i"
+              6. loop - one symbol in possibility: -> "h"
+              6. loop - one symbol in possibility: -> "i"
+              6. loop - one symbol in possibility: -> <empty>
+                       only terminating symbolname -> hihi
+
+
+               7. loop === first possibility === : -> "h", "i", "h", "i"
+              7. loop - one symbol in possibility: -> "h"
+              7. loop - one symbol in possibility: -> "i"
+              7. loop - one symbol in possibility: -> "h"
+              7. loop - one symbol in possibility: -> "i"
+                       only terminating symbolname -> hihi
+
+
+               8. loop === first possibility === : -> "h", "i", <empty>
+              8. loop - one symbol in possibility: -> "h"
+              8. loop - one symbol in possibility: -> "i"
+              8. loop - one symbol in possibility: -> <empty>
+                       only terminating symbolname -> hi
+
+
+               9. loop === first possibility === : -> "h", "i"
+              9. loop - one symbol in possibility: -> "h"
+              9. loop - one symbol in possibility: -> "i"
+                       only terminating symbolname -> hi
+
+
+              10. loop === first possibility === : -> <empty>
+             10. loop - one symbol in possibility: -> <empty>
+
+              11. loop === first possibility === : -> 
