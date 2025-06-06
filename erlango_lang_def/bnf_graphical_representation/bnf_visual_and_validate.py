@@ -42,6 +42,11 @@ class Symbol:
 
         Symbol.symbolNameMax = max(Symbol.symbolNameMax, len(symbolName))
 
+        # the ABC/numbers is too wide. To see the grammar working, a few chars are more than enough.
+        self.limitExpandPossibilitiesInTooBigSets = False
+        self.limitExpandPossibilities = 2
+
+
     def symbols_nonterminating_all_used_in_bnf_grammar(self):
         """collect all <non-terminating> elems only"""
         tokensNonTerminating = re.findall(r'<[^<>]+>', self.definitionInBnf)
@@ -58,6 +63,8 @@ class Symbol:
             # print(f"one possibility, separated tokens in one elem: {tokens_in_one_elem}")
             expanded.append(tokens_in_one_possib)
 
+        if self.limitExpandPossibilitiesInTooBigSets:
+            return expanded[:self.limitExpandPossibilities]
         return expanded
 
 
@@ -66,6 +73,8 @@ def main(filePathBnf: str):
     errors = list()
     symbols, errors = symbol_detect(filePathBnf, errors)
 
+    for tooBigUseSmallerSetForGrammarCheck in ["<letterSmall>", "<letterCapital>", "<digit>"]:
+        symbols[tooBigUseSmallerSetForGrammarCheck].limitExpandPossibilitiesInTooBigSets = True
 
 
     ################################################
@@ -125,11 +134,6 @@ def display_possible_accepted_language_elems(symbolName: str, symbols: dict[str,
                         allowedRecusiveReuseInSameSymbol=allowedRecusiveReuseInSameSymbol,
                         parentSymbolsUsedInExpanding=parentSymbolsUsedInExpanding + [symbolName]
                     )
-
-
-
-
-
 
 
 
