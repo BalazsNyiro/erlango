@@ -101,15 +101,20 @@ def main(filePathBnf: str):
 
     ################################################
     expand_these_symbols = {
+        "<anyUnicodeChars>",
+        "<anyUnicodeCharsExceptNonEscapedSingleQuote>",
         "<atomPossibleCharAfterFirstPosition>",
         "<digit>",
         "<empty>",
+        "<escapeCharInSeq>",
+        "<escapeSequence>",
         "<float>",
         "<integer>",
         "<letterCapital>",
         "<letterSmall>",
         "<letterSmallCapital>",
         "<number>",
+        
     }
     if not missingSymbols:
         for symbolName, symbol in symbols.items():

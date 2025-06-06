@@ -1,0 +1,19 @@
+
+               1. loop === first possibility === : -> "n"
+                       only terminating symbolname -> n
+
+
+               2. loop === first possibility === : -> "t"
+                       only terminating symbolname -> t
+
+
+               3. loop === first possibility === : -> "\\"
+                       only terminating symbolname -> \\
+
+
+               4. loop === first possibility === : -> "\"
+                       only terminating symbolname -> \
+
+
+               5. loop === first possibility === : -> "'"
+                       only terminating symbolname -> '
