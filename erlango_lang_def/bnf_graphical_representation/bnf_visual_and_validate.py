@@ -109,38 +109,64 @@ def main(filePathBnf: str):
         print(f"ERROR: {err}")
 
 
-def display_possible_accepted_language_elems(symbolName: str, symbols: dict[str, Symbol], allowedRecusiveReuseInSameSymbol=2, parentSymbolsUsedInExpanding=[], levelRecursion=0):
+
+def  count_non_terminatings_is_under_repetition_limit(nonTerminatingSymbols: [str], allowedSymbolReuseInSamePossibility=3) -> dict[str, int]:
+    """count non-terminating symbols. To avoid neverending recursion, stop if the same elem has more than allowed repetitions"""
+    stats = dict()
+
+    for nonTermSymbol in nonTerminatingSymbols:
+        stats.setdefault(nonTermSymbol, 0)
+        stats[nonTermSymbol] += 1
+
+    for symbolName, counted in stats.items():
+        if counted >= allowedSymbolReuseInSamePossibility:   # in case of <float>, there are 2 <digits> immediatelly in the grammar, so use 3 here.
+            return False  # not under recursion limit
+
+    return True
+
+
+def display_possible_accepted_language_elems(symbolName: str, symbols: dict[str, Symbol], allowedSymbolReuseInSamePossibility=3, parentSymbolsUsedInExpanding=[]):
     """Expand all possible matching elems. To block neverending code generation, max 2 recursive call is allowed."""
 
-    prefix = " " * levelRecursion
 
     symbol = symbols[symbolName]
-    print(f"{prefix}display possible accepted language elems in this symbol: {symbolName} -> {symbol.expandPossibilities()}")
+    print(f"display possible accepted language elems in this symbol: {symbolName} -> {symbol.expandPossibilities()}")
 
-    for onePossibleExpand in symbol.expandPossibilities():
-        for symbolInPossibility in onePossibleExpand:
+    expandTheseSymbolsUntilTerminationIsNotReached = symbol.expandPossibilities()
 
-            isTerminatingSymbol = symbolInPossibility.startswith('"') and symbolInPossibility.endswith('"')
+    report = []
+    while expandTheseSymbolsUntilTerminationIsNotReached:
 
-            if isTerminatingSymbol:
-                print(f"{prefix}terminating symbol at the end - one possible expand: {parentSymbolsUsedInExpanding + [symbolInPossibility]}")
+        onePossibilitySymbolChangingList = expandTheseSymbolsUntilTerminationIsNotReached.pop(0)
+        expandedOnlyTerminatings = []
 
-            else: # non-terminating symbol
+        # expand one symbol in the possibility. if it has more than one options, insert all of them back into the list
+        while onePossibilitySymbolChangingList:
+            print(f"one possibility symbols: {onePossibilitySymbolChangingList}")
 
-                # this can be a neverending loop/recursion,
-                # so has to be limited.
-                if parentSymbolsUsedInExpanding.count(symbolName) >= allowedRecusiveReuseInSameSymbol:
-                    # if the symbol was used more times, to avoid the neverending loop, stop the recursion at a limit.
-                    # print(f"recursion limit is reached")
-                    pass
+            symbolInPossibility = onePossibilitySymbolChangingList.pop(0)
 
-                else:
-                    display_possible_accepted_language_elems(
-                        symbolInPossibility, symbols,
-                        allowedRecusiveReuseInSameSymbol=allowedRecusiveReuseInSameSymbol,
-                        parentSymbolsUsedInExpanding=parentSymbolsUsedInExpanding + [symbolName],
-                        levelRecursion=levelRecursion+1
-                    )
+            isTerminating = symbolInPossibility.startswith('"') and symbolInPossibility.endswith('"')
+
+            if isTerminating:
+                expandedOnlyTerminatings.append(symbolInPossibility)
+            else:
+                for nonTerminatingExpansion in symbols[symbolInPossibility].expandPossibilities():
+                    oneStepExpansionHappened = expandedOnlyTerminatings + nonTerminatingExpansion + onePossibilitySymbolChangingList
+                    if count_non_terminatings_is_under_repetition_limit(oneStepExpansionHappened, allowedSymbolReuseInSamePossibility=allowedSymbolReuseInSamePossibility):
+                        expandTheseSymbolsUntilTerminationIsNotReached.append(oneStepExpansionHappened)
+                break
+
+        # there is no more symbol that can be converted in the possibility, add it to the report
+        if expandedOnlyTerminatings and len(onePossibilitySymbolChangingList) == 0:
+            quotesRemovedFromTerminatingSimbols = []
+            for terminatingSymbol in expandedOnlyTerminatings:
+                quotesRemovedFromTerminatingSimbols.append(terminatingSymbol[1:-1])
+            report.append("".join(quotesRemovedFromTerminatingSimbols))
+
+    for expanded in report:
+        print(f"expanded: {expanded}")
+
 
 
 
