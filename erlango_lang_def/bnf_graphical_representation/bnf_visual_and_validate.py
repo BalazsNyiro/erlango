@@ -129,6 +129,53 @@ def main(filePathBnf: str):
         "<numberTail>",
         "<atomCharList_inQuotes>",
         "<atomInQuotes>",            
+        
+        
+
+        # "<argumentList>",
+        # "<argumentListTail>",
+        "<atom>",
+        "<atomSmallFirstChar>",
+        "<atomSmallFirstChar_tail>",
+        "<atom_or_variable_name_in_paramlist>",
+        # "<caseClause>",
+        # "<caseClauseList>",
+        # "<caseClauseTail>",
+        # "<caseExpression>",
+        # "<dashArg>",
+        # "<dashPrgAttrib>",
+        # "<exportEntry>",
+        # "<exportEntryList>",
+        # "<exportEntryListTail>",
+        # "<exportList>",
+        # "<expression>",
+        # "<expressionList>",
+        # "<expressionListTail>",
+        # "<factor>",
+        # "<functionCall>",
+        # "<functionDefinition>",
+        # "<functionName>",
+        # "<list>",
+        # "<map>",
+        # "<mapEntry>",
+        # "<mapEntryList>",
+        # "<mapEntryListTail>",
+        # "<parameterList>",
+        # "<parameterListTail>",
+        # "<pattern>",
+        "<pid>",
+        # "<program>",
+        # "<programTail>",
+        "<string>",
+        "<stringInSigil>",
+        "<stringQuoteOne>",
+        "<stringQuoteOneTail>",
+        "<stringSigilTail>",
+        # "<term>",
+        # "<tuple>",
+
+
+        
     }
     if not missingSymbols:
         for symbolName, symbol in symbols.items():
