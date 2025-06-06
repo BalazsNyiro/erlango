@@ -183,8 +183,8 @@
 
 
 
-<escapeSequence> ::= "\\" <escapeChar>
-<escapeChar> ::= "n" | "t" | "\\" | "\"" | "'"
+<escapeSequence> ::= "\\" <escapeCharInSeq>
+<escapeCharInSeq> ::= "n" | "t" | "\\" | "\"" | "'"
 
 <atomPossibleCharAfterFirstPosition> ::= <letterSmallCapital>
                                       | <digit>

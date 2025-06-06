@@ -100,10 +100,17 @@ def main(filePathBnf: str):
 
 
     ################################################
+    expand_these_symbols = {
+        "<atomPossibleCharAfterFirstPosition>",
+        "<float>",
+        "<integer>",
+        "<letterSmallCapital>",
+        "<number>",
+    }
     if not missingSymbols:
         for symbolName, symbol in symbols.items():
             # one symbol process only, for testing
-            # if symbolName != "<float>": continue
+            if expand_these_symbols and symbolName not in expand_these_symbols: continue
 
             print(f"\n=================== {symbolName} Expand ================================")
             level0_possible_accepted_language_elems_save(symbolName, symbols)
