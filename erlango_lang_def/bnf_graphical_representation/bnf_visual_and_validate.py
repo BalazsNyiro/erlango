@@ -70,6 +70,7 @@ class Symbol:
         return expanded
 
 
+
 def main(filePathBnf: str):
     """
      - collect all symbols from the grammar
@@ -81,14 +82,45 @@ def main(filePathBnf: str):
     errors = list()
     symbols, errors = level0_symbol_detect(filePathBnf, errors)
 
+
+
     ####### USE SMALL SETS FOR TOO WIDE ELEMS #################
+    print(f"=== DISPLAY ELEM NUMS TO SEE TOO WIDE SETS before reduction.... ===")
+
     tooManyElems = ["<letterSmall>", "<letterCapital>", "<digit>", "<letterSmallCapital>"]
     for tooBigUseSmallerSetForGrammarCheck in tooManyElems:
         symbols[tooBigUseSmallerSetForGrammarCheck].limitExpandPossibilitiesInTooBigSets = True
 
-    symbols["<variableLetterOrDigitOrUnderscore>"].definitionInBnf = '"h", "i"'
-    symbols["<variableLetterCapitalOrUnderscore>"].definitionInBnf = '"V", "_"'
-    symbols["<atomPossibleCharAfterFirstPosition>"].definitionInBnf = '"t", "m"'
+    symbols["<digit>"].definitionInBnf = '"1"'
+
+    symbols["<variableLetterOrDigitOrUnderscore>"].definitionInBnf = '"i"'
+    symbols["<variableLetterCapitalOrUnderscore>"].definitionInBnf = '"V"'
+    symbols["<atomPossibleCharAfterFirstPosition>"].definitionInBnf = '"t"'
+    symbols["<escapeCharInSeq>"].definitionInBnf = '"n"'
+
+
+    # num of operators are too high, use one only
+    symbols["<expression>"].definitionInBnf = '''
+                     <expression> "+" <term>
+                   | <term>
+    '''
+
+
+    symbols["<term>"].definitionInBnf = '''
+           <term> "*" <factor>
+         | <factor>
+    '''
+
+    # simplified factor is necessary
+    symbols["<factor>"].definitionInBnf = '''
+             <number>
+           | <variable>
+           | "(" <expression> ")"
+    '''
+
+    print(f"=== ELEM NUMS after reduction.... ===")
+    print_symbols_elem_stats(symbols)
+    # input(f"press ENTER to continue")
     ####### USE SMALL SETS FOR TOO WIDE ELEMS #################
 
 
@@ -148,7 +180,7 @@ def main(filePathBnf: str):
         # "<exportEntryList>",
         # "<exportEntryListTail>",
         # "<exportList>",
-        # "<expression>",
+        "<expression>",
         # "<expressionList>",
         # "<expressionListTail>",
         # "<factor>",
@@ -278,7 +310,7 @@ def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[
             ###############################################################################
             # get first word of the possibility
             symbolInPossibility = onePossibilitySymbolChangingList.pop(0)
-            log(f"{loopCounter:>5}. loop - one symbol in possibility:", symbolInPossibility)
+            # log(f"{loopCounter:>5}. loop - one symbol in possibility:", symbolInPossibility)
 
             if is_terminating_symbolname(symbolInPossibility):
                 expandedOnlyTerminatingsPossibilities.append(symbolInPossibility)
@@ -293,7 +325,10 @@ def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[
                     underRepetitionLimit, symbolNamesOverLimit = count_non_terminatings_are_under_repetition_limit(oneStepExpansionHappened, allowedSymbolReuseInSamePossibility=allowedSymbolReuseInSamePossibility)
 
                     if not underRepetitionLimit:
-                        log(f"overRepetition > {allowedSymbolReuseInSamePossibility} here:", symbolnames_simple_str(oneStepExpansionHappened))
+                        pass
+                        # in an expression, this is too long, don't display
+                        # log(f"overRepetition > {allowedSymbolReuseInSamePossibility} here:", symbolnames_simple_str(oneStepExpansionHappened))
+
                         # log("overRepetitionLimit:", symbolNamesOverLimit)
 
                     if underRepetitionLimit:
@@ -379,6 +414,14 @@ def get_symbolname_and_definition_in_line(line, errors):
     return newSymbolNameInLine, definitionInLine
 
 
+def print_symbols_elem_stats(symbols):
+    """display statistics about symbols to see where do we have too big set"""
+    for symbolName, symbol in symbols.items():
+        possibilities = symbols[symbolName].expandPossibilities()
+        maxElemInOnePossibility = 0
+        for onePossible in possibilities:
+            maxElemInOnePossibility = max(maxElemInOnePossibility, len(onePossible))
+        print(f"{symbolName:>50} possib: {len(possibilities)}",  possibilities)
 
 
 def file_src_lines(path: str) -> [str]:
