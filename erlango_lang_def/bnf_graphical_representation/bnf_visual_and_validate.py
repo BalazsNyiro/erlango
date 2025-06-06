@@ -159,6 +159,10 @@ def level0_symbol_detect(filePathBnf: str, errors: [str]):
     return symbols, errors
 
 
+def symbolnames_simple_str(names: [str]) -> str:
+    """concatenate list of symbolnames"""
+    return ", ".join(names)
+
 def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, Symbol], allowedSymbolReuseInSamePossibility=2):
     """Expand all possible matching elems. To block neverending code generation, max N recursive call is allowed."""
 
@@ -181,7 +185,7 @@ def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[
         loopCounter += 1
 
         onePossibilitySymbolChangingList = expandTheseSymbolsUntilTerminationIsNotReached.pop(0)
-        log(f"{loopCounter:>5}. loop === first possibility === :", onePossibilitySymbolChangingList, extraLineBefore=True)
+        log(f"{loopCounter:>5}. loop === first possibility === :", symbolnames_simple_str(onePossibilitySymbolChangingList), extraLineBefore=True)
 
         expandedOnlyTerminatingsPossibilities = []
 
@@ -196,7 +200,7 @@ def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[
             ###############################################################################
             # get first word of the possibility
             symbolInPossibility = onePossibilitySymbolChangingList.pop(0)
-            # log(f"{loopCounter:>5}. loop - one symbol in possibility:", symbolInPossibility)
+            #log(f"{loopCounter:>5}. loop - one symbol in possibility:", symbolInPossibility)
 
             if is_terminating_symbolname(symbolInPossibility):
                 expandedOnlyTerminatingsPossibilities.append(symbolInPossibility)
@@ -208,8 +212,14 @@ def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[
                     oneStepExpansionHappened = expandedOnlyTerminatingsPossibilities + nonTerminatingExpansion + onePossibilitySymbolChangingList
                     # log("oneStepExpanded before SymbolReuseCheck", oneStepExpansionHappened)
 
-                    if count_non_terminatings_are_under_repetition_limit(oneStepExpansionHappened, allowedSymbolReuseInSamePossibility=allowedSymbolReuseInSamePossibility):
-                        log("oneStepExpanded after SymbolReuseCheck", oneStepExpansionHappened)
+                    underRepetitionLimit, symbolNamesOverLimit = count_non_terminatings_are_under_repetition_limit(oneStepExpansionHappened, allowedSymbolReuseInSamePossibility=allowedSymbolReuseInSamePossibility)
+
+                    if not underRepetitionLimit:
+                        log(f"overRepetition > {allowedSymbolReuseInSamePossibility} here:", symbolnames_simple_str(oneStepExpansionHappened))
+                        # log("overRepetitionLimit:", symbolNamesOverLimit)
+
+                    if underRepetitionLimit:
+                        #log("oneStepExpanded after SymbolReuseCheck", oneStepExpansionHappened)
                         insertTheseAfterOneExpand.append(oneStepExpansionHappened)
                 expandTheseSymbolsUntilTerminationIsNotReached = insertTheseAfterOneExpand + expandTheseSymbolsUntilTerminationIsNotReached
                 break
@@ -222,7 +232,7 @@ def level0_possible_accepted_language_elems_save(symbolName: str, symbols: dict[
             for terminatingSymbol in expandedOnlyTerminatingsPossibilities:
                 quotesRemovedFromTerminatingSimbols.append(terminatingSymbol[1:-1])
             reportAcceptedLangExamples.append("".join(quotesRemovedFromTerminatingSimbols))
-            log(" only terminating symbolname", quotesRemovedFromTerminatingSimbols, extraLineAfter=True)
+            log(" only terminating symbolname", "".join(quotesRemovedFromTerminatingSimbols), extraLineAfter=True)
 
     fname = f"grammar_{symbolName[1:-1]}"
     file_write(f"{fname}.bnf_accepted", "\n".join(reportAcceptedLangExamples))
@@ -234,20 +244,24 @@ def is_terminating_symbolname(symbolName: str) -> bool:
     return symbolName.startswith('"') and symbolName.endswith('"')
 
 
-def  count_non_terminatings_are_under_repetition_limit(nonTerminatingSymbols: [str], allowedSymbolReuseInSamePossibility) -> dict[str, int]:
+def  count_non_terminatings_are_under_repetition_limit(symbolsInPossibility: [str], allowedSymbolReuseInSamePossibility) -> dict[str, int]:
     """count non-terminating symbols. To avoid neverending recursion, stop if the same elem is repeated more than allowed"""
     stats = dict()
 
     # build full statistics about nonterminals... (relative small operation, full statistics can be calculated)
-    for nonTermSymbol in nonTerminatingSymbols:
-        stats.setdefault(nonTermSymbol, 0)
-        stats[nonTermSymbol] += 1
+    for symbolName in symbolsInPossibility:
+        stats.setdefault(symbolName, 0)
+        stats[symbolName] += 1
 
+    overLimit = []
     for symbolName, counted in stats.items():
         if counted > allowedSymbolReuseInSamePossibility:   # in case of <float>, there are 2 <digits> immediatelly in the grammar, so use 3 here.
-            return False  # not under limit
+            overLimit.append(symbolName)
 
-    return True
+    if overLimit:
+        return False, overLimit
+
+    return True, []
 
 
 def get_symbolname_and_definition_in_line(line, errors):
