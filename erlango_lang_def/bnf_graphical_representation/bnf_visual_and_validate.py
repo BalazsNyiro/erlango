@@ -120,7 +120,7 @@ def  count_non_terminatings_is_under_repetition_limit(nonTerminatingSymbols: [st
 
     for symbolName, counted in stats.items():
         if counted >= allowedSymbolReuseInSamePossibility:   # in case of <float>, there are 2 <digits> immediatelly in the grammar, so use 3 here.
-            return False  # not under recursion limit
+            return False  # not under limit
 
     return True
 
@@ -142,7 +142,10 @@ def display_possible_accepted_language_elems(symbolName: str, symbols: dict[str,
 
         # expand one symbol in the possibility. if it has more than one options, insert all of them back into the list
         while onePossibilitySymbolChangingList:
-            print(f"one possibility symbols: {onePossibilitySymbolChangingList}")
+
+            # be careful, if you print this, helps to understand what is happening,
+            # but you will get more thousand extra lines in the output
+            # print(f"one possibility symbols, in expansion process: {onePossibilitySymbolChangingList}")
 
             symbolInPossibility = onePossibilitySymbolChangingList.pop(0)
 
@@ -165,7 +168,7 @@ def display_possible_accepted_language_elems(symbolName: str, symbols: dict[str,
             report.append("".join(quotesRemovedFromTerminatingSimbols))
 
     for expanded in report:
-        print(f"expanded: {expanded}")
+        print(f"expanded, language accepted terminating symbol: {expanded}")
 
 
 
