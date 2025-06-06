@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os, argparse
+import os, argparse, re
 
 """
 Analyse the passed BNF file to support the development.
@@ -42,9 +42,24 @@ class Symbol:
 
         Symbol.symbolNameMax = max(Symbol.symbolNameMax, len(symbolName))
 
-    def expand(self):
+    def symbols_nonterminating_all_used_in_bnf_grammar(self):
+        """collect all <non-terminating> elems only"""
+        tokensNonTerminating = re.findall(r'<[^<>]+>', self.definitionInBnf)
+        return tokensNonTerminating
+
+    def expandPossibilities(self):
         # all possible options are given back, as possible expansions
-        return self.definitionInBnf.split("|")
+
+        expanded = []
+
+        for onePossibility in self.definitionInBnf.replace("\n", " ").strip().split("|"):
+            # print(f"one possibility in one string: {onePossibility}")
+            tokens_in_one_possib = re.findall(r'<[^<>]+>|"[^"]+"', onePossibility)
+            # print(f"one possibility, separated tokens in one elem: {tokens_in_one_elem}")
+            expanded.append(tokens_in_one_possib)
+
+        return expanded
+
 
 def main(filePathBnf: str):
 
@@ -54,15 +69,26 @@ def main(filePathBnf: str):
 
 
     ################################################
+    missingSymbols = []
+    print(f"=============== DETECT MISSING SYMBOL DEFINITIONS (not in left side of ::= operator)  =========")
     for symbolName, symbol in symbols.items():
         print()
         print(f"detected symbol: {symbolName:>{Symbol.symbolNameMax}}")
         print(symbol.definitionInBnf)
 
+        for nonTerminatingSymbolInDefinition in symbol.symbols_nonterminating_all_used_in_bnf_grammar():
+            if nonTerminatingSymbolInDefinition not in symbols:
+                missingSymbols.append(nonTerminatingSymbolInDefinition)
+                errors.append(f"non-defined symbol:  {symbolName} ::= .... {nonTerminatingSymbolInDefinition} <===== not defined in the grammar ")
+
+
+
+
     ################################################
-    for symbolName, symbol in symbols.items():
-        print(f"\n=================== {symbolName} Expand ================================")
-        display_possible_accepted_language_elems(symbolName, symbols)
+    if not missingSymbols:
+        for symbolName, symbol in symbols.items():
+            print(f"\n=================== {symbolName} Expand ================================")
+            display_possible_accepted_language_elems(symbolName, symbols)
 
     ################################################
     if not errors:
@@ -74,7 +100,32 @@ def main(filePathBnf: str):
 
 def display_possible_accepted_language_elems(symbolName: str, symbols: dict[str, Symbol], allowedRecusiveReuseInSameSymbol=2, parentSymbolsUsedInExpanding=[]):
     """Expand all possible matching elems. To block neverending code generation, max 2 recursive call is allowed."""
+
+    symbol = symbols[symbolName]
     print(f"display possible accepted language elems: {symbolName}")
+
+    for onePossibleExpand in symbol.expandPossibilities():
+        for symbolInPossibility in onePossibleExpand:
+
+            isTerminatingSymbol = symbolInPossibility.startswith('"') and symbolInPossibility.endswith('"')
+            if isTerminatingSymbol:
+                print(f"one possible expand: {parentSymbolsUsedInExpanding + [symbolInPossibility]}")
+            else:
+                # this can be a neverending loop/recursion,
+                # so has to be limited.
+
+                if parentSymbolsUsedInExpanding.count(symbolName) >= allowedRecusiveReuseInSameSymbol:
+                    # if the symbol was used more times, to avoid the neverending loop, stop the recursion at a limit.
+                    # this is a non-terminating symbol
+                    pass
+
+                else:
+                    display_possible_accepted_language_elems(
+                        symbolInPossibility, symbols,
+                        allowedRecusiveReuseInSameSymbol=allowedRecusiveReuseInSameSymbol,
+                        parentSymbolsUsedInExpanding=parentSymbolsUsedInExpanding + [symbolName]
+                    )
+
 
 
 

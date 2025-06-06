@@ -33,13 +33,16 @@
 
 <functionDefinition> ::= <functionName> "(" <parameterList> ")" "->" <expression> "."
 
-<functionName> ::= <identifier>
+<functionName> ::= <atom>
 
-<parameterList> ::= <identifier> <parameterListTail>
+
+<parameterList> ::= <atom_or_variable_name_in_paramlist> <parameterListTail>
                   | <empty>
-
-<parameterListTail> ::= "," <identifier> <parameterListTail>
+<parameterListTail> ::= "," <atom_or_variable_name_in_paramlist> <parameterListTail>
                       | <empty>
+<atom_or_variable_name_in_paramlist> ::= <atom> | <variable>
+
+
 
 <expression> ::= <expression> "+" <term>
                | <expression> "-" <term>
@@ -64,7 +67,7 @@
 <factor> ::= <number>
            | <string>
            | <atom>
-           | <identifier>
+           | <variable>
            | <functionCall>
            | "(" <expression> ")"
            | <caseExpression>
@@ -85,11 +88,6 @@
 <argumentListTail> ::= "," <expression> <argumentListTail>
                      | <empty>
 
-<identifier> ::= <letter> <identifierTail>
-
-<identifierTail> ::= <letterOrDigit> <identifierTail>
-                   | <empty>
-
 # ========== CASE =====================
 <caseExpression> ::= "case" <expression> "of" <caseClauseList> "end"
 
@@ -101,7 +99,7 @@
 <caseClause> ::= <pattern> "->" <expression> ","
                | <pattern> "->" <expression>
 
-<pattern> ::= <identifier>
+<pattern> ::= <variable>
             | <number>
             | <string>
             | <atom>
@@ -142,39 +140,63 @@
 <stringInSigil> ::= "\"\"\"" <stringSigilTail> "\"\"\""
 <stringSigilTail> ::=  <anyUnicodeChars> | <empty>
 
+
+
 <atom> ::= <atomInQuotes> | <atomSmallFirstChar>
 <atomSmallFirstChar> ::= <letterSmall> <atomSmallFirstChar_tail>
-<atomSmallFirstChar_tail> ::= <letterOrDigitOrUnderscoreOrAtSign> <atomSmallFirstChar_tail>
+<atomSmallFirstChar_tail> ::= <atomPossibleCharAfterFirstPosition> <atomSmallFirstChar_tail>
                             | <empty>
 
 <atomInQuotes> ::= "'" <atomCharList_inQuotes> "'"
 <atomCharList_inQuotes> ::= <anyUnicodeChars> <atomCharList_inQuotes>
                           | <empty>
 
+
 <number> ::= <integer> | <float>
 <integer> ::= <digit> <numberTail>
 <float> ::= <digit> <numberTail> "." <digit> <numberTail>
 
-<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+<numberTail> ::= <digit> <numberTail>
+               | <empty>
+
+
+
+<variable> ::= <variableCapitalLetterOrUnderscore> <variableTail>
+<variableCapitalLetterOrUnderscore> ::= <letterCapital>
+                                      | "_"
+<variableTail> ::= <variableLetterOrDigitOrUnderscore> <variableTail>
+                 | <empty>
+<variableLetterOrDigitOrUnderscore> ::= <letterSmallCapital>
+                                      | <digit>
+                                      | "_"
 
 
 
 # ===============_comment_section_abc_=====================
 # TODO: all unicode char has to be accepted, except , handle this in the parser
-<anyUnicodeChars> ::= <letterOrDigitOrUnderscoreOrAtSign>
+<anyUnicodeChars> ::= <atomPossibleCharAfterFirstPosition>
 
 # TODO: all unicode char has to be accepted, handle this in the parser
-<anyUnicodeCharsExceptNonEscapedSingleQuote> ::= <letterOrDigitOrUnderscoreOrAtSign>
+<anyUnicodeCharsExceptNonEscapedSingleQuote> ::= <atomPossibleCharAfterFirstPosition>
+
+
+
+
 
 <escapeSequence> ::= "\\" <escapeChar>
 <escapeChar> ::= "n" | "t" | "\\" | "\"" | "'"
 
-<letterOrDigitOrUnderscoreOrAtSign> ::= <letterSmallCapital>
+<atomPossibleCharAfterFirstPosition> ::= <letterSmallCapital>
                                       | <digit>
                                       | "_" | "@"
 
+
+
+
+
+
 <letterSmallCapital> ::= <letterSmall>
-                      | <letterCapital>
+                       | <letterCapital>
 
 <letterSmall> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j"
                 | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t"
@@ -183,5 +205,7 @@
 <letterCapital> ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J"
                   | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T"
                   | "U" | "V" | "W" | "X" | "Y" | "Z"
+
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 
 <empty> ::=   /* nothing */
