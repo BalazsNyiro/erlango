@@ -44,7 +44,7 @@ class Symbol:
 
         # the ABC/numbers is too wide. To see the grammar working, a few chars are more than enough.
         self.limitExpandPossibilitiesInTooBigSets = False
-        self.limitExpandPossibilities = 2
+        self.limitExpandPossibilities = 3
 
 
     def symbols_nonterminating_all_used_in_bnf_grammar(self):
@@ -96,6 +96,8 @@ def main(filePathBnf: str):
     ################################################
     if not missingSymbols:
         for symbolName, symbol in symbols.items():
+            if symbolName != "<float>": continue
+
             print(f"\n=================== {symbolName} Expand ================================")
             display_possible_accepted_language_elems(symbolName, symbols)
 
@@ -107,32 +109,37 @@ def main(filePathBnf: str):
         print(f"ERROR: {err}")
 
 
-def display_possible_accepted_language_elems(symbolName: str, symbols: dict[str, Symbol], allowedRecusiveReuseInSameSymbol=2, parentSymbolsUsedInExpanding=[]):
+def display_possible_accepted_language_elems(symbolName: str, symbols: dict[str, Symbol], allowedRecusiveReuseInSameSymbol=2, parentSymbolsUsedInExpanding=[], levelRecursion=0):
     """Expand all possible matching elems. To block neverending code generation, max 2 recursive call is allowed."""
 
+    prefix = " " * levelRecursion
+
     symbol = symbols[symbolName]
-    print(f"display possible accepted language elems: {symbolName}")
+    print(f"{prefix}display possible accepted language elems in this symbol: {symbolName} -> {symbol.expandPossibilities()}")
 
     for onePossibleExpand in symbol.expandPossibilities():
         for symbolInPossibility in onePossibleExpand:
 
             isTerminatingSymbol = symbolInPossibility.startswith('"') and symbolInPossibility.endswith('"')
+
             if isTerminatingSymbol:
-                print(f"one possible expand: {parentSymbolsUsedInExpanding + [symbolInPossibility]}")
-            else:
+                print(f"{prefix}terminating symbol at the end - one possible expand: {parentSymbolsUsedInExpanding + [symbolInPossibility]}")
+
+            else: # non-terminating symbol
+
                 # this can be a neverending loop/recursion,
                 # so has to be limited.
-
                 if parentSymbolsUsedInExpanding.count(symbolName) >= allowedRecusiveReuseInSameSymbol:
                     # if the symbol was used more times, to avoid the neverending loop, stop the recursion at a limit.
-                    # this is a non-terminating symbol
+                    # print(f"recursion limit is reached")
                     pass
 
                 else:
                     display_possible_accepted_language_elems(
                         symbolInPossibility, symbols,
                         allowedRecusiveReuseInSameSymbol=allowedRecusiveReuseInSameSymbol,
-                        parentSymbolsUsedInExpanding=parentSymbolsUsedInExpanding + [symbolName]
+                        parentSymbolsUsedInExpanding=parentSymbolsUsedInExpanding + [symbolName],
+                        levelRecursion=levelRecursion+1
                     )
 
 
