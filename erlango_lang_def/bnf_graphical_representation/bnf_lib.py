@@ -37,7 +37,6 @@ def symbols_nonterminating_collect(grammarDefInBnf: str | list[str]):
     """
 
     if isinstance(grammarDefInBnf, list):
-        # convert back to a string, if a list is received to prepare regexp detection
         grammarDefInBnf = " ".join(grammarDefInBnf)
 
     tokensNonTerminating = re.findall(r'<[^<>]+>', grammarDefInBnf)

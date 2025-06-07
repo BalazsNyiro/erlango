@@ -131,8 +131,8 @@ def possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, bn
 
                     insertBack = True
                     # to avoid neverending loops
-                    if  len(bnf_lib.symbols_nonterminating_collect(oneStepExpansionHappened)) < limitOfNonTerminatingSymbols:
-                        #log("oneStepExpanded, the num of non-terminating symbols are too high, don't expand it ")
+                    if  len(bnf_lib.symbols_nonterminating_collect(oneStepExpansionHappened)) > limitOfNonTerminatingSymbols:
+                        log("oneStepExpanded, number of non-terminating symbols are too high, don't expand it ", oneStepExpansionHappened)
                         insertBack = False
 
                     if insertBack:
@@ -158,13 +158,13 @@ def possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, bn
 
 
 if __name__ == '__main__':
-    defaultFiles = bnf_lib.files_collect_in_dir("..", prefix="grammar_")
-    print(f"default files: {defaultFiles}")
+    defaultFiles = ",".join(bnf_lib.files_collect_in_dir("..", prefix="grammar_"))
 
     parser = argparse.ArgumentParser(prog='BNF validator')
-    parser.add_argument("--file_bnf_path", type=str, default="../grammar_50_basic.bnf", help="one file, or more comma separated filenames to check/validate", required=False)
+    parser.add_argument("--file_bnf_path", type=str, default=defaultFiles, help="one file, or more comma separated filenames to check/validate", required=False)
     args = parser.parse_args()
 
+    print(f"validate these files: {args.file_bnf_path}")
     for file in args.file_bnf_path.split(","):
         bnf_lib.file_is_exists(file)
         main(args.file_bnf_path)
