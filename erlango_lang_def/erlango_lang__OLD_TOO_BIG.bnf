@@ -129,36 +129,6 @@
 
 <mapEntry> ::= <expression> "=>" <expression>
 
-<pid> ::= "<" <integer> "." <integer> "." <integer> ">"
-
-
-
-<string> ::= <stringQuoteOne> | <stringInSigil>
-<stringQuoteOne> ::= "\"" <stringQuoteOneTail> "\""
-<stringQuoteOneTail> ::=  <anyUnicodeCharsExceptNonEscapedSingleQuote> | <empty>
-
-<stringInSigil> ::= "\"\"\"" <stringSigilTail> "\"\"\""
-<stringSigilTail> ::=  <anyUnicodeChars> | <empty>
-
-
-
-<atom> ::= <atomInQuotes> | <atomSmallFirstChar>
-<atomSmallFirstChar> ::= <letterSmall> <atomSmallFirstChar_tail>
-<atomSmallFirstChar_tail> ::= <atomPossibleCharAfterFirstPosition> <atomSmallFirstChar_tail>
-                            | <empty>
-
-<atomInQuotes> ::= "'" <atomCharList_inQuotes> "'"
-<atomCharList_inQuotes> ::= <anyUnicodeChars> <atomCharList_inQuotes>
-                          | <empty>
-
-
-<number> ::= <integer> | <float>
-<integer> ::= <digit> <numberTail>
-<float> ::= <digit> <numberTail> "." <digit> <numberTail>
-
-<numberTail> ::= <digit> <numberTail>
-               | <empty>
-
 
 
 <variable> ::= <variableLetterCapitalOrUnderscore> <variableTail>
@@ -166,7 +136,7 @@
                                       | "_"
 <variableTail> ::= <variableLetterOrDigitOrUnderscore> <variableTail>
                  | <empty>
-<variableLetterOrDigitOrUnderscore> ::= <letterSmallCapital>
+<variableLetterOrDigitOrUnderscore> ::= <letter>
                                       | <digit>
                                       | "_"
 

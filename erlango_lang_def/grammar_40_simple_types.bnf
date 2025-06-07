@@ -13,10 +13,23 @@
 
 <string> ::= <stringQuoteOne> | <stringInSigil>
 <stringQuoteOne> ::= "\"" <stringQuoteOneTail> "\""
-<stringQuoteOneTail> ::=  <anyUnicodeCharsExceptNonEscapedSingleQuote> | <empty>
+<stringQuoteOneTail> ::=  <anyUnicodeCharsExceptNonEscapedDoubleQuote> | <empty>
 
+
+##########################################################################################
 <stringInSigil> ::= "\"\"\"" <stringSigilTail> "\"\"\""
-<stringSigilTail> ::=  <anyUnicodeChars> | <empty>
+
+<stringSigilTail> ::= <sigilSafeChar> <stringSigilTail>
+                   | <empty>
+
+<sigilSafeChar> ::= <anyUnicodeCharsExceptNonEscapedDoubleQuote>
+             | "\"" <sig_anyCharExceptQuoteOrEmpty>
+             | "\"" "\"" <sig_anyCharExceptQuoteOrEmpty>
+
+<sig_anyCharExceptQuoteOrEmpty> ::= <anyUnicodeCharsExceptNonEscapedDoubleQuote>
+                              | <empty>
+
+##########################################################################################
 
 
 
@@ -30,7 +43,7 @@
 
 
 <atomInQuotes> ::= "'" <atomCharList_inQuotes> "'"
-<atomCharList_inQuotes> ::= <anyUnicodeChars> <atomCharList_inQuotes>
+<atomCharList_inQuotes> ::= <anyUnicodeCharsExceptNonEscapedSingleQuote> <atomCharList_inQuotes>
                           | <empty>
 
 
@@ -40,9 +53,8 @@
 
 #### LOCAL SYMBOLS to generate possible usecases, DON'T MERGE THEM - use short, simple definitions ##########
 
-<anyUnicodeChars> ::=  "u" | "n" | "i" | "\n" | "\t" | "\"" | "'"
 <anyUnicodeCharsExceptNonEscapedSingleQuote> ::=  "k" | "l" | "\t"
-
+<anyUnicodeCharsExceptNonEscapedDoubleQuote> ::= "o" | "p"
 
 <letter> ::= "t" | "m"
 <digit>  ::= "1" | "2"

@@ -1,12 +1,12 @@
 
-# TODO: all unicode char has to be accepted, except , handle this in the parser
-# used only in sigil
-<anyUnicodeChars> ::= <letter>
 
+# TODO: all unicode chars has to be accepted, except non-escaped single quote
+# used only in atoms
+<anyUnicodeCharsExceptNonEscapedSingleQuote> ::= <letter>
 
 # TODO: all unicode chars has to be accepted, except non-escaped single quote
 # used only in strings
-<anyUnicodeCharsExceptNonEscapedSingleQuote> ::= <letter>
+<anyUnicodeCharsExceptNonEscapedDoubleQuote> ::= <letter>
 
 
 

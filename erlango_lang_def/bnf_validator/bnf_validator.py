@@ -35,7 +35,7 @@ specials here: if # sign is the first non-whitespace char in a line, that line i
 
 
 
-def main(filePathBnf: str):
+def main(filePathBnf: str, symbolNamesAnalyseOnly: [str]):
     """
      - collect all symbols from the grammar
      - reduce the too big grammar sets to a smaller set, to get a manageable set of symbols for generating possibilities
@@ -46,7 +46,10 @@ def main(filePathBnf: str):
     errors = list()
     symbols, symbolNamesInLocalDefinition, errors, limitOfSymbolLengthInValidationToAvoidNeverendingLoop  = bnf_lib.symbols_detect_in_file(filePathBnf, errors)
     print(f"local symbols: {symbolNamesInLocalDefinition}")
-    input("ENTER")
+
+    for symbolWanted in symbolNamesAnalyseOnly:
+        if symbolWanted not in symbols:
+            raise ValueError(f"a wanted symbol name {symbolWanted} is unknown in 'symbols'")
 
     ################################################
     missingSymbols = []
@@ -68,6 +71,10 @@ def main(filePathBnf: str):
             filePath_prefix = os.path.basename(filePathBnf)
 
             if symbolName not in symbolNamesInLocalDefinition:
+
+                if symbolNamesAnalyseOnly and symbolName not in symbolNamesAnalyseOnly:
+                    continue
+
                 possible_accepted_language_elems_save(symbolName, symbols, filePath_prefix,
                                                       limitOfSymbols=limitOfSymbolLengthInValidationToAvoidNeverendingLoop)
 
@@ -153,9 +160,7 @@ def possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, bn
 
         # there is no more symbol that can be converted in the possibility, add it to the reportAcceptedLangExamples
         if expandedOnlyTerminatingsPossibilities and len(onePossibilitySymbolChangingList) == 0:
-            quotesRemovedFromTerminatingSimbols = []
-            for terminatingSymbol in expandedOnlyTerminatingsPossibilities:
-                quotesRemovedFromTerminatingSimbols.append(terminatingSymbol[1:-1])
+            quotesRemovedFromTerminatingSimbols = [terminatingSymbol[1:-1] for terminatingSymbol in expandedOnlyTerminatingsPossibilities]
             reportAcceptedLangExamples.append("".join(quotesRemovedFromTerminatingSimbols))
             log(" only terminating symbolname", "".join(quotesRemovedFromTerminatingSimbols), extraLineAfter=True)
 
@@ -170,9 +175,15 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(prog='BNF validator')
     parser.add_argument("--file_bnf_path", type=str, default=defaultFiles, help="one file, or more comma separated filenames to check/validate", required=False)
+    parser.add_argument("--symbol_names_analyse_only", type=str, default="", help="analyse only these symbol names", required=False)
     args = parser.parse_args()
 
     print(f"validate these files: {args.file_bnf_path}")
+
+    symbolNamesAnalyseOnly = []
+    if args.symbol_names_analyse_only:
+        symbolNamesAnalyseOnly = args.symbol_names_analyse_only.split(",")
+
     for file in args.file_bnf_path.split(","):
         bnf_lib.file_is_exists(file)
-        main(args.file_bnf_path)
+        main(args.file_bnf_path, symbolNamesAnalyseOnly)
