@@ -21,7 +21,9 @@ class Symbol:
 
         for onePossibility in self.definitionInBnf.replace("\n", " ").strip().split("|"):
             # print(f"one possibility in one string: {onePossibility}")
-            tokens_in_one_possib = re.findall(r'<[^<>]+>|"[^"]+"', onePossibility)
+            
+            # Handles Escaped Quotes with Preceding Backslashes
+            tokens_in_one_possib = re.findall(r'"(?:[^"\\]|\\\\|\\[^\\])*"', onePossibility)
             # print(f"one possibility, separated tokens in one elem: {tokens_in_one_elem}")
             expanded.append(tokens_in_one_possib)
 

@@ -45,7 +45,13 @@ def main(filePathBnf: str, symbolNamesAnalyseOnly: [str]):
 
     errors = list()
     symbols, symbolNamesInLocalDefinition, errors, limitOfSymbolLengthInValidationToAvoidNeverendingLoop  = bnf_lib.symbols_detect_in_file(filePathBnf, errors)
+
+    for sName, obj in symbols.items():
+        print(f"symbol: {sName:>50} {obj.expandPossibilities() }")
+    input("#ENTER")
+
     print(f"local symbols: {symbolNamesInLocalDefinition}")
+
 
     for symbolWanted in symbolNamesAnalyseOnly:
         if symbolWanted not in symbols:
@@ -131,9 +137,10 @@ def possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, bn
             ###############################################################################
             # get first word of the possibility
             symbolInPossibility = onePossibilitySymbolChangingList.pop(0)
-            # log(f"{loopCounter:>5}. loop - one symbol in possibility:", symbolInPossibility)
+            log(f"{loopCounter:>5}. loop - one symbol in possibility:", symbolInPossibility)
 
             if bnf_lib.is_terminating_symbolname(symbolInPossibility):
+                log(f"{loopCounter:>5}. loop - terminating symbol name:", symbolInPossibility)
                 expandedOnlyTerminatingsPossibilities.append(symbolInPossibility)
             else:
                 # in the first record of Possibility, there is a non-terminating symbol.
