@@ -1,0 +1,145 @@
+# read this: "https://www.erlang.org/doc/system/data_types.html#atom"
+##################################################################
+
+# TODO for later: add try/catch structure for error handling
+
+
+# ========== expression   =====================
+<program> ::= <dashPrgAttrib> <program>
+            | <functionDefinition> <programTail>
+
+# -module("abc")
+<dashPrgAttrib> ::= "-" <atom> "(" <dashArg> ")" "."
+<dashArg> ::= <string>
+            | <exportList>
+
+<programTail> ::= <functionDefinition> <programTail>
+                | <empty>
+
+<exportList> ::= "[" <exportEntryList> "]"
+
+<exportEntryList> ::= <exportEntry> <exportEntryListTail>
+                    | <empty>
+
+<exportEntryListTail> ::= "," <exportEntry> <exportEntryListTail>
+                        | <empty>
+
+<exportEntry> ::= <atom> "/" <integer>
+
+
+
+
+# ========== expression   =====================
+
+<functionDefinition> ::= <functionName> "(" <parameterList> ")" "->" <expression> "."
+
+<functionName> ::= <atom>
+
+
+<parameterList> ::= <atom_or_variable_name_in_paramlist> <parameterListTail>
+                  | <empty>
+<parameterListTail> ::= "," <atom_or_variable_name_in_paramlist> <parameterListTail>
+                      | <empty>
+<atom_or_variable_name_in_paramlist> ::= <atom> | <variable>
+
+
+
+<expression> ::= <expression> "+" <term>
+               | <expression> "-" <term>
+               | <expression> "=" <term>
+               | <expression> "==" <term>
+               | <expression> "/=" <term>
+               | <expression> "=:=" <term>
+               | <expression> "=/=" <term>
+               | <expression> "<" <term>
+               | <expression> "=<" <term>
+               | <expression> ">" <term>
+               | <expression> ">=" <term>
+               | <expression> "++" <term>
+               | <expression> "--" <term>
+               | <expression> "!" <term>
+               | <term>
+
+<term> ::= <term> "*" <factor>
+         | <term> "/" <factor>
+         | <factor>
+
+<factor> ::= <number>
+           | <string>
+           | <atom>
+           | <variable>
+           | <functionCall>
+           | "(" <expression> ")"
+           | <caseExpression>
+           | <list>
+           | <map>
+           | <pid>
+
+
+
+
+
+# ======  FUNCTIONS ========
+<functionCall> ::= <functionName> "(" <argumentList> ")"
+
+<argumentList> ::= <expression> <argumentListTail>
+                 | <empty>
+
+<argumentListTail> ::= "," <expression> <argumentListTail>
+                     | <empty>
+
+# ========== CASE =====================
+<caseExpression> ::= "case" <expression> "of" <caseClauseList> "end"
+
+<caseClauseList> ::= <caseClause> <caseClauseTail>
+
+<caseClauseTail> ::= <caseClause> <caseClauseTail>
+                   | <empty>
+
+<caseClause> ::= <pattern> "->" <expression> ","
+               | <pattern> "->" <expression>
+
+<pattern> ::= <variable>
+            | <number>
+            | <string>
+            | <atom>
+            | <list>
+            | <tuple>
+            | <map>
+            | <pid>
+
+
+# ========== erlang_types_=====================
+<tuple> ::= "{" <expressionList> "}"
+<list> ::= "[" <expressionList> "]"
+
+<expressionList> ::= <expression> <expressionListTail>
+                   | <empty>
+
+<expressionListTail> ::= "," <expression> <expressionListTail>
+                       | <empty>
+
+<map> ::= "#{" <mapEntryList> "}"
+
+<mapEntryList> ::= <mapEntry> <mapEntryListTail>
+                 | <empty>
+
+<mapEntryListTail> ::= "," <mapEntry> <mapEntryListTail>
+                     | <empty>
+
+<mapEntry> ::= <expression> "=>" <expression>
+
+
+
+<variable> ::= <variableLetterCapitalOrUnderscore> <variableTail>
+<variableLetterCapitalOrUnderscore> ::= <letterCapital>
+                                      | "_"
+<variableTail> ::= <variableLetterOrDigitOrUnderscore> <variableTail>
+                 | <empty>
+<variableLetterOrDigitOrUnderscore> ::= <letter>
+                                      | <digit>
+                                      | "_"
+
+
+
+# ===============_comment_section_abc_=====================

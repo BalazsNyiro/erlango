@@ -1,0 +1,10 @@
+
+# double symbol definition in the same file
+<letter> ::= "a"
+
+
+<digit>  ::= "1" | "2"
+<letterSmall> ::= "e" | "f"
+
+
+<letter> ::= "b"

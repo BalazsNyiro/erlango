@@ -1,0 +1,10 @@
+
+<digit>  ::= "1" | "2"
+<letterSmall> ::= "e" | "f"
+
+
+<letter> ::= "b"
+<empty> ::= ""
+
+<missing_definition_in_child_elem> ::= <missing_definition_in_right_side>
+<missing_definition_in_right_side> ::=

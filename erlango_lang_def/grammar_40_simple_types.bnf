@@ -1,0 +1,72 @@
+# LIMIT_OF_SYMBOLS_LENGTH_IN_VALIDATION 10
+
+<pid> ::= "<" <integer> "." <integer> "." <integer> ">"
+
+
+<number> ::= <integer> | <float>
+<integer> ::= <digit> <numberTail>
+<float> ::= <digit> <numberTail> "." <digit> <numberTail>
+
+<numberTail> ::= <digit> <numberTail>
+               | <empty>
+
+
+# <string> ::= <stringQuoteOne> | <stringQuoteTriple>
+<string> ::= <stringQuoteOne>
+<stringQuoteOne> ::= "\"" <stringQuoteOneTail> "\""
+
+
+# TODO: it's a good question, what can be accepted after an escape char.
+#####             backSlash+quote
+<stringQuoteOneTail> ::= "\\" <anyUnicodeChars> | <anyUnicodeCharsExceptDoubleQuote> <stringQuoteOneTail> | <empty>
+
+
+##########################################################################################
+
+
+# TODO: develop the grammar of tripple quoted string
+# <stringQuoteTriple> ::= "\"\"\"" <stringQuoteTripleTail> "\"\"\""
+#
+# <stringQuoteTripleTail> ::= <stringQuoteTriple_safeChar> <stringQuoteTripleTail>
+#                    | <empty>
+#
+# # TODO: the escaped quote has to be handled in a triple quoted txt
+# <stringQuoteTriple_safeChar> ::= <anyUnicodeCharsExceptDoubleQuote>
+#              | "\"" <triple_anyCharExceptQuoteOrEmtpy>
+#              | "\"" "\"" <triple_anyCharExceptQuoteOrEmtpy>
+#
+# <triple_anyCharExceptQuoteOrEmtpy> ::= <anyUnicodeCharsExceptDoubleQuote>
+#                               | <empty>
+
+##########################################################################################
+
+
+
+<atom> ::= <atomInQuotes> | <atomSmallFirstChar>
+<atomSmallFirstChar> ::= <letterSmall> <atomSmallFirstChar_tail>
+<atomSmallFirstChar_tail> ::= <atomPossibleCharAfterFirstPosition> <atomSmallFirstChar_tail>
+                            | <empty>
+<atomPossibleCharAfterFirstPosition> ::= <letter>
+                                      | <digit>
+                                      | "_" | "@"
+
+
+# TODO: what about escaped single quotes in qouted atoms?
+<atomInQuotes> ::= "'" <atomCharList_inQuotes> "'"
+<atomCharList_inQuotes> ::= <anyUnicodeCharsExceptSingleQuote> <atomCharList_inQuotes>
+                          | <empty>
+
+
+
+
+
+#### LOCAL SYMBOLS to generate possible usecases, DON'T MERGE THEM - use short, simple definitions ##########
+
+<anyUnicodeCharsExceptSingleQuote> ::=  "k" | "l" | "\t"
+<anyUnicodeCharsExceptDoubleQuote> ::= "o" | "p"
+<anyUnicodeChars> ::= "m" | "n"
+
+<letter> ::= "t" | "m"
+<digit>  ::= "1" | "2"
+<empty>  ::= ""
+<letterSmall> ::= "e" | "f"
