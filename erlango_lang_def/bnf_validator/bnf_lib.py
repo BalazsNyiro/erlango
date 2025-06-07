@@ -137,18 +137,33 @@ def symbols_detect_in_file(filePathBnf: str, errors: [str]) -> dict[str, Symbol]
     print(f"BNF def file: {filePathBnf}")
 
     symbols = dict()
+    symbolNamesInLocalDefinition = set()
+    localSymbolDefinitionSection = False
+    
+    limitOfSymbolLengthInValidationToAvoidNeverendingLoop = 10
     ################################################
 
     symbolName = ""
 
     for line in file_src_lines(filePathBnf):
+
         if line.startswith("#"):
+            if "LOCAL SYMBOLS" in line:
+                localSymbolDefinitionSection = True
+            
+            if "LIMIT_OF_SYMBOLS_LENGTH_IN_VALIDATION" in line:
+                limitOfSymbolLengthInValidationToAvoidNeverendingLoop = int(line.split(" ")[-1])
+
             continue  # comment line
 
         symbolNameNewDetected, definitionInLine = get_symbolname_and_definition_in_line(line, errors)
 
         if symbolNameNewDetected:
             symbolName = symbolNameNewDetected
+
+            if localSymbolDefinitionSection:
+                symbolNamesInLocalDefinition.add(symbolName)
+
 
             if symbolName not in symbols:
                 symbols[symbolName] = Symbol(symbolName)
@@ -163,5 +178,5 @@ def symbols_detect_in_file(filePathBnf: str, errors: [str]) -> dict[str, Symbol]
         if symbolName:  # not the empty non-defined:
             symbols[symbolName].definitionInBnf += definitionInLine
 
-    return symbols, errors
+    return symbols, symbolNamesInLocalDefinition, errors, limitOfSymbolLengthInValidationToAvoidNeverendingLoop 
 

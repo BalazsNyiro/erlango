@@ -1,0 +1,50 @@
+# LIMIT_OF_SYMBOLS_LENGTH_IN_VALIDATION 4
+
+<pid> ::= "<" <integer> "." <integer> "." <integer> ">"
+
+
+<number> ::= <integer> | <float>
+<integer> ::= <digit> <numberTail>
+<float> ::= <digit> <numberTail> "." <digit> <numberTail>
+
+<numberTail> ::= <digit> <numberTail>
+               | <empty>
+
+
+<string> ::= <stringQuoteOne> | <stringInSigil>
+<stringQuoteOne> ::= "\"" <stringQuoteOneTail> "\""
+<stringQuoteOneTail> ::=  <anyUnicodeCharsExceptNonEscapedSingleQuote> | <empty>
+
+<stringInSigil> ::= "\"\"\"" <stringSigilTail> "\"\"\""
+<stringSigilTail> ::=  <anyUnicodeChars> | <empty>
+
+
+
+<atom> ::= <atomInQuotes> | <atomSmallFirstChar>
+<atomSmallFirstChar> ::= <letterSmall> <atomSmallFirstChar_tail>
+<atomSmallFirstChar_tail> ::= <atomPossibleCharAfterFirstPosition> <atomSmallFirstChar_tail>
+                            | <empty>
+<atomPossibleCharAfterFirstPosition> ::= <letter>
+                                      | <digit>
+                                      | "_" | "@"
+
+
+<atomInQuotes> ::= "'" <atomCharList_inQuotes> "'"
+<atomCharList_inQuotes> ::= <anyUnicodeChars> <atomCharList_inQuotes>
+                          | <empty>
+
+
+
+
+
+
+#### LOCAL SYMBOLS to generate possible usecases, DON'T MERGE THEM - use short, simple definitions ##########
+
+<anyUnicodeChars> ::=  "u" | "n" | "i" | "\n" | "\t" | "\"" | "'"
+<anyUnicodeCharsExceptNonEscapedSingleQuote> ::=  "k" | "l" | "\t"
+
+
+<letter> ::= "t" | "m"
+<digit>  ::= "1" | "2"
+<empty>  ::=
+<letterSmall> ::= "e" | "f"

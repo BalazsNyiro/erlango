@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import argparse
+import argparse, os
 import bnf_lib
 
 """
@@ -44,7 +44,9 @@ def main(filePathBnf: str):
     """
 
     errors = list()
-    symbols, errors = bnf_lib.symbols_detect_in_file(filePathBnf, errors)
+    symbols, symbolNamesInLocalDefinition, errors, limitOfSymbolLengthInValidationToAvoidNeverendingLoop  = bnf_lib.symbols_detect_in_file(filePathBnf, errors)
+    print(f"local symbols: {symbolNamesInLocalDefinition}")
+    input("ENTER")
 
     ################################################
     missingSymbols = []
@@ -57,13 +59,17 @@ def main(filePathBnf: str):
         for nonTerminatingSymbolInDefinition in symbol.grammar_elems_nonterminating_collect():
             if nonTerminatingSymbolInDefinition not in symbols:
                 missingSymbols.append(nonTerminatingSymbolInDefinition)
-                errors.append(f"non-defined symbol:  {symbolName} ::= .... {nonTerminatingSymbolInDefinition} <===== not defined in the grammar ")
+                errors.append(f"ERROR in: '{filePathBnf}' non-defined symbol:  {symbolName} ::= .... {nonTerminatingSymbolInDefinition} <===== not defined in the grammar ")
 
     ################################################
     if not missingSymbols:
         for symbolName, symbol in symbols.items():
             print(f"\n=================== {symbolName}  ================================")
-            possible_accepted_language_elems_save(symbolName, symbols)
+            filePath_prefix = os.path.basename(filePathBnf)
+
+            if symbolName not in symbolNamesInLocalDefinition:
+                possible_accepted_language_elems_save(symbolName, symbols, filePath_prefix,
+                                                      limitOfSymbols=limitOfSymbolLengthInValidationToAvoidNeverendingLoop)
 
     ################################################
     if not errors:
@@ -75,7 +81,9 @@ def main(filePathBnf: str):
 
 
 
-def possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, bnf_lib.Symbol], limitOfNonTerminatingSymbols=40):
+def possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, bnf_lib.Symbol],
+                                          fileNamePrefixOfGrammar="x_prefix__",
+                                          limitOfSymbols=20):
     """Expand all possible matching elems.
     To avoid neverending recursive loops, there is a limitation against the maximum number of Symbols that will be expanded.
     """
@@ -131,7 +139,7 @@ def possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, bn
 
                     insertBack = True
                     # to avoid neverending loops
-                    if  len(bnf_lib.symbols_nonterminating_collect(oneStepExpansionHappened)) > limitOfNonTerminatingSymbols:
+                    if  len(oneStepExpansionHappened) > limitOfSymbols:
                         log("oneStepExpanded, number of non-terminating symbols are too high, don't expand it ", oneStepExpansionHappened)
                         insertBack = False
 
@@ -151,7 +159,7 @@ def possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, bn
             reportAcceptedLangExamples.append("".join(quotesRemovedFromTerminatingSimbols))
             log(" only terminating symbolname", "".join(quotesRemovedFromTerminatingSimbols), extraLineAfter=True)
 
-    fname = f"grammar_{symbolName[1:-1]}"
+    fname = f"{fileNamePrefixOfGrammar}___{symbolName[1:-1]}"
     bnf_lib.file_write(f"{fname}.bnf_accepted", "\n".join(reportAcceptedLangExamples))
     bnf_lib.file_write(f"{fname}.log", "\n".join(logs))
 

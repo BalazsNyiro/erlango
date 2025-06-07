@@ -1,27 +1,18 @@
 
 # TODO: all unicode char has to be accepted, except , handle this in the parser
-<anyUnicodeChars> ::= <atomPossibleCharAfterFirstPosition>
-
-# TODO: all unicode char has to be accepted, handle this in the parser
-<anyUnicodeCharsExceptNonEscapedSingleQuote> ::= <atomPossibleCharAfterFirstPosition>
+# used only in sigil
+<anyUnicodeChars> ::= <letter>
 
 
-
-
-
-<escapeSequence> ::= "\\" <escapeCharInSeq>
-<escapeCharInSeq> ::= "n" | "t" | "\\" | "\"" | "'"
-
-<atomPossibleCharAfterFirstPosition> ::= <letterSmallCapital>
-                                      | <digit>
-                                      | "_" | "@"
+# TODO: all unicode chars has to be accepted, except non-escaped single quote
+# used only in strings
+<anyUnicodeCharsExceptNonEscapedSingleQuote> ::= <letter>
 
 
 
 
 
-
-<letterSmallCapital> ::= <letterSmall>
+<letter> ::= <letterSmall>
                        | <letterCapital>
 
 <letterSmall> ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j"
