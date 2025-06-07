@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os, argparse, re
+import argparse
 import bnf_lib
 
 """
@@ -51,7 +51,7 @@ def main(filePathBnf: str):
     print(f"=============== DETECT MISSING SYMBOL DEFINITIONS (not in left side of ::= operator)  =========")
     for symbolName, symbol in symbols.items():
         print()
-        print(f"detected symbol: {symbolName:>{Symbol.symbolNameMax}}")
+        print(f"detected symbol: {symbolName:>{bnf_lib.Symbol.symbolNameMax}}")
         print(symbol.definitionInBnf)
 
         for nonTerminatingSymbolInDefinition in symbol.grammar_elems_nonterminating_collect():
@@ -62,7 +62,7 @@ def main(filePathBnf: str):
     ################################################
     if not missingSymbols:
         for symbolName, symbol in symbols.items():
-            print(f"\n=================== {symbolName} Expand: {expand} ================================")
+            print(f"\n=================== {symbolName}  ================================")
             possible_accepted_language_elems_save(symbolName, symbols)
 
     ################################################
@@ -118,7 +118,7 @@ def possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, bn
             symbolInPossibility = onePossibilitySymbolChangingList.pop(0)
             # log(f"{loopCounter:>5}. loop - one symbol in possibility:", symbolInPossibility)
 
-            if is_terminating_symbolname(symbolInPossibility):
+            if bnf_lib.is_terminating_symbolname(symbolInPossibility):
                 expandedOnlyTerminatingsPossibilities.append(symbolInPossibility)
             else:
                 # in the first record of Possibility, there is a non-terminating symbol.
@@ -131,7 +131,7 @@ def possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, bn
 
                     insertBack = True
                     # to avoid neverending loops
-                    if  len(bnf_lib.symbols_nonterminating_count) < limitOfNonTerminatingSymbols:
+                    if  len(bnf_lib.symbols_nonterminating_collect(oneStepExpansionHappened)) < limitOfNonTerminatingSymbols:
                         #log("oneStepExpanded, the num of non-terminating symbols are too high, don't expand it ")
                         insertBack = False
 
@@ -152,15 +152,14 @@ def possible_accepted_language_elems_save(symbolName: str, symbols: dict[str, bn
             log(" only terminating symbolname", "".join(quotesRemovedFromTerminatingSimbols), extraLineAfter=True)
 
     fname = f"grammar_{symbolName[1:-1]}"
-    file_write(f"{fname}.bnf_accepted", "\n".join(reportAcceptedLangExamples))
-    file_write(f"{fname}.log", "\n".join(logs))
+    bnf_lib.file_write(f"{fname}.bnf_accepted", "\n".join(reportAcceptedLangExamples))
+    bnf_lib.file_write(f"{fname}.log", "\n".join(logs))
 
 
 
 if __name__ == '__main__':
     defaultFiles = bnf_lib.files_collect_in_dir("..", prefix="grammar_")
     print(f"default files: {defaultFiles}")
-    input()
 
     parser = argparse.ArgumentParser(prog='BNF validator')
     parser.add_argument("--file_bnf_path", type=str, default="../grammar_50_basic.bnf", help="one file, or more comma separated filenames to check/validate", required=False)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import os
+import os, re
 
 class Symbol:
     symbolNameMax = 0
@@ -31,8 +31,15 @@ class Symbol:
         return symbols_nonterminating_collect(self.definitionInBnf)
 
 
-def symbols_nonterminating_count(grammarDefInBnf: str):
-    """collect all <non-terminating> elems only in the given grammar"""
+def symbols_nonterminating_collect(grammarDefInBnf: str | list[str]):
+    """collect all <non-terminating> elems only in the given grammar,
+    one string, or list of symbols
+    """
+
+    if isinstance(grammarDefInBnf, list):
+        # convert back to a string, if a list is received to prepare regexp detection
+        grammarDefInBnf = " ".join(grammarDefInBnf)
+
     tokensNonTerminating = re.findall(r'<[^<>]+>', grammarDefInBnf)
     return tokensNonTerminating
 
