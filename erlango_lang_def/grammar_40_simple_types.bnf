@@ -1,5 +1,3 @@
-# LIMIT_OF_SYMBOLS_LENGTH_IN_VALIDATION 10
-
 <pid> ::= "<" <integer> "." <integer> "." <integer> ">"
 
 
@@ -60,13 +58,14 @@
 
 
 
-#### LOCAL SYMBOLS to generate possible usecases, DON'T MERGE THEM - use short, simple definitions ##########
+# LOCAL SYMBOLS to generate possible usecases, DON'T MERGE THEM - use short, simple definitions ##########
+# these are defined with their real terminating symbols in other bnf files, these short defs are used for validations.
 
 <anyUnicodeCharsExceptSingleQuote> ::=  "k" | "l" | "\t"
 <anyUnicodeCharsExceptDoubleQuote> ::= "o" | "p"
 <anyUnicodeChars> ::= "m" | "n"
 
-<letter> ::= "t" | "m"
 <digit>  ::= "1" | "2"
 <empty>  ::= ""
+<letter> ::= "t" | "m"
 <letterSmall> ::= "e" | "f"

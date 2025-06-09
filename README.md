@@ -19,22 +19,16 @@ The used Erlang documentation is v27.2
 https://www.erlang.org/doc/system/data_types.html
 
 
-# Compile this project
+# Install
 
-Remove older go version:
+## Lexer/Parser
+
+
+
+### Parser: Lark
+The grammar is defined in BNF files, so [Lark] (https://github.com/lark-parser/lark) was selected to generate the AST.
 ```
-apt remove gccgo-go
+pip install lark==1.2.2 --upgrade
 ```
 
-Install Go: 
-https://go.dev/wiki/Ubuntu
-```
-sudo snap install --classic go
-```
-
-Test it in a new terminal
-```
-go version
-go version go1.23.4 linux/amd64
-```
 

@@ -5,6 +5,9 @@ import os, re
 class Symbol:
     symbolNameLenmax = 0
 
+    # for merged grammar creation it's useful to know the order of symbol detection
+    symbolNames_inDetectionOrder = []
+
     def __init__(self, symbolName):
         self.name = symbolName
         self.definitionInBnf = ""
@@ -13,6 +16,7 @@ class Symbol:
         # basically the symbol is defined only once in the file
 
         Symbol.symbolNameLenmax = max(Symbol.symbolNameLenmax, len(symbolName))
+        Symbol.symbolNames_inDetectionOrder.append(symbolName)
 
     def expandPossibilities(self) -> list[list[str]]:
         """collect all possible expansions
