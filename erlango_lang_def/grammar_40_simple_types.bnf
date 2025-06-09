@@ -16,7 +16,7 @@
 
 # TODO: it's a good question, what can be accepted after an escape char.
 #####             backSlash+quote
-<stringQuoteOneTail> ::= "\\" <anyUnicodeChars> | <anyUnicodeCharsExceptDoubleQuote> <stringQuoteOneTail> | <empty>
+<stringQuoteOneTail> ::= "\\" <anyUnicodeChar> | <anyUnicodeCharExceptDoubleQuote> <stringQuoteOneTail> | <empty>
 
 
 ##########################################################################################
@@ -29,11 +29,11 @@
 #                    | <empty>
 #
 # # TODO: the escaped quote has to be handled in a triple quoted txt
-# <stringQuoteTriple_safeChar> ::= <anyUnicodeCharsExceptDoubleQuote>
+# <stringQuoteTriple_safeChar> ::= <anyUnicodeCharExceptDoubleQuote>
 #              | "\"" <triple_anyCharExceptQuoteOrEmtpy>
 #              | "\"" "\"" <triple_anyCharExceptQuoteOrEmtpy>
 #
-# <triple_anyCharExceptQuoteOrEmtpy> ::= <anyUnicodeCharsExceptDoubleQuote>
+# <triple_anyCharExceptQuoteOrEmtpy> ::= <anyUnicodeCharExceptDoubleQuote>
 #                               | <empty>
 
 ##########################################################################################
@@ -62,8 +62,8 @@
 # these are defined with their real terminating symbols in other bnf files, these short defs are used for validations.
 
 <anyUnicodeCharsExceptSingleQuote> ::=  "k" | "l" | "\t"
-<anyUnicodeCharsExceptDoubleQuote> ::= "o" | "p"
-<anyUnicodeChars> ::= "m" | "n"
+<anyUnicodeCharExceptDoubleQuote> ::= "o" | "p"
+<anyUnicodeChar> ::= "m" | "n"
 
 <digit>  ::= "1" | "2"
 <empty>  ::= ""

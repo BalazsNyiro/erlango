@@ -6,10 +6,10 @@
 
 # TODO: all unicode chars has to be accepted, except non-escaped single quote
 # used only in strings
-<anyUnicodeCharsExceptDoubleQuote> ::= <letter>
+<anyUnicodeCharExceptDoubleQuote> ::= <letter>
 
 # TODO: all unicode chars has to be accepted
-<anyUnicodeChars> ::= <letter>
+<anyUnicodeChar> ::= <letter>
 
 
 

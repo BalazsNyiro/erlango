@@ -148,7 +148,7 @@ class Test_symbols(unittest.TestCase):
         symbolNamesInFile = sorted(symbols.keys())
         print(f"detected symbolNames: {symbolNamesInFile}")
         symbolNamesWanteds = [
-            '<anyUnicodeCharsExceptDoubleQuote>',
+            '<anyUnicodeCharExceptDoubleQuote>',
             '<anyUnicodeCharsExceptSingleQuote>',
 
             '<atom>', '<atomCharList_inQuotes>', '<atomInQuotes>', '<atomPossibleCharAfterFirstPosition>',

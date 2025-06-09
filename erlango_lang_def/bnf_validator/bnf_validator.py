@@ -75,7 +75,7 @@ def limit_of_symbol_length_to_reduce_options(fname: str, symbolName: str, defaul
 
         },
         "grammar_50_basic.bnf": {
-            "<anyUnicodeCharsExceptDoubleQuote>": 6,
+            "<anyUnicodeCharExceptDoubleQuote>": 6,
             "<anyUnicodeCharsExceptSingleQuote>": 6,
             "<digit>": 4,
             "<empty>": 4,
