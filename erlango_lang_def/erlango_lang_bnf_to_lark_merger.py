@@ -12,13 +12,27 @@ def main():
 
     symbolsTableAll = filenames_and_grammar_src_collect__without_locals(errors)
 
-    for symbolName, symbol in symbolsTableAll.items():
+    larkGrammarLines = []
+    fileSrc = ""
+
+    # all detected symbol name is stored in the class
+    for symbolName in bnf_lib.Symbol.symbolNames_inDetectionOrder_nonLocalsOnly:
+
+        fileSrcNew = symbolsTableAll[symbolName].sourceOfSymbolDefinition
+        if fileSrc != fileSrcNew:
+            filesrc = fileSrcNew
+            larkGrammarLines.append("")
+            larkGrammarLines.append(f"// ======= {fileSrc} =============")
+
         larkGrammar = bnf_to_lark_converter(symbolName, symbolsTableAll)
-        print(f"Lark conversion: ", larkGrammar)
+        larkGrammarLines.append(larkGrammar)
 
     if errors:
         for err in errors:
             print(err)
+    else:
+        print(f"update merged lark grammar...")
+        bnf_lib.file_write("erlango_lang_def.lark", "\n".join(larkGrammarLines))
 
 
 def filenames_and_grammar_src_collect__without_locals(errors) -> tuple[str, list[str]]:
@@ -44,7 +58,8 @@ def filenames_and_grammar_src_collect__without_locals(errors) -> tuple[str, list
     return symbolsTableAll
 
 def bnf_to_lark_converter(symbolName: str, symbols: dict[str, bnf_lib.Symbol]):
-    """convert bnf grammar to lark """
+    """convert bnf grammar to lark
+    The symbolName definition and the ::= sign has to be converted too, in the last line"""
     larkGrammar = []
 
     possibilitiesBnf = symbols[symbolName].expandPossibilitiesInBnf()
@@ -62,6 +77,8 @@ def bnf_to_lark_converter(symbolName: str, symbols: dict[str, bnf_lib.Symbol]):
         for symbolNameInPossibility in possibBnf:
             larkGrammar.append(symbolNameConvertToLark(symbolNameInPossibility))
 
+    # BNF            -> lark
+    # <abc> ::= ...  ->  abc : ....
     return f"{symbolNameConvertToLark(symbolName)}: {" ".join(larkGrammar)}"
 
 

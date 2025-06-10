@@ -8,9 +8,10 @@ class Symbol:
     # for merged grammar creation it's useful to know the order of symbol detection
     symbolNames_inDetectionOrder_nonLocalsOnly = []
 
-    def __init__(self, symbolName, symbolNameIsDetectedInLocalSection=False):
+    def __init__(self, symbolName, symbolNameIsDetectedInLocalSection=False, sourceOfSymbolDefinition: str=""):
         self.name = symbolName
         self.definitionInBnf = ""
+        self.sourceOfSymbolDefinition = sourceOfSymbolDefinition
 
         self.definitionCounterInBnf = 1
         # basically the symbol is defined only once in the file
@@ -259,7 +260,7 @@ def symbols_detect_in_file(filePathBnf: str, errors: list[str]
 
 
             if symbolName not in symbols:
-                symbols[symbolName] = Symbol(symbolName, symbolDetectedInlocalSection)
+                symbols[symbolName] = Symbol(symbolName, symbolDetectedInlocalSection, filePathBnf)
             else:
                 symbols[symbolName].definitionCounterInBnf += 1
                 msg = f"ERROR: the symbol is defined more than once in the bnf grammar: {symbolName}, defCount: {symbols[symbolName].definitionCounterInBnf} "
