@@ -20,7 +20,7 @@ def main():
 
         fileSrcNew = symbolsTableAll[symbolName].sourceOfSymbolDefinition
         if fileSrc != fileSrcNew:
-            filesrc = fileSrcNew
+            fileSrc = fileSrcNew
             larkGrammarLines.append("")
             larkGrammarLines.append(f"// ======= {fileSrc} =============")
 
