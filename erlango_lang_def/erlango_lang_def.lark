@@ -1,26 +1,3 @@
-
-// ======= grammar_40_simple_types.bnf =============
-pid: "<" integer "." integer "." integer ">"
-number: integer | float
-integer: digit numberTail
-float: digit numberTail "." digit numberTail
-numberTail: digit numberTail | empty
-string: stringQuoteOne
-stringQuoteOne: "\"" stringQuoteOneTail "\""
-stringQuoteOneTail: "\\" anyUnicodeChar | anyUnicodeCharExceptDoubleQuote stringQuoteOneTail | empty
-atom: atomInQuotes | atomSmallFirstChar
-atomSmallFirstChar: letterSmall atomSmallFirstChar_tail
-atomSmallFirstChar_tail: atomPossibleCharAfterFirstPosition atomSmallFirstChar_tail | empty
-atomPossibleCharAfterFirstPosition: letter | digit | "_" | "@"
-atomInQuotes: "'" atomCharList_inQuotes "'"
-atomCharList_inQuotes: anyUnicodeCharsExceptSingleQuote atomCharList_inQuotes | empty
-
-// ======= grammar_50_basic.bnf =============
-anyUnicodeCharsExceptSingleQuote: letter
-anyUnicodeCharExceptDoubleQuote: letter
-anyUnicodeChar: letter
-letter: letterSmall | letterCapital
-letterSmall: "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
-letterCapital: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
-digit: "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
-empty: ""
+integer: DIGIT
+DIGIT: /[0-9]+/
+%ignore " "

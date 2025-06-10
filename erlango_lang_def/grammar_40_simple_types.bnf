@@ -2,10 +2,10 @@
 
 
 <number> ::= <integer> | <float>
-<integer> ::= <digit> <numberTail>
-<float> ::= <digit> <numberTail> "." <digit> <numberTail>
+<integer> ::= <numberTail> <digit>
+<float> ::= <integer>  "." <integer>
 
-<numberTail> ::= <digit> <numberTail>
+<numberTail> ::= <numberTail> <digit>
                | <empty>
 
 
@@ -42,7 +42,7 @@
 
 <atom> ::= <atomInQuotes> | <atomSmallFirstChar>
 <atomSmallFirstChar> ::= <letterSmall> <atomSmallFirstChar_tail>
-<atomSmallFirstChar_tail> ::= <atomPossibleCharAfterFirstPosition> <atomSmallFirstChar_tail>
+<atomSmallFirstChar_tail> ::= <atomSmallFirstChar_tail> <atomPossibleCharAfterFirstPosition>
                             | <empty>
 <atomPossibleCharAfterFirstPosition> ::= <letter>
                                       | <digit>
@@ -51,7 +51,9 @@
 
 # TODO: what about escaped single quotes in qouted atoms?
 <atomInQuotes> ::= "'" <atomCharList_inQuotes> "'"
-<atomCharList_inQuotes> ::= <anyUnicodeCharsExceptSingleQuote> <atomCharList_inQuotes>
+
+# left recursion is important for LARK (<atomCharList_inQuotes> is on the left side of the expression)
+<atomCharList_inQuotes> ::= <atomCharList_inQuotes> <anyUnicodeCharsExceptSingleQuote>
                           | <empty>
 
 

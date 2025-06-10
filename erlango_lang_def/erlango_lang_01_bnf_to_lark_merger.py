@@ -22,7 +22,9 @@ def main():
         if fileSrc != fileSrcNew:
             fileSrc = fileSrcNew
             larkGrammarLines.append("")
-            larkGrammarLines.append(f"// ======= {fileSrc} =============")
+
+            # can cause a problem for lark
+            # larkGrammarLines.append(f"# ======= {fileSrc} =============")
 
         larkGrammar = bnf_to_lark_converter(symbolName, symbolsTableAll)
         larkGrammarLines.append(larkGrammar)
@@ -66,6 +68,11 @@ def bnf_to_lark_converter(symbolName: str, symbols: dict[str, bnf_lib.Symbol]):
 
     def symbolNameConvertToLark(symbolNameBnf: str) -> str:
         """convert non-terminating symbol names to lark. Terminatings are similar"""
+
+        # empty is a special case for Lark
+        if symbolNameBnf == "<empty>":
+            return "-> empty"
+
         if symbolNameBnf.startswith("<") and symbolNameBnf.endswith(">"):
             return symbolNameBnf[1:-1]
         return symbolNameBnf  # there is no change for terminatings...
@@ -76,6 +83,11 @@ def bnf_to_lark_converter(symbolName: str, symbols: dict[str, bnf_lib.Symbol]):
 
         for symbolNameInPossibility in possibBnf:
             larkGrammar.append(symbolNameConvertToLark(symbolNameInPossibility))
+
+    # in Lark, empty is not defined in separated line, that is only '-> empty' in grammar
+    # main <empty> ::= "" cannot be converted for lark
+    if symbolName == "<empty>":
+        return ""
 
     # BNF            -> lark
     # <abc> ::= ...  ->  abc : ....
