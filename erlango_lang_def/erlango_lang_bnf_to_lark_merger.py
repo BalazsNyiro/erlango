@@ -8,14 +8,21 @@ import bnf_lib
 """convert BNF grammar files to a merged Lark Parser file"""
 
 def main():
+    errors = []
 
-    grammarFileNames_langDef = filenames_and_grammar_src_collect__without_locals()
-    print(f"Erlang BNF files:")
-    print(grammarFileNames_langDef)
-    
+    symbolsTableAll = filenames_and_grammar_src_collect__without_locals(errors)
 
-def filenames_and_grammar_src_collect__without_locals() -> tuple[str, list[str]]:
-    """filename and src collector.
+    for symbolName, symbol in symbolsTableAll.items():
+        larkGrammar = bnf_to_lark_converter(symbolName, symbolsTableAll)
+        print(f"Lark conversion: ", larkGrammar)
+
+    if errors:
+        for err in errors:
+            print(err)
+
+
+def filenames_and_grammar_src_collect__without_locals(errors) -> tuple[str, list[str]]:
+    """
 
     The local symbols are limited terminating symbol sets,
     to validate the separated grammar files.
@@ -24,10 +31,6 @@ def filenames_and_grammar_src_collect__without_locals() -> tuple[str, list[str]]
     into the merged grammar.
 
     """
-    patternLocalSection = "# LOCAL SYMBOLS"
-
-    src = dict()
-    errors = []
 
     symbolsTableAll = dict()
 
@@ -38,11 +41,29 @@ def filenames_and_grammar_src_collect__without_locals() -> tuple[str, list[str]]
 
         symbolsTableAll.update(symbolsTable)  # insert new keys into global collector
 
-    for symbolName, symbol in symbolsTableAll.items():
-        print(f"global symbol table, collected name: {symbolName}", symbol.expandPossibilitiesInBnf())
-        print(f"convert the bnf to LARK: ")
+    return symbolsTableAll
 
-    return src
+def bnf_to_lark_converter(symbolName: str, symbols: dict[str, bnf_lib.Symbol]):
+    """convert bnf grammar to lark """
+    larkGrammar = []
+
+    possibilitiesBnf = symbols[symbolName].expandPossibilitiesInBnf()
+
+    def symbolNameConvertToLark(symbolNameBnf: str) -> str:
+        """convert non-terminating symbol names to lark. Terminatings are similar"""
+        if symbolNameBnf.startswith("<") and symbolNameBnf.endswith(">"):
+            return symbolNameBnf[1:-1]
+        return symbolNameBnf  # there is no change for terminatings...
+
+    for possibBnf in possibilitiesBnf:
+        if len(larkGrammar) > 0:
+            larkGrammar.append("|")
+
+        for symbolNameInPossibility in possibBnf:
+            larkGrammar.append(symbolNameConvertToLark(symbolNameInPossibility))
+
+    return f"{symbolNameConvertToLark(symbolName)}: {" ".join(larkGrammar)}"
+
 
 if __name__ == '__main__':  # pragma: no cover
     main()
