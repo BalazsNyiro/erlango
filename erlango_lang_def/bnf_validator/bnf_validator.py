@@ -100,7 +100,7 @@ def main(filePathBnf: str, symbolNamesAnalyseOnly: list[str]):
     symbolsTable, symbolNamesInLocalDefinition, errors = bnf_lib.symbols_detect_in_file(filePathBnf, errors)
 
     for sName, obj in symbolsTable.items():
-        print(f"symbol: {sName:>50} {obj.expandPossibilities() }")
+        print(f"symbol: {sName:>50} {obj.expandPossibilitiesInBnf() }")
     # input("press ENTER to continue")
 
     print(f"local symbols: {symbolNamesInLocalDefinition}")
@@ -174,9 +174,9 @@ def possible_accepted_language_elems_save(symbolName: str, symbolsTable: dict[st
     """
 
     symbol = symbolsTable[symbolName]
-    print(f"display possible accepted language elems in this symbol: {symbolName} -> {symbol.expandPossibilities()}")
+    print(f"display possible accepted language elems in this symbol: {symbolName} -> {symbol.expandPossibilitiesInBnf()}")
 
-    expandTheseSymbolsUntilTerminationIsNotReached = symbol.expandPossibilities()
+    expandTheseSymbolsUntilTerminationIsNotReached = symbol.expandPossibilitiesInBnf()
     if not expandTheseSymbolsUntilTerminationIsNotReached :
         errMsg = f"ERROR: {symbolName} symbol: undefined expansion rules after ::= in file: {filePathBnf}"
         errors.append(errMsg)
@@ -232,7 +232,7 @@ def possible_accepted_language_elems_save(symbolName: str, symbolsTable: dict[st
                 # Expand it and pack it back to the first position, to continue the expanding totally.
 
                 insertBack__oneExpansionHappened = []
-                possibsOfCurrentSymbol = symbolsTable[symbolInPossibility].expandPossibilities()
+                possibsOfCurrentSymbol = symbolsTable[symbolInPossibility].expandPossibilitiesInBnf()
 
                 # the non-terminating symbol cannot be expanded to other symbols,
                 # for example:  <empty> ::=       <------missing symbols here on the right side

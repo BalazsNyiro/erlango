@@ -6,9 +6,9 @@ class Symbol:
     symbolNameLenmax = 0
 
     # for merged grammar creation it's useful to know the order of symbol detection
-    symbolNames_inDetectionOrder = []
+    symbolNames_inDetectionOrder_nonLocalsOnly = []
 
-    def __init__(self, symbolName):
+    def __init__(self, symbolName, symbolNameIsDetectedInLocalSection=False):
         self.name = symbolName
         self.definitionInBnf = ""
 
@@ -16,9 +16,11 @@ class Symbol:
         # basically the symbol is defined only once in the file
 
         Symbol.symbolNameLenmax = max(Symbol.symbolNameLenmax, len(symbolName))
-        Symbol.symbolNames_inDetectionOrder.append(symbolName)
 
-    def expandPossibilities(self) -> list[list[str]]:
+        if not symbolNameIsDetectedInLocalSection:
+            Symbol.symbolNames_inDetectionOrder_nonLocalsOnly.append(symbolName)
+
+    def expandPossibilitiesInBnf(self) -> list[list[str]]:
         """collect all possible expansions
         one possibility can have one-or-more symbols (list of lists)
         """
@@ -29,7 +31,7 @@ class Symbol:
     # to detect missing symbol definitions,
     # collect all non-terminating symbols from all possibilites
     def grammar_elems_nonterminating_collect_in_all_possibilities(self):
-        possibilities = self.expandPossibilities()
+        possibilities = self.expandPossibilitiesInBnf()
         symbolsNonTerms = set()
         for onePossibility in possibilities:
             nonTerms = symbols_nonterminating_collect(onePossibility)
@@ -232,7 +234,7 @@ def symbols_detect_in_file(filePathBnf: str, errors: list[str]
 
     symbols = dict()
     symbolNamesInLocalDefinition = set()
-    localSymbolDefinitionSection = False
+    symbolDetectedInlocalSection = False
     
     ################################################
 
@@ -243,7 +245,7 @@ def symbols_detect_in_file(filePathBnf: str, errors: list[str]
 
         if line.startswith("#"):
             if "LOCAL SYMBOLS" in line:
-                localSymbolDefinitionSection = True
+                symbolDetectedInlocalSection = True
 
             continue  # comment line
 
@@ -252,12 +254,12 @@ def symbols_detect_in_file(filePathBnf: str, errors: list[str]
         if symbolNameNewDetected:
             symbolName = symbolNameNewDetected
 
-            if localSymbolDefinitionSection:
+            if symbolDetectedInlocalSection:
                 symbolNamesInLocalDefinition.add(symbolName)
 
 
             if symbolName not in symbols:
-                symbols[symbolName] = Symbol(symbolName)
+                symbols[symbolName] = Symbol(symbolName, symbolDetectedInlocalSection)
             else:
                 symbols[symbolName].definitionCounterInBnf += 1
                 msg = f"ERROR: the symbol is defined more than once in the bnf grammar: {symbolName}, defCount: {symbols[symbolName].definitionCounterInBnf} "
@@ -275,7 +277,7 @@ def symbols_detect_in_file(filePathBnf: str, errors: list[str]
 def symbols_table_print(symbols: dict[str, Symbol]):
     """display statistics about symbols to see where do we have too big set"""
     for symbolName, symbol in symbols.items():
-        possibilities = symbols[symbolName].expandPossibilities()
+        possibilities = symbols[symbolName].expandPossibilitiesInBnf()
         maxElemInOnePossibility = 0
         for onePosssibility in possibilities:
             maxElemInOnePossibility = max(maxElemInOnePossibility, len(onePosssibility))

@@ -22,7 +22,7 @@ class Test_symbol_class(unittest.TestCase):
         self.assertIn(wantedSymbolName, symbolsTable)
 
         symbol = symbolsTable[wantedSymbolName]
-        possibilities = symbol.expandPossibilities()
+        possibilities = symbol.expandPossibilitiesInBnf()
         bnf_lib.symbolnames_possibilities_print(possibilities, prefix="possibilities test:")
 
         # add an extra terminating, for testing reasons:

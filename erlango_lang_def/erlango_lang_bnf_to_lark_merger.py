@@ -25,20 +25,23 @@ def filenames_and_grammar_src_collect__without_locals() -> tuple[str, list[str]]
 
     """
     patternLocalSection = "# LOCAL SYMBOLS"
+
     src = dict()
+    errors = []
 
-    for fileName in [f for f in os.listdir('.') if os.path.isfile(f) and f.startswith('grammar_') and f.endswith('.bnf')]:
-        linesLocalsRemoved = []
-        
-        for line in bnf_lib.file_src_lines(fileName):
-            if line.startswith(patternLocalSection):
-                break # the local section won't be added into the merged grammar
+    symbolsTableAll = dict()
 
-            # comments are not added
-            if not line.strip().startswith("#"):
-                linesLocalsRemoved.append(line)
-            
-        src[fileName] = linesLocalsRemoved
+    # Collect BNF based symbol definitions
+    for filePathBnf in [f for f in os.listdir('.') if os.path.isfile(f) and f.startswith('grammar_') and f.endswith('.bnf')]:
+        symbolsTable, symbolNamesInLocalDefinition, errors = (
+            bnf_lib.symbols_detect_in_file(filePathBnf, errors))
+
+        symbolsTableAll.update(symbolsTable)  # insert new keys into global collector
+
+    for symbolName, symbol in symbolsTableAll.items():
+        print(f"global symbol table, collected name: {symbolName}", symbol.expandPossibilitiesInBnf())
+        print(f"convert the bnf to LARK: ")
+
     return src
 
 if __name__ == '__main__':  # pragma: no cover
